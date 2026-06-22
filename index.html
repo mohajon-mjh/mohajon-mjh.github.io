@@ -1,11 +1,144 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Mohajon MJH</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MJH Marketplace</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f3f3f3;
+}
+
+header{
+background:#131921;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.logo{
+font-size:28px;
+font-weight:bold;
+}
+
+.search{
+width:50%;
+padding:10px;
+border:none;
+border-radius:5px;
+}
+
+.hero{
+padding:60px 20px;
+text-align:center;
+background:white;
+}
+
+.hero h1{
+font-size:40px;
+margin-bottom:15px;
+}
+
+.hero p{
+font-size:18px;
+}
+
+.products{
+padding:30px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.card img{
+width:100%;
+height:180px;
+object-fit:cover;
+}
+
+.card h3{
+margin:10px 0;
+}
+
+.btn{
+display:block;
+background:#ff9900;
+padding:10px;
+text-align:center;
+text-decoration:none;
+color:black;
+font-weight:bold;
+border-radius:5px;
+margin-top:10px;
+}
+
+footer{
+background:#131921;
+color:white;
+text-align:center;
+padding:20px;
+margin-top:40px;
+}
+</style>
 </head>
+
 <body>
-  <h1>Welcome to Mohajon MJH GitHub Pages!</h1>
-  <p>My website is now live.</p>
+
+<header>
+<div class="logo">MJH Marketplace</div>
+<input class="search" placeholder="Search products...">
+</header>
+
+<section class="hero">
+<h1>Online Marketplace</h1>
+<p>Buy and sell products online.</p>
+</section>
+
+<section class="products">
+
+<div class="card">
+<img src="https://via.placeholder.com/300x200">
+<h3>Product 1</h3>
+<p>$10</p>
+<a href="#" class="btn">Add to Cart</a>
+</div>
+
+<div class="card">
+<img src="https://via.placeholder.com/300x200">
+<h3>Product 2</h3>
+<p>$20</p>
+<a href="#" class="btn">Add to Cart</a>
+</div>
+
+<div class="card">
+<img src="https://via.placeholder.com/300x200">
+<h3>Product 3</h3>
+<p>$30</p>
+<a href="#" class="btn">Add to Cart</a>
+</div>
+
+</section>
+
+<footer>
+© 2026 MJH Marketplace
+</footer>
+
 </body>
 </html>
