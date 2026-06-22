@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Mohajon MJH Marketplace</title>
+<title>Mohajon MJH</title>
 
 <style>
+
 *{
 margin:0;
 padding:0;
@@ -18,163 +20,399 @@ body{
 background:#f5f5f5;
 }
 
+
+/* Header */
+
 header{
-background:white;
+
+background:#fff;
 display:flex;
 align-items:center;
 gap:15px;
-padding:12px;
+padding:10px;
+
 }
+
 
 .logo img{
-width:130px;
+
+width:120px;
+
 }
+
 
 .search{
+
 flex:1;
 display:flex;
+
 }
+
 
 .search input{
+
 width:100%;
 padding:12px;
+border:1px solid #ddd;
+
 }
+
 
 .search button{
-padding:12px 20px;
-background:#ff9800;
+
+background:#ff9900;
 border:0;
+padding:0 20px;
+font-size:18px;
+
 }
+
 
 .cart{
-font-size:25px;
+
+font-size:28px;
+position:relative;
+
 }
+
+
+.badge{
+
+position:absolute;
+top:-8px;
+right:-8px;
+background:red;
+color:white;
+border-radius:50%;
+font-size:12px;
+padding:3px 6px;
+
+}
+
+
+
+/* Menu */
 
 nav{
+
 background:#232f3e;
 color:white;
-padding:15px;
+padding:12px;
 display:flex;
 gap:25px;
+
 }
+
+
+.menu-btn{
+
+display:none;
+
+}
+
+
+/* Banner */
+
 
 .hero img{
+
 width:100%;
-height:350px;
-object-fit:contain;
+height:auto;
+
 }
+
+
+
+/* Category */
+
 
 .section{
+
 padding:20px;
+
 }
 
-.categories,
-.products{
+
+.categories{
+
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+grid-template-columns:repeat(4,1fr);
 gap:15px;
+
 }
 
-.box{
+
+.cat{
+
 background:white;
-padding:20px;
-border-radius:10px;
+padding:25px;
+border-radius:12px;
 text-align:center;
+font-size:18px;
+
 }
 
-.product img{
-width:100%;
+
+
+/* Products */
+
+
+.products{
+
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+
 }
+
+
+.card{
+
+background:white;
+padding:15px;
+border-radius:12px;
+
+}
+
+
+.card img{
+
+width:100%;
+
+}
+
+
+.buy{
+
+background:#ff9900;
+border:0;
+padding:8px;
+width:100%;
+margin-top:10px;
+
+}
+
+
+
+/* Mobile */
+
 
 @media(max-width:600px){
 
+
 header{
+
 flex-wrap:wrap;
-}
-
-.hero img{
-height:180px;
-}
 
 }
+
+
+.logo img{
+
+width:90px;
+
+}
+
+
+nav{
+
+display:none;
+
+}
+
+
+.menu-btn{
+
+display:block;
+background:#232f3e;
+color:white;
+padding:12px;
+
+}
+
+
+.categories{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+
+.products{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+
+}
+
+
+
 </style>
 
 </head>
 
+
 <body>
+
 
 <header>
 
+
 <div class="logo">
+
 <img src="assets/images/logo.png">
+
 </div>
+
 
 <div class="search">
+
 <input placeholder="Search products">
+
 <button>🔍</button>
+
 </div>
 
+
 <div class="cart">
+
 🛒
+
+<span class="badge">0</span>
+
 </div>
+
 
 </header>
 
 
+
+<div class="menu-btn">
+
+☰ Menu
+
+</div>
+
+
 <nav>
+
 Home
 Categories
 Offers
 Products
+
 </nav>
 
 
+
 <section class="hero">
+
 <img src="assets/images/banner.png">
+
 </section>
+
+
 
 
 <div class="section">
 
 <h2>Categories</h2>
 
+<br>
+
+
 <div class="categories">
 
-<div class="box">মসলা</div>
-<div class="box">গ্রোসারি</div>
-<div class="box">খাদ্য</div>
-<div class="box">অন্যান্য</div>
+
+<div class="cat">🌶️ মসলা</div>
+
+<div class="cat">🛒 গ্রোসারি</div>
+
+<div class="cat">🍚 খাদ্য</div>
+
+<div class="cat">📦 অন্যান্য</div>
+
 
 </div>
 
 </div>
+
+
 
 
 
 <div class="section">
 
+
 <h2>Featured Products</h2>
+
+<br>
+
 
 <div class="products">
 
-<div class="box product">
-<h3>Tejpat</h3>
+
+<div class="card">
+
+<h3>তেজপাতা</h3>
+
 <p>৳100</p>
+
+<button class="buy">
+Add Cart
+</button>
+
 </div>
 
-<div class="box product">
-<h3>Gol Morich</h3>
+
+
+<div class="card">
+
+<h3>গোল মরিচ</h3>
+
 <p>৳150</p>
+
+<button class="buy">
+Add Cart
+</button>
+
 </div>
 
-<div class="box product">
-<h3>Holud Gura</h3>
+
+
+<div class="card">
+
+<h3>হলুদ গুঁড়া</h3>
+
 <p>৳120</p>
+
+<button class="buy">
+Add Cart
+</button>
+
 </div>
+
+
+
+<div class="card">
+
+<h3>জিরা গুঁড়া</h3>
+
+<p>৳130</p>
+
+<button class="buy">
+Add Cart
+</button>
+
+</div>
+
 
 </div>
 
 </div>
+
 
 
 </body>
