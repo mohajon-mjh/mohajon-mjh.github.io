@@ -1,1 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Cart</title>
+</head>
+<body>
 <h1>Shopping Cart</h1>
+<h2 id="count"></h2>
+
+<script>
+document.getElementById('count').innerText =
+'Items in Cart: ' +
+(localStorage.getItem('cart') || 0);
+</script>
+
+</body>
+</html>

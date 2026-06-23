@@ -89,3 +89,24 @@ body{margin:0;background:#f5f5f5;font-family:Arial}
 
 </body>
 </html>
+<script>
+const search=document.querySelector('.search');
+
+search.addEventListener('keyup',()=>{
+const value=search.value.toLowerCase();
+document.querySelectorAll('.card').forEach(card=>{
+card.style.display=
+card.innerText.toLowerCase().includes(value)
+? 'block':'none';
+});
+});
+
+document.querySelectorAll('.buy').forEach(btn=>{
+btn.addEventListener('click',()=>{
+let cart=parseInt(localStorage.getItem('cart')||'0');
+cart++;
+localStorage.setItem('cart',cart);
+alert('Product added to cart');
+});
+});
+</script>
