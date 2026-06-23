@@ -78,7 +78,7 @@ box.innerHTML+=`
 <p class="price">৳${p.price}</p>
 
 <button class="buy"
-onclick="addCart()">
+onclick="addCart('${p.id}')">
 Add Cart
 </button>
 
@@ -102,18 +102,11 @@ p.name.toLowerCase().includes(q)
 
 });
 
-function addCart(){
-
-let c=parseInt(
-localStorage.getItem('cart')||0
-);
-
-c++;
-
-localStorage.setItem('cart',c);
-
-alert('Added to Cart');
-
+function addCart(id){
+let cart=JSON.parse(localStorage.getItem("cart")||"[]");
+cart.push(id);
+localStorage.setItem("cart",JSON.stringify(cart));
+alert("Added to Cart");
 }
 
 </script>
