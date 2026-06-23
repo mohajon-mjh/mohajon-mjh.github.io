@@ -1,30 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Product Details</title>
 <style>
-body{font-family:Arial;margin:20px}
+body{font-family:Arial;padding:20px}
 img{width:100%;max-width:400px}
-.price{font-size:24px;font-weight:bold;color:#b12704}
-.btn{display:block;padding:12px;text-align:center;background:#25D366;color:#fff;text-decoration:none;margin-top:10px}
+.price{font-size:24px;font-weight:bold}
 </style>
 </head>
 <body>
 
-<h1 id="name">Product</h1>
+<h1 id="name">Loading...</h1>
+<img id="image" src="">
+<p id="category"></p>
+<p id="price" class="price"></p>
 
-<img id="img" src="assets/images/products/holud.png">
+<button onclick="addCart()">Add Cart</button>
 
-<p class="price" id="price">৳120</p>
+<script>
+const id=new URLSearchParams(location.search).get('id');
 
-<p>Net Weight: 20g, 50g, 100g, 250g, 500g, 1000g</p>
+fetch('products.json')
+.then(r=>r.json())
+.then(products=>{
 
-<a class="btn"
-href="https://wa.me/8801000000000?text=I want to order this product">
-Order on WhatsApp
-</a>
+const p=products.find(x=>x.id==id);
+
+if(!p)return;
+
+document.getElementById('name').innerText=p.name;
+document.getElementById('image').src=p.image;
+document.getElementById('category').innerText='Category: '+p.category;
+document.getElementById('price').innerText='৳'+p.price;
+
+});
+
+function addCart(){
+let c=parseInt(localStorage.getItem('cart')||0);
+localStorage.setItem('cart',c+1);
+alert('Added to Cart');
+}
+</script>
 
 </body>
 </html>
