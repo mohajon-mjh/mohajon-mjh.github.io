@@ -1,17 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cart</title>
+<style>
+body{font-family:Arial;background:#f5f5f5;margin:0;padding:20px}
+.card{background:#fff;padding:10px;margin-bottom:10px;border-radius:8px}
+.price{color:#b12704;font-weight:bold}
+button{padding:8px;background:red;color:#fff;border:0}
+.total{font-size:22px;font-weight:bold;margin-top:20px}
+</style>
 </head>
 <body>
-<h1>Shopping Cart</h1>
-<h2 id="count"></h2>
+
+<h2>🛒 Your Cart</h2>
+<div id="list"></div>
+<div class="total" id="total"></div>
 
 <script>
-document.getElementById('count').innerText =
-'Items in Cart: ' +
-(localStorage.getItem('cart') || 0);
+let products=[];
+let cart=JSON.parse(localStorage.getItem('cart')||'[]');
+
+fetch('products.json')
+.then(r=>r.json())
+.then(data=>{
+products=data;
+render();
+});
+
+function render(){
+let list=document.getElementById('list');
+list.innerHTML='';
+let total=0;
+
+cart.forEach((id,index)=>{
+let p=products.find(x=>x.id==id);
+if(!p) return;
+
+total+=p.price;
+
+list.innerHTML+=`
+<div class="card">
+<h3>${p.name}</h3>
+<p>${p.category}</p>
+<p class="price">৳${p.price}</p>
+<button onclick="removeItem(${index})">Remove</button>
+</div>
+`;
+});
+
+document.getElementById('total').innerText='Total: ৳'+total;
+}
+
+function removeItem(i){
+cart.splice(i,1);
+localStorage.setItem('cart',JSON.stringify(cart));
+render();
+}
 </script>
 
 </body>
