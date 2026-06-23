@@ -15,16 +15,16 @@
   },
   {
     "id": 3,
-    "name": "গোল মরিচ",
-    "category": "মসলা",
-    "price": 150,
-    "image": "assets/images/products/golmorich.png"
+    "name": "চাল",
+    "category": "খাদ্য",
+    "price": 80,
+    "image": "assets/images/products/chal.png"
   },
   {
     "id": 4,
-    "name": "তেজপাতা",
-    "category": "মসলা",
-    "price": 100,
-    "image": "assets/images/products/tejpat.png"
+    "name": "চিনি",
+    "category": "গ্রোসারি",
+    "price": 90,
+    "image": "assets/images/products/chini.png"
   }
 ]
