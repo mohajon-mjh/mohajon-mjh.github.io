@@ -357,7 +357,7 @@ Products
 
 <div class="card">
 <img src="assets/images/products/tejpat.png" alt="তেজপাতা">
-<h3>তেজপাতা</h3>
+<h3><a href="product-details.html?id=tejpat">তেজপাতা</a></h3>
 <p><b>নিট ওজন:</b> 20g, 50g, 100g, 250g, 500g, 1000g</p>
 <p><b>মূল্য:</b> ৳100 থেকে</p>
 <button class="buy">Add Cart</button>
@@ -365,7 +365,7 @@ Products
 
 <div class="card">
 <img src="assets/images/products/golmorich.png" alt="গোল মরিচ">
-<h3>গোল মরিচ</h3>
+<h3><a href="product-details.html?id=golmorich">গোল মরিচ</a></h3>
 <p><b>নিট ওজন:</b> 20g, 50g, 100g, 250g, 500g, 1000g</p>
 <p><b>মূল্য:</b> ৳150 থেকে</p>
 <button class="buy">Add Cart</button>
@@ -373,7 +373,7 @@ Products
 
 <div class="card">
 <img src="assets/images/products/holud.png" alt="হলুদ গুঁড়া">
-<h3>হলুদ গুঁড়া</h3>
+<h3><a href="product-details.html?id=holud">হলুদ গুঁড়া</a></h3>
 <p><b>নিট ওজন:</b> 20g, 50g, 100g, 250g, 500g, 1000g</p>
 <p><b>মূল্য:</b> ৳120 থেকে</p>
 <button class="buy">Add Cart</button>
@@ -381,7 +381,7 @@ Products
 
 <div class="card">
 <img src="assets/images/products/jira.png" alt="জিরা গুঁড়া">
-<h3>জিরা গুঁড়া</h3>
+<h3><a href="product-details.html?id=jira">জিরা গুঁড়া</a></h3>
 <p><b>নিট ওজন:</b> 20g, 50g, 100g, 250g, 500g, 1000g</p>
 <p><b>মূল্য:</b> ৳130 থেকে</p>
 <button class="buy">Add Cart</button>
@@ -389,4 +389,28 @@ Products
 
 </div>
 </div>
+<script>
+document.querySelector(".menu-btn").onclick=function(){
+const nav=document.querySelector("nav");
+nav.style.display=(nav.style.display==="block")?"none":"block";
+};
+
+document.querySelectorAll(".cat")[0].onclick=()=>location.href="products.html?category=মসলা";
+document.querySelectorAll(".cat")[1].onclick=()=>location.href="products.html?category=গ্রোসারি";
+document.querySelectorAll(".cat")[2].onclick=()=>location.href="products.html?category=খাদ্য";
+document.querySelectorAll(".cat")[3].onclick=()=>location.href="products.html?category=অন্যান্য";
+
+document.querySelectorAll(".buy").forEach(btn=>{
+btn.onclick=function(){
+let c=parseInt(localStorage.getItem("cartCount")||0);
+c++;
+localStorage.setItem("cartCount",c);
+document.querySelector(".badge").textContent=c;
+alert("Added To Cart");
+};
+});
+
+document.querySelector(".badge").textContent=localStorage.getItem("cartCount")||0;
+</script>
+</body>
 </html>
