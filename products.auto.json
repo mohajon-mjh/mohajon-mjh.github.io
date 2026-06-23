@@ -1,0 +1,345 @@
+[
+{
+  "name": "barbeque masala 100gm",
+  "image": "assets/images/products/barbeque-masala-100gm.png",
+  "weight": "100 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "barbeque masala 40gm",
+  "image": "assets/images/products/barbeque-masala-40gm.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "barbeque masala 50gm",
+  "image": "assets/images/products/barbeque-masala-50gm.png",
+  "weight": "50 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "bay leaf",
+  "image": "assets/images/products/bay-leaf.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "biryani masala 1000gm",
+  "image": "assets/images/products/biryani-masala-1000gm.png",
+  "weight": "1000 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "biryani masala 100gm",
+  "image": "assets/images/products/biryani-masala-100gm.png",
+  "weight": "100 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "biryani masala 250gm",
+  "image": "assets/images/products/biryani-masala-250gm.png",
+  "weight": "250 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "biryani masala 30gm",
+  "image": "assets/images/products/biryani-masala-30gm.png",
+  "weight": "30 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "biryani masala 50gm",
+  "image": "assets/images/products/biryani-masala-50gm.png",
+  "weight": "50 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "black pepper",
+  "image": "assets/images/products/black-pepper.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "cardamom",
+  "image": "assets/images/products/cardamom.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chal",
+  "image": "assets/images/products/chal.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chat masala 10gm",
+  "image": "assets/images/products/chat-masala-10gm.png",
+  "weight": "10 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chat masala 15gm",
+  "image": "assets/images/products/chat-masala-15gm.png",
+  "weight": "15 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chat masala 20gm",
+  "image": "assets/images/products/chat-masala-20gm.png",
+  "weight": "20 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chat masala 50gm",
+  "image": "assets/images/products/chat-masala-50gm.png",
+  "weight": "50 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chat masala 5gm",
+  "image": "assets/images/products/chat-masala-5gm.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chicken curry masala 30gm",
+  "image": "assets/images/products/chicken-curry-masala-30gm.png",
+  "weight": "30 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chicken curry masala 50gm",
+  "image": "assets/images/products/chicken-curry-masala-50gm.png",
+  "weight": "50 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chicken jalfrezi masala 100gm",
+  "image": "assets/images/products/chicken-jalfrezi-masala-100gm.png",
+  "weight": "100 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chicken jalfrezi masala 50gm",
+  "image": "assets/images/products/chicken-jalfrezi-masala-50gm.png",
+  "weight": "50 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chicken masala 100gm",
+  "image": "assets/images/products/chicken-masala-100gm.png",
+  "weight": "100 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chicken masala 15gm",
+  "image": "assets/images/products/chicken-masala-15gm.png",
+  "weight": "15 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chicken masala 20gm",
+  "image": "assets/images/products/chicken-masala-20gm.png",
+  "weight": "20 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chicken masala 250gm",
+  "image": "assets/images/products/chicken-masala-250gm.png",
+  "weight": "250 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chicken masala 30gm",
+  "image": "assets/images/products/chicken-masala-30gm.png",
+  "weight": "30 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chicken masala 50gm",
+  "image": "assets/images/products/chicken-masala-50gm.png",
+  "weight": "50 gm",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "chini",
+  "image": "assets/images/products/chini.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "cinnamon",
+  "image": "assets/images/products/cinnamon.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "cloves",
+  "image": "assets/images/products/cloves.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "coriander",
+  "image": "assets/images/products/coriander.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "cumin",
+  "image": "assets/images/products/cumin.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "dry red chilli",
+  "image": "assets/images/products/dry-red-chilli.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "file_00000000110871f49b9a3b8ac18eccb4",
+  "image": "assets/images/products/file_00000000110871f49b9a3b8ac18eccb4.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "file_00000000970871f4b4845f0f48647af3",
+  "image": "assets/images/products/file_00000000970871f4b4845f0f48647af3.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "garam masala",
+  "image": "assets/images/products/garam-masala.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "golmorich",
+  "image": "assets/images/products/golmorich.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "green tea",
+  "image": "assets/images/products/green-tea.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "holud",
+  "image": "assets/images/products/holud.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "jira",
+  "image": "assets/images/products/jira.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "mustard oil",
+  "image": "assets/images/products/mustard-oil.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "tejpat",
+  "image": "assets/images/products/tejpat.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+,
+{
+  "name": "turmeric",
+  "image": "assets/images/products/turmeric.png",
+  "weight": "",
+  "category": "মসলা",
+  "price": 0
+}
+]

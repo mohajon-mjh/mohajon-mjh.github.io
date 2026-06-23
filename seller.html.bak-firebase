@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seller Panel</title>
+<style>
+body{font-family:Arial;background:#f5f5f5;padding:20px}
+input,select{width:100%;padding:10px;margin:5px 0}
+button{width:100%;padding:12px;background:#ff9900;border:0;font-size:18px}
+.box{background:#fff;padding:15px;border-radius:10px}
+</style>
+</head>
+<body>
+
+<h2>🛒 Seller Panel - Add Product</h2>
+
+<div class="box">
+
+<input id="name" placeholder="Product Name">
+<input id="price" placeholder="Price">
+<input id="image" placeholder="Image URL (assets/images/products/xxx.png)">
+
+<select id="category">
+<option>মসলা</option>
+<option>গ্রোসারি</option>
+<option>খাদ্য</option>
+</select>
+
+<button onclick="addProduct()">Add Product</button>
+
+</div>
+
+<script>
+
+function addProduct(){
+
+let products=JSON.parse(localStorage.getItem('products')||'[]');
+
+let id=Date.now();
+
+let newProduct={
+id:id,
+name:document.getElementById('name').value,
+price:parseInt(document.getElementById('price').value),
+image:document.getElementById('image').value,
+category:document.getElementById('category').value
+};
+
+products.push(newProduct);
+
+localStorage.setItem('products',JSON.stringify(products));
+
+alert("Product Added (Local Only)");
+
+}
+
+</script>
+
+</body>
+</html>
