@@ -1,112 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Products - Mohajon MJH</title>
+
 <style>
 body{margin:0;background:#f5f5f5;font-family:Arial}
 .header{background:#fff;padding:10px;display:flex;gap:10px}
 .search{flex:1;padding:10px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:15px;padding:15px}
-.card{background:#fff;padding:10px;border-radius:10px}
-.card img{width:100%;height:200px;object-fit:cover}
-.price{color:#b12704;font-weight:bold}
-.buy{width:100%;padding:10px;background:#ff9900;border:0}
-.weight{width:100%;padding:8px;margin:5px 0}
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+gap:15px;
+padding:15px
+}
+.card{
+background:#fff;
+padding:10px;
+border-radius:10px
+}
+.card img{
+width:100%;
+height:200px;
+object-fit:cover
+}
+.price{
+color:#b12704;
+font-weight:bold
+}
+.buy{
+width:100%;
+padding:10px;
+background:#ff9900;
+border:0
+}
 </style>
 </head>
+
 <body>
 
 <div class="header">
-<input class="search" placeholder="Search products...">
+<input id="search" class="search" placeholder="Search products...">
 <a href="cart.html">🛒 Cart</a>
 </div>
 
-<div class="grid">
+<div id="products" class="grid"></div>
 
+<script>
+
+let allProducts=[];
+
+fetch('products.json')
+.then(r=>r.json())
+.then(data=>{
+allProducts=data;
+render(data);
+});
+
+function render(items){
+
+const box=document.getElementById('products');
+
+box.innerHTML='';
+
+items.forEach(p=>{
+
+box.innerHTML+=`
 <div class="card">
-<img src="assets/images/products/holud.png">
-<h3><a href="product-details.html">হলুদ গুঁড়া</a></h3>
-<select class="weight">
-<option>20 gm</option>
-<option>50 gm</option>
-<option>100 gm</option>
-<option>250 gm</option>
-<option>500 gm</option>
-<option>1000 gm</option>
-</select>
-<p class="price">৳120</p>
-<button class="buy">Add Cart</button>
-</div>
 
-<div class="card">
-<img src="assets/images/products/jira.png">
-<h3><a href="product-details.html">জিরা গুঁড়া</a></h3>
-<select class="weight">
-<option>20 gm</option>
-<option>50 gm</option>
-<option>100 gm</option>
-<option>250 gm</option>
-<option>500 gm</option>
-<option>1000 gm</option>
-</select>
-<p class="price">৳130</p>
-<button class="buy">Add Cart</button>
-</div>
+<img src="${p.image}">
 
-<div class="card">
-<img src="assets/images/products/golmorich.png">
-<h3><a href="product-details.html">গোল মরিচ</a></h3>
-<select class="weight">
-<option>20 gm</option>
-<option>50 gm</option>
-<option>100 gm</option>
-<option>250 gm</option>
-<option>500 gm</option>
-<option>1000 gm</option>
-</select>
-<p class="price">৳150</p>
-<button class="buy">Add Cart</button>
-</div>
+<h3>${p.name}</h3>
 
-<div class="card">
-<img src="assets/images/products/tejpat.png">
-<h3><a href="product-details.html">তেজপাতা</a></h3>
-<select class="weight">
-<option>20 gm</option>
-<option>50 gm</option>
-<option>100 gm</option>
-<option>250 gm</option>
-<option>500 gm</option>
-<option>1000 gm</option>
-</select>
-<p class="price">৳100</p>
-<button class="buy">Add Cart</button>
-</div>
+<p>${p.category}</p>
+
+<p class="price">৳${p.price}</p>
+
+<button class="buy"
+onclick="addCart()">
+Add Cart
+</button>
 
 </div>
+`;
+
+});
+
+}
+
+document.getElementById('search')
+.addEventListener('keyup',e=>{
+
+const q=e.target.value.toLowerCase();
+
+render(
+allProducts.filter(p=>
+p.name.toLowerCase().includes(q)
+)
+);
+
+});
+
+function addCart(){
+
+let c=parseInt(
+localStorage.getItem('cart')||0
+);
+
+c++;
+
+localStorage.setItem('cart',c);
+
+alert('Added to Cart');
+
+}
+
+</script>
 
 </body>
 </html>
-<script>
-const search=document.querySelector('.search');
-
-search.addEventListener('keyup',()=>{
-const value=search.value.toLowerCase();
-document.querySelectorAll('.card').forEach(card=>{
-card.style.display=
-card.innerText.toLowerCase().includes(value)
-? 'block':'none';
-});
-});
-
-document.querySelectorAll('.buy').forEach(btn=>{
-btn.addEventListener('click',()=>{
-let cart=parseInt(localStorage.getItem('cart')||'0');
-cart++;
-localStorage.setItem('cart',cart);
-alert('Product added to cart');
-});
-});
-</script>
