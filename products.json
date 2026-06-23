@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "name": "হলুদ গুঁড়া",
+    "category": "মসলা",
+    "price": 120,
+    "image": "assets/images/products/holud.png"
+  },
+  {
+    "id": 2,
+    "name": "জিরা গুঁড়া",
+    "category": "মসলা",
+    "price": 130,
+    "image": "assets/images/products/jira.png"
+  },
+  {
+    "id": 3,
+    "name": "গোল মরিচ",
+    "category": "মসলা",
+    "price": 150,
+    "image": "assets/images/products/golmorich.png"
+  },
+  {
+    "id": 4,
+    "name": "তেজপাতা",
+    "category": "মসলা",
+    "price": 100,
+    "image": "assets/images/products/tejpat.png"
+  }
+]
