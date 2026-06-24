@@ -72,19 +72,5 @@ button{width:100%;padding:12px;background:#ff9900;border:0;font-size:18px}
 <button onclick="addProduct()">Add Product</button>
 </div>
 
-
-<script type="module">
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-
-const auth=getAuth();
-
-onAuthStateChanged(auth,(user)=>{
-    if(!user){
-        alert("Please login first.");
-        location.href="index.html";
-    }
-});
-</script>
 </body>
-
 </html>
