@@ -1,84 +1,136 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import {
-getAuth,
-createUserWithEmailAndPassword,
-signInWithEmailAndPassword,
-signOut,
-onAuthStateChanged
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 import {
-getDatabase,
-ref,
-set,
-get
+  getDatabase,
+  ref,
+  set,
+  get,
+  update
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-const firebaseConfig={
-apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
-authDomain:"mohajon-mjh.firebaseapp.com",
-databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",
-projectId:"mohajon-mjh",
-storageBucket:"mohajon-mjh.firebasestorage.app",
-messagingSenderId:"526105903976",
-appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"
+const firebaseConfig = {
+  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
 };
 
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-window.signup=async(name,email,password)=>{
-const user=await createUserWithEmailAndPassword(auth,email,password);
+window.signup = async function(name,email,password){
 
-await set(ref(db,"users/"+user.user.uid),{
-uid:user.user.uid,
-name:name,
-email:email,
-role:"buyer",
-status:"active",
-createdAt:Date.now()
-});
+  const cred = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
 
-alert("Signup Successful");
-location="login.html";
+  const uid = cred.user.uid;
+
+  await set(ref(db,"users/"+uid),{
+    uid,
+    name,
+    email,
+    role:"buyer",
+    status:"active",
+    photo:"",
+    phone:"",
+    address:"",
+    createdAt:Date.now(),
+    updatedAt:Date.now()
+  });
+
+  alert("Account created successfully");
+  location.href="login.html";
 };
 
-window.login=async(email,password)=>{
-await signInWithEmailAndPassword(auth,email,password);
+window.login = async function(email,password){
 
-const uid=auth.currentUser.uid;
-const snap=await get(ref(db,"users/"+uid));
+  await signInWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
 
-if(!snap.exists()){
-alert("User profile missing");
-return;
-}
+  const uid = auth.currentUser.uid;
 
-const user=snap.val();
+  const snap = await get(ref(db,"users/"+uid));
 
-localStorage.setItem("user",JSON.stringify(user));
+  if(!snap.exists()){
+    alert("User profile not found");
+    await signOut(auth);
+    return;
+  }
 
-if(user.role==="admin"){
-location="admin.html";
-}else if(user.role==="seller"){
-location="seller.html";
-}else{
-location="index.html";
-}
+  const user = snap.val();
+
+  localStorage.setItem(
+    "user",
+    JSON.stringify(user)
+  );
+
+  await update(
+    ref(db,"users/"+uid),
+    {
+      lastLogin:Date.now()
+    }
+  );
+
+  switch(user.role){
+
+    case "admin":
+      location.href="admin.html";
+      break;
+
+    case "seller":
+      location.href="seller.html";
+      break;
+
+    default:
+      location.href="index.html";
+
+  }
+
 };
 
-window.logout=async()=>{
-await signOut(auth);
-localStorage.removeItem("user");
-location="login.html";
+window.logout = async function(){
+
+  await signOut(auth);
+
+  localStorage.removeItem("user");
+
+  location.href="login.html";
+
 };
 
-window.currentUser=callback
-=>{
-onAuthStateChanged(auth,user=>{
-callback(user);
-});
+window.currentUser = function(callback){
+
+  onAuthStateChanged(auth,callback);
+
 };
 
-console.log("MJH Authentication Ready");
+window.getProfile = async function(){
+
+  if(!auth.currentUser) return null;
+
+  const snap = await get(
+    ref(db,"users/"+auth.currentUser.uid)
+  );
+
+  return snap.exists() ? snap.val() : null;
+
+};
+
+console.log("MJH Firebase Authentication Ready");
