@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mohajon MJH</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f5f5;
+}
+
+
+/* Header */
+
+header{
+
+background:#fff;
+display:flex;
+align-items:center;
+gap:15px;
+padding:10px;
+
+}
+
+
+.logo img{
+
+width:120px;
+
+}
+
+
+.search{
+
+flex:1;
+display:flex;
+
+}
+
+
+.search input{
+
+width:100%;
+padding:12px;
+border:1px solid #ddd;
+
+}
+
+
+.search button{
+
+background:#ff9900;
+border:0;
+padding:0 20px;
+font-size:18px;
+
+}
+
+
+.cart{
+
+font-size:28px;
+position:relative;
+
+}
+
+
+.badge{
+
+position:absolute;
+top:-8px;
+right:-8px;
+background:red;
+color:white;
+border-radius:50%;
+font-size:12px;
+padding:3px 6px;
+
+}
+
+
+
+/* Menu */
+
+nav{
+
+background:#232f3e;
+color:white;
+padding:12px;
+display:flex;
+gap:25px;
+
+}
+
+
+.menu-btn{
+
+display:none;
+
+}
+
+
+/* Banner */
+
+
+.hero img{
+
+width:100%;
+height:auto;
+
+}
+
+
+
+/* Category */
+
+
+.section{
+
+padding:20px;
+
+}
+
+
+.categories{
+
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+
+}
+
+
+.cat{
+
+background:white;
+padding:25px;
+border-radius:12px;
+text-align:center;
+font-size:18px;
+
+}
+
+
+
+/* Products */
+
+
+.products{
+
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+
+}
+
+
+.card{
+
+background:white;
+padding:15px;
+border-radius:12px;
+
+}
+
+
+.card img{
+width:100%;
+height:180px;
+object-fit:cover;
+border-radius:8px;
+margin-bottom:10px;
+}
+
+}
+
+
+.buy{
+
+background:#ff9900;
+border:0;
+padding:8px;
+width:100%;
+margin-top:10px;
+
+}
+
+
+
+/* Mobile */
+
+
+@media(max-width:600px){
+
+
+header{
+
+flex-wrap:wrap;
+
+}
+
+
+.logo img{
+
+width:90px;
+
+}
+
+
+nav{
+
+display:none;
+
+}
+
+
+.menu-btn{
+
+display:block;
+background:#232f3e;
+color:white;
+padding:12px;
+
+}
+
+
+.categories{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+
+.products{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+
+}
+
+
+
+</style>
+
+
+<meta name="description" content="Mohajon MJH - Premium spices, grocery and food products. Buy authentic Bangladeshi products online.">
+<meta name="keywords" content="MJH, Mohajon, spices, grocery, masala, Bangladesh, ecommerce">
+<meta name="author" content="Mohajon MJH">
+<meta name="robots" content="index,follow,max-image-preview:large">
+
+<link rel="canonical" href="https://mohajon-mjh.github.io/">
+<link rel="manifest" href="/manifest.json">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mohajon MJH">
+<meta property="og:description" content="Premium spices and grocery marketplace.">
+<meta property="og:url" content="https://mohajon-mjh.github.io/">
+<meta property="og:image" content="https://mohajon-mjh.github.io/assets/images/logo.png">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mohajon MJH">
+<meta name="twitter:description" content="Premium spices and grocery marketplace.">
+<meta name="twitter:image" content="https://mohajon-mjh.github.io/assets/images/logo.png">
+
+<meta name="theme-color" content="#0f7a2d">
+
+</head>
+
+
+<body>
+
+
+<header>
+
+
+<div class="logo">
+
+<img src="assets/images/logo.png">
+
+</div>
+
+
+<div class="search">
+
+<input placeholder="Search products">
+
+<button>🔍</button>
+
+</div>
+
+
+<div class="cart">
+
+🛒
+
+<span class="badge">0</span>
+
+</div>
+
+
+</header>
+
+
+
+<div class="menu-btn">
+
+☰ Menu
+
+</div>
+
+
+<nav>
+
+Home
+Categories
+Offers
+Products
+
+</nav>
+
+
+
+<section class="hero">
+
+<img src="assets/images/banner.png">
+
+</section>
+
+
+
+
+<div class="section">
+
+<h2>Categories</h2>
+
+<br>
+
+
+<div class="categories">
+
+
+<div class="cat">🌶️ মসলা</div>
+
+<div class="cat">🛒 গ্রোসারি</div>
+
+<div class="cat">🍚 খাদ্য</div>
+
+<div class="cat">📦 অন্যান্য</div>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<div class="section">
+
+
+<h2>Featured Products</h2>
+<br>
+
+<div id="featuredProducts" class="products"></div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+document.querySelector(".menu-btn").onclick = function(){
+  const nav=document.querySelector("nav");
+  nav.style.display=(nav.style.display==="block")?"none":"block";
+};
+
+document.querySelectorAll(".cat")[0].onclick=()=>location.href="products.html?category=মসলা";
+document.querySelectorAll(".cat")[1].onclick=()=>location.href="products.html?category=গ্রোসারি";
+document.querySelectorAll(".cat")[2].onclick=()=>location.href="products.html?category=খাদ্য";
+document.querySelectorAll(".cat")[3].onclick=()=>location.href="products.html?category=অন্যান্য";
+
+document.querySelector(".badge").textContent =
+localStorage.getItem("cartCount") || 0;
+
+window.addCart = function(id){
+  let c=parseInt(localStorage.getItem("cartCount")||0);
+  c++;
+  localStorage.setItem("cartCount",c);
+  document.querySelector(".badge").textContent=c;
+  alert("Added To Cart");
+};
+
+const box=document.getElementById("featuredProducts");
+
+onValue(ref(db,"products"),(snapshot)=>{
+  const data=snapshot.val()||{};
+  box.innerHTML="";
+
+  Object.values(data)
+    .slice(-8)
+    .reverse()
+    .forEach(p=>{
+      box.innerHTML += `
+      <div class="card">
+        <img src="${p.image}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${p.name}">
+        <h3>${p.name}</h3>
+        <p>${p.weight || ""}</p>
+        <p><b>৳${p.price}</b></p>
+        <button class="buy" onclick="addCart('${p.id}')">Add Cart</button>
+      </div>`;
+    });
+});
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+window.addEventListener('load',()=>{
+navigator.serviceWorker.register('/sw.js');
+});
+}
+</script>
+
+</body>
+</html>

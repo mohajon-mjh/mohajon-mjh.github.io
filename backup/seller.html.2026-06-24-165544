@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seller Panel</title>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+window.addProduct = async function(){
+
+const product = {
+  id: Date.now(),
+  name: document.getElementById('name').value,
+  price: parseInt(document.getElementById('price').value),
+  image: document.getElementById('image').value,
+  weight: document.getElementById('weight').value,
+  category: document.getElementById('category').value
+};
+
+await push(ref(db,"products"), product);
+
+alert("Product Added To Firebase");
+
+};
+</script>
+
+<style>
+body{font-family:Arial;background:#f5f5f5;padding:20px}
+input,select{width:100%;padding:10px;margin:5px 0}
+button{width:100%;padding:12px;background:#ff9900;border:0;font-size:18px}
+.box{background:#fff;padding:15px;border-radius:10px}
+</style>
+</head>
+<body>
+
+<h2>🛒 Seller Panel - Add Product</h2>
+
+<div class="box">
+<input id="name" placeholder="Product Name">
+<input id="price" placeholder="Price">
+<input id="image" placeholder="Image URL">
+<select id="weight">
+<option>20g</option>
+<option>50g</option>
+<option>100g</option>
+<option>250g</option>
+<option>500g</option>
+<option>1000g</option>
+</select>
+<select id="category">
+<option>মসলা</option>
+<option>গ্রোসারি</option>
+<option>খাদ্য</option>
+</select>
+
+<button onclick="addProduct()">Add Product</button>
+</div>
+
+
+<script type="module">
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const auth=getAuth();
+
+onAuthStateChanged(auth,(user)=>{
+    if(!user){
+        alert("Please login first.");
+        location.href="index.html";
+    }
+});
+</script>
+</body>
+
+</html>
