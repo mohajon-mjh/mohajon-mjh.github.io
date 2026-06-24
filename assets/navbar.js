@@ -1,41 +1,75 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-const nav = document.createElement("div");
+const root = document.createElement("div");
 
-nav.innerHTML = `
+root.innerHTML = `
 <style>
-.navbar {
-  background:#0f172a;
-  padding:10px;
-  color:white;
-  position:relative;
+.navbar{
+position:sticky;
+top:0;
+z-index:999;
+background:#0f172a;
+color:white;
+padding:10px;
+font-family:Arial;
 }
 
-.menu-btn {
-  font-size:22px;
-  cursor:pointer;
-  user-select:none;
+.topbar{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px;
 }
 
-.menu-list {
-  display:none;
-  flex-direction:column;
-  margin-top:10px;
+.menu-btn{
+font-size:22px;
+cursor:pointer;
 }
 
-.menu-list a {
-  color:white;
-  text-decoration:none;
-  padding:5px 0;
+.search{
+flex:1;
+padding:6px;
+border-radius:5px;
+border:none;
+outline:none;
 }
 
-.menu-list.show {
-  display:flex;
+.cart{
+cursor:pointer;
+}
+
+.menu-list{
+display:none;
+flex-direction:column;
+margin-top:10px;
+background:#111827;
+padding:10px;
+border-radius:8px;
+max-height:60vh;
+overflow:auto;
+}
+
+.menu-list a{
+color:white;
+text-decoration:none;
+padding:6px 0;
+border-bottom:1px solid #1f2937;
+}
+
+.menu-list.show{
+display:flex;
 }
 </style>
 
 <div class="navbar">
-  <div class="menu-btn">☰ Menu</div>
+
+  <div class="topbar">
+    <div class="menu-btn">☰</div>
+
+    <input class="search" placeholder="Search products...">
+
+    <div class="cart">🛒 <span id="cartCount">0</span></div>
+  </div>
 
   <div class="menu-list">
     <a href="index.html">Home</a>
@@ -58,17 +92,18 @@ nav.innerHTML = `
     <a href="#">Sports</a>
     <a href="#">Automotive</a>
   </div>
+
 </div>
 `;
 
-document.body.prepend(nav);
+document.body.prepend(root);
 
 // toggle menu
-const btn = nav.querySelector(".menu-btn");
-const list = nav.querySelector(".menu-list");
+const btn = root.querySelector(".menu-btn");
+const menu = root.querySelector(".menu-list");
 
 btn.onclick = () => {
-  list.classList.toggle("show");
+menu.classList.toggle("show");
 };
 
 });
