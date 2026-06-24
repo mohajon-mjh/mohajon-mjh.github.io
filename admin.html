@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Mohajon MJH</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/pages/admin.css">
+</head>
+<body>
+    <div id="admin-panel">
+        <header class="admin-header">
+            <h1>Mohajon MJH Admin</h1>
+            <button onclick="logout()">Logout</button>
+        </header>
+        
+        <div class="admin-sidebar">
+            <ul>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#users">Users</a></li>
+                <li><a href="#sellers">Sellers</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#orders">Orders</a></li>
+                <li><a href="#reviews">Reviews</a></li>
+                <li><a href="#coupons">Coupons</a></li>
+                <li><a href="#categories">Categories</a></li>
+                <li><a href="#brands">Brands</a></li>
+                <li><a href="#payments">Payments</a></li>
+                <li><a href="#settings">Settings</a></li>
+            </ul>
+        </div>
+        
+        <div class="admin-content">
+            <div id="dashboard">
+                <h2>Admin Dashboard</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">Total Users: <span id="total-users">0</span></div>
+                    <div class="stat-card">Total Sellers: <span id="total-sellers">0</span></div>
+                    <div class="stat-card">Total Products: <span id="total-products">0</span></div>
+                    <div class="stat-card">Total Orders: <span id="total-orders">0</span></div>
+                    <div class="stat-card">Revenue: <span id="total-revenue">$0</span></div>
+                    <div class="stat-card">Pending Orders: <span id="pending-orders">0</span></div>
+                </div>
+                <canvas id="adminChart"></canvas>
+            </div>
+            
+            <div id="users" style="display:none;">
+                <h2>Manage Users</h2>
+                <div id="user-list"></div>
+            </div>
+            
+            <div id="sellers" style="display:none;">
+                <h2>Manage Sellers</h2>
+                <div id="seller-list"></div>
+            </div>
+            
+            <div id="products" style="display:none;">
+                <h2>Manage Products</h2>
+                <div id="admin-product-list"></div>
+            </div>
+            
+            <div id="orders" style="display:none;">
+                <h2>Manage Orders</h2>
+                <div id="admin-order-list"></div>
+            </div>
+            
+            <div id="coupons" style="display:none;">
+                <h2>Manage Coupons</h2>
+                <button onclick="showAddCoupon()">+ Add Coupon</button>
+                <div id="coupon-list"></div>
+            </div>
+            
+            <div id="categories" style="display:none;">
+                <h2>Manage Categories</h2>
+                <button onclick="showAddCategory()">+ Add Category</button>
+                <div id="category-list"></div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/admin.js"></script>
+</body>
+</html>

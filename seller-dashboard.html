@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard - Mohajon MJH</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/pages/seller.css">
+</head>
+<body>
+    <div id="seller-dashboard">
+        <header class="seller-header">
+            <div class="logo">Mohajon MJH</div>
+            <div class="seller-info">
+                <span id="seller-name"></span>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </header>
+        
+        <div class="seller-sidebar">
+            <ul>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#orders">Orders</a></li>
+                <li><a href="#analytics">Analytics</a></li>
+                <li><a href="#store">Store Settings</a></li>
+                <li><a href="#withdraw">Withdraw</a></li>
+            </ul>
+        </div>
+        
+        <div class="seller-content">
+            <div id="dashboard">
+                <h2>Dashboard</h2>
+                <div class="stats-grid">
+                    <div class="stat-card"><h3>Total Products</h3><p id="total-products">0</p></div>
+                    <div class="stat-card"><h3>Total Orders</h3><p id="total-orders">0</p></div>
+                    <div class="stat-card"><h3>Revenue</h3><p id="total-revenue">$0</p></div>
+                    <div class="stat-card"><h3>Pending Orders</h3><p id="pending-orders">0</p></div>
+                </div>
+            </div>
+            
+            <div id="products" style="display:none;">
+                <h2>Manage Products</h2>
+                <button onclick="showAddProduct()">+ Add New Product</button>
+                <div id="product-list"></div>
+            </div>
+            
+            <div id="orders" style="display:none;">
+                <h2>Orders</h2>
+                <div id="order-list"></div>
+            </div>
+            
+            <div id="analytics" style="display:none;">
+                <h2>Sales Analytics</h2>
+                <canvas id="salesChart"></canvas>
+            </div>
+            
+            <div id="store" style="display:none;">
+                <h2>Store Settings</h2>
+                <form id="store-form">
+                    <input type="text" id="store-name" placeholder="Store Name">
+                    <textarea id="store-description" placeholder="Store Description"></textarea>
+                    <input type="file" id="store-logo" accept="image/*">
+                    <input type="file" id="store-banner" accept="image/*">
+                    <button type="submit">Update Store</button>
+                </form>
+            </div>
+            
+            <div id="withdraw" style="display:none;">
+                <h2>Withdraw Request</h2>
+                <form id="withdraw-form">
+                    <input type="number" id="withdraw-amount" placeholder="Amount">
+                    <select id="withdraw-method">
+                        <option value="bkash">bKash</option>
+                        <option value="nagad">Nagad</option>
+                        <option value="rocket">Rocket</option>
+                        <option value="bank">Bank Transfer</option>
+                    </select>
+                    <input type="text" id="withdraw-account" placeholder="Account Number">
+                    <button type="submit">Request Withdraw</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/seller.js"></script>
+</body>
+</html>
