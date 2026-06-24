@@ -405,7 +405,7 @@ onValue(ref(db,"products"),(snapshot)=>{
     .forEach(p=>{
       box.innerHTML += `
       <div class="card">
-        <img src="${p.image}">
+        <img src="${p.image}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${p.name}">
         <h3>${p.name}</h3>
         <p>${p.weight || ""}</p>
         <p><b>৳${p.price}</b></p>
