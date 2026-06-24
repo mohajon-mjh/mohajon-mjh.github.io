@@ -1,48 +1,45 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -e
-
 cd ~/mohajon-mjh.github.io
 
-echo "=== MJH Marketplace Upgrade v2 ==="
+cp products.html backup/products.html.$(date +%F-%H%M%S)
 
-mkdir -p \
-assets/css \
-assets/js \
-assets/icons \
-assets/fonts \
-assets/data \
-assets/modules \
-buyer \
-seller \
-admin \
-api \
-backup
+python3 - <<'PY'
+from pathlib import Path
+p=Path("products.html")
+html=p.read_text()
 
-touch \
-assets/css/style.css \
-assets/css/responsive.css \
-assets/js/app.js \
-assets/js/search.js \
-assets/js/cart.js \
-assets/js/auth.js \
-assets/js/wishlist.js \
-assets/js/admin.js \
-assets/js/firebase.js \
-assets/data/categories.json \
-assets/data/settings.json
+html=html.replace(
+'<a href="cart.html">🛒 Cart</a>',
+'<a href="cart.html">🛒 Cart (<span id="cartCount">0</span>)</a> <a href="wishlist.html">❤️ Wishlist</a>'
+)
 
-echo "Project folders created."
+html=html.replace(
+'<button class="buy" onclick="addCart(\'${p.id}\')">Add Cart</button>',
+'<button class="buy" onclick="addCart(\'${p.id}\')">Add Cart</button><br><br><a href="product-details.html?id=${p.id}">View Details</a>'
+)
+
+if "cartCount" not in html:
+    html=html.replace(
+"</script>",
+"""
+window.addEventListener("DOMContentLoaded",()=>{
+const cart=JSON.parse(localStorage.getItem("cart")||"[]");
+const c=document.getElementById("cartCount");
+if(c)c.textContent=cart.length;
+});
+</script>
+"""
+)
+
+p.write_text(html)
+print("Products upgraded.")
+PY
+
+touch wishlist.html
 
 if [ -x ~/.auto_push_mjh ]; then
-    ~/.auto_push_mjh
+ ~/.auto_push_mjh
 fi
 
-echo
-echo "Upgrade v2 Complete."
-echo
-echo "Next:"
-echo "✓ Professional Search"
-echo "✓ Wishlist"
-echo "✓ Buyer Login"
-echo "✓ Seller Login"
-echo "✓ Admin Dashboard"
+echo "Upgrade v3 Complete."
