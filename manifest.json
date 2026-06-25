@@ -1,15 +1,9 @@
 {
-  "name":"Mohajon MJH",
-  "short_name":"MJH",
-  "start_url":"/",
-  "display":"standalone",
-  "background_color":"#ffffff",
-  "theme_color":"#0f7a2d",
-  "icons":[
-    {
-      "src":"assets/images/logo.png",
-      "sizes":"192x192",
-      "type":"image/png"
-    }
-  ]
+"name":"Mohajon MJH Marketplace",
+"short_name":"MJH Market",
+"start_url":".",
+"display":"standalone",
+"background_color":"#0f172a",
+"theme_color":"#0f172a",
+"icons":[]
 }

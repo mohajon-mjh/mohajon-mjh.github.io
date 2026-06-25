@@ -25,6 +25,7 @@ const db = getDatabase(app);
 window.addProduct = async function(){
 
 const product = {
+sellerId: window.USER_ID || "guest",
   id: Date.now(),
   name: document.getElementById('name').value,
   price: parseInt(document.getElementById('price').value),
@@ -108,6 +109,7 @@ onAuthStateChanged(auth,(user)=>{
 });
 </script>
 <script src="assets/navbar.js"></script>
+<script type="module" src="auth-role.js"></script>
 </body>
 
 </html>
