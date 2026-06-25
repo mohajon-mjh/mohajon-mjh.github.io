@@ -20,7 +20,7 @@ document.body.innerHTML="<h2>Orders Control</h2>";
 Object.entries(data).forEach(([key,o])=>{
 document.body.innerHTML += `
 <div style="border:1px solid #ccc;padding:10px;margin:5px">
-<b>${o.name}</b><br>
+<b>${o.name}</b><br>Order: ${o.orderId||"N\/A"}<br>Phone: ${o.phone||""}<br>Address: ${o.address||""}<br>Date: ${o.orderDate||""}<br>Payment: ${o.paymentMethod||"COD"}<br>
 Status: ${o.status}<br>
 
 <button onclick="changeStatus('${key}','pending')">Pending</button><button onclick="changeStatus('${key}','processing')">Processing</button>
