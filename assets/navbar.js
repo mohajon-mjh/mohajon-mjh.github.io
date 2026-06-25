@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
 const root = document.createElement("div");
 
 root.innerHTML = `
@@ -7,98 +9,122 @@ root.innerHTML = `
 .navbar{
 position:sticky;
 top:0;
-z-index:999;
+z-index:9999;
 background:#0f172a;
-color:white;
-padding:10px;
-font-family:Arial;
+color:#fff;
+font-family:Arial,sans-serif;
+box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
 
 .topbar{
 display:flex;
 align-items:center;
-justify-content:space-between;
 gap:10px;
+padding:10px;
 }
 
 .menu-btn{
-font-size:22px;
+font-size:24px;
 cursor:pointer;
+color:#fff;
 }
 
 .search{
 flex:1;
-padding:6px;
-border-radius:5px;
+padding:8px;
 border:none;
-outline:none;
+border-radius:6px;
 }
 
 .cart{
-cursor:pointer;
+color:#fff;
+font-weight:bold;
+white-space:nowrap;
 }
 
 .menu-list{
 display:none;
-flex-direction:column;
-margin-top:10px;
 background:#111827;
-padding:10px;
-border-radius:8px;
-max-height:60vh;
+max-height:70vh;
 overflow:auto;
 }
 
+.menu-list.show{
+display:block;
+}
+
 .menu-list a{
-color:white;
+display:block;
+padding:10px 12px;
+color:#fff;
 text-decoration:none;
-padding:6px 0;
 border-bottom:1px solid #1f2937;
 }
 
-.menu-list.show{
-display:flex;
+.menu-list a:hover{
+background:#1f2937;
+}
+
+@media(min-width:768px){
+.menu-list{
+columns:2;
+}
 }
 </style>
 
 <div class="navbar">
 
-  <div class="topbar">
-    <div class="menu-btn">☰</div>
+<div class="topbar">
+<div class="menu-btn">☰</div>
 
-    <input class="search" placeholder="Search products...">
+<input class="search" placeholder="Search products">
 
-    <div class="cart">🛒 <span id="cartCount">0</span></div>
-  </div>
+<div class="cart">
+🛒 <span id="cartCount">${cart.length}</span>
+</div>
+</div>
 
-  <div class="menu-list">
-    <a href="index.html">Home</a>
-    <a href="products.html">Products</a>
-    <a href="cart.html">Cart</a>
-    <a href="seller.html">Seller</a>
-    <a href="login.html">Login</a>
+<div class="menu-list">
 
-    <hr>
+<a href="index.html">Home</a>
+<a href="products.html">All Products</a>
+<a href="cart.html">Cart</a>
+<a href="seller.html">Seller</a>
+<a href="login.html">Login</a>
 
-    <a href="#">Electronics</a>
-    <a href="#">Mobile Phones</a>
-    <a href="#">Computers</a>
-    <a href="#">TV & Appliances</a>
-    <a href="#">Home & Kitchen</a>
-    <a href="#">Grocery</a>
-    <a href="#">Health & Beauty</a>
-    <a href="#">Fashion</a>
-    <a href="#">Books</a>
-    <a href="#">Sports</a>
-    <a href="#">Automotive</a>
-  </div>
+<a href="products.html?cat=Electronics">Electronics</a>
+<a href="products.html?cat=Electronic Accessories">Electronic Accessories</a>
+<a href="products.html?cat=Computers">Computers</a>
+<a href="products.html?cat=Mobile Phones">Mobile Phones</a>
+<a href="products.html?cat=TV & Appliances">TV & Appliances</a>
+<a href="products.html?cat=Home & Kitchen">Home & Kitchen</a>
+<a href="products.html?cat=Home & Lifestyle">Home & Lifestyle</a>
+<a href="products.html?cat=Grocery">Grocery</a>
+<a href="products.html?cat=Food & Beverages">Food & Beverages</a>
+<a href="products.html?cat=Health & Beauty">Health & Beauty</a>
+<a href="products.html?cat=Women Fashion">Women Fashion</a>
+<a href="products.html?cat=Men Fashion">Men Fashion</a>
+<a href="products.html?cat=Watches & Bags">Watches & Bags</a>
+<a href="products.html?cat=Mother & Baby">Mother & Baby</a>
+<a href="products.html?cat=Toys & Games">Toys & Games</a>
+<a href="products.html?cat=Sports & Outdoors">Sports & Outdoors</a>
+<a href="products.html?cat=Automotive">Automotive</a>
+<a href="products.html?cat=Pet Supplies">Pet Supplies</a>
+<a href="products.html?cat=Books">Books</a>
+<a href="products.html?cat=Stationery">Stationery</a>
+<a href="products.html?cat=Tools">Tools</a>
+<a href="products.html?cat=Software">Software</a>
 
+<a href="products.html?cat=মসলা">মসলা</a>
+<a href="products.html?cat=গ্রোসারি">গ্রোসারি</a>
+<a href="products.html?cat=খাদ্য">খাদ্য</a>
+
+</div>
 </div>
 `;
 
 document.body.prepend(root);
 
-// toggle menu
 const btn = root.querySelector(".menu-btn");
 const menu = root.querySelector(".menu-list");
 
