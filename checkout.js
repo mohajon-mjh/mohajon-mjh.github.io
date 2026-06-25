@@ -15,6 +15,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 window.placeOrder = async function(){
+window.paymentMethod="COD";
+function setPayment(m){window.paymentMethod=m;}
 
 const cart = JSON.parse(localStorage.getItem("cart")||"[]");
 

@@ -19,6 +19,11 @@ button{width:100%;padding:12px;background:#25D366;color:#fff;border:0;font-size:
 
 <input id="name" placeholder="আপনার নাম">
 <input id="phone" placeholder="মোবাইল নম্বর">
+<h3>Payment Method</h3>
+<button onclick="setPayment("COD")">Cash on Delivery</button>
+<button onclick="setPayment("bKash")">bKash</button>
+<button onclick="setPayment("Nagad")">Nagad</button>
+<br><br>
 <textarea id="address" placeholder="ঠিকানা"></textarea>
 
 <button onclick="placeOrder()">Order Confirm</button>
@@ -37,11 +42,21 @@ return;
 
 let name=document.getElementById('name').value;
 let phone=document.getElementById('phone').value;
+<h3>Payment Method</h3>
+<button onclick="setPayment("COD")">Cash on Delivery</button>
+<button onclick="setPayment("bKash")">bKash</button>
+<button onclick="setPayment("Nagad")">Nagad</button>
+<br><br>
 let address=document.getElementById('address').value;
 
 let msg="New Order%0A";
 msg+="Name: "+name+"%0A";
 msg+="Phone: "+phone+"%0A";
+<h3>Payment Method</h3>
+<button onclick="setPayment("COD")">Cash on Delivery</button>
+<button onclick="setPayment("bKash")">bKash</button>
+<button onclick="setPayment("Nagad")">Nagad</button>
+<br><br>
 msg+="Address: "+address+"%0A";
 msg+="Items: "+cart.join(", ");
 
