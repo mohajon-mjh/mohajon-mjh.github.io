@@ -338,6 +338,45 @@ justify-content:center;
 }
 
 }
+
+.market-footer{
+background:#131a22;
+color:#fff;
+padding:40px 20px;
+margin-top:40px;
+}
+
+.footer-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+}
+
+.market-footer a{
+color:#ddd;
+text-decoration:none;
+}
+
+.market-footer h3{
+margin-bottom:10px;
+}
+
+@media(max-width:768px){
+
+.footer-grid{
+grid-template-columns:1fr 1fr;
+}
+
+}
+
+@media(max-width:500px){
+
+.footer-grid{
+grid-template-columns:1fr;
+}
+
+}
+
 </style>
 
 
@@ -599,5 +638,44 @@ navigator.serviceWorker.register('/sw.js');
 <script src="assets/navbar.js"></script>
 <script type="module" src="auth-role.js"></script>
 <a href="seller-dashboard.html">Seller Dashboard</a> | <a href="admin.html">Admin</a> | <a href="upload-product.html">Upload Product</a>
+<footer class="market-footer">
+
+<div class="footer-grid">
+
+<div>
+<h3>Mohajon Marketplace</h3>
+<p>Global Online Marketplace for Products & Services</p>
+</div>
+
+<div>
+<h3>Customer Service</h3>
+<a href="#">Help Center</a><br>
+<a href="#">Track Order</a><br>
+<a href="#">Returns</a>
+</div>
+
+<div>
+<h3>Business</h3>
+<a href="seller.html">Become a Seller</a><br>
+<a href="#">Affiliate Program</a><br>
+<a href="#">Advertising</a>
+</div>
+
+<div>
+<h3>Connect</h3>
+<a href="#">Facebook</a><br>
+<a href="#">YouTube</a><br>
+<a href="#">TikTok</a>
+</div>
+
+</div>
+
+<hr>
+
+<p style="text-align:center">
+© 2026 Mohajon Marketplace. All Rights Reserved.
+</p>
+
+</footer>
 </body>
 </html>
