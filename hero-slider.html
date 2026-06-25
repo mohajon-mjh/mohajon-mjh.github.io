@@ -1,0 +1,107 @@
+<section class="hero">
+
+<div class="hero-slider">
+
+<button id="prevBanner" class="hero-btn">&#10094;</button>
+
+<img id="heroBanner"
+src="assets/images/banner/banner01-books-stationery.jpg"
+alt="Mohajon MJH Marketplace Banner">
+
+<button id="nextBanner" class="hero-btn">&#10095;</button>
+
+</div>
+
+<div id="heroDots" class="hero-dots"></div>
+
+</section>
+
+<script>
+
+const banners=[
+
+"assets/images/banner/banner01-books-stationery.jpg",
+"assets/images/banner/banner02-pet-care.jpg",
+"assets/images/banner/banner03-food-beverages.jpg",
+"assets/images/banner/banner04-travel-luggage.jpg",
+"assets/images/banner/banner05-health-wellness.jpg",
+"assets/images/banner/banner06-gift-ideas-specials.jpg",
+"assets/images/banner/banner07-mobile-accessories-sale.jpg",
+"assets/images/banner/banner08-automotive-collection.jpg",
+"assets/images/banner/banner09-jewellery-premium.jpg",
+"assets/images/banner/banner10-sports-fitness-deals.jpg",
+"assets/images/banner/banner11-toys-kids-zone.jpg",
+"assets/images/banner/banner12-daily-essentials.jpg",
+"assets/images/banner/banner13-grocery-mega-sale.jpg",
+"assets/images/banner/banner14-fashion-festival.jpg",
+"assets/images/banner/banner15-home-living.jpg",
+"assets/images/banner/banner16-electronics-deals.jpg",
+"assets/images/banner/banner17-beauty-essentials.jpg",
+"assets/images/banner/banner18-flash-sale.jpg"
+
+];
+
+let current=0;
+
+const hero=document.getElementById("heroBanner");
+const dots=document.getElementById("heroDots");
+
+function drawDots(){
+
+dots.innerHTML="";
+
+for(let i=0;i<banners.length;i++){
+
+const d=document.createElement("span");
+
+d.className="hero-dot";
+
+if(i===current)d.classList.add("active");
+
+d.onclick=()=>showBanner(i);
+
+dots.appendChild(d);
+
+}
+
+}
+
+function showBanner(i){
+
+current=i;
+
+hero.src=banners[current];
+
+drawDots();
+
+}
+
+function nextBanner(){
+
+current++;
+
+if(current>=banners.length)current=0;
+
+showBanner(current);
+
+}
+
+function prevBanner(){
+
+current--;
+
+if(current<0)current=banners.length-1;
+
+showBanner(current);
+
+}
+
+document.getElementById("nextBanner").onclick=nextBanner;
+
+document.getElementById("prevBanner").onclick=prevBanner;
+
+setInterval(nextBanner,5000);
+
+drawDots();
+
+</script>
