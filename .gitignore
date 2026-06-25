@@ -1,2 +1,7 @@
 mohajon-mjh-firebase-adminsdk.json
 private/
+
+all-products.txt
+phase-backup/
+*.bak
+*.phase2.bak
