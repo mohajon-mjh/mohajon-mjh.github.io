@@ -22,6 +22,7 @@ const cart = JSON.parse(localStorage.getItem("cart")||"[]");
 
 const order = {
 orderId: "ORD-"+Date.now(),
+orderDate: new Date().toLocaleString(),
 paymentMethod: window.paymentMethod || "COD",
 name: document.getElementById("name").value,
 phone: document.getElementById("phone").value,
