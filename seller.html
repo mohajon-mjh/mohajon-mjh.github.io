@@ -32,6 +32,7 @@ sellerId: window.USER_ID || "guest",
   image: document.getElementById('image').value,
   weight: document.getElementById('weight').value,
   category: document.getElementById('category').value
+, stock: parseInt(document.getElementById('stock').value||0)
 };
 
 await push(ref(db,"products"), product);
@@ -55,6 +56,7 @@ button{width:100%;padding:12px;background:#ff9900;border:0;font-size:18px}
 <div class="box">
 <input id="name" placeholder="Product Name">
 <input id="price" placeholder="Price">
+<input id="stock" placeholder="Stock Quantity">
 <input id="image" placeholder="Image URL">
 <select id="weight">
 <option>20g</option>
