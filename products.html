@@ -80,14 +80,7 @@ return matchName && matchCat;
 }
 
 document.getElementById('search').onkeyup=applyFilters;
-const q=e.target.value.toLowerCase();
-
-render(
-window.allProducts.filter(p=>
-(p.name||'').toLowerCase().includes(q)
-)
-);
-};
+document.getElementById("categoryFilter").onchange=applyFilters;
 
 });
 
