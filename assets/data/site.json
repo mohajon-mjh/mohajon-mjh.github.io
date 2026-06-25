@@ -1,0 +1,34 @@
+{
+  "name": "Mohajon MJH Marketplace",
+  "shortName": "MJH",
+  "marketplace": true,
+
+  "defaultLanguage": "en",
+
+  "languages": [
+    "en",
+    "ar",
+    "bn"
+  ],
+
+  "defaultCurrency": "USD",
+
+  "currencies": [
+    "USD",
+    "SAR",
+    "BDT",
+    "EUR",
+    "GBP",
+    "AED"
+  ],
+
+  "translateEnabled": true,
+  "multiCurrency": true,
+  "sellerSystem": true,
+  "wishlist": true,
+  "cart": true,
+  "reviews": true,
+  "ratings": true,
+  "search": true,
+  "internationalShipping": true
+}
