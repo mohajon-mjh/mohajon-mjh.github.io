@@ -31,8 +31,6 @@ Status: ${o.status}<br>
 });
 
 function handleDelivered(orderKey, orderData){    import('https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js').then(({getDatabase, ref, update, get})=>{        const db=getDatabase();        orderData.items.forEach(async (item)=>{            const productRef=ref(db,'products/'+item.id);            const snap=await get(productRef);            if(snap.exists()){                let p=snap.val();                let newStock=(p.stock||0)- (item.qty || 1);                if(newStock<0)newStock=0;                update(productRef,{stock:newStock});            }        });    });}
-const qty = item.qty || 1;
-let qty = item.qty || 1;
 window.changeStatus=function(id,status){
 update(ref(db,"orders/"+id),{status});
 alert("Updated");
