@@ -65,6 +65,7 @@ onValue(ref(db,"products"),snapshot=>{
 
 const data=snapshot.val()||{};
 window.allProducts=Object.values(data);
+const urlParams=new URLSearchParams(window.location.search);const initialCat=urlParams.get('cat')||'';function applyFilters(){const q=(document.getElementById('search').value||'').toLowerCase();const cat=document.getElementById('categoryFilter');const selectedCat=cat?cat.value:initialCat;if(cat && initialCat) cat.value=initialCat;render(window.allProducts.filter(p=>{const name=(p.name||'').toLowerCase();const matchName=name.includes(q);return matchName && matchCat;}));}
 
 render(window.allProducts);
 
@@ -80,6 +81,7 @@ return matchName && matchCat;
 }
 
 document.getElementById('search').onkeyup=applyFilters;
+document.getElementById('categoryFilter').onchange=applyFilters;
 document.getElementById("categoryFilter").onchange=applyFilters;
 
 });
