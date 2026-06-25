@@ -23,7 +23,7 @@ document.body.innerHTML += `
 <b>${o.name}</b><br>
 Status: ${o.status}<br>
 
-<button onclick="changeStatus('${key}','pending')">Pending</button>
+<button onclick="changeStatus('${key}','pending')">Pending</button><button onclick="changeStatus('${key}','processing')">Processing</button>
 <button onclick="changeStatus('${key}','shipped')">Shipped</button>
 <button onclick="changeStatus('${key}','delivered')">Delivered</button>
 </div>`;
