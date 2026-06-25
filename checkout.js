@@ -21,6 +21,8 @@ function setPayment(m){window.paymentMethod=m;}
 const cart = JSON.parse(localStorage.getItem("cart")||"[]");
 
 const order = {
+orderId: "ORD-"+Date.now(),
+paymentMethod: window.paymentMethod || "COD",
 name: document.getElementById("name").value,
 phone: document.getElementById("phone").value,
 address: document.getElementById("address").value,
