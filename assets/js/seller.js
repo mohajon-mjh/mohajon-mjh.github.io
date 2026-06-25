@@ -50,16 +50,25 @@ function loadDashboard() {
     onValue(productsRef, (snapshot) => {
         const products = snapshot.val();
         let total = 0;
+let totalStock = 0;
+let inventoryValue = 0;
+let lowStock = 0;
         let revenue = 0;
         if (products) {
             Object.keys(products).forEach(key => {
                 if (products[key].sellerId === currentSeller.uid) {
                     total++;
+totalStock += parseInt(products[key].stock || 0);
+inventoryValue += (parseInt(products[key].stock || 0) * parseFloat(products[key].price || 0));
+if((products[key].stock || 0) > 0 && (products[key].stock || 0) < 5) lowStock++;
                     if (products[key].sold) revenue += products[key].price * products[key].sold;
                 }
             });
         }
         document.getElementById('total-products').textContent = total;
+document.getElementById('total-stock').textContent = totalStock;
+document.getElementById('inventory-value').textContent = '৳' + inventoryValue;
+document.getElementById('low-stock-count').textContent = lowStock;
         document.getElementById('total-revenue').textContent = '$' + revenue;
     });
     
