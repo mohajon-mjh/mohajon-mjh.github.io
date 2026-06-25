@@ -25,7 +25,7 @@ Status: ${o.status}<br>
 
 <button onclick="changeStatus('${key}','pending')">Pending</button><button onclick="changeStatus('${key}','processing')">Processing</button>
 <button onclick="changeStatus('${key}','shipped')">Shipped</button>
-<button onclick="changeStatus('${key}','delivered')">Delivered</button>
+<button onclick="changeStatus('${key}','delivered');handleDelivered(key,o)">Delivered</button>
 </div>`;
 });
 });
