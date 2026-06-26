@@ -1,5 +1,8 @@
 /* product-card-upgrade.css - Professional product card styles */
 .product-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     background: white;
     border-radius: 12px;
     overflow: hidden;
@@ -65,6 +68,9 @@
 }
 
 .product-card-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     padding: 16px;
 }
 
@@ -131,6 +137,7 @@
 }
 
 .product-card-actions {
+    margin-top: auto;
     display: flex;
     gap: 8px;
     margin-top: 12px;
