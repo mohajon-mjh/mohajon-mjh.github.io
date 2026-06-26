@@ -2,40 +2,42 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebas
 import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
-authDomain: "mohajon-mjh.firebaseapp.com",
-databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
-projectId: "mohajon-mjh",
-storageBucket: "mohajon-mjh.firebasestorage.app",
-messagingSenderId: "526105903976",
-appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
+  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 window.placeOrder = async function(){
-window.paymentMethod="COD";
-function setPayment(m){window.paymentMethod=m;}
 
-const cart = JSON.parse(localStorage.getItem("cart")||"[]");
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
-const order = {
-orderId: "ORD-"+Date.now(),
-orderDate: new Date().toLocaleString(),
-paymentMethod: window.paymentMethod || "COD",
-name: document.getElementById("name").value,
-phone: document.getElementById("phone").value,
-address: document.getElementById("address").value,
-items: cart,
-time: Date.now(),
-status: "pending"
-};
+  if(cart.length === 0){
+    alert("Cart empty!");
+    return;
+  }
 
-await push(ref(db,"orders"), order);
+  const order = {
+    orderId: "ORD-" + Date.now(),
+    name: document.getElementById("name").value,
+    phone: document.getElementById("phone").value,
+    address: document.getElementById("address").value,
+    items: cart,
+    status: "pending",
+    paymentMethod: window.paymentMethod || "COD",
+    orderDate: new Date().toLocaleString()
+  };
 
-localStorage.removeItem("cart");
+  await push(ref(db,"orders"), order);
 
-alert("Order Placed Successfully");
-location.href="index.html";
+  localStorage.removeItem("cart");
+
+  alert("Order Placed Successfully");
+  location.href = "index.html";
 };

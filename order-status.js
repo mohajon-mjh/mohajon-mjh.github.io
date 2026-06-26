@@ -11,22 +11,22 @@ const firebaseConfig = {
   appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const db = getDatabase();
 
-onValue(ref(db,"orders"), (snap) => {
+onValue(ref(db,"orders"), (snap)=>{
   const data = snap.val() || {};
 
   document.body.innerHTML = "<h2>Orders Control</h2>";
 
-  Object.entries(data).forEach(([key,o]) => {
+  Object.entries(data).forEach(([key,o])=>{
+
     document.body.innerHTML += `
       <div style="border:1px solid #ccc;padding:10px;margin:5px">
         <b>${o.name}</b><br>
-        Order: ${o.orderId || "N/A"}<br>
-        Phone: ${o.phone || ""}<br>
-        Address: ${o.address || ""}<br>
-        Payment: ${o.paymentMethod || "COD"}<br>
+        OrderID: ${o.orderId}<br>
+        Phone: ${o.phone}<br>
+        Address: ${o.address}<br>
+        Payment: ${o.paymentMethod}<br>
         Status: ${o.status}<br>
 
         <button onclick="changeStatus('${key}','pending')">Pending</button>
@@ -39,29 +39,36 @@ onValue(ref(db,"orders"), (snap) => {
 
 window.changeStatus = function(id,status){
   update(ref(db,"orders/"+id),{status});
-  alert("Updated");
 };
 
-// SAFE STOCK UPDATE (FIXED VERSION)
+// 🔥 SAFE STOCK SYNC (NO DOUBLE BUG)
 window.handleDelivered = async function(orderKey, orderData){
 
   const items = orderData.items || [];
 
-  for (const item of items) {
-    const productRef = ref(db,'products/'+item.id);
+  for(const item of items){
+
+    const productRef = ref(db,"products/"+item.id);
     const snap = await get(productRef);
 
-    if (snap.exists()) {
+    if(snap.exists()){
       const p = snap.val();
-      const qty = item.qty || 1;
 
-      let newStock = (p.stock || 0) - qty;
-      if (newStock < 0) newStock = 0;
+      const qty = Number(item.qty || 1);
 
-      await update(productRef, { stock: newStock });
+      let newStock = Number(p.stock || 0) - qty;
+
+      if(newStock < 0) newStock = 0;
+
+      await update(productRef,{
+        stock: newStock
+      });
     }
   }
 
-  await update(ref(db,"orders/"+orderKey), { status: "delivered" });
-  alert("Delivered + Stock Updated");
+  await update(ref(db,"orders/"+orderKey),{
+    status:"delivered"
+  });
+
+  alert("Order delivered + stock updated");
 };
