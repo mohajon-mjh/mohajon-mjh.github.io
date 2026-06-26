@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,21 +6,21 @@
 </head>
 <body>
 
-<h1>🌶 Spices Category</h1>
+<h1>Spices Category</h1>
 
-<div id="grid"></div>
+<img src="https://source.unsplash.com/300x200/?spices" width="300">
 
 <script>
-function img(k){
-  return `https://source.unsplash.com/300x300/?${k}`;
-}
+const imgs = [
+  "https://source.unsplash.com/300x200/?spices",
+  "https://source.unsplash.com/300x300/?Spices",
+  "https://source.unsplash.com/300x300/?food",
+  "https://source.unsplash.com/300x300/?product"
+];
 
-document.getElementById("grid").innerHTML = `
-  <img src="${img('spices')}">
-  <img src="${img('turmeric')}">
-  <img src="${img('pepper')}">
-  <img src="${img('cinnamon')}">
-`;
+document.body.innerHTML += imgs.map(i =>
+  '<img src="'+i+'" width="200" style="margin:10px">'
+).join("");
 </script>
 
 </body>
