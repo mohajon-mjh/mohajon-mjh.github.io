@@ -7,36 +7,25 @@
     const categoryFilter = document.getElementById('categoryFilter');
 
     function renderProducts(products) {
-        if (!grid) {
-            console.error('Product grid not found');
-            return;
-        }
-
+        if (!grid) return;
         if (!products || products.length === 0) {
             grid.innerHTML = `<div class="loading-placeholder">No products available</div>`;
             return;
         }
-
         allProducts = products;
         filteredProducts = [...products];
         applyFilters();
-        console.log('✅ Rendered', products.length, 'products');
     }
 
     function createProductCard(product) {
         const card = document.createElement('div');
         card.className = 'product-card';
-        card.dataset.category = product.category || '';
 
         const stock = parseInt(product.stock) || 0;
         let stockBadge = '';
-        if (stock <= 0) {
-            stockBadge = '<span class="stock-badge out-of-stock">Out of Stock</span>';
-        } else if (stock <= 5) {
-            stockBadge = '<span class="stock-badge low-stock">Low Stock</span>';
-        } else {
-            stockBadge = '<span class="stock-badge in-stock">In Stock</span>';
-        }
+        if (stock <= 0) stockBadge = '<span class="stock-badge out-of-stock">Out of Stock</span>';
+        else if (stock <= 5) stockBadge = '<span class="stock-badge low-stock">Low Stock</span>';
+        else stockBadge = '<span class="stock-badge in-stock">In Stock</span>';
 
         const price = parseFloat(product.price) || 0;
         const oldPrice = parseFloat(product.oldPrice) || 0;
@@ -45,16 +34,20 @@
             discount = Math.round(((oldPrice - price) / oldPrice) * 100);
         }
 
-        let imageUrl = product.image || 'assets/images/products/default.jpg';
-        if (!imageUrl || imageUrl === '' || imageUrl === 'undefined') {
-            imageUrl = 'assets/images/products/default.jpg';
+        // Image handling - use picsum for demo if image is missing
+        let imageUrl = product.image || 'https://picsum.photos/seed/' + (product.id || Math.random()) + '/300/300';
+        
+        // If image URL is from mohajon-mjh.github.io and might not exist, use picsum as fallback
+        if (imageUrl.includes('mohajon-mjh.github.io') && !imageUrl.includes('default')) {
+            // Keep original but add onerror fallback
         }
 
         card.innerHTML = `
             <div class="product-card-image">
                 <img src="${imageUrl}" 
                      alt="${product.name || 'Product'}" 
-                     onerror="this.onerror=null; this.src='assets/images/products/default.jpg'">
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='https://picsum.photos/seed/${product.id || Math.random()}/300/300'">
                 ${stockBadge}
                 ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ''}
             </div>
@@ -80,9 +73,9 @@
         const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const category = categoryFilter ? categoryFilter.value : 'all';
 
-        filteredProducts = allProducts.filter(product => {
-            const nameMatch = product.name ? product.name.toLowerCase().includes(searchTerm) : false;
-            const categoryMatch = category === 'all' || product.category === category;
+        filteredProducts = allProducts.filter(p => {
+            const nameMatch = p.name ? p.name.toLowerCase().includes(searchTerm) : false;
+            const categoryMatch = category === 'all' || p.category === category;
             return nameMatch && categoryMatch;
         });
 
@@ -91,9 +84,7 @@
             if (filteredProducts.length === 0) {
                 grid.innerHTML = `<div class="loading-placeholder">No products found</div>`;
             } else {
-                filteredProducts.forEach(product => {
-                    grid.appendChild(createProductCard(product));
-                });
+                filteredProducts.forEach(p => grid.appendChild(createProductCard(p)));
             }
         }
 
@@ -101,16 +92,12 @@
         if (count) {
             count.textContent = `${filteredProducts.length} item${filteredProducts.length !== 1 ? 's' : ''}`;
         }
-
-        console.log('✅ Filtered:', filteredProducts.length, 'products');
     }
 
     document.addEventListener('productsLoaded', function(e) {
-        const products = e.detail ? e.detail.products : [];
-        renderProducts(products);
+        renderProducts(e.detail ? e.detail.products : []);
     });
 
     window.applyFilters = applyFilters;
     window.renderProducts = renderProducts;
-    console.log('✅ Product renderer initialized');
 })();
