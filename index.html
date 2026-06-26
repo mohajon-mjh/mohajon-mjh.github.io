@@ -1356,5 +1356,39 @@ navigator.serviceWorker.register('/sw.js');
 </footer>
 <script src="products-data.js"></script>
 <script src="product-render.js"></script>
+<script src="cart.js"></script>
+<script src="wishlist.js"></script>
 </body>
 </html>
+
+<script>
+function updateMiniStats(){
+  fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/orders.json")
+  .then(r=>r.json())
+  .then(data=>{
+
+    let total = 0;
+    let revenue = 0;
+
+    Object.values(data || {}).forEach(o=>{
+      total++;
+
+      if(o.status === "delivered"){
+        (o.items||[]).forEach(i=>{
+          revenue += (i.price||0)*(i.qty||1);
+        });
+      }
+    });
+
+    const el1 = document.getElementById("mini-orders");
+    const el2 = document.getElementById("mini-revenue");
+
+    if(el1) el1.textContent = total;
+    if(el2) el2.textContent = "৳" + revenue;
+  });
+}
+
+updateMiniStats();
+setInterval(updateMiniStats, 5000);
+</script>
+
