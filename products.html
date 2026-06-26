@@ -266,3 +266,37 @@
     <script src="assets/navbar.js"></script>
 </body>
 </html>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+const urlParams = new URLSearchParams(window.location.search);
+const selectedCat = urlParams.get("cat");
+const searchQuery = urlParams.get("q")?.toLowerCase() || "";
+
+const products = document.querySelectorAll(".product-card");
+
+function filterProducts() {
+  products.forEach(p => {
+
+    const name = (p.getAttribute("data-name") || "").toLowerCase();
+    const cat = (p.getAttribute("data-category") || "").toLowerCase();
+    const stock = parseInt(p.getAttribute("data-stock") || "0");
+
+    let matchCat = selectedCat ? cat === selectedCat.toLowerCase() : true;
+    let matchSearch = searchQuery ? name.includes(searchQuery) : true;
+    let matchStock = stock > 0;
+
+    if (matchCat && matchSearch && matchStock) {
+      p.style.display = "block";
+    } else {
+      p.style.display = "none";
+    }
+  });
+}
+
+filterProducts();
+
+});
+</script>
+
