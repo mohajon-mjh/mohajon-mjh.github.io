@@ -17,7 +17,6 @@
   <link rel="stylesheet" href="product-card-upgrade.css" />
 
   <style>
-    /* minimal page-level overrides — keeps architecture intact */
     body {
       font-family: 'Inter', sans-serif;
       background: #f8fafc;
@@ -102,12 +101,10 @@
       color: #5f6c80;
       font-size: 1.1rem;
     }
-    /* reused product-card-upgrade styles are fully respected */
   </style>
 </head>
 <body>
 
-  <!-- inject navbar (preserve existing) -->
   <div id="navbar-placeholder"></div>
 
   <main class="container">
@@ -116,67 +113,48 @@
       <span id="product-count" style="color:#4a5a6e; font-size:0.95rem;">0 items</span>
     </div>
 
-    <!-- filter bar: search + category (both hook into global functions) -->
     <div class="filter-bar">
       <div class="search-box">
         <input type="text" id="searchInput" placeholder="Search products..." aria-label="Search products" />
       </div>
       <select id="categoryFilter" class="category-select" aria-label="Filter by category">
         <option value="all">All Categories</option>
-        <!-- categories injected by JavaScript -->
       </select>
     </div>
 
-    <!-- product grid: rendered by product-render.js -->
     <div id="productGrid" class="product-grid">
       <div class="loading-placeholder">Loading products …</div>
     </div>
   </main>
 
-  <!-- ===== SCRIPTS: preserve architecture ===== -->
-  <!-- Firebase SDK (v9 compat via CDN) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  <!-- Firebase config & init (same as project) -->
   <script>
-    // Firebase configuration (keep as per project)
     const firebaseConfig = {
-      apiKey: "AIzaSyDz9j6Dz6zDz6j6Dz6j6Dz6j6Dz6j6Dz6j6",
-      authDomain: "mohajon-marketplace.firebaseapp.com",
-      databaseURL: "https://mohajon-marketplace-default-rtdb.firebaseio.com",
-      projectId: "mohajon-marketplace",
-      storageBucket: "mohajon-marketplace.appspot.com",
-      messagingSenderId: "123456789012",
-      appId: "1:123456789012:web:abcdef123456"
+      apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+      authDomain: "mohajon-mjh.firebaseapp.com",
+      databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+      projectId: "mohajon-mjh",
+      storageBucket: "mohajon-mjh.firebasestorage.app",
+      messagingSenderId: "526105903976",
+      appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
     };
     firebase.initializeApp(firebaseConfig);
     window.db = firebase.database();
   </script>
 
-  <!-- product-loader: fetches from Firebase, emits 'productsLoaded' -->
   <script type="module" src="products-loader.js"></script>
-
-  <!-- product-render: listens to 'productsLoaded', renders cards -->
   <script type="module" src="product-render.js"></script>
 
-  <!-- page-level integration: category dropdown, search, URL filter, and wiring -->
   <script type="module">
-    // ============================================================
-    // products.html – professional integration layer
-    // Uses the existing product-loader + product-render architecture
-    // ============================================================
-
     import { renderProducts, applyFilters } from './product-render.js';
 
-    // DOM refs
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
     const productGrid = document.getElementById('productGrid');
     const productCount = document.getElementById('product-count');
 
-    // ---------- category dropdown population ----------
-    // fetch distinct categories from Firebase (keep lightweight)
     async function populateCategories() {
       try {
         const snapshot = await window.db.ref('products').once('value');
@@ -188,7 +166,6 @@
           if (p.category) cats.add(p.category);
         });
 
-        // keep "All Categories" as first option
         categoryFilter.innerHTML = '<option value="all">All Categories</option>';
         for (const cat of cats) {
           const opt = document.createElement('option');
@@ -197,28 +174,21 @@
           categoryFilter.appendChild(opt);
         }
 
-        // ---- URL filter ?cat= ----
         const params = new URLSearchParams(window.location.search);
         const catParam = params.get('cat');
         if (catParam && cats.has(catParam)) {
           categoryFilter.value = catParam;
         }
-      } catch (e) {
-        // silent: use existing fallback
-      }
+      } catch (e) {}
     }
 
-    // ---------- wire filter events ----------
     function setupFilters() {
-      // search input -> trigger filter
       searchInput.addEventListener('input', () => {
         applyFilters();
       });
 
-      // category change -> trigger filter + update URL (without reload)
       categoryFilter.addEventListener('change', () => {
         const cat = categoryFilter.value;
-        // update URL param (clean)
         const url = new URL(window.location);
         if (cat === 'all') {
           url.searchParams.delete('cat');
@@ -230,19 +200,6 @@
       });
     }
 
-    // ---------- update product count (from render callback) ----------
-    // We'll hook into renderProducts and count visible cards
-    function updateCount(visibleCount) {
-      if (productCount) {
-        productCount.textContent = `${visibleCount} item${visibleCount !== 1 ? 's' : ''}`;
-      }
-    }
-
-    // override / extend renderProducts to count after render
-    // but we keep product-render.js untouched — we'll count by observing grid
-    // Clean approach: listen to grid updates via MutationObserver or use a small helper
-    // The product-render.js already calls renderProducts() which updates grid.
-    // We'll count after each render by checking .product-card elements.
     function countVisibleProducts() {
       const cards = productGrid.querySelectorAll('.product-card:not(.hidden)');
       const count = cards.length;
@@ -252,32 +209,20 @@
       return count;
     }
 
-    // Observe grid changes to update count (childList, subtree)
     const observer = new MutationObserver(() => {
       countVisibleProducts();
     });
     observer.observe(productGrid, { childList: true, subtree: true });
 
-    // also run after initial render
     setTimeout(countVisibleProducts, 100);
 
-    // ---------- expose applyFilters to global for loader/render ----------
-    // product-render expects applyFilters in global scope (if used)
-    // we already import it, but also assign to window for backward compatibility.
     window.applyFilters = applyFilters;
-
-    // re-export renderProducts to keep consistency
     window.renderProducts = renderProducts;
 
-    // ---------- init ----------
     await populateCategories();
     setupFilters();
 
-    // If URL has ?cat, trigger initial filter after loader loads data.
-    // product-loader emits 'productsLoaded' which triggers render.
-    // We listen to that event and then apply filter.
     document.addEventListener('productsLoaded', () => {
-      // ensure category filter matches URL
       const params = new URLSearchParams(window.location.search);
       const catParam = params.get('cat');
       if (catParam) {
@@ -286,13 +231,10 @@
           categoryFilter.value = catParam;
         }
       }
-      // apply filter (search + category)
       applyFilters();
-      // count after filter
       setTimeout(countVisibleProducts, 50);
     });
 
-    // Also reapply on popstate (back/forward)
     window.addEventListener('popstate', () => {
       const params = new URLSearchParams(window.location.search);
       const catParam = params.get('cat');
@@ -311,7 +253,6 @@
     console.log('✅ Products page integration ready (Firebase + loader + render)');
   </script>
 
-  <!-- navbar loader (keep existing) -->
   <script src="assets/navbar.js"></script>
 </body>
 </html>
