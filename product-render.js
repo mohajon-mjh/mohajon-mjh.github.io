@@ -40,13 +40,21 @@
 
         const price = parseFloat(product.price) || 0;
         const oldPrice = parseFloat(product.oldPrice) || 0;
-        const discount = oldPrice > price ? Math.round(((oldPrice - price) / oldPrice) * 100) : 0;
+        let discount = 0;
+        if (oldPrice > price && oldPrice > 0) {
+            discount = Math.round(((oldPrice - price) / oldPrice) * 100);
+        }
+
+        let imageUrl = product.image || 'assets/images/products/default.jpg';
+        if (!imageUrl || imageUrl === '' || imageUrl === 'undefined') {
+            imageUrl = 'assets/images/products/default.jpg';
+        }
 
         card.innerHTML = `
             <div class="product-card-image">
-                <img src="${product.image || 'assets/images/products/default.jpg'}" 
+                <img src="${imageUrl}" 
                      alt="${product.name || 'Product'}" 
-                     onerror="this.src='assets/images/products/default.jpg'">
+                     onerror="this.onerror=null; this.src='assets/images/products/default.jpg'">
                 ${stockBadge}
                 ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ''}
             </div>
