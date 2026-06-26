@@ -77,3 +77,18 @@ search.addEventListener("keyup",(e)=>{
 });
 
 });
+
+// CATEGORY LINKS (AUTO ADD)
+const categoriesHTML = `
+  <a href="categories/spices.html">🌶 Spices</a>
+  <a href="categories/grains.html">🌾 Grains</a>
+  <a href="categories/oil.html">🛢 Oil</a>
+  <a href="categories/dry-fruits.html">🥜 Dry Fruits</a>
+`;
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const menu = document.querySelector(".menu");
+  if(menu){
+    menu.innerHTML += categoriesHTML;
+  }
+});

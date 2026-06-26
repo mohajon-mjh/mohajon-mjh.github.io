@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Spices</title>
+</head>
+<body>
+
+<h1>🌶 Spices Category</h1>
+
+<div id="grid"></div>
+
+<script>
+function img(k){
+  return `https://source.unsplash.com/300x300/?${k}`;
+}
+
+document.getElementById("grid").innerHTML = `
+  <img src="${img('spices')}">
+  <img src="${img('turmeric')}">
+  <img src="${img('pepper')}">
+  <img src="${img('cinnamon')}">
+`;
+</script>
+
+</body>
+</html>
