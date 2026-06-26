@@ -23,6 +23,9 @@
         .loading-placeholder { grid-column: 1 / -1; text-align: center; padding: 4rem 0; color: #5f6c80; }
         
         .product-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
             background: white;
             border-radius: 12px;
             overflow: hidden;
@@ -77,6 +80,9 @@
         
         .product-card-content {
             padding: 14px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
         .product-card-title {
             font-size: 0.95rem;
@@ -117,6 +123,7 @@
             margin: 4px 0;
         }
         .product-card-actions {
+            margin-top: auto;
             display: flex;
             gap: 6px;
             margin-top: 10px;
