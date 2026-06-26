@@ -92,3 +92,62 @@ document.addEventListener("DOMContentLoaded",()=>{
     menu.innerHTML += categoriesHTML;
   }
 });
+
+// ===== MEGA MENU BUTTON =====
+document.addEventListener("DOMContentLoaded",()=>{
+
+  const btn = document.createElement("div");
+  btn.className = "mega-btn";
+  btn.innerHTML = "☰ Categories";
+
+  document.body.prepend(btn);
+
+  const menu = document.createElement("div");
+  menu.className = "mega-menu";
+
+  menu.innerHTML = `
+    <div class="mega-header">
+      <h2>Categories</h2>
+      <button id="closeMega">✖</button>
+    </div>
+
+    <div class="mega-grid">
+
+      <div class="mega-item">
+        <img src="https://source.unsplash.com/300x200/?spices">
+        <a href="categories/spices.html">Spices</a>
+      </div>
+
+      <div class="mega-item">
+        <img src="https://source.unsplash.com/300x200/?rice">
+        <a href="categories/grains.html">Grains</a>
+      </div>
+
+      <div class="mega-item">
+        <img src="https://source.unsplash.com/300x200/?oil">
+        <a href="categories/oil.html">Oil</a>
+      </div>
+
+      <div class="mega-item">
+        <img src="https://source.unsplash.com/300x200/?nuts">
+        <a href="categories/dry-fruits.html">Dry Fruits</a>
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(menu);
+
+  btn.onclick = ()=> menu.classList.add("show");
+
+  menu.querySelector("#closeMega").onclick = ()=>{
+    menu.classList.remove("show");
+  };
+
+  document.addEventListener("click",(e)=>{
+    if(e.target === menu){
+      menu.classList.remove("show");
+    }
+  });
+
+});
