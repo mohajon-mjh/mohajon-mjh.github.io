@@ -36,7 +36,7 @@
 
         let imageUrl = product.image || '';
         if (!imageUrl || imageUrl === '' || imageUrl.includes('mohajon-mjh.github.io') && !imageUrl.includes('default')) {
-            imageUrl = `https://picsum.photos/seed/${product.id || Math.random()}/300/300`;
+            imageUrl = `https://picsum.photos/seed/${product.id || Math.random()}/200/200`;
         }
 
         card.innerHTML = `
@@ -44,7 +44,7 @@
                 <img src="${imageUrl}" 
                      alt="${product.name || 'Product'}" 
                      loading="lazy"
-                     onerror="this.onerror=null; this.src='https://picsum.photos/seed/${product.id || Math.random()}/300/300'">
+                     onerror="this.onerror=null; this.src='https://picsum.photos/seed/${product.id || Math.random()}/200/200'">
                 ${stockBadge}
                 ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ''}
             </div>
