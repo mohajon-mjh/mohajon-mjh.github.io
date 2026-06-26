@@ -72,3 +72,18 @@ window.handleDelivered = async function(orderKey, orderData){
 
   alert("Order delivered + stock updated");
 };
+
+// STATUS TIMELINE UI HELPER
+window.renderTimeline = function(status){
+
+  const steps = ["pending","shipped","delivered"];
+
+  return steps.map(s=>{
+    return `
+      <div style="padding:5px;
+        color:${status===s?'green':'gray'}">
+        ${s.toUpperCase()}
+      </div>
+    `;
+  }).join("");
+};
