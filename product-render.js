@@ -34,11 +34,9 @@
             discount = Math.round(((oldPrice - price) / oldPrice) * 100);
         }
 
-        // Image handling - use placeholder if image missing
         let imageUrl = product.image || '';
-        // If image is empty or from mohajon-mjh.github.io that may not exist
         if (!imageUrl || imageUrl === '' || imageUrl.includes('mohajon-mjh.github.io') && !imageUrl.includes('default')) {
-            imageUrl = `https://picsum.photos/seed/${product.id || Math.random()}/400/400`;
+            imageUrl = `https://picsum.photos/seed/${product.id || Math.random()}/300/300`;
         }
 
         card.innerHTML = `
@@ -46,7 +44,7 @@
                 <img src="${imageUrl}" 
                      alt="${product.name || 'Product'}" 
                      loading="lazy"
-                     onerror="this.onerror=null; this.src='https://picsum.photos/seed/${product.id || Math.random()}/400/400'">
+                     onerror="this.onerror=null; this.src='https://picsum.photos/seed/${product.id || Math.random()}/300/300'">
                 ${stockBadge}
                 ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ''}
             </div>
