@@ -1,0 +1,289 @@
+/* ==========================================
+   PHASE 2.4A-1a
+   PRODUCT CARD LAYOUT + BADGE + WISHLIST
+========================================== */
+
+.product-card{
+    position:relative;
+    background:#fff;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid #ececec;
+    transition:.30s;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.product-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 12px 28px rgba(0,0,0,.18);
+}
+
+.product-image{
+    position:relative;
+    width:100%;
+    height:240px;
+    overflow:hidden;
+    background:#fafafa;
+}
+
+.product-image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:.4s;
+}
+
+.product-card:hover .product-image img{
+    transform:scale(1.08);
+}
+
+.discount-badge{
+    position:absolute;
+    top:12px;
+    left:12px;
+    background:#e53935;
+    color:#fff;
+    font-size:13px;
+    font-weight:bold;
+    padding:6px 10px;
+    border-radius:30px;
+    z-index:5;
+}
+
+.new-badge{
+    position:absolute;
+    top:52px;
+    left:12px;
+    background:#00a651;
+    color:#fff;
+    font-size:12px;
+    font-weight:bold;
+    padding:5px 10px;
+    border-radius:30px;
+    z-index:5;
+}
+
+.wishlist-btn{
+    position:absolute;
+    top:12px;
+    right:12px;
+    width:42px;
+    height:42px;
+    border:none;
+    border-radius:50%;
+    background:#fff;
+    font-size:20px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 4px 12px rgba(0,0,0,.18);
+    transition:.25s;
+    z-index:6;
+}
+
+.wishlist-btn:hover{
+    background:#ffebee;
+    transform:scale(1.12);
+}
+
+.wishlist-btn.active{
+    color:#e53935;
+}
+
+/* ==========================================
+   PHASE 2.4A-1b
+   RATING + PRICE + BUTTONS
+========================================== */
+
+.product-info{
+    padding:16px;
+}
+
+.product-title{
+    font-size:17px;
+    font-weight:700;
+    color:#222;
+    margin-bottom:8px;
+    line-height:1.4;
+}
+
+.product-rating{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:10px;
+    font-size:14px;
+}
+
+.product-rating .stars{
+    color:#ffb400;
+}
+
+.product-rating .reviews{
+    color:#777;
+    font-size:13px;
+}
+
+.product-price{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:12px;
+}
+
+.old-price{
+    color:#999;
+    text-decoration:line-through;
+    font-size:14px;
+}
+
+.new-price{
+    color:#e53935;
+    font-size:22px;
+    font-weight:700;
+}
+
+.stock{
+    display:inline-block;
+    margin-bottom:14px;
+    padding:5px 10px;
+    border-radius:20px;
+    background:#e8f5e9;
+    color:#2e7d32;
+    font-size:13px;
+    font-weight:600;
+}
+
+.product-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.cart-btn,
+.buy-btn{
+    border:none;
+    border-radius:10px;
+    padding:12px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.cart-btn{
+    background:#ff9800;
+    color:#fff;
+}
+
+.cart-btn:hover{
+    background:#f57c00;
+}
+
+.buy-btn{
+    background:#0f7a2d;
+    color:#fff;
+}
+
+.buy-btn:hover{
+    background:#0b5f22;
+}
+
+
+/* ==========================================
+   PHASE 2.4A-1c
+   HOVER + RESPONSIVE + FINAL
+========================================== */
+
+.product-card{
+    animation:fadeIn .4s ease;
+}
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(15px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.cart-btn:active,
+.buy-btn:active,
+.wishlist-btn:active{
+    transform:scale(.96);
+}
+
+.product-card:hover .product-title{
+    color:#0f7a2d;
+}
+
+.product-card:hover .new-price{
+    color:#c62828;
+}
+
+.product-card:hover .stock{
+    background:#dcedc8;
+}
+
+@media (max-width:992px){
+
+    .product-image{
+        height:220px;
+    }
+
+}
+
+@media (max-width:768px){
+
+    .product-title{
+        font-size:16px;
+    }
+
+    .new-price{
+        font-size:20px;
+    }
+
+    .product-actions{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media (max-width:576px){
+
+    .product-card{
+        border-radius:12px;
+    }
+
+    .product-image{
+        height:180px;
+    }
+
+    .product-info{
+        padding:12px;
+    }
+
+    .wishlist-btn{
+        width:38px;
+        height:38px;
+        font-size:18px;
+    }
+
+    .discount-badge,
+    .new-badge{
+        font-size:11px;
+        padding:5px 8px;
+    }
+
+    .cart-btn,
+    .buy-btn{
+        font-size:14px;
+        padding:10px;
+    }
+
+}
+
