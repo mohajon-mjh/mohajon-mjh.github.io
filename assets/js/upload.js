@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, push, set } from "firebase/database";
+import { getDatabase, ref, push, set, onValue } from "firebase/database";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const firebaseConfig = {
@@ -52,7 +52,7 @@ document.getElementById('product-form').addEventListener('submit', function(e) {
         sellerId: currentUser.uid,
         sellerEmail: currentUser.email,
         createdAt: Date.now(),
-        status: 'active',
+        status: 'pending',        approvedBy: '',        approvedAt: 0,
         sold: 0,
         rating: 0,
         reviews: 0
