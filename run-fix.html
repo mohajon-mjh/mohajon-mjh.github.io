@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Fix Categories</title>
+  <title>Grocery Fix Tool</title>
 </head>
 <body>
-<h3>Updating Firebase categories...</h3>
+<h2>Running Firebase Update...</h2>
 
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, get, child, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDj_LLHWBgkCfQClnaOUqEtULHhP1vSVxw",
+  apiKey: "AIzaSyDj_LLHWBgKfQClnaOUqEtULHhP1vSVxw",
   authDomain: "mohajon-mjh.firebaseapp.com",
   databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
   projectId: "mohajon-mjh",
@@ -23,19 +24,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const productsRef = ref(db,"products");
-
-// ✅ 1. FORCE CREATE "grocery" category
-set(ref(db,"categories/grocery"), {
-  name: "Grocery",
-  image: "https://source.unsplash.com/300x200/?grocery",
-  link: "categories/grocery.html"
+// 1. CREATE CATEGORY FIRST
+await set(ref(db,"categories/grocery"),{
+  name:"Grocery",
+  image:"https://source.unsplash.com/300x200/?grocery",
+  link:"categories/grocery.html"
 });
 
-// ✅ 2. Update all products
-onValue(productsRef,(snap)=>{
+// 2. GET ALL PRODUCTS ONCE
+const snapshot = await get(ref(db,"products"));
 
-  snap.forEach((child)=>{
+if(snapshot.exists()){
+
+  snapshot.forEach((child)=>{
 
     update(ref(db,"products/"+child.key),{
       category:"grocery"
@@ -43,9 +44,15 @@ onValue(productsRef,(snap)=>{
 
   });
 
-  console.log("DONE: all products moved to grocery + category created");
-});
+  document.body.innerHTML = "<h2>DONE ✔ All products set to Grocery</h2>";
+
+}else{
+
+  document.body.innerHTML = "<h2>No products found</h2>";
+
+}
 
 </script>
+
 </body>
 </html>
