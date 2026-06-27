@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Fix Category</title>
+  <title>Fix Categories</title>
 </head>
 <body>
-  <h3>Open Console (F12) and run script</h3>
+<h3>Updating Firebase categories...</h3>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  apiKey: "AIzaSyDj_LLHWBgkCfQClnaOUqEtULHhP1vSVxw",
   authDomain: "mohajon-mjh.firebaseapp.com",
   databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
   projectId: "mohajon-mjh",
@@ -25,6 +25,14 @@ const db = getDatabase(app);
 
 const productsRef = ref(db,"products");
 
+// ✅ 1. FORCE CREATE "grocery" category
+set(ref(db,"categories/grocery"), {
+  name: "Grocery",
+  image: "https://source.unsplash.com/300x200/?grocery",
+  link: "categories/grocery.html"
+});
+
+// ✅ 2. Update all products
 onValue(productsRef,(snap)=>{
 
   snap.forEach((child)=>{
@@ -35,7 +43,7 @@ onValue(productsRef,(snap)=>{
 
   });
 
-  console.log("DONE: all set to grocery");
+  console.log("DONE: all products moved to grocery + category created");
 });
 
 </script>
