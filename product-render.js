@@ -8,10 +8,12 @@
 
     function renderProducts(products) {
         if (!grid) return;
+
         if (!products || products.length === 0) {
             grid.innerHTML = `<div class="loading-placeholder">No products available</div>`;
             return;
         }
+
         allProducts = products;
         filteredProducts = [...products];
         applyFilters();
@@ -22,79 +24,125 @@
         card.className = 'product-card';
 
         const stock = parseInt(product.stock) || 0;
+
         let stockBadge = '';
-        if (stock <= 0) stockBadge = '<span class="stock-badge out-of-stock">Out of Stock</span>';
-        else if (stock <= 5) stockBadge = '<span class="stock-badge low-stock">Low Stock</span>';
-        else stockBadge = '<span class="stock-badge in-stock">In Stock</span>';
+        if (stock <= 0) {
+            stockBadge = '<span class="stock-badge out-of-stock">Out of Stock</span>';
+        } else if (stock <= 5) {
+            stockBadge = '<span class="stock-badge low-stock">Low Stock</span>';
+        } else {
+            stockBadge = '<span class="stock-badge in-stock">In Stock</span>';
+        }
 
         const price = parseFloat(product.price) || 0;
         const oldPrice = parseFloat(product.oldPrice) || 0;
+
         let discount = 0;
-        if (oldPrice > price && oldPrice > 0) {
+        if (oldPrice > price) {
             discount = Math.round(((oldPrice - price) / oldPrice) * 100);
         }
 
-        let imageUrl = product.image || '';
-        if (!imageUrl || imageUrl === '' || imageUrl.includes('mohajon-mjh.github.io') && !imageUrl.includes('default')) {
-            imageUrl = `https://picsum.photos/seed/${product.id || Math.random()}/200/200`;
-        }
+        // Firebase image only
+        const imageUrl =
+            product.image && product.image.trim() !== ""
+                ? product.image
+                : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
 
         card.innerHTML = `
             <div class="product-card-image">
-                <img src="${imageUrl}" 
-                     alt="${product.name || 'Product'}" 
-                     loading="lazy"
-                     onerror="this.onerror=null; this.src='https://picsum.photos/seed/${product.id || Math.random()}/200/200'">
+                <img
+                    src="${imageUrl}"
+                    alt="${product.name || 'Product'}"
+                    loading="lazy"
+                    onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
+
                 ${stockBadge}
-                ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ''}
+
+                ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
             </div>
+
             <div class="product-card-content">
-                <h3 class="product-card-title">${product.name || 'Unnamed Product'}</h3>
-                <div class="product-card-category">${product.category || 'Uncategorized'}</div>
-                <div class="product-card-price">
-                    <span class="current-price">$${price.toFixed(2)}</span>
-                    ${oldPrice > price ? `<span class="old-price">$${oldPrice.toFixed(2)}</span>` : ''}
+                <h3 class="product-card-title">${product.name || "Unnamed Product"}</h3>
+
+                <div class="product-card-category">
+                    ${product.category || "Uncategorized"}
                 </div>
-                ${product.weight ? `<div class="product-card-weight">${product.weight}</div>` : ''}
+
+                <div class="product-card-price">
+                    <span class="current-price">৳${price.toFixed(2)}</span>
+
+                    ${oldPrice > price
+                        ? `<span class="old-price">৳${oldPrice.toFixed(2)}</span>`
+                        : ""}
+                </div>
+
+                ${product.weight
+                    ? `<div class="product-card-weight">${product.weight}</div>`
+                    : ""}
+
                 <div class="product-card-actions">
-                    <button class="btn-add-to-cart" data-id="${product.id}">Add to Cart</button>
-                    <button class="btn-wishlist" data-id="${product.id}">❤</button>
-                    <a href="product-details.html?id=${product.id}" class="btn-view-details">View Details</a>
+                    <button class="btn-add-to-cart" data-id="${product.id}">
+                        Add to Cart
+                    </button>
+
+                    <button class="btn-wishlist" data-id="${product.id}">
+                        ❤
+                    </button>
+
+                    <a href="product-details.html?id=${product.id}" class="btn-view-details">
+                        View Details
+                    </a>
                 </div>
             </div>
         `;
+
         return card;
     }
 
     function applyFilters() {
-        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
-        const category = categoryFilter ? categoryFilter.value : 'all';
+        const searchTerm = searchInput
+            ? searchInput.value.toLowerCase().trim()
+            : "";
 
-        filteredProducts = allProducts.filter(p => {
-            const nameMatch = p.name ? p.name.toLowerCase().includes(searchTerm) : false;
-            const categoryMatch = category === 'all' || p.category === category;
-            return nameMatch && categoryMatch;
+        const category = categoryFilter
+            ? categoryFilter.value
+            : "all";
+
+        filteredProducts = allProducts.filter(product => {
+            const matchName = (product.name || "")
+                .toLowerCase()
+                .includes(searchTerm);
+
+            const matchCategory =
+                category === "all" || product.category === category;
+
+            return matchName && matchCategory;
         });
 
         if (grid) {
-            grid.innerHTML = '';
+            grid.innerHTML = "";
+
             if (filteredProducts.length === 0) {
                 grid.innerHTML = `<div class="loading-placeholder">No products found</div>`;
             } else {
-                filteredProducts.forEach(p => grid.appendChild(createProductCard(p)));
+                filteredProducts.forEach(product => {
+                    grid.appendChild(createProductCard(product));
+                });
             }
         }
 
-        const count = document.getElementById('product-count');
+        const count = document.getElementById("product-count");
+
         if (count) {
-            count.textContent = `${filteredProducts.length} item${filteredProducts.length !== 1 ? 's' : ''}`;
+            count.textContent =
+                `${filteredProducts.length} item${filteredProducts.length !== 1 ? "s" : ""}`;
         }
     }
 
-    document.addEventListener('productsLoaded', function(e) {
+    document.addEventListener("productsLoaded", function(e) {
         renderProducts(e.detail ? e.detail.products : []);
     });
 
-    window.applyFilters = applyFilters;
     window.renderProducts = renderProducts;
+    window.applyFilters = applyFilters;
 })();
