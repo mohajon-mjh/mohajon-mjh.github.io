@@ -1,119 +1,118 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Seller Panel</title>
+  <meta charset="UTF-8">
+  <title>Seller Panel - Secure V1.2B</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  <style>
+    body{
+      font-family: Arial;
+      background:#f4f4f4;
+      padding:20px;
+    }
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
-  authDomain: "mohajon-mjh.firebaseapp.com",
-  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
-  projectId: "mohajon-mjh",
-  storageBucket: "mohajon-mjh.firebasestorage.app",
-  messagingSenderId: "526105903976",
-  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
-};
+    .box{
+      max-width:500px;
+      margin:auto;
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,0,0,0.1);
+    }
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+    h2{
+      text-align:center;
+    }
 
-window.addProduct = async function(){
+    input, textarea, select, button{
+      width:100%;
+      padding:10px;
+      margin-top:10px;
+    }
 
-const product = {
-sellerId: window.USER_ID || "guest",
-  id: Date.now(),
-  name: document.getElementById('name').value,
-  price: parseInt(document.getElementById('price').value),
-  image: document.getElementById('image').value,
-  weight: document.getElementById('weight').value,
-  category: document.getElementById('category').value
-, stock: parseInt(document.getElementById('stock').value||0)
-};
+    button{
+      background:#28a745;
+      color:white;
+      border:none;
+      cursor:pointer;
+    }
 
-await push(ref(db,"products"), product);
+    button:disabled{
+      background:gray;
+      cursor:not-allowed;
+    }
 
-alert("Product Added To Firebase");
+    .warning{
+      color:red;
+      text-align:center;
+      margin-top:10px;
+      font-weight:bold;
+    }
 
-};
-</script>
-
-<style>
-body{font-family:Arial;background:#f5f5f5;padding:20px}
-input,select{width:100%;padding:10px;margin:5px 0}
-button{width:100%;padding:12px;background:#ff9900;border:0;font-size:18px}
-.box{background:#fff;padding:15px;border-radius:10px}
-</style>
+    .hidden{
+      display:none;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>🛒 Seller Panel - Add Product</h2>
-
 <div class="box">
-<input id="name" placeholder="Product Name">
-<input id="price" placeholder="Price">
-<input id="stock" placeholder="Stock Quantity">
-<input id="image" placeholder="Image URL">
-<select id="weight">
-<option>20g</option>
-<option>50g</option>
-<option>100g</option>
-<option>250g</option>
-<option>500g</option>
-<option>1000g</option>
-</select>
-<select id="category">
-<option>Electronics</option>
-<option>Electronic Accessories</option>
-<option>Computers</option>
-<option>Mobile Phones</option>
-<option>TV <option>মসলা</option> Appliances</option>
-<option>Home <option>মসলা</option> Kitchen</option>
-<option>Home <option>মসলা</option> Lifestyle</option>
-<option>Grocery</option>
-<option>Food <option>মসলা</option> Beverages</option>
-<option>Health <option>মসলা</option> Beauty</option>
-<option>Women Fashion</option>
-<option>Men Fashion</option>
-<option>Watches <option>মসলা</option> Bags</option>
-<option>Mother <option>মসলা</option> Baby</option>
-<option>Toys <option>মসলা</option> Games</option>
-<option>Sports <option>মসলা</option> Outdoors</option>
-<option>Automotive</option>
-<option>Pet Supplies</option>
-<option>Books</option>
-<option>Stationery</option>
-<option>Tools</option>
-<option>Software</option>
-<option>মসলা</option>
-<option>গ্রোসারি</option>
-<option>খাদ্য</option>
-</select>
 
-<button onclick="addProduct()">Add Product</button>
+  <h2>Seller Upload (Secure V1.2B)</h2>
+
+  <div id="status" class="warning">Checking seller verification...</div>
+
+  <form id="product-form" class="hidden">
+
+    <input type="text" id="product-name" placeholder="Product Name" required>
+
+    <input type="number" id="product-price" placeholder="Price" required>
+
+    <textarea id="product-desc" placeholder="Description"></textarea>
+
+    <input type="number" id="product-stock" placeholder="Stock">
+
+    <select id="product-category">
+      <option>Food</option>
+      <option>Spice</option>
+      <option>Other</option>
+    </select>
+
+    <input type="file" id="product-image">
+
+    <button type="submit">Upload Product</button>
+
+  </form>
+
+  <div id="blocked" class="warning hidden">
+    ❌ You are not verified seller. Upload disabled.
+  </div>
+
 </div>
 
+<script type="module" src="assets/js/upload.js"></script>
 
-<script type="module">
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+<script>
+  // UI lock handler (upload.js থেকে control হবে)
+  window.lockSellerUI = function(isVerified){
 
-const auth=getAuth();
+    const form = document.getElementById("product-form");
+    const status = document.getElementById("status");
+    const blocked = document.getElementById("blocked");
 
-onAuthStateChanged(auth,(user)=>{
-    if(!user){
-        alert("Please login first.");
-        location.href="index.html";
+    if(isVerified){
+      status.style.display="none";
+      form.classList.remove("hidden");
+      blocked.classList.add("hidden");
+    }else{
+      status.style.display="none";
+      form.classList.add("hidden");
+      blocked.classList.remove("hidden");
     }
-});
+  };
 </script>
-<script src="assets/navbar.js"></script>
-<script type="module" src="auth-role.js"></script>
-<script src="cart.js"></script>
-<script src="wishlist.js"></script>
-</body>
 
+</body>
 </html>
