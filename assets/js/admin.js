@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue, update, remove } from "firebase/database";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -17,12 +17,26 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
+/* 🔐 ONLY THESE UID CAN ACCESS ADMIN PANEL */
+const ADMIN_UIDS = [
+  "YOUR_ADMIN_UID_1",
+  "YOUR_ADMIN_UID_2"
+];
+
 const productsDiv = document.getElementById("products");
 
 onAuthStateChanged(auth, (user) => {
 
   if(!user){
-    alert("Admin login required");
+    alert("Login required");
+    location.href="login.html";
+    return;
+  }
+
+  // 🔐 UID CHECK
+  if(!ADMIN_UIDS.includes(user.uid)){
+    alert("❌ Unauthorized Admin Access");
+    signOut(auth);
     location.href="login.html";
     return;
   }
@@ -43,6 +57,7 @@ function loadProducts(){
       const key = child.key;
       const data = child.val();
 
+      // only pending products
       if(data.status !== "pending") return;
 
       const div = document.createElement("div");
@@ -52,16 +67,19 @@ function loadProducts(){
         <h3>${data.name}</h3>
         <p>Price: ${data.price}</p>
         <p>Seller: ${data.sellerEmail}</p>
+        <p>Stock: ${data.stock}</p>
         <p>Status: ${data.status}</p>
         <button class="approve">Approve</button>
         <button class="reject">Reject</button>
       `;
 
       div.querySelector(".approve").onclick = () => {
+
         update(ref(db,"products/"+key),{
           status:"approved",
           approvedAt: Date.now()
         });
+
       };
 
       div.querySelector(".reject").onclick = () => {

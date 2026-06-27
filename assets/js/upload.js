@@ -17,136 +17,97 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-let currentUser = null;
-let sellerVerified = false;
+let currentUser=null;
+let sellerVerified=false;
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth,(user)=>{
 
-    if (!user) {
-        location.href = "login.html";
-        return;
+  if(!user){
+    location.href="login.html";
+    return;
+  }
+
+  currentUser=user;
+
+  const sellerRef=ref(db,"sellers/"+user.uid);
+
+  onValue(sellerRef,(snap)=>{
+
+    if(!snap.exists()){
+      location.href="seller.html";
+      return;
     }
 
-    currentUser = user;
+    const seller=snap.val();
+    sellerVerified = seller.verified===true;
 
-    const sellerRef = ref(db, "sellers/" + user.uid);
+    window.lockSellerUI?.(sellerVerified);
 
-    onValue(sellerRef, (snapshot) => {
-
-        if (!snapshot.exists()) {
-
-            alert("Seller account not found.");
-
-            location.href = "seller.html";
-
-            return;
-
-        }
-
-        const seller = snapshot.val();
-
-        sellerVerified = seller.verified === true;
-
-        if (!sellerVerified) {
-
-            alert("Your seller account is waiting for admin approval.");
-
-        }
-
-    });
+  });
 
 });
 
-document.getElementById("product-form").addEventListener("submit", function(e){
+/* 🚫 BASIC DUPLICATE + SPAM CONTROL */
+function isValidProduct(name, price){
 
-    e.preventDefault();
+  if(!name || name.length<3) return false;
+  if(price<=0 || price>1000000) return false;
 
-    if(!currentUser){
-        alert("Login required.");
-        return;
-    }
+  return true;
+}
 
-    if(!sellerVerified){
-        alert("Seller not verified.");
-        return;
-    }
+document.getElementById("product-form").addEventListener("submit",function(e){
 
-    const productData = {
+  e.preventDefault();
 
-        name: document.getElementById("product-name").value.trim(),
+  if(!currentUser) return alert("Login required");
+  if(!sellerVerified) return alert("Seller not verified");
 
-        price: parseFloat(document.getElementById("product-price").value),
+  const name=document.getElementById("product-name").value.trim();
+  const price=parseFloat(document.getElementById("product-price").value);
 
-        description: document.getElementById("product-desc").value,
+  if(!isValidProduct(name,price)){
+    alert("Invalid product data");
+    return;
+  }
 
-        stock: parseInt(document.getElementById("product-stock").value)||0,
+  const productData={
+    name,
+    price,
+    description:document.getElementById("product-desc").value,
+    stock:parseInt(document.getElementById("product-stock").value)||0,
+    category:document.getElementById("product-category").value,
+    sellerId:currentUser.uid,
+    sellerEmail:currentUser.email,
+    createdAt:Date.now(),
+    status:"pending",
+    approvedAt:0
+  };
 
-        category: document.getElementById("product-category").value,
+  const file=document.getElementById("product-image").files[0];
 
-        sellerId: currentUser.uid,
-
-        sellerEmail: currentUser.email,
-
-        createdAt: Date.now(),
-
-        status: "pending",
-
-        approvedBy: "",
-
-        approvedAt: 0,
-
-        sold: 0,
-
-        rating: 0,
-
-        reviews: 0
-
+  if(file){
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      productData.image=e.target.result;
+      save(productData);
     };
-
-    const imageFile=document.getElementById("product-image").files[0];
-
-    if(imageFile){
-
-        const reader=new FileReader();
-
-        reader.onload=function(ev){
-
-            productData.image=ev.target.result;
-
-            saveProduct(productData);
-
-        };
-
-        reader.readAsDataURL(imageFile);
-
-    }else{
-
-        productData.image="assets/images/default-product.jpg";
-
-        saveProduct(productData);
-
-    }
+    reader.readAsDataURL(file);
+  }else{
+    productData.image="assets/images/default-product.jpg";
+    save(productData);
+  }
 
 });
 
-function saveProduct(productData){
+function save(data){
 
-    const newRef=push(ref(db,"products"));
+  const newRef=push(ref(db,"products"));
 
-    set(newRef,productData)
-
-    .then(()=>{
-
-        alert("Product submitted successfully.\nWaiting for Admin approval.");
-
-        location.href="seller-dashboard.html";
-
-    })
-
-    .catch(err=>{
-
-        alert(err.message);
-
-    });
-
+  set(newRef,data)
+  .then(()=>{
+    alert("Submitted for admin approval");
+    location.href="seller-dashboard.html";
+  })
+  .catch(err=>alert(err.message));
 }
