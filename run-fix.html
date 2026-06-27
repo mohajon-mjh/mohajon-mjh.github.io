@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fix Category</title>
+</head>
+<body>
+  <h3>Open Console (F12) and run script</h3>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const productsRef = ref(db,"products");
+
+onValue(productsRef,(snap)=>{
+
+  snap.forEach((child)=>{
+
+    update(ref(db,"products/"+child.key),{
+      category:"grocery"
+    });
+
+  });
+
+  console.log("DONE: all set to grocery");
+});
+
+</script>
+</body>
+</html>
