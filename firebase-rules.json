@@ -1,0 +1,32 @@
+{
+  "rules": {
+    "products": {
+      ".read": true,
+      ".write": "auth != null",
+      "$productId": {
+        ".validate": "newData.hasChildren(['name','price','sellerId'])"
+      }
+    },
+
+    "categories": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+
+    "orders": {
+      ".read": "auth != null && data.child('uid').val() === auth.uid",
+      ".write": "auth != null",
+      "$orderId": {
+        ".validate": "newData.hasChildren(['orderId','uid','items'])"
+      }
+    },
+
+    "sellers": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+
+    ".read": false,
+    ".write": false
+  }
+}

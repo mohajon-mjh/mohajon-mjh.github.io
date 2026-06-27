@@ -4,13 +4,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Checkout</title>
+
 <style>
 body{font-family:Arial;background:#f5f5f5;padding:20px}
 input,textarea{width:100%;padding:10px;margin:5px 0}
 button{width:100%;padding:12px;background:#25D366;color:#fff;border:0;font-size:18px}
 .box{background:#fff;padding:15px;border-radius:10px}
+.hidden{display:none}
 </style>
+
+<script type="module">
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const auth = getAuth();
+
+onAuthStateChanged(auth, (user)=>{
+    if(!user){
+        alert("Order করতে হলে আগে Login করতে হবে!");
+        window.location.href = "index.html";
+    }
+});
+</script>
+
 </head>
+
 <body>
 
 <h2>🧾 Checkout</h2>
@@ -19,11 +37,15 @@ button{width:100%;padding:12px;background:#25D366;color:#fff;border:0;font-size:
 
 <input id="name" placeholder="আপনার নাম">
 <input id="phone" placeholder="মোবাইল নম্বর">
+
 <h3>Payment Method</h3>
-<button onclick="setPayment("COD")">Cash on Delivery</button>
-<button onclick="setPayment("bKash")">bKash</button>
-<button onclick="setPayment("Nagad")">Nagad</button>
+
+<button onclick="setPayment('COD')">Cash on Delivery</button>
+<button onclick="setPayment('bKash')">bKash</button>
+<button onclick="setPayment('Nagad')">Nagad</button>
+
 <br><br>
+
 <textarea id="address" placeholder="ঠিকানা"></textarea>
 
 <button onclick="placeOrder()">Order Confirm</button>
@@ -31,38 +53,35 @@ button{width:100%;padding:12px;background:#25D366;color:#fff;border:0;font-size:
 </div>
 
 <script>
+window.paymentMethod = "COD";
+
+window.setPayment = function(method){
+    window.paymentMethod = method;
+    alert("Selected: " + method);
+};
+
 function placeOrder(){
 
-let cart=JSON.parse(localStorage.getItem('cart')||'[]');
+let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-if(cart.length==0){
+if(cart.length === 0){
 alert("Cart empty");
 return;
 }
 
-let name=document.getElementById('name').value;
-let phone=document.getElementById('phone').value;
-<h3>Payment Method</h3>
-<button onclick="setPayment("COD")">Cash on Delivery</button>
-<button onclick="setPayment("bKash")">bKash</button>
-<button onclick="setPayment("Nagad")">Nagad</button>
-<br><br>
-let address=document.getElementById('address').value;
+let name = document.getElementById('name').value;
+let phone = document.getElementById('phone').value;
+let address = document.getElementById('address').value;
 
-let msg="New Order%0A";
-msg+="Name: "+name+"%0A";
-msg+="Phone: "+phone+"%0A";
-<h3>Payment Method</h3>
-<button onclick="setPayment("COD")">Cash on Delivery</button>
-<button onclick="setPayment("bKash")">bKash</button>
-<button onclick="setPayment("Nagad")">Nagad</button>
-<br><br>
-msg+="Address: "+address+"%0A";
-msg+="Items: "+cart.join(", ");
+let msg = "New Order%0A";
+msg += "Name: " + name + "%0A";
+msg += "Phone: " + phone + "%0A";
+msg += "Address: " + address + "%0A";
+msg += "Items: " + cart.join(", ");
 
-let url="https://wa.me/8801000000000?text="+msg;
+let url = "https://wa.me/8801000000000?text=" + msg;
 
-window.open(url,'_blank');
+window.open(url, '_blank');
 
 localStorage.removeItem('cart');
 
@@ -74,5 +93,6 @@ localStorage.removeItem('cart');
 <script type="module" src="auth-role.js"></script>
 <script src="cart.js"></script>
 <script src="wishlist.js"></script>
+
 </body>
 </html>

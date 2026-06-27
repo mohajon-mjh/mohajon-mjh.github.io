@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -13,8 +14,24 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+
+let currentUser = null;
+
+onAuthStateChanged(auth, (user)=>{
+  if(user){
+    currentUser = user;
+  } else {
+    window.location.href = "index.html";
+  }
+});
 
 window.placeOrder = async function(){
+
+  if(!currentUser){
+    alert("Login required");
+    return;
+  }
 
   const cart = JSON.parse(localStorage.getItem("cart") || "[]");
 
@@ -25,13 +42,14 @@ window.placeOrder = async function(){
 
   const order = {
     orderId: "ORD-" + Date.now(),
+    uid: currentUser.uid,
     name: document.getElementById("name").value,
     phone: document.getElementById("phone").value,
     address: document.getElementById("address").value,
     items: cart,
     status: "pending",
     paymentMethod: window.paymentMethod || "COD",
-    orderDate: new Date().toLocaleString()
+    orderDate: new Date().toISOString()
   };
 
   await push(ref(db,"orders"), order);
@@ -39,5 +57,6 @@ window.placeOrder = async function(){
   localStorage.removeItem("cart");
 
   alert("Order Placed Successfully");
-  location.href = "index.html";
+
+  window.location.href = "order-status.html";
 };
