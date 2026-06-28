@@ -51,23 +51,25 @@ const menuBtn = document.getElementById("menuBtn");
 const sideMenu = document.getElementById("sideMenu");
 const categoryList = document.getElementById("categoryList");
 
-if (categoryList) {
+function renderCategories() {
+    if (!categoryList) return;
+
     categoryList.innerHTML = "";
 
-    categories.forEach(category => {
+    categories.forEach(cat => {
         const li = document.createElement("li");
-        li.textContent = category;
-        li.style.padding = "10px";
-        li.style.cursor = "pointer";
-        li.style.borderBottom = "1px solid #333";
+        li.textContent = cat;
 
         li.onclick = () => {
-            window.location.href = "products.html?category=" + encodeURIComponent(category);
+            window.location.href =
+                "products.html?category=" + encodeURIComponent(cat);
         };
 
         categoryList.appendChild(li);
     });
 }
+
+renderCategories();
 
 if (menuBtn && sideMenu) {
     menuBtn.onclick = () => {
