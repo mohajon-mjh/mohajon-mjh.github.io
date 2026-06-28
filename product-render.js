@@ -126,7 +126,7 @@
 if(window.location.search.includes("category")){
 const grid=document.getElementById("productGrid");
 if(grid && grid.innerHTML.trim()===""){
-grid.innerHTML="<div class="loading-placeholder">এই category-তে কোনো product নেই</div>";
+grid.innerHTML=`<div class="loading-placeholder">এই category-তে কোনো product নেই</div>`;
 }
 }
                 grid.innerHTML = `<div class="loading-placeholder">No products found</div>`;
