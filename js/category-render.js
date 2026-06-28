@@ -4,13 +4,26 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!container) return;
 
   const params = new URLSearchParams(window.location.search);
-  const category = params.get("category");
+  let category = params.get("category");
 
-  if (!category || !window.CATEGORY_IMAGES) return;
+  if (!category) {
+    container.innerHTML = "<h3>Category not found</h3>";
+    return;
+  }
 
-  const images = window.CATEGORY_IMAGES[category] || [
-    "https://via.placeholder.com/600x400?text=No+Image"
-  ];
+  // FIX: decode URL properly
+  category = decodeURIComponent(category.trim());
+
+  console.log("Selected Category:", category);
+
+  const images = (window.CATEGORY_IMAGES && window.CATEGORY_IMAGES[category])
+    ? window.CATEGORY_IMAGES[category]
+    : [];
+
+  if (images.length === 0) {
+    container.innerHTML = "<h3>Loading products...</h3>";
+    return;
+  }
 
   container.innerHTML = "";
 
