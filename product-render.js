@@ -123,6 +123,12 @@
             grid.innerHTML = "";
 
             if (filteredProducts.length === 0) {
+if(window.location.search.includes("category")){
+const grid=document.getElementById("productGrid");
+if(grid && grid.innerHTML.trim()===""){
+grid.innerHTML="<div class="loading-placeholder">এই category-তে কোনো product নেই</div>";
+}
+}
                 grid.innerHTML = `<div class="loading-placeholder">No products found</div>`;
             } else {
                 filteredProducts.forEach(product => {
@@ -145,4 +151,31 @@
 
     window.renderProducts = renderProducts;
     window.applyFilters = applyFilters;
+})();
+
+// ===== PHASE D FIX: CATEGORY URL FILTER =====
+
+(function(){
+    function getCategoryFromURL(){
+        const params = new URLSearchParams(window.location.search);
+        return params.get("category");
+    }
+
+    const originalRender = window.renderProducts;
+
+    window.renderProducts = function(products){
+
+        const category = getCategoryFromURL();
+
+        if(category && category !== "all"){
+            products = products.filter(p => 
+                (p.category || "").trim() === category.trim()
+            );
+        }
+
+        if(originalRender){
+            originalRender(products);
+        }
+    };
+
 })();
