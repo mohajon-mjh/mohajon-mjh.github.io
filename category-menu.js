@@ -1,3 +1,5 @@
+document.addEventListener("DOMContentLoaded", () => {
+
 const categories = [
 "Agriculture, Food & Beverage",
 "Appliances (Home Appliances, Large & Small)",
@@ -51,9 +53,7 @@ const menuBtn = document.getElementById("menuBtn");
 const sideMenu = document.getElementById("sideMenu");
 const categoryList = document.getElementById("categoryList");
 
-function renderCategories() {
-    if (!categoryList) return;
-
+if (categoryList) {
     categoryList.innerHTML = "";
 
     categories.forEach(cat => {
@@ -69,10 +69,10 @@ function renderCategories() {
     });
 }
 
-renderCategories();
-
 if (menuBtn && sideMenu) {
     menuBtn.onclick = () => {
         sideMenu.classList.toggle("active");
     };
 }
+
+});
