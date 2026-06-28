@@ -4,6 +4,11 @@
   <title>Grocery Fix Tool</title>
 </head>
 <body>
+<div id="menuBtn" class="hamburger">☰</div>
+<nav id="sideMenu" class="side-menu">
+<h3>Categories</h3>
+<ul id="categoryList"></ul>
+</nav>
 <h2>Running Firebase Update...</h2>
 
 <script type="module">
@@ -54,5 +59,6 @@ if(snapshot.exists()){
 
 </script>
 
+<script src="category-menu.js"></script>
 </body>
 </html>

@@ -50,6 +50,11 @@ button{width:100%;padding:12px;background:#ff9900;border:0;font-size:18px}
 </style>
 </head>
 <body>
+<div id="menuBtn" class="hamburger">☰</div>
+<nav id="sideMenu" class="side-menu">
+<h3>Categories</h3>
+<ul id="categoryList"></ul>
+</nav>
 
 <h2>🛒 Seller Panel - Add Product</h2>
 
@@ -114,6 +119,7 @@ onAuthStateChanged(auth,(user)=>{
 <script type="module" src="auth-role.js"></script>
 <script src="cart.js"></script>
 <script src="wishlist.js"></script>
+<script src="category-menu.js"></script>
 </body>
 
 </html>
