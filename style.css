@@ -1,15 +1,4 @@
 
-.hamburger{
-    font-size:30px;
-    position:fixed;
-    top:10px;
-    left:10px;
-    z-index:9999;
-    cursor:pointer;
-    background:#fff;
-    padding:5px 10px;
-    border-radius:5px;
-}
 
 .side-menu{
     position:fixed;
@@ -34,17 +23,6 @@
     border-bottom:1px solid #333;
 }
 
-.hamburger{
-    font-size:30px;
-    position:fixed;
-    top:10px;
-    left:10px;
-    z-index:9999;
-    cursor:pointer;
-    background:#fff;
-    padding:6px 10px;
-    border-radius:6px;
-}
 
 .side-menu{
     position:fixed;
@@ -70,18 +48,6 @@
     cursor:pointer;
 }
 
-.hamburger{
-    font-size:30px;
-    position:fixed;
-    top:12px;
-    left:12px;
-    z-index:99999;
-    cursor:pointer;
-    background:white;
-    padding:6px 10px;
-    border-radius:6px;
-    box-shadow:0 2px 5px rgba(0,0,0,0.2);
-}
 
 .side-menu{
     position:fixed;
@@ -107,18 +73,6 @@
     cursor:pointer;
 }
 
-.hamburger{
-    font-size:30px;
-    position:fixed;
-    top:12px;
-    left:12px;
-    z-index:99999;
-    cursor:pointer;
-    background:#fff;
-    padding:6px 10px;
-    border-radius:6px;
-    box-shadow:0 2px 5px rgba(0,0,0,0.2);
-}
 
 .side-menu{
     position:fixed;
@@ -144,19 +98,6 @@
     cursor:pointer;
 }
 
-.hamburger{
-    position:fixed;
-    top:12px;
-    left:12px;
-    z-index:999999;
-    font-size:32px;
-    background:#ff9900;
-    color:#fff;
-    padding:8px 12px;
-    border-radius:6px;
-    cursor:pointer;
-    display:block;
-}
 
 .side-menu{
     position:fixed;
@@ -186,4 +127,18 @@
     padding:12px;
     border-bottom:1px solid rgba(255,255,255,0.15);
     cursor:pointer;
+}
+
+.hamburger{
+    position:fixed;
+    top:40px;
+    left:12px;
+    z-index:999999;
+    font-size:32px;
+    background:#ff9900;
+    color:#fff;
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    display:block;
 }
