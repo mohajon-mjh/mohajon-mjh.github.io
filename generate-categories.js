@@ -20,6 +20,7 @@ function makePage(name, image){
 <html>
 <head>
   <title>${name}</title>
+<link rel="stylesheet" href="css/global-menu.css">
 </head>
 <body>
 

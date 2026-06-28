@@ -46,6 +46,7 @@ input,select{width:100%;padding:10px;margin:5px 0}
 button{width:100%;padding:12px;background:#ff9900;border:0;font-size:18px}
 .box{background:#fff;padding:15px;border-radius:10px}
 </style>
+<link rel="stylesheet" href="css/global-menu.css">
 </head>
 <body>
 
