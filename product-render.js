@@ -22,6 +22,7 @@
     function createProductCard(product) {
         const card = document.createElement('div');
         card.className = 'product-card';
+        card.setAttribute('data-category', product.categoryId || '');
 
         const stock = parseInt(product.stock) || 0;
 
@@ -42,17 +43,17 @@
             discount = Math.round(((oldPrice - price) / oldPrice) * 100);
         }
 
-        // Firebase image only
+        // Firebase image only (new schema: images.main)
         const imageUrl =
-            product.image && product.image.trim() !== ""
-                ? product.image
+            product.images && product.images.main && product.images.main.trim() !== ""
+                ? product.images.main
                 : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
 
         card.innerHTML = `
             <div class="product-card-image">
                 <img
                     src="${imageUrl}"
-                    alt="${product.name || 'Product'}"
+                    alt="${product.title || 'Product'}"
                     loading="lazy"
                     onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
 
@@ -62,10 +63,10 @@
             </div>
 
             <div class="product-card-content">
-                <h3 class="product-card-title">${product.name || "Unnamed Product"}</h3>
+                <h3 class="product-card-title">${product.title || "Unnamed Product"}</h3>
 
                 <div class="product-card-category">
-                    ${product.category || "Uncategorized"}
+                    ${product.categoryId || "Uncategorized"}
                 </div>
 
                 <div class="product-card-price">
@@ -109,12 +110,12 @@
             : "all";
 
         filteredProducts = allProducts.filter(product => {
-            const matchName = (product.name || "")
+            const matchName = (product.title || "")
                 .toLowerCase()
                 .includes(searchTerm);
 
             const matchCategory =
-                category === "all" || product.category === category;
+                category === "all" || product.categoryId === category;
 
             return matchName && matchCategory;
         });
@@ -123,12 +124,6 @@
             grid.innerHTML = "";
 
             if (filteredProducts.length === 0) {
-if(window.location.search.includes("category")){
-const grid=document.getElementById("productGrid");
-if(grid && grid.innerHTML.trim()===""){
-grid.innerHTML=`<div class="loading-placeholder">এই category-তে কোনো product নেই</div>`;
-}
-}
                 grid.innerHTML = `<div class="loading-placeholder">No products found</div>`;
             } else {
                 filteredProducts.forEach(product => {
@@ -158,7 +153,7 @@ grid.innerHTML=`<div class="loading-placeholder">এই category-তে কো�
 (function(){
     function getCategoryFromURL(){
         const params = new URLSearchParams(window.location.search);
-        return params.get("category");
+        return params.get("categoryId");
     }
 
     const originalRender = window.renderProducts;
@@ -168,8 +163,8 @@ grid.innerHTML=`<div class="loading-placeholder">এই category-তে কো�
         const category = getCategoryFromURL();
 
         if(category && category !== "all"){
-            products = products.filter(p => 
-                (p.category || "").trim() === category.trim()
+            products = products.filter(p =>
+                (p.categoryId || "").trim() === category.trim()
             );
         }
 
