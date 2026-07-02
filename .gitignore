@@ -5,3 +5,4 @@ all-products.txt
 phase-backup/
 *.bak
 *.phase2.bak
+serviceAccountKey.json
