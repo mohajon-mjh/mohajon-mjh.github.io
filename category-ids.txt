@@ -1,0 +1,48 @@
+Category Name                                          | categoryId                                        | Image Folder Path
+--------------------------------------------------------|---------------------------------------------------|---------------------------------------------------------------------
+Agriculture, Food & Beverage                            | agriculture_food_beverage                          | assets/images/categories/Agriculture, Food & Beverage/
+Appliances (Home Appliances, Large & Small)             | appliances_home_appliances_large_small             | assets/images/categories/Appliances (Home Appliances, Large & Small)/
+Art, Collectibles & Crafts                              | art_collectibles_crafts                            | assets/images/categories/Art, Collectibles & Crafts/
+Automotive, Vehicle Parts & Accessories                 | automotive_vehicle_parts_accessories               | assets/images/categories/Automotive, Vehicle Parts & Accessories/
+Baby Products, Baby Essentials                          | baby_products_baby_essentials                      | assets/images/categories/Baby Products, Baby Essentials/
+Beauty & Personal Care                                  | beauty_personal_care                               | assets/images/categories/Beauty & Personal Care/
+Books, Media & Music                                    | books_media_music                                  | assets/images/categories/Books, Media & Music/
+Business & Industrial, Machinery                        | business_industrial_machinery                      | assets/images/categories/Business & Industrial, Machinery/
+Cameras & Photo                                         | cameras_photo                                      | assets/images/categories/Cameras & Photo/
+Clothing, Fashion & Apparel (Men, Women, Kids)          | clothing_fashion_apparel_men_women_kids             | assets/images/categories/Clothing, Fashion & Apparel (Men, Women, Kids)/
+Computers, Tablets & Networking                         | computers_tablets_networking                       | assets/images/categories/Computers, Tablets & Networking/
+Construction & Building Materials                       | construction_building_materials                    | assets/images/categories/Construction & Building Materials/
+Consumer Electronics                                    | consumer_electronics                               | assets/images/categories/Consumer Electronics/
+Electrical Equipment & Supplies                         | electrical_equipment_supplies                      | assets/images/categories/Electrical Equipment & Supplies/
+Electronics (TV, Audio, Gaming, etc.)                   | electronics_tv_audio_gaming                        | assets/images/categories/Electronics (TV, Audio, Gaming, etc.)/
+Food & Grocery                                          | food_grocery                                       | assets/images/categories/Food & Grocery/
+Furniture & Home Decor                                  | furniture_home_decor                               | assets/images/categories/Furniture & Home Decor/
+Gardening & Outdoor Living                              | gardening_outdoor_living                           | assets/images/categories/Gardening & Outdoor Living/
+Gifts & Crafts                                          | gifts_crafts                                       | assets/images/categories/Gifts & Crafts/
+Health & Medical Supplies                               | health_medical_supplies                            | assets/images/categories/Health & Medical Supplies/
+Health & Wellness                                       | health_wellness                                    | assets/images/categories/Health & Wellness/
+Home & Kitchen                                          | home_kitchen                                       | assets/images/categories/Home & Kitchen/
+Home Improvement, Tools & Hardware                      | home_improvement_tools_hardware                    | assets/images/categories/Home Improvement, Tools & Hardware/
+Industrial Machinery & Equipment                        | industrial_machinery_equipment                     | assets/images/categories/Industrial Machinery & Equipment/
+Jewelry, Eyewear & Watches                              | jewelry_eyewear_watches                            | assets/images/categories/Jewelry, Eyewear & Watches/
+Lighting & Lamps                                        | lighting_lamps                                     | assets/images/categories/Lighting & Lamps/
+Luggage, Bags & Cases                                   | luggage_bags_cases                                 | assets/images/categories/Luggage, Bags & Cases/
+Office & School Supplies                                | office_school_supplies                             | assets/images/categories/Office & School Supplies/
+Pet Supplies                                            | pet_supplies                                       | assets/images/categories/Pet Supplies/
+Renewable Energy                                        | renewable_energy                                   | assets/images/categories/Renewable Energy/
+Safety & Security                                       | safety_security                                    | assets/images/categories/Safety & Security/
+Shoes & Accessories                                     | shoes_accessories                                  | assets/images/categories/Shoes & Accessories/
+Smart Home & Surveillance                               | smart_home_surveillance                            | assets/images/categories/Smart Home & Surveillance/
+Sports & Outdoors, Fitness                              | sports_outdoors_fitness                            | assets/images/categories/Sports & Outdoors, Fitness/
+Toys, Games & Hobbies                                   | toys_games_hobbies                                 | assets/images/categories/Toys, Games & Hobbies/
+Video Games & Consoles                                  | video_games_consoles                               | assets/images/categories/Video Games & Consoles/
+Vehicles & Transportation                               | vehicles_transportation                            | assets/images/categories/Vehicles & Transportation/
+Air Conditioners, Refrigerators, Washing Machines       | air_conditioners_refrigerators_washing_machines    | assets/images/categories/Air Conditioners, Refrigerators, Washing Machines/
+Mobile Phones & Accessories                             | mobile_phones_accessories                          | assets/images/categories/Mobile Phones & Accessories/
+Laptops & PCs                                           | laptops_pcs                                        | assets/images/categories/Laptops & PCs/
+Headphones, Speakers & Audio                            | headphones_speakers_audio                          | assets/images/categories/Headphones, Speakers & Audio/
+Makeup, Skincare & Fragrance                            | makeup_skincare_fragrance                          | assets/images/categories/Makeup, Skincare & Fragrance/
+Furniture (Sofas, Beds, etc.)                           | furniture_sofas_beds_etc                           | assets/images/categories/Furniture (Sofas, Beds, etc.)/
+Power Tools & Hand Tools                                | power_tools_hand_tools                             | assets/images/categories/Power Tools & Hand Tools/
+Drones & Action Cameras                                 | drones_action_cameras                              | assets/images/categories/Drones & Action Cameras/
+Bicycles, Scooters & Electric Vehicles                  | bicycles_scooters_electric_vehicles                | assets/images/categories/Bicycles, Scooters & Electric Vehicles/
