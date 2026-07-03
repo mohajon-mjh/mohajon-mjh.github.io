@@ -1,0 +1,770 @@
+{
+  "p0134": {
+    "sellerId": "admin",
+    "title": "Agriculture, Food & Beverage",
+    "description": "Agriculture, Food & Beverage — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "agriculture_food_beverage",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Agriculture, Food & Beverage/agriculture_food_beverage.png"
+    },
+    "sku": "p0134"
+  },
+  "p0135": {
+    "sellerId": "admin",
+    "title": "Appliances (Home Appliances, Large & Small)",
+    "description": "Appliances (Home Appliances, Large & Small) — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "appliances_home_appliances_large_small",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Appliances (Home Appliances, Large & Small)/appliances_home_appliances_large_small.png"
+    },
+    "sku": "p0135"
+  },
+  "p0136": {
+    "sellerId": "admin",
+    "title": "Art, Collectibles & Crafts",
+    "description": "Art, Collectibles & Crafts — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "art_collectibles_crafts",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Art, Collectibles & Crafts/art_collectibles_crafts.png"
+    },
+    "sku": "p0136"
+  },
+  "p0137": {
+    "sellerId": "admin",
+    "title": "Automotive, Vehicle Parts & Accessories",
+    "description": "Automotive, Vehicle Parts & Accessories — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "automotive_vehicle_parts_accessories",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Automotive, Vehicle Parts & Accessories/automotive_vehicle_parts_accessories.png"
+    },
+    "sku": "p0137"
+  },
+  "p0138": {
+    "sellerId": "admin",
+    "title": "Baby Products, Baby Essentials",
+    "description": "Baby Products, Baby Essentials — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "baby_products_baby_essentials",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Baby Products, Baby Essentials/baby_products_baby_essentials.png"
+    },
+    "sku": "p0138"
+  },
+  "p0139": {
+    "sellerId": "admin",
+    "title": "Beauty & Personal Care",
+    "description": "Beauty & Personal Care — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "beauty_personal_care",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Beauty & Personal Care/beauty_personal_care.png"
+    },
+    "sku": "p0139"
+  },
+  "p0140": {
+    "sellerId": "admin",
+    "title": "Books, Media & Music",
+    "description": "Books, Media & Music — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "books_media_music",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Books, Media & Music/books_media_music.png"
+    },
+    "sku": "p0140"
+  },
+  "p0141": {
+    "sellerId": "admin",
+    "title": "Books, Media & Music (2)",
+    "description": "Books, Media & Music (2) — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "books_media_music",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Books, Media & Music/books_media_music1.png"
+    },
+    "sku": "p0141"
+  },
+  "p0142": {
+    "sellerId": "admin",
+    "title": "Business & Industrial, Machinery",
+    "description": "Business & Industrial, Machinery — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "business_industrial_machinery",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Business & Industrial, Machinery/business_industrial_machinery.png"
+    },
+    "sku": "p0142"
+  },
+  "p0143": {
+    "sellerId": "admin",
+    "title": "Cameras & Photo",
+    "description": "Cameras & Photo — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "cameras_photo",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Cameras & Photo/cameras_photo.png"
+    },
+    "sku": "p0143"
+  },
+  "p0144": {
+    "sellerId": "admin",
+    "title": "Clothing, Fashion & Apparel (Men, Women, Kids)",
+    "description": "Clothing, Fashion & Apparel (Men, Women, Kids) — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "clothing_fashion_apparel_men_women_kids",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Clothing, Fashion & Apparel (Men, Women, Kids)/clothing_fashion_apparel_men_women_kids.png"
+    },
+    "sku": "p0144"
+  },
+  "p0145": {
+    "sellerId": "admin",
+    "title": "Computers, Tablets & Networking",
+    "description": "Computers, Tablets & Networking — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "computers_tablets_networking",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Computers, Tablets & Networking/computers_tablets_networking.png"
+    },
+    "sku": "p0145"
+  },
+  "p0146": {
+    "sellerId": "admin",
+    "title": "Construction & Building Materials",
+    "description": "Construction & Building Materials — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "construction_building_materials",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Construction & Building Materials/construction_building_materials.png"
+    },
+    "sku": "p0146"
+  },
+  "p0147": {
+    "sellerId": "admin",
+    "title": "Consumer Electronics",
+    "description": "Consumer Electronics — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "consumer_electronics",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Consumer Electronics/consumer_electronics.png"
+    },
+    "sku": "p0147"
+  },
+  "p0148": {
+    "sellerId": "admin",
+    "title": "Electrical Equipment & Supplies",
+    "description": "Electrical Equipment & Supplies — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "electrical_equipment_supplies",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Electrical Equipment & Supplies/electrical_equipment_supplies.png"
+    },
+    "sku": "p0148"
+  },
+  "p0149": {
+    "sellerId": "admin",
+    "title": "Electronics (TV, Audio, Gaming, etc.)",
+    "description": "Electronics (TV, Audio, Gaming, etc.) — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "electronics_tv_audio_gaming",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Electronics (TV, Audio, Gaming, etc.)/electronics_tv_audio_gaming.png"
+    },
+    "sku": "p0149"
+  },
+  "p0150": {
+    "sellerId": "admin",
+    "title": "Furniture & Home Decor",
+    "description": "Furniture & Home Decor — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "furniture_home_decor",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Furniture & Home Decor/furniture_home_decor-1.png"
+    },
+    "sku": "p0150"
+  },
+  "p0151": {
+    "sellerId": "admin",
+    "title": "Furniture & Home Decor (2)",
+    "description": "Furniture & Home Decor (2) — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "furniture_home_decor",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Furniture & Home Decor/furniture_home_decor.png"
+    },
+    "sku": "p0151"
+  },
+  "p0152": {
+    "sellerId": "admin",
+    "title": "Gardening & Outdoor Living",
+    "description": "Gardening & Outdoor Living — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "gardening_outdoor_living",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Gardening & Outdoor Living/gardening_outdoor_living.png"
+    },
+    "sku": "p0152"
+  },
+  "p0153": {
+    "sellerId": "admin",
+    "title": "Gifts & Crafts",
+    "description": "Gifts & Crafts — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "gifts_crafts",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Gifts & Crafts/gifts_crafts.png"
+    },
+    "sku": "p0153"
+  },
+  "p0154": {
+    "sellerId": "admin",
+    "title": "Health & Medical Supplies",
+    "description": "Health & Medical Supplies — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "health_medical_supplies",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Health & Medical Supplies/health_medical_supplies.png"
+    },
+    "sku": "p0154"
+  },
+  "p0155": {
+    "sellerId": "admin",
+    "title": "Health & Wellness",
+    "description": "Health & Wellness — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "health_wellness",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Health & Wellness/health_wellness.png"
+    },
+    "sku": "p0155"
+  },
+  "p0156": {
+    "sellerId": "admin",
+    "title": "Home & Kitchen",
+    "description": "Home & Kitchen — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "home_kitchen",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Home & Kitchen/home_kitchen.png"
+    },
+    "sku": "p0156"
+  },
+  "p0157": {
+    "sellerId": "admin",
+    "title": "Home Improvement, Tools & Hardware",
+    "description": "Home Improvement, Tools & Hardware — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "home_improvement_tools_hardware",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Home Improvement, Tools & Hardware/home_improvement_tools_hardware.png"
+    },
+    "sku": "p0157"
+  },
+  "p0158": {
+    "sellerId": "admin",
+    "title": "Industrial Machinery & Equipment",
+    "description": "Industrial Machinery & Equipment — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "industrial_machinery_equipment",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Industrial Machinery & Equipment/industrial_machinery_equipment.png"
+    },
+    "sku": "p0158"
+  },
+  "p0159": {
+    "sellerId": "admin",
+    "title": "Jewelry, Eyewear & Watches",
+    "description": "Jewelry, Eyewear & Watches — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "jewelry_eyewear_watches",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Jewelry, Eyewear & Watches/jewelry_eyewear_watches.png"
+    },
+    "sku": "p0159"
+  },
+  "p0160": {
+    "sellerId": "admin",
+    "title": "Lighting & Lamps",
+    "description": "Lighting & Lamps — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "lighting_lamps",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Lighting & Lamps/lighting_lamps.png"
+    },
+    "sku": "p0160"
+  },
+  "p0161": {
+    "sellerId": "admin",
+    "title": "Luggage, Bags & Cases",
+    "description": "Luggage, Bags & Cases — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "luggage_bags_cases",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Luggage, Bags & Cases/luggage_bags_cases.png"
+    },
+    "sku": "p0161"
+  },
+  "p0162": {
+    "sellerId": "admin",
+    "title": "Office & School Supplies",
+    "description": "Office & School Supplies — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "office_school_supplies",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Office & School Supplies/office_school_supplies.png"
+    },
+    "sku": "p0162"
+  },
+  "p0163": {
+    "sellerId": "admin",
+    "title": "Pet Supplies",
+    "description": "Pet Supplies — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "pet_supplies",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Pet Supplies/pet_supplies.png"
+    },
+    "sku": "p0163"
+  },
+  "p0164": {
+    "sellerId": "admin",
+    "title": "Renewable Energy",
+    "description": "Renewable Energy — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "renewable_energy",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Renewable Energy/renewable_energy.png"
+    },
+    "sku": "p0164"
+  },
+  "p0165": {
+    "sellerId": "admin",
+    "title": "Safety & Security",
+    "description": "Safety & Security — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "safety_security",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Safety & Security/safety_security.png"
+    },
+    "sku": "p0165"
+  },
+  "p0166": {
+    "sellerId": "admin",
+    "title": "Shoes & Accessories",
+    "description": "Shoes & Accessories — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "shoes_accessories",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Shoes & Accessories/shoes_accessories.png"
+    },
+    "sku": "p0166"
+  },
+  "p0167": {
+    "sellerId": "admin",
+    "title": "Smart Home & Surveillance",
+    "description": "Smart Home & Surveillance — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "smart_home_surveillance",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Smart Home & Surveillance/smart_home_surveillance.png"
+    },
+    "sku": "p0167"
+  },
+  "p0168": {
+    "sellerId": "admin",
+    "title": "Sports & Outdoors, Fitness",
+    "description": "Sports & Outdoors, Fitness — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "sports_outdoors_fitness",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Sports & Outdoors, Fitness/sports_outdoors_fitness.png"
+    },
+    "sku": "p0168"
+  },
+  "p0169": {
+    "sellerId": "admin",
+    "title": "Toys, Games & Hobbies",
+    "description": "Toys, Games & Hobbies — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "toys_games_hobbies",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Toys, Games & Hobbies/toys_games_hobbies.png"
+    },
+    "sku": "p0169"
+  },
+  "p0170": {
+    "sellerId": "admin",
+    "title": "Video Games & Consoles",
+    "description": "Video Games & Consoles — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "video_games_consoles",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Video Games & Consoles/video_games_consoles.png"
+    },
+    "sku": "p0170"
+  },
+  "p0171": {
+    "sellerId": "admin",
+    "title": "Vehicles & Transportation",
+    "description": "Vehicles & Transportation — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "vehicles_transportation",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Vehicles & Transportation/vehicles_transportation.png"
+    },
+    "sku": "p0171"
+  },
+  "p0172": {
+    "sellerId": "admin",
+    "title": "Air Conditioners, Refrigerators, Washing Machines",
+    "description": "Air Conditioners, Refrigerators, Washing Machines — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "air_conditioners_refrigerators_washing_machines",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Air Conditioners, Refrigerators, Washing Machines/air_conditioners_refrigerators_washing_machines.png"
+    },
+    "sku": "p0172"
+  },
+  "p0173": {
+    "sellerId": "admin",
+    "title": "Mobile Phones & Accessories",
+    "description": "Mobile Phones & Accessories — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "mobile_phones_accessories",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Mobile Phones & Accessories/mobile_phones_accessories.png"
+    },
+    "sku": "p0173"
+  },
+  "p0174": {
+    "sellerId": "admin",
+    "title": "Laptops & PCs",
+    "description": "Laptops & PCs — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "laptops_pcs",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Laptops & PCs/laptops_pcs.png"
+    },
+    "sku": "p0174"
+  },
+  "p0175": {
+    "sellerId": "admin",
+    "title": "Headphones, Speakers & Audio",
+    "description": "Headphones, Speakers & Audio — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "headphones_speakers_audio",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Headphones, Speakers & Audio/headphones_speakers_audio.png"
+    },
+    "sku": "p0175"
+  },
+  "p0176": {
+    "sellerId": "admin",
+    "title": "Makeup, Skincare & Fragrance",
+    "description": "Makeup, Skincare & Fragrance — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "makeup_skincare_fragrance",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Makeup, Skincare & Fragrance/makeup_skincare_fragrance.png"
+    },
+    "sku": "p0176"
+  },
+  "p0177": {
+    "sellerId": "admin",
+    "title": "Furniture (Sofas, Beds, etc.)",
+    "description": "Furniture (Sofas, Beds, etc.) — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "furniture_sofas_beds_etc",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Furniture (Sofas, Beds, etc.)/furniture_sofas_beds_etc.png"
+    },
+    "sku": "p0177"
+  },
+  "p0178": {
+    "sellerId": "admin",
+    "title": "Power Tools & Hand Tools",
+    "description": "Power Tools & Hand Tools — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "power_tools_hand_tools",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Power Tools & Hand Tools/power_tools_hand_tools.png"
+    },
+    "sku": "p0178"
+  },
+  "p0179": {
+    "sellerId": "admin",
+    "title": "Drones & Action Cameras",
+    "description": "Drones & Action Cameras — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "drones_action_cameras",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Drones & Action Cameras/drones_action_cameras.png"
+    },
+    "sku": "p0179"
+  },
+  "p0180": {
+    "sellerId": "admin",
+    "title": "Drones & Action Cameras (2)",
+    "description": "Drones & Action Cameras (2) — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "drones_action_cameras",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Drones & Action Cameras/drones_action_cameras1.png"
+    },
+    "sku": "p0180"
+  },
+  "p0181": {
+    "sellerId": "admin",
+    "title": "Bicycles, Scooters & Electric Vehicles",
+    "description": "Bicycles, Scooters & Electric Vehicles — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "bicycles_scooters_electric_vehicles",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Bicycles, Scooters & Electric Vehicles/bicycles_scooters_electric_vehicles.png"
+    },
+    "sku": "p0181"
+  }
+}
