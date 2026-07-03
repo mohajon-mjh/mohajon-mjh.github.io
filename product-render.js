@@ -6,17 +6,9 @@
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
 
-    function renderProducts(products) {
-        if (!grid) return;
-
-        if (!products || products.length === 0) {
-            grid.innerHTML = `<div class="loading-placeholder">No products available</div>`;
-            return;
-        }
-
-        allProducts = products;
-        filteredProducts = [...products];
-        applyFilters();
+    function getCategoryFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("categoryId");
     }
 
     function createProductCard(product) {
@@ -55,40 +47,30 @@
                     alt="${product.title || 'Product'}"
                     loading="lazy"
                     onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
-
                 ${stockBadge}
-
                 ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
             </div>
-
             <div class="product-card-content">
                 <h3 class="product-card-title">${product.title || "Unnamed Product"}</h3>
-
                 <div class="product-card-category">
                     ${product.categoryId || "Uncategorized"}
                 </div>
-
                 <div class="product-card-price">
                     <span class="current-price">৳${price.toFixed(2)}</span>
-
                     ${oldPrice > price
                         ? `<span class="old-price">৳${oldPrice.toFixed(2)}</span>`
                         : ""}
                 </div>
-
                 ${product.weight
                     ? `<div class="product-card-weight">${product.weight}</div>`
                     : ""}
-
                 <div class="product-card-actions">
                     <button class="btn-add-to-cart" data-id="${product.id}">
                         Add to Cart
                     </button>
-
                     <button class="btn-wishlist" data-id="${product.id}">
                         ❤
                     </button>
-
                     <a href="product-details.html?id=${product.id}" class="btn-view-details">
                         View Details
                     </a>
@@ -104,24 +86,29 @@
             ? searchInput.value.toLowerCase().trim()
             : "";
 
-        const category = categoryFilter
+        const dropdownCategory = categoryFilter
             ? categoryFilter.value
             : "all";
+
+        const urlCategory = getCategoryFromURL();
 
         filteredProducts = allProducts.filter(product => {
             const matchName = (product.title || "")
                 .toLowerCase()
                 .includes(searchTerm);
 
-            const matchCategory =
-                category === "all" || product.categoryId === category;
+            const matchDropdown =
+                dropdownCategory === "all" || product.categoryId === dropdownCategory;
 
-            return matchName && matchCategory;
+            const matchUrl =
+                !urlCategory || urlCategory === "all" ||
+                (product.categoryId || "").trim() === urlCategory.trim();
+
+            return matchName && matchDropdown && matchUrl;
         });
 
         if (grid) {
             grid.innerHTML = "";
-
             if (filteredProducts.length === 0) {
                 grid.innerHTML = `<div class="loading-placeholder">No products found</div>`;
             } else {
@@ -132,44 +119,24 @@
         }
 
         const count = document.getElementById("product-count");
-
         if (count) {
             count.textContent =
                 `${filteredProducts.length} item${filteredProducts.length !== 1 ? "s" : ""}`;
         }
     }
 
+    function renderProducts(products) {
+        allProducts = products || [];
+        applyFilters();
+    }
+
     document.addEventListener("productsLoaded", function(e) {
         renderProducts(e.detail ? e.detail.products : []);
     });
 
+    if (searchInput) searchInput.addEventListener("input", applyFilters);
+    if (categoryFilter) categoryFilter.addEventListener("change", applyFilters);
+
     window.renderProducts = renderProducts;
     window.applyFilters = applyFilters;
-})();
-
-// ===== PHASE D FIX: CATEGORY URL FILTER =====
-
-(function(){
-    function getCategoryFromURL(){
-        const params = new URLSearchParams(window.location.search);
-        return params.get("categoryId");
-    }
-
-    const originalRender = window.renderProducts;
-
-    window.renderProducts = function(products){
-
-        const category = getCategoryFromURL();
-
-        if(category && category !== "all"){
-            products = products.filter(p =>
-                (p.categoryId || "").trim() === category.trim()
-            );
-        }
-
-        if(originalRender){
-            originalRender(products);
-        }
-    };
-
 })();
