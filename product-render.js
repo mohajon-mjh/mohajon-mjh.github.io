@@ -11,6 +11,11 @@
         return params.get("categoryId");
     }
 
+    function getSearchFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("search");
+    }
+
     function isWished(id) {
         const list = JSON.parse(localStorage.getItem("wishlist") || "[]");
         return list.some(i => i.id === id);
@@ -155,6 +160,12 @@
 
     function renderProducts(products) {
         allProducts = products || [];
+
+        const urlSearch = getSearchFromURL();
+        if (urlSearch && searchInput) {
+            searchInput.value = urlSearch;
+        }
+
         applyFilters();
     }
 
