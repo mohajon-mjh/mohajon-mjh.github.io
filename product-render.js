@@ -11,6 +11,11 @@
         return params.get("categoryId");
     }
 
+    function isWished(id) {
+        const list = JSON.parse(localStorage.getItem("wishlist") || "[]");
+        return list.some(i => i.id === id);
+    }
+
     function createProductCard(product) {
         const card = document.createElement('div');
         card.className = 'product-card';
@@ -40,6 +45,8 @@
                 ? product.images.main
                 : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
 
+        const wished = isWished(product.id);
+
         card.innerHTML = `
             <div class="product-card-image">
                 <img
@@ -65,10 +72,10 @@
                     ? `<div class="product-card-weight">${product.weight}</div>`
                     : ""}
                 <div class="product-card-actions">
-                    <button class="btn-add-to-cart" data-id="${product.id}">
-                        Add to Cart
+                    <button class="btn-add-to-cart" ${stock <= 0 ? "disabled" : ""}>
+                        ${stock <= 0 ? "Out of Stock" : "Add to Cart"}
                     </button>
-                    <button class="btn-wishlist" data-id="${product.id}">
+                    <button class="btn-wishlist ${wished ? "active" : ""}">
                         ❤
                     </button>
                     <a href="product-details.html?id=${product.id}" class="btn-view-details">
@@ -77,6 +84,27 @@
                 </div>
             </div>
         `;
+
+        const addBtn = card.querySelector('.btn-add-to-cart');
+        if (addBtn && stock > 0) {
+            addBtn.addEventListener('click', () => {
+                if (typeof addCart === 'function') {
+                    addCart(product.id, product.title, price);
+                }
+                addBtn.textContent = "Added ✓";
+                setTimeout(() => { addBtn.textContent = "Add to Cart"; }, 1200);
+            });
+        }
+
+        const wishBtn = card.querySelector('.btn-wishlist');
+        if (wishBtn) {
+            wishBtn.addEventListener('click', () => {
+                if (typeof toggleWishlist === 'function') {
+                    toggleWishlist(product.id, product.title);
+                }
+                wishBtn.classList.toggle('active');
+            });
+        }
 
         return card;
     }
