@@ -481,6 +481,7 @@ font-size:18px;
 
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="css/global-menu.css">
+<link rel="stylesheet" href="shared-header.css">
 </head>
 
 
@@ -491,53 +492,7 @@ font-size:18px;
   <ul id="categoryList"></ul>
 </nav>
 
-<!-- MARKETPLACE HEADER START -->
-<div class="topbar">
-  <div>
-    🌐 EN | العربية | বাংলা
-  </div>
-
-  <div>
-    💲 USD | SAR | BDT
-  </div>
-
-  <div>
-    Help Center | Track Order
-  </div>
-</div>
-
-<header class="market-header">
-
-  <div class="logo">
-    <img src="assets/images/logo.png" alt="MJH">
-  </div>
-
-  <div class="search">
-    <input type="text" placeholder="Search products, brands and categories">
-    <button>🔍</button>
-  </div>
-
-  <div class="header-actions">
-    <a href="login.html">👤 Account</a>
-    <a href="wishlist.html">❤️ Wishlist</a>
-    <a href="cart.html">🛒 Cart</a>
-  </div>
-
-</header>
-
-<nav class="market-nav" style="overflow-x:auto; white-space:nowrap; -webkit-overflow-scrolling:touch;">
-  <a href="index.html" style="display:inline-block;">Home</a>
-  <a href="products.html" style="display:inline-block;">All Products</a>
-  <a href="products.html?categoryId=consumer_electronics" style="display:inline-block;">Electronics</a>
-  <a href="products.html?categoryId=clothing_fashion_apparel_men_women_kids" style="display:inline-block;">Fashion</a>
-  <a href="products.html?categoryId=food_grocery" style="display:inline-block;">Groceries</a>
-  <a href="products.html?categoryId=beauty_personal_care" style="display:inline-block;">Health & Beauty</a>
-  <a href="products.html?categoryId=home_kitchen" style="display:inline-block;">Home & Kitchen</a>
-  <a href="products.html?categoryId=sports_outdoors_fitness" style="display:inline-block;">Sports</a>
-  <a href="products.html?categoryId=books_media_music" style="display:inline-block;">Books</a>
-  <a href="products.html?categoryId=automotive_vehicle_parts_accessories" style="display:inline-block;">Automotive</a>
-</nav>
-<!-- MARKETPLACE HEADER END -->
+<div id="navbar-placeholder"></div>
 
 
 
@@ -1319,6 +1274,7 @@ navigator.serviceWorker.register('/sw.js');
 </script>
 
 <script src="assets/navbar.js"></script>
+<script src="shared-header.js"></script>
 <script type="module" src="auth-role.js"></script>
 <a href="seller-dashboard.html">Seller Dashboard</a> | <a href="admin.html">Admin</a> | <a href="upload-product.html">Upload Product</a>
 <footer class="market-footer">
