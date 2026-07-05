@@ -36,3 +36,15 @@
 .co-msg{margin-top:10px;text-align:center;font-size:0.9rem;}
 .co-msg.error{color:#B12704;}
 .co-msg.success{color:#007600;}
+
+.co-pay-info{
+  background:#fff7ec;
+  border-left:4px solid #ff9900;
+  border-radius:8px;
+  padding:12px 14px;
+  margin:10px 0;
+  font-size:0.88rem;
+  color:#334155;
+  line-height:1.6;
+}
+.co-pay-info b{color:#0b1a2e;}

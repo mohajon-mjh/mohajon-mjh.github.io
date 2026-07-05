@@ -21,12 +21,53 @@ let currentUser = null;
 let selectedPayment = "COD";
 
 const PAYMENT_METHODS = [
-  { key: "COD", label: "💵 Cash on Delivery", needsRef: false },
-  { key: "bKash", label: "📱 bKash", needsRef: true },
-  { key: "Nagad", label: "📱 Nagad", needsRef: true },
-  { key: "Rocket", label: "🚀 Rocket", needsRef: true },
-  { key: "Bank", label: "🏦 Bank Transfer", needsRef: true },
-  { key: "PayPal", label: "🌐 PayPal", needsRef: true }
+  {
+    key: "COD",
+    label: "💵 Cash on Delivery",
+    needsRef: false,
+    refPlaceholder: "",
+    info: "ডেলিভারির সময় ক্যাশ পরিশোধ করুন। কোনো অগ্রিম পেমেন্ট প্রয়োজন নেই।"
+  },
+  {
+    key: "bKash",
+    label: "📱 bKash",
+    needsRef: true,
+    refPlaceholder: "bKash Transaction ID",
+    info: "এই bKash নম্বরে <b>Send Money</b> করুন: <b>+8801317668288</b><br>তারপর Transaction ID নিচে লিখুন।"
+  },
+  {
+    key: "Nagad",
+    label: "📱 Nagad",
+    needsRef: true,
+    refPlaceholder: "Nagad Transaction ID",
+    info: "এই Nagad নম্বরে <b>Send Money</b> করুন: <b>+8801306613452</b><br>তারপর Transaction ID নিচে লিখুন।"
+  },
+  {
+    key: "Rocket",
+    label: "🚀 Rocket",
+    needsRef: true,
+    refPlaceholder: "Rocket Transaction ID",
+    info: "এই Rocket নম্বরে টাকা পাঠান: <b>+8801890521208</b><br>তারপর Transaction ID নিচে লিখুন।"
+  },
+  {
+    key: "Bank",
+    label: "🏦 Bank Transfer",
+    needsRef: true,
+    refPlaceholder: "Deposit Slip / Reference No.",
+    info: `নিচের ব্যাংক একাউন্টে টাকা জমা দিন:<br>
+      🏦 ব্যাংক: <b>Islami Bank Bangladesh Limited (IBBL)</b><br>
+      👤 একাউন্ট হোল্ডার: <b>Mohammad Jahangir Hossain</b><br>
+      🔢 একাউন্ট নম্বর: <b>20502490200244600</b><br>
+      📍 ব্রাঞ্চ: <b>Sonagazi, Feni</b><br>
+      তারপর ডিপোজিট স্লিপ/রেফারেন্স নম্বর নিচে লিখুন।`
+  },
+  {
+    key: "PayPal",
+    label: "🌐 PayPal",
+    needsRef: true,
+    refPlaceholder: "PayPal Transaction ID",
+    info: "এই PayPal একাউন্টে টাকা পাঠান: <b>jenisaniaini@gmail.com</b><br>তারপর Transaction ID নিচে লিখুন।"
+  }
 ];
 
 function getCartItems(){
@@ -52,6 +93,25 @@ function renderLoginRequired(){
       <a href="signup.html">নতুন একাউন্ট খুলুন</a>
     </div>
   `;
+}
+
+function updatePaymentInfo(){
+  const pm = PAYMENT_METHODS.find(p => p.key === selectedPayment);
+  const infoBox = document.getElementById("coPayInfo");
+  const refField = document.getElementById("coRef");
+
+  if(infoBox && pm){
+    infoBox.innerHTML = pm.info;
+  }
+  if(refField && pm){
+    if(pm.needsRef){
+      refField.classList.add("show");
+      refField.placeholder = pm.refPlaceholder;
+    } else {
+      refField.classList.remove("show");
+      refField.value = "";
+    }
+  }
 }
 
 function renderCheckoutForm(cart){
@@ -96,27 +156,22 @@ function renderCheckoutForm(cart){
     <div class="co-box">
       <h3>💳 Payment Method</h3>
       <div class="co-pay-grid">${paymentHtml}</div>
-      <input class="co-input co-ref-field" id="coRef" placeholder="সেন্ডার নম্বর / রেফারেন্স নম্বর (যদি থাকে)">
+      <div id="coPayInfo" class="co-pay-info"></div>
+      <input class="co-input co-ref-field" id="coRef" placeholder="">
     </div>
 
     <button class="co-confirm-btn" id="coConfirmBtn">✅ Order Confirm</button>
     <div id="coMsg" class="co-msg"></div>
   `;
 
+  updatePaymentInfo();
+
   document.querySelectorAll(".co-pay-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".co-pay-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       selectedPayment = btn.dataset.method;
-
-      const refField = document.getElementById("coRef");
-      const pm = PAYMENT_METHODS.find(p => p.key === selectedPayment);
-      if(pm && pm.needsRef){
-        refField.classList.add("show");
-      } else {
-        refField.classList.remove("show");
-        refField.value = "";
-      }
+      updatePaymentInfo();
     });
   });
 
@@ -135,7 +190,14 @@ async function placeOrder(cart, total){
   const phone = document.getElementById("coPhone").value.trim();
   const area = document.getElementById("coArea").value;
   const address = document.getElementById("coAddress").value.trim();
-  const ref = document.getElementById("coRef") ? document.getElementById("coRef").value.trim() : "";
+  const refVal = document.getElementById("coRef") ? document.getElementById("coRef").value.trim() : "";
+
+  const pm = PAYMENT_METHODS.find(p => p.key === selectedPayment);
+  if(pm && pm.needsRef && !refVal){
+    msgEl.textContent = "দয়া করে Transaction/Reference নম্বর লিখুন।";
+    msgEl.classList.add("error");
+    return;
+  }
 
   if(!name || !phone || !area || !address){
     msgEl.textContent = "দয়া করে সব তথ্য পূরণ করুন (নাম, ফোন, এলাকা, ঠিকানা)।";
@@ -155,7 +217,7 @@ async function placeOrder(cart, total){
       currency: "BDT",
       status: "pending",
       shippingAddress: { name, phone, area, address },
-      paymentId: ref ? `${selectedPayment} - ${ref}` : selectedPayment,
+      paymentId: refVal ? `${selectedPayment} - ${refVal}` : selectedPayment,
       createdAt: Date.now()
     };
 
