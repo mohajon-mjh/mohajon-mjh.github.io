@@ -3,58 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Product Details</title>
-<style>
-body{font-family:Arial;padding:20px}
-img{width:100%;max-width:400px}
-.price{font-size:24px;font-weight:bold}
-</style>
+<title>Product Details | Mohajon MJH</title>
 <link rel="stylesheet" href="css/global-menu.css">
+<link rel="stylesheet" href="shared-header.css">
+<link rel="stylesheet" href="product-details.css">
 </head>
 <body>
+
 <div id="menuBtn" class="hamburger">☰</div>
 <nav id="sideMenu" class="side-menu">
-<h3>Categories</h3>
-<ul id="categoryList"></ul>
+  <h3>Categories</h3>
+  <ul id="categoryList"></ul>
 </nav>
 
-<h1 id="name">Loading...</h1>
-<img id="image" src="">
-<p id="category"></p>
-<p id="price" class="price"></p>
+<div id="navbar-placeholder"></div>
 
-<button onclick="addCart()">Add Cart</button>
+<div id="pdRoot" class="pd-wrap">
+  <div class="pd-notfound">Loading...</div>
+</div>
 
-<script>
-const id=new URLSearchParams(location.search).get('id');
-
-fetch('products.json')
-.then(r=>r.json())
-.then(products=>{
-
-const p=products.find(x=>x.id==id);
-
-if(!p)return;
-
-document.getElementById('name').innerText=p.name;
-document.getElementById('image').src=p.image;
-document.getElementById('category').innerText='Category: '+p.category;
-document.getElementById('price').innerText='৳'+p.price;
-
-});
-
-function addCart(){
-let c=parseInt(localStorage.getItem('cart')||0);
-localStorage.setItem('cart',c+1);
-alert('Added to Cart');
-}
-</script>
-
+<script src="shared-header.js"></script>
 <script src="assets/navbar.js"></script>
-<script type="module" src="product-details.js"></script>
-<script type="module" src="auth-role.js"></script>
 <script src="cart.js"></script>
 <script src="wishlist.js"></script>
+<script type="module" src="product-details.js"></script>
 <script src="js/global-menu.js?v=2"></script>
 </body>
 </html>
