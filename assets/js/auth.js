@@ -83,7 +83,7 @@ window.login = async function(email,password){
   await update(
     ref(db,"users/"+uid),
     {
-      lastLogin:Date.now()
+      updatedAt:Date.now()
     }
   );
 
