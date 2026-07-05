@@ -43,10 +43,9 @@ window.signup = async function(name,email,password){
     uid,
     name,
     email,
-    role:"buyer",
-    status:"active",
-    photo:"",
+    role:"customer",
     phone:"",
+    avatar:"",
     address:"",
     createdAt:Date.now(),
     updatedAt:Date.now()
