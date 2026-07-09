@@ -41570,12 +41570,12 @@
   "p2732": {
     "sellerId": "admin",
     "title": "Laptops & PCs",
-    "description": "Laptops & PCs — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "description": "Laptops & PCs — a wide range of laptops and desktop computers for home, office, gaming and business use.",
+    "price": 45000,
     "stock": 10,
     "categoryId": "laptops_pcs",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {

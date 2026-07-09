@@ -1,1 +1,2630 @@
-{"p0001": {"sellerId": "admin", "title": "Biryani Masala 1000gm", "description": "Premium quality Biryani Masala 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 1420, "stock": 25, "categoryId": "food_grocery", "netWeight": "1000g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/biryani-masala-1000gm.png"}, "sku": "p0001", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0002": {"sellerId": "admin", "title": "Biryani Masala 100gm", "description": "Premium quality Biryani Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 195, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/biryani-masala-100gm.png"}, "sku": "p0002", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0003": {"sellerId": "admin", "title": "Biryani Masala 250gm", "description": "Premium quality Biryani Masala 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 430, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/biryani-masala-250gm.png"}, "sku": "p0003", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0004": {"sellerId": "admin", "title": "Biryani Masala 30gm", "description": "Premium quality Biryani Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 70, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/biryani-masala-30gm.png"}, "sku": "p0004", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0005": {"sellerId": "admin", "title": "Biryani Masala 50gm", "description": "Premium quality Biryani Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 105, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/biryani-masala-50gm.png"}, "sku": "p0005", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0006": {"sellerId": "admin", "title": "Chat Masala 10gm", "description": "Premium quality Chat Masala 10gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 20, "stock": 25, "categoryId": "food_grocery", "netWeight": "10g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chat-masala-10gm.png"}, "sku": "p0006", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0007": {"sellerId": "admin", "title": "Chat Masala 15gm", "description": "Premium quality Chat Masala 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 25, "stock": 25, "categoryId": "food_grocery", "netWeight": "15g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chat-masala-15gm.png"}, "sku": "p0007", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0008": {"sellerId": "admin", "title": "Chat Masala 20gm", "description": "Premium quality Chat Masala 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 30, "stock": 25, "categoryId": "food_grocery", "netWeight": "20g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chat-masala-20gm.png"}, "sku": "p0008", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0009": {"sellerId": "admin", "title": "Chat Masala 50gm", "description": "Premium quality Chat Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 55, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chat-masala-50gm.png"}, "sku": "p0009", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0010": {"sellerId": "admin", "title": "Chat Masala 5gm", "description": "Premium quality Chat Masala 5gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 15, "stock": 25, "categoryId": "food_grocery", "netWeight": "5g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chat-masala-5gm.png"}, "sku": "p0010", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0011": {"sellerId": "admin", "title": "Chicken Curry Masala 30gm", "description": "Premium quality Chicken Curry Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chicken-curry-masala-30gm.png"}, "sku": "p0011", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0012": {"sellerId": "admin", "title": "Chicken Curry Masala 50gm", "description": "Premium quality Chicken Curry Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 65, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chicken-curry-masala-50gm.png"}, "sku": "p0012", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0013": {"sellerId": "admin", "title": "Chicken Jalfrezi Masala 100gm", "description": "Premium quality Chicken Jalfrezi Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 125, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chicken-jalfrezi-masala-100gm.png"}, "sku": "p0013", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0014": {"sellerId": "admin", "title": "Chicken Jalfrezi Masala 50gm", "description": "Premium quality Chicken Jalfrezi Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 70, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chicken-jalfrezi-masala-50gm.png"}, "sku": "p0014", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0015": {"sellerId": "admin", "title": "Chicken Masala 100gm", "description": "Premium quality Chicken Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 115, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chicken-masala-100gm.png"}, "sku": "p0015", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0016": {"sellerId": "admin", "title": "Chicken Masala 15gm", "description": "Premium quality Chicken Masala 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 30, "stock": 25, "categoryId": "food_grocery", "netWeight": "15g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chicken-masala-15gm.png"}, "sku": "p0016", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0017": {"sellerId": "admin", "title": "Chicken Masala 20gm", "description": "Premium quality Chicken Masala 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 35, "stock": 25, "categoryId": "food_grocery", "netWeight": "20g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chicken-masala-20gm.png"}, "sku": "p0017", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0018": {"sellerId": "admin", "title": "Chicken Masala 250gm", "description": "Premium quality Chicken Masala 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 245, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chicken-masala-250gm.png"}, "sku": "p0018", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0019": {"sellerId": "admin", "title": "Chicken Masala 30gm", "description": "Premium quality Chicken Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chicken-masala-30gm.png"}, "sku": "p0019", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0020": {"sellerId": "admin", "title": "Chicken Masala 50gm", "description": "Premium quality Chicken Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 65, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chicken-masala-50gm.png"}, "sku": "p0020", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0021": {"sellerId": "admin", "title": "Chili Flakes 10gm", "description": "Premium quality Chili Flakes 10gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 20, "stock": 25, "categoryId": "food_grocery", "netWeight": "10g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chili-flakes-10gm.png"}, "sku": "p0021", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0022": {"sellerId": "admin", "title": "Chili Flakes 50gm", "description": "Premium quality Chili Flakes 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 60, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chili-flakes-50gm.png"}, "sku": "p0022", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0023": {"sellerId": "admin", "title": "Chili Flakes 5gm", "description": "Premium quality Chili Flakes 5gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 15, "stock": 25, "categoryId": "food_grocery", "netWeight": "5g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/chili-flakes-5gm.png"}, "sku": "p0023", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0024": {"sellerId": "admin", "title": "Coriander Powder 1000gm", "description": "Premium quality Coriander Powder 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 280, "stock": 25, "categoryId": "food_grocery", "netWeight": "1000g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/coriander-powder-1000gm.png"}, "sku": "p0024", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0025": {"sellerId": "admin", "title": "Coriander Powder 100gm", "description": "Premium quality Coriander Powder 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/coriander-powder-100gm.png"}, "sku": "p0025", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0026": {"sellerId": "admin", "title": "Coriander Powder 250gm", "description": "Premium quality Coriander Powder 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 90, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/coriander-powder-250gm.png"}, "sku": "p0026", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0027": {"sellerId": "admin", "title": "Coriander Powder 30gm", "description": "Premium quality Coriander Powder 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 20, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/coriander-powder-30gm.png"}, "sku": "p0027", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0028": {"sellerId": "admin", "title": "Coriander Powder 50gm", "description": "Premium quality Coriander Powder 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 25, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/coriander-powder-50gm.png"}, "sku": "p0028", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0029": {"sellerId": "admin", "title": "Cumin Powder 1000gm", "description": "Premium quality Cumin Powder 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 945, "stock": 25, "categoryId": "food_grocery", "netWeight": "1000g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/cumin-powder-1000gm.png"}, "sku": "p0029", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0030": {"sellerId": "admin", "title": "Cumin Powder 100gm", "description": "Premium quality Cumin Powder 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 130, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/cumin-powder-100gm.png"}, "sku": "p0030", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0031": {"sellerId": "admin", "title": "Cumin Powder 250gm", "description": "Premium quality Cumin Powder 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 285, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/cumin-powder-250gm.png"}, "sku": "p0031", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0032": {"sellerId": "admin", "title": "Cumin Powder 30gm", "description": "Premium quality Cumin Powder 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/cumin-powder-30gm.png"}, "sku": "p0032", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0033": {"sellerId": "admin", "title": "Cumin Powder 50gm", "description": "Premium quality Cumin Powder 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 70, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/cumin-powder-50gm.png"}, "sku": "p0033", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0034": {"sellerId": "admin", "title": "Garam Masala 1000gm", "description": "Premium quality Garam Masala 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 1410, "stock": 25, "categoryId": "food_grocery", "netWeight": "1000g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garam-masala-1000gm.png"}, "sku": "p0034", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0035": {"sellerId": "admin", "title": "Garam Masala 100gm", "description": "Premium quality Garam Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 190, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garam-masala-100gm.png"}, "sku": "p0035", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0036": {"sellerId": "admin", "title": "Garam Masala 10gm", "description": "Premium quality Garam Masala 10gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 25, "stock": 25, "categoryId": "food_grocery", "netWeight": "10g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garam-masala-10gm.png"}, "sku": "p0036", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0037": {"sellerId": "admin", "title": "Garam Masala 15gm", "description": "Premium quality Garam Masala 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 35, "stock": 25, "categoryId": "food_grocery", "netWeight": "15g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garam-masala-15gm.png"}, "sku": "p0037", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0038": {"sellerId": "admin", "title": "Garam Masala 20gm", "description": "Premium quality Garam Masala 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "20g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garam-masala-20gm.png"}, "sku": "p0038", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0039": {"sellerId": "admin", "title": "Garam Masala 250gm", "description": "Premium quality Garam Masala 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 420, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garam-masala-250gm.png"}, "sku": "p0039", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0040": {"sellerId": "admin", "title": "Garam Masala 30gm", "description": "Premium quality Garam Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 60, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garam-masala-30gm.png"}, "sku": "p0040", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0041": {"sellerId": "admin", "title": "Garam Masala 50gm", "description": "Premium quality Garam Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 100, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garam-masala-50gm.png"}, "sku": "p0041", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0042": {"sellerId": "admin", "title": "Garam Masala 5gm", "description": "Premium quality Garam Masala 5gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 15, "stock": 25, "categoryId": "food_grocery", "netWeight": "5g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garam-masala-5gm.png"}, "sku": "p0042", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0043": {"sellerId": "admin", "title": "Haleem Mix 100gm", "description": "Premium quality Haleem Mix 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 55, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/haleem-mix-100gm.png"}, "sku": "p0043", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0044": {"sellerId": "admin", "title": "Haleem Mix 250gm", "description": "Premium quality Haleem Mix 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 115, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/haleem-mix-250gm.png"}, "sku": "p0044", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0045": {"sellerId": "admin", "title": "Haleem Mix 500gm", "description": "Premium quality Haleem Mix 500gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 200, "stock": 25, "categoryId": "food_grocery", "netWeight": "500g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/haleem-mix-500gm.png"}, "sku": "p0045", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0046": {"sellerId": "admin", "title": "Kabsa Mix 100gm", "description": "Premium quality Kabsa Mix 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 55, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/kabsa-mix-100gm.png"}, "sku": "p0046", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0047": {"sellerId": "admin", "title": "Kabsa Mix 250gm", "description": "Premium quality Kabsa Mix 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 115, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/kabsa-mix-250gm.png"}, "sku": "p0047", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0048": {"sellerId": "admin", "title": "Kabsa Mix 500gm", "description": "Premium quality Kabsa Mix 500gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 200, "stock": 25, "categoryId": "food_grocery", "netWeight": "500g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/kabsa-mix-500gm.png"}, "sku": "p0048", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0049": {"sellerId": "admin", "title": "Karahi Gosht Masala 100gm", "description": "Premium quality Karahi Gosht Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 115, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/karahi-gosht-masala-100gm.png"}, "sku": "p0049", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0050": {"sellerId": "admin", "title": "Karahi Gosht Masala 50gm", "description": "Premium quality Karahi Gosht Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 65, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/karahi-gosht-masala-50gm.png"}, "sku": "p0050", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0051": {"sellerId": "admin", "title": "Karahi Masala 100gm", "description": "Premium quality Karahi Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 115, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/karahi-masala-100gm.png"}, "sku": "p0051", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0052": {"sellerId": "admin", "title": "Karahi Masala 30gm", "description": "Premium quality Karahi Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/karahi-masala-30gm.png"}, "sku": "p0052", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0053": {"sellerId": "admin", "title": "Karahi Masala 50gm", "description": "Premium quality Karahi Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 65, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/karahi-masala-50gm.png"}, "sku": "p0053", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0054": {"sellerId": "admin", "title": "Kitchen King 100gm", "description": "Premium quality Kitchen King 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 130, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/kitchen-king-100gm.png"}, "sku": "p0054", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0055": {"sellerId": "admin", "title": "Kitchen King 15gm", "description": "Premium quality Kitchen King 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 30, "stock": 25, "categoryId": "food_grocery", "netWeight": "15g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/kitchen-king-15gm.png"}, "sku": "p0055", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0056": {"sellerId": "admin", "title": "Kitchen King 20gm", "description": "Premium quality Kitchen King 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 35, "stock": 25, "categoryId": "food_grocery", "netWeight": "20g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/kitchen-king-20gm.png"}, "sku": "p0056", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0057": {"sellerId": "admin", "title": "Kitchen King 30gm", "description": "Premium quality Kitchen King 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/kitchen-king-30gm.png"}, "sku": "p0057", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0058": {"sellerId": "admin", "title": "Kitchen King 50gm", "description": "Premium quality Kitchen King 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 70, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/kitchen-king-50gm.png"}, "sku": "p0058", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0059": {"sellerId": "admin", "title": "Mandhi Mix 100gm", "description": "Premium quality Mandhi Mix 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 55, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/mandhi-mix-100gm.png"}, "sku": "p0059", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0060": {"sellerId": "admin", "title": "Mandhi Mix 250gm", "description": "Premium quality Mandhi Mix 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 115, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/mandhi-mix-250gm.png"}, "sku": "p0060", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0061": {"sellerId": "admin", "title": "Mandhi Mix 500gm", "description": "Premium quality Mandhi Mix 500gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 200, "stock": 25, "categoryId": "food_grocery", "netWeight": "500g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/mandhi-mix-500gm.png"}, "sku": "p0061", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0062": {"sellerId": "admin", "title": "Meat Curry Masala 100gm", "description": "Premium quality Meat Curry Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 115, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/meat-curry-masala-100gm.png"}, "sku": "p0062", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0063": {"sellerId": "admin", "title": "Meat Curry Masala 250gm", "description": "Premium quality Meat Curry Masala 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 245, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/meat-curry-masala-250gm.png"}, "sku": "p0063", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0064": {"sellerId": "admin", "title": "Meat Curry Masala 30gm", "description": "Premium quality Meat Curry Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/meat-curry-masala-30gm.png"}, "sku": "p0064", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0065": {"sellerId": "admin", "title": "Meat Curry Masala 50gm", "description": "Premium quality Meat Curry Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 65, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/meat-curry-masala-50gm.png"}, "sku": "p0065", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0066": {"sellerId": "admin", "title": "Nihari Masala 250gm", "description": "Premium quality Nihari Masala 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 245, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/nihari-masala-250gm.png"}, "sku": "p0066", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0067": {"sellerId": "admin", "title": "Nihari Masala 30gm", "description": "Premium quality Nihari Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/nihari-masala-30gm.png"}, "sku": "p0067", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0068": {"sellerId": "admin", "title": "Nihari Masala 50gm", "description": "Premium quality Nihari Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 65, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/nihari-masala-50gm.png"}, "sku": "p0068", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0069": {"sellerId": "admin", "title": "Qorma Masala 100gm", "description": "Premium quality Qorma Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 135, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/qorma-masala-100gm.png"}, "sku": "p0069", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0070": {"sellerId": "admin", "title": "Qorma Masala 50gm", "description": "Premium quality Qorma Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 75, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/qorma-masala-50gm.png"}, "sku": "p0070", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0071": {"sellerId": "admin", "title": "Red Chili Powder 1000gm", "description": "Premium quality Red Chili Powder 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 540, "stock": 25, "categoryId": "food_grocery", "netWeight": "1000g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/red-chili-powder-1000gm.png"}, "sku": "p0071", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0072": {"sellerId": "admin", "title": "Red Chili Powder 100gm", "description": "Premium quality Red Chili Powder 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 80, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/red-chili-powder-100gm.png"}, "sku": "p0072", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0073": {"sellerId": "admin", "title": "Red Chili Powder 10gm", "description": "Premium quality Red Chili Powder 10gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 15, "stock": 25, "categoryId": "food_grocery", "netWeight": "10g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/red-chili-powder-10gm.png"}, "sku": "p0073", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0074": {"sellerId": "admin", "title": "Red Chili Powder 15gm", "description": "Premium quality Red Chili Powder 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 20, "stock": 25, "categoryId": "food_grocery", "netWeight": "15g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/red-chili-powder-15gm.png"}, "sku": "p0074", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0075": {"sellerId": "admin", "title": "Red Chili Powder 20gm", "description": "Premium quality Red Chili Powder 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 25, "stock": 25, "categoryId": "food_grocery", "netWeight": "20g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/red-chili-powder-20gm.png"}, "sku": "p0075", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0076": {"sellerId": "admin", "title": "Red Chili Powder 250gm", "description": "Premium quality Red Chili Powder 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 165, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/red-chili-powder-250gm.png"}, "sku": "p0076", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0077": {"sellerId": "admin", "title": "Red Chili Powder 30gm", "description": "Premium quality Red Chili Powder 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 30, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/red-chili-powder-30gm.png"}, "sku": "p0077", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0078": {"sellerId": "admin", "title": "Red Chili Powder 500gm", "description": "Premium quality Red Chili Powder 500gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 300, "stock": 25, "categoryId": "food_grocery", "netWeight": "500g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/red-chili-powder-500gm.png"}, "sku": "p0078", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0079": {"sellerId": "admin", "title": "Red Chili Powder 50gm", "description": "Premium quality Red Chili Powder 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/red-chili-powder-50gm.png"}, "sku": "p0079", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0080": {"sellerId": "admin", "title": "Sabji Masala 15gm", "description": "Premium quality Sabji Masala 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 25, "stock": 25, "categoryId": "food_grocery", "netWeight": "15g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/sabji-masala-15gm.png"}, "sku": "p0080", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0081": {"sellerId": "admin", "title": "Sabji Masala 20gm", "description": "Premium quality Sabji Masala 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 30, "stock": 25, "categoryId": "food_grocery", "netWeight": "20g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/sabji-masala-20gm.png"}, "sku": "p0081", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0082": {"sellerId": "admin", "title": "Sabji Masala 30gm", "description": "Premium quality Sabji Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 40, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/sabji-masala-30gm.png"}, "sku": "p0082", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0083": {"sellerId": "admin", "title": "Sabji Masala 50gm", "description": "Premium quality Sabji Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 60, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/sabji-masala-50gm.png"}, "sku": "p0083", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0084": {"sellerId": "admin", "title": "Seekh Kabab Masala 100gm", "description": "Premium quality Seekh Kabab Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 170, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/seekh-kabab-masala-100gm.png"}, "sku": "p0084", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0085": {"sellerId": "admin", "title": "Seekh Kabab Masala 50gm", "description": "Premium quality Seekh Kabab Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 90, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/seekh-kabab-masala-50gm.png"}, "sku": "p0085", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0086": {"sellerId": "admin", "title": "Tandoori Masala 15gm", "description": "Premium quality Tandoori Masala 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 35, "stock": 25, "categoryId": "food_grocery", "netWeight": "15g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/tandoori-masala-15gm.png"}, "sku": "p0086", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0087": {"sellerId": "admin", "title": "Tandoori Masala 20gm", "description": "Premium quality Tandoori Masala 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 45, "stock": 25, "categoryId": "food_grocery", "netWeight": "20g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/tandoori-masala-20gm.png"}, "sku": "p0087", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0088": {"sellerId": "admin", "title": "Tandoori Masala 30gm", "description": "Premium quality Tandoori Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 65, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/tandoori-masala-30gm.png"}, "sku": "p0088", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0089": {"sellerId": "admin", "title": "Tandoori Masala 50gm", "description": "Premium quality Tandoori Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 100, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/tandoori-masala-50gm.png"}, "sku": "p0089", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0090": {"sellerId": "admin", "title": "Turmeric Powder 1000gm", "description": "Premium quality Turmeric Powder 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 445, "stock": 25, "categoryId": "food_grocery", "netWeight": "1000g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric-powder-1000gm.png"}, "sku": "p0090", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0091": {"sellerId": "admin", "title": "Turmeric Powder 100gm", "description": "Premium quality Turmeric Powder 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 70, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric-powder-100gm.png"}, "sku": "p0091", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0092": {"sellerId": "admin", "title": "Turmeric Powder 10gm", "description": "Premium quality Turmeric Powder 10gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 20, "stock": 25, "categoryId": "food_grocery", "netWeight": "10g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric-powder-10gm.png"}, "sku": "p0092", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0093": {"sellerId": "admin", "title": "Turmeric Powder 15gm", "description": "Premium quality Turmeric Powder 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 25, "stock": 25, "categoryId": "food_grocery", "netWeight": "15g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric-powder-15gm.png"}, "sku": "p0093", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0094": {"sellerId": "admin", "title": "Turmeric Powder 20gm", "description": "Premium quality Turmeric Powder 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 25, "stock": 25, "categoryId": "food_grocery", "netWeight": "20g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric-powder-20gm.png"}, "sku": "p0094", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0095": {"sellerId": "admin", "title": "Turmeric Powder 250gm", "description": "Premium quality Turmeric Powder 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 140, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric-powder-250gm.png"}, "sku": "p0095", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0096": {"sellerId": "admin", "title": "Turmeric Powder 30gm", "description": "Premium quality Turmeric Powder 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 30, "stock": 25, "categoryId": "food_grocery", "netWeight": "30g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric-powder-30gm.png"}, "sku": "p0096", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0097": {"sellerId": "admin", "title": "Turmeric Powder 500gm", "description": "Premium quality Turmeric Powder 500gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 250, "stock": 25, "categoryId": "food_grocery", "netWeight": "500g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric-powder-500gm.png"}, "sku": "p0097", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0098": {"sellerId": "admin", "title": "Turmeric Powder 50gm", "description": "Premium quality Turmeric Powder 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 40, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric-powder-50gm.png"}, "sku": "p0098", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0099": {"sellerId": "admin", "title": "Turmeric Powder 5gm", "description": "Premium quality Turmeric Powder 5gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 20, "stock": 25, "categoryId": "food_grocery", "netWeight": "5g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric-powder-5gm.png"}, "sku": "p0099", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0100": {"sellerId": "admin", "title": "Red Chili Powder 5gm", "description": "Premium quality Red Chili Powder 5gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 15, "stock": 25, "categoryId": "food_grocery", "netWeight": "5g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/red-chili-powders-5gm.png"}, "sku": "p0100", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0101": {"sellerId": "admin", "title": "Black Pepper (Whole)", "description": "Premium quality Black Pepper, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 285, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/black-pepper.png"}, "sku": "p0101", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0102": {"sellerId": "admin", "title": "Cardamom (Elachi)", "description": "Premium quality Cardamom, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 140, "stock": 25, "categoryId": "food_grocery", "netWeight": "25g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/cardamom.png"}, "sku": "p0102", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0103": {"sellerId": "admin", "title": "Cinnamon Stick (Dalchini)", "description": "Premium quality Cinnamon Stick, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 120, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/cinnamon.png"}, "sku": "p0103", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0104": {"sellerId": "admin", "title": "Cloves (Lobongo)", "description": "Premium quality Cloves, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 32, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/cloves.png"}, "sku": "p0104", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0105": {"sellerId": "admin", "title": "Coriander Seed (Dhonia)", "description": "Premium quality Coriander Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 90, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/coriander.png"}, "sku": "p0105", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0106": {"sellerId": "admin", "title": "Cumin Seed (Jira)", "description": "Premium quality Cumin Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 140, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/cumin.png"}, "sku": "p0106", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0107": {"sellerId": "admin", "title": "Dry Red Chilli (Shukna Morich)", "description": "Premium quality Dry Red Chilli, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 150, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/dry-red-chilli.png"}, "sku": "p0107", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0108": {"sellerId": "admin", "title": "Fennel Seed (Mouri)", "description": "Premium quality Fennel Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 119, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/fennel.png"}, "sku": "p0108", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0109": {"sellerId": "admin", "title": "Fenugreek Seed (Methi)", "description": "Premium quality Fenugreek Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 40, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/fenugreek.png"}, "sku": "p0109", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0110": {"sellerId": "admin", "title": "Garam Masala", "description": "Premium quality Garam Masala, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 90, "stock": 25, "categoryId": "food_grocery", "netWeight": "40g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garam-masala.png"}, "sku": "p0110", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0111": {"sellerId": "admin", "title": "Garlic (Roshun)", "description": "Premium quality Garlic, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 90, "stock": 25, "categoryId": "food_grocery", "netWeight": "250g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/garlic.png"}, "sku": "p0111", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0112": {"sellerId": "admin", "title": "Mustard Oil (Sorishar Tel)", "description": "Premium quality Mustard Oil, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 200, "stock": 25, "categoryId": "food_grocery", "netWeight": "500ml", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/mustard-oil.png"}, "sku": "p0112", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0113": {"sellerId": "admin", "title": "Mustard Seed (Sorisha)", "description": "Premium quality Mustard Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 90, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/mustard-seed.png"}, "sku": "p0113", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0114": {"sellerId": "admin", "title": "Nigella Seed (Kalonji)", "description": "Premium quality Nigella Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 90, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/nigella-seed.png"}, "sku": "p0114", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0115": {"sellerId": "admin", "title": "Nutmeg (Joyphol)", "description": "Premium quality Nutmeg, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 150, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/nutmeg.png"}, "sku": "p0115", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0116": {"sellerId": "admin", "title": "Saffron (Jafran)", "description": "Premium quality Saffron, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 700, "stock": 25, "categoryId": "food_grocery", "netWeight": "1g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/saffron.png"}, "sku": "p0116", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0117": {"sellerId": "admin", "title": "Star Anise (Chakra Phool)", "description": "Premium quality Star Anise, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 150, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/star-anise.png"}, "sku": "p0117", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0118": {"sellerId": "admin", "title": "Turmeric Powder (Holud Gura)", "description": "Premium quality Turmeric Powder, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.", "price": 95, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/turmeric.png"}, "sku": "p0118", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0119": {"sellerId": "admin", "title": "Black Tea", "description": "Premium black tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.", "price": 180, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/black-tea.png"}, "sku": "p0119", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0120": {"sellerId": "admin", "title": "Darjeeling Tea", "description": "Premium darjeeling tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.", "price": 400, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/darjeeling-tea.png"}, "sku": "p0120", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0121": {"sellerId": "admin", "title": "Green Tea", "description": "Premium green tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.", "price": 280, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/green-tea.png"}, "sku": "p0121", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0122": {"sellerId": "admin", "title": "Herbal Tea", "description": "Premium herbal tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.", "price": 300, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/herbal-tea.png"}, "sku": "p0122", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0123": {"sellerId": "admin", "title": "Oolong Tea", "description": "Premium oolong tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.", "price": 450, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/oolong-tea.png"}, "sku": "p0123", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0124": {"sellerId": "admin", "title": "Rooibos Tea", "description": "Premium rooibos tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.", "price": 400, "stock": 25, "categoryId": "food_grocery", "netWeight": "100g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/rooibos-tea.png"}, "sku": "p0124", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0125": {"sellerId": "admin", "title": "White Tea", "description": "Premium white tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.", "price": 500, "stock": 25, "categoryId": "food_grocery", "netWeight": "50g", "status": "active", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/white-tea.png"}, "sku": "p0125", "specifications": {"origin": "Bangladesh", "shelfLife": "12 months from packing date"}}, "p0126": {"sellerId": "admin", "title": "Beverages", "description": "Beverages — general product listing for this sub-category. Details to be completed by admin.", "price": 100, "stock": 10, "categoryId": "food_grocery", "netWeight": "", "status": "pending", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/beverages.png"}, "sku": "p0126"}, "p0127": {"sellerId": "admin", "title": "Biscuit & Bakery", "description": "Biscuit & Bakery — general product listing for this sub-category. Details to be completed by admin.", "price": 100, "stock": 10, "categoryId": "food_grocery", "netWeight": "", "status": "pending", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/biscuit-bakery.png"}, "sku": "p0127"}, "p0128": {"sellerId": "admin", "title": "Dairy Products", "description": "Dairy Products — general product listing for this sub-category. Details to be completed by admin.", "price": 100, "stock": 10, "categoryId": "food_grocery", "netWeight": "", "status": "pending", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/dairy.png"}, "sku": "p0128"}, "p0129": {"sellerId": "admin", "title": "Snacks", "description": "Snacks — general product listing for this sub-category. Details to be completed by admin.", "price": 100, "stock": 10, "categoryId": "food_grocery", "netWeight": "", "status": "pending", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/snacks.png"}, "sku": "p0129"}, "p0130": {"sellerId": "admin", "title": "Sugar & Confectionery", "description": "Sugar & Confectionery — general product listing for this sub-category. Details to be completed by admin.", "price": 100, "stock": 10, "categoryId": "food_grocery", "netWeight": "", "status": "pending", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/sugar-confectionery.png"}, "sku": "p0130"}, "p0131": {"sellerId": "admin", "title": "Sample Product (Template)", "description": "This is a placeholder product. The admin will update the image, title, weight, and price for this listing.", "price": 100, "stock": 10, "categoryId": "food_grocery", "netWeight": "", "status": "pending", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/placeholder.png"}, "sku": "p0131"}, "p0132": {"sellerId": "admin", "title": "Pen", "description": "Pen — product details to be completed by admin (image, description, and price pending).", "price": 100, "stock": 10, "categoryId": "office_school_supplies", "netWeight": "", "status": "pending", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/pens.png"}, "sku": "p0132"}, "p0133": {"sellerId": "admin", "title": "Rubber Sandals", "description": "Rubber Sandals — product details to be completed by admin (image, description, and price pending).", "price": 100, "stock": 10, "categoryId": "shoes_accessories", "netWeight": "", "status": "pending", "createdAt": 1782984093000, "updatedAt": 1782984093000, "images": {"main": "assets/images/categories/Food & Grocery/rubber-sandals.png"}, "sku": "p0133"}}
+{
+  "p0001": {
+    "sellerId": "admin",
+    "title": "Biryani Masala 1000gm",
+    "description": "Premium quality Biryani Masala 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 1420,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "1000g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/biryani-masala-1000gm.png"
+    },
+    "sku": "p0001",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0002": {
+    "sellerId": "admin",
+    "title": "Biryani Masala 100gm",
+    "description": "Premium quality Biryani Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 195,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/biryani-masala-100gm.png"
+    },
+    "sku": "p0002",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0003": {
+    "sellerId": "admin",
+    "title": "Biryani Masala 250gm",
+    "description": "Premium quality Biryani Masala 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 430,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/biryani-masala-250gm.png"
+    },
+    "sku": "p0003",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0004": {
+    "sellerId": "admin",
+    "title": "Biryani Masala 30gm",
+    "description": "Premium quality Biryani Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 70,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/biryani-masala-30gm.png"
+    },
+    "sku": "p0004",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0005": {
+    "sellerId": "admin",
+    "title": "Biryani Masala 50gm",
+    "description": "Premium quality Biryani Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 105,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/biryani-masala-50gm.png"
+    },
+    "sku": "p0005",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0006": {
+    "sellerId": "admin",
+    "title": "Chat Masala 10gm",
+    "description": "Premium quality Chat Masala 10gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 20,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "10g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chat-masala-10gm.png"
+    },
+    "sku": "p0006",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0007": {
+    "sellerId": "admin",
+    "title": "Chat Masala 15gm",
+    "description": "Premium quality Chat Masala 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 25,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "15g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chat-masala-15gm.png"
+    },
+    "sku": "p0007",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0008": {
+    "sellerId": "admin",
+    "title": "Chat Masala 20gm",
+    "description": "Premium quality Chat Masala 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 30,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "20g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chat-masala-20gm.png"
+    },
+    "sku": "p0008",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0009": {
+    "sellerId": "admin",
+    "title": "Chat Masala 50gm",
+    "description": "Premium quality Chat Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 55,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chat-masala-50gm.png"
+    },
+    "sku": "p0009",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0010": {
+    "sellerId": "admin",
+    "title": "Chat Masala 5gm",
+    "description": "Premium quality Chat Masala 5gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 15,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "5g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chat-masala-5gm.png"
+    },
+    "sku": "p0010",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0011": {
+    "sellerId": "admin",
+    "title": "Chicken Curry Masala 30gm",
+    "description": "Premium quality Chicken Curry Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chicken-curry-masala-30gm.png"
+    },
+    "sku": "p0011",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0012": {
+    "sellerId": "admin",
+    "title": "Chicken Curry Masala 50gm",
+    "description": "Premium quality Chicken Curry Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 65,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chicken-curry-masala-50gm.png"
+    },
+    "sku": "p0012",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0013": {
+    "sellerId": "admin",
+    "title": "Chicken Jalfrezi Masala 100gm",
+    "description": "Premium quality Chicken Jalfrezi Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 125,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chicken-jalfrezi-masala-100gm.png"
+    },
+    "sku": "p0013",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0014": {
+    "sellerId": "admin",
+    "title": "Chicken Jalfrezi Masala 50gm",
+    "description": "Premium quality Chicken Jalfrezi Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 70,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chicken-jalfrezi-masala-50gm.png"
+    },
+    "sku": "p0014",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0015": {
+    "sellerId": "admin",
+    "title": "Chicken Masala 100gm",
+    "description": "Premium quality Chicken Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 115,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chicken-masala-100gm.png"
+    },
+    "sku": "p0015",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0016": {
+    "sellerId": "admin",
+    "title": "Chicken Masala 15gm",
+    "description": "Premium quality Chicken Masala 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 30,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "15g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chicken-masala-15gm.png"
+    },
+    "sku": "p0016",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0017": {
+    "sellerId": "admin",
+    "title": "Chicken Masala 20gm",
+    "description": "Premium quality Chicken Masala 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 35,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "20g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chicken-masala-20gm.png"
+    },
+    "sku": "p0017",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0018": {
+    "sellerId": "admin",
+    "title": "Chicken Masala 250gm",
+    "description": "Premium quality Chicken Masala 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 245,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chicken-masala-250gm.png"
+    },
+    "sku": "p0018",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0019": {
+    "sellerId": "admin",
+    "title": "Chicken Masala 30gm",
+    "description": "Premium quality Chicken Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chicken-masala-30gm.png"
+    },
+    "sku": "p0019",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0020": {
+    "sellerId": "admin",
+    "title": "Chicken Masala 50gm",
+    "description": "Premium quality Chicken Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 65,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chicken-masala-50gm.png"
+    },
+    "sku": "p0020",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0021": {
+    "sellerId": "admin",
+    "title": "Chili Flakes 10gm",
+    "description": "Premium quality Chili Flakes 10gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 20,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "10g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chili-flakes-10gm.png"
+    },
+    "sku": "p0021",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0022": {
+    "sellerId": "admin",
+    "title": "Chili Flakes 50gm",
+    "description": "Premium quality Chili Flakes 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 60,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chili-flakes-50gm.png"
+    },
+    "sku": "p0022",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0023": {
+    "sellerId": "admin",
+    "title": "Chili Flakes 5gm",
+    "description": "Premium quality Chili Flakes 5gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 15,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "5g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/chili-flakes-5gm.png"
+    },
+    "sku": "p0023",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0024": {
+    "sellerId": "admin",
+    "title": "Coriander Powder 1000gm",
+    "description": "Premium quality Coriander Powder 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 280,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "1000g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/coriander-powder-1000gm.png"
+    },
+    "sku": "p0024",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0025": {
+    "sellerId": "admin",
+    "title": "Coriander Powder 100gm",
+    "description": "Premium quality Coriander Powder 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/coriander-powder-100gm.png"
+    },
+    "sku": "p0025",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0026": {
+    "sellerId": "admin",
+    "title": "Coriander Powder 250gm",
+    "description": "Premium quality Coriander Powder 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 90,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/coriander-powder-250gm.png"
+    },
+    "sku": "p0026",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0027": {
+    "sellerId": "admin",
+    "title": "Coriander Powder 30gm",
+    "description": "Premium quality Coriander Powder 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 20,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/coriander-powder-30gm.png"
+    },
+    "sku": "p0027",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0028": {
+    "sellerId": "admin",
+    "title": "Coriander Powder 50gm",
+    "description": "Premium quality Coriander Powder 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 25,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/coriander-powder-50gm.png"
+    },
+    "sku": "p0028",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0029": {
+    "sellerId": "admin",
+    "title": "Cumin Powder 1000gm",
+    "description": "Premium quality Cumin Powder 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 945,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "1000g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/cumin-powder-1000gm.png"
+    },
+    "sku": "p0029",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0030": {
+    "sellerId": "admin",
+    "title": "Cumin Powder 100gm",
+    "description": "Premium quality Cumin Powder 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 130,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/cumin-powder-100gm.png"
+    },
+    "sku": "p0030",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0031": {
+    "sellerId": "admin",
+    "title": "Cumin Powder 250gm",
+    "description": "Premium quality Cumin Powder 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 285,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/cumin-powder-250gm.png"
+    },
+    "sku": "p0031",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0032": {
+    "sellerId": "admin",
+    "title": "Cumin Powder 30gm",
+    "description": "Premium quality Cumin Powder 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/cumin-powder-30gm.png"
+    },
+    "sku": "p0032",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0033": {
+    "sellerId": "admin",
+    "title": "Cumin Powder 50gm",
+    "description": "Premium quality Cumin Powder 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 70,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/cumin-powder-50gm.png"
+    },
+    "sku": "p0033",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0034": {
+    "sellerId": "admin",
+    "title": "Garam Masala 1000gm",
+    "description": "Premium quality Garam Masala 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 1410,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "1000g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garam-masala-1000gm.png"
+    },
+    "sku": "p0034",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0035": {
+    "sellerId": "admin",
+    "title": "Garam Masala 100gm",
+    "description": "Premium quality Garam Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 190,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garam-masala-100gm.png"
+    },
+    "sku": "p0035",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0036": {
+    "sellerId": "admin",
+    "title": "Garam Masala 10gm",
+    "description": "Premium quality Garam Masala 10gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 25,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "10g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garam-masala-10gm.png"
+    },
+    "sku": "p0036",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0037": {
+    "sellerId": "admin",
+    "title": "Garam Masala 15gm",
+    "description": "Premium quality Garam Masala 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 35,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "15g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garam-masala-15gm.png"
+    },
+    "sku": "p0037",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0038": {
+    "sellerId": "admin",
+    "title": "Garam Masala 20gm",
+    "description": "Premium quality Garam Masala 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "20g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garam-masala-20gm.png"
+    },
+    "sku": "p0038",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0039": {
+    "sellerId": "admin",
+    "title": "Garam Masala 250gm",
+    "description": "Premium quality Garam Masala 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 420,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garam-masala-250gm.png"
+    },
+    "sku": "p0039",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0040": {
+    "sellerId": "admin",
+    "title": "Garam Masala 30gm",
+    "description": "Premium quality Garam Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 60,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garam-masala-30gm.png"
+    },
+    "sku": "p0040",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0041": {
+    "sellerId": "admin",
+    "title": "Garam Masala 50gm",
+    "description": "Premium quality Garam Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 100,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garam-masala-50gm.png"
+    },
+    "sku": "p0041",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0042": {
+    "sellerId": "admin",
+    "title": "Garam Masala 5gm",
+    "description": "Premium quality Garam Masala 5gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 15,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "5g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garam-masala-5gm.png"
+    },
+    "sku": "p0042",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0043": {
+    "sellerId": "admin",
+    "title": "Haleem Mix 100gm",
+    "description": "Premium quality Haleem Mix 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 55,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/haleem-mix-100gm.png"
+    },
+    "sku": "p0043",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0044": {
+    "sellerId": "admin",
+    "title": "Haleem Mix 250gm",
+    "description": "Premium quality Haleem Mix 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 115,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/haleem-mix-250gm.png"
+    },
+    "sku": "p0044",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0045": {
+    "sellerId": "admin",
+    "title": "Haleem Mix 500gm",
+    "description": "Premium quality Haleem Mix 500gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 200,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "500g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/haleem-mix-500gm.png"
+    },
+    "sku": "p0045",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0046": {
+    "sellerId": "admin",
+    "title": "Kabsa Mix 100gm",
+    "description": "Premium quality Kabsa Mix 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 55,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/kabsa-mix-100gm.png"
+    },
+    "sku": "p0046",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0047": {
+    "sellerId": "admin",
+    "title": "Kabsa Mix 250gm",
+    "description": "Premium quality Kabsa Mix 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 115,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/kabsa-mix-250gm.png"
+    },
+    "sku": "p0047",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0048": {
+    "sellerId": "admin",
+    "title": "Kabsa Mix 500gm",
+    "description": "Premium quality Kabsa Mix 500gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 200,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "500g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/kabsa-mix-500gm.png"
+    },
+    "sku": "p0048",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0049": {
+    "sellerId": "admin",
+    "title": "Karahi Gosht Masala 100gm",
+    "description": "Premium quality Karahi Gosht Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 115,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/karahi-gosht-masala-100gm.png"
+    },
+    "sku": "p0049",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0050": {
+    "sellerId": "admin",
+    "title": "Karahi Gosht Masala 50gm",
+    "description": "Premium quality Karahi Gosht Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 65,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/karahi-gosht-masala-50gm.png"
+    },
+    "sku": "p0050",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0051": {
+    "sellerId": "admin",
+    "title": "Karahi Masala 100gm",
+    "description": "Premium quality Karahi Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 115,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/karahi-masala-100gm.png"
+    },
+    "sku": "p0051",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0052": {
+    "sellerId": "admin",
+    "title": "Karahi Masala 30gm",
+    "description": "Premium quality Karahi Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/karahi-masala-30gm.png"
+    },
+    "sku": "p0052",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0053": {
+    "sellerId": "admin",
+    "title": "Karahi Masala 50gm",
+    "description": "Premium quality Karahi Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 65,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/karahi-masala-50gm.png"
+    },
+    "sku": "p0053",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0054": {
+    "sellerId": "admin",
+    "title": "Kitchen King 100gm",
+    "description": "Premium quality Kitchen King 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 130,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/kitchen-king-100gm.png"
+    },
+    "sku": "p0054",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0055": {
+    "sellerId": "admin",
+    "title": "Kitchen King 15gm",
+    "description": "Premium quality Kitchen King 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 30,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "15g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/kitchen-king-15gm.png"
+    },
+    "sku": "p0055",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0056": {
+    "sellerId": "admin",
+    "title": "Kitchen King 20gm",
+    "description": "Premium quality Kitchen King 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 35,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "20g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/kitchen-king-20gm.png"
+    },
+    "sku": "p0056",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0057": {
+    "sellerId": "admin",
+    "title": "Kitchen King 30gm",
+    "description": "Premium quality Kitchen King 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/kitchen-king-30gm.png"
+    },
+    "sku": "p0057",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0058": {
+    "sellerId": "admin",
+    "title": "Kitchen King 50gm",
+    "description": "Premium quality Kitchen King 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 70,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/kitchen-king-50gm.png"
+    },
+    "sku": "p0058",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0059": {
+    "sellerId": "admin",
+    "title": "Mandhi Mix 100gm",
+    "description": "Premium quality Mandhi Mix 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 55,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/mandhi-mix-100gm.png"
+    },
+    "sku": "p0059",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0060": {
+    "sellerId": "admin",
+    "title": "Mandhi Mix 250gm",
+    "description": "Premium quality Mandhi Mix 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 115,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/mandhi-mix-250gm.png"
+    },
+    "sku": "p0060",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0061": {
+    "sellerId": "admin",
+    "title": "Mandhi Mix 500gm",
+    "description": "Premium quality Mandhi Mix 500gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 200,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "500g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/mandhi-mix-500gm.png"
+    },
+    "sku": "p0061",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0062": {
+    "sellerId": "admin",
+    "title": "Meat Curry Masala 100gm",
+    "description": "Premium quality Meat Curry Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 115,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/meat-curry-masala-100gm.png"
+    },
+    "sku": "p0062",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0063": {
+    "sellerId": "admin",
+    "title": "Meat Curry Masala 250gm",
+    "description": "Premium quality Meat Curry Masala 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 245,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/meat-curry-masala-250gm.png"
+    },
+    "sku": "p0063",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0064": {
+    "sellerId": "admin",
+    "title": "Meat Curry Masala 30gm",
+    "description": "Premium quality Meat Curry Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/meat-curry-masala-30gm.png"
+    },
+    "sku": "p0064",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0065": {
+    "sellerId": "admin",
+    "title": "Meat Curry Masala 50gm",
+    "description": "Premium quality Meat Curry Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 65,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/meat-curry-masala-50gm.png"
+    },
+    "sku": "p0065",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0066": {
+    "sellerId": "admin",
+    "title": "Nihari Masala 250gm",
+    "description": "Premium quality Nihari Masala 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 245,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/nihari-masala-250gm.png"
+    },
+    "sku": "p0066",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0067": {
+    "sellerId": "admin",
+    "title": "Nihari Masala 30gm",
+    "description": "Premium quality Nihari Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/nihari-masala-30gm.png"
+    },
+    "sku": "p0067",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0068": {
+    "sellerId": "admin",
+    "title": "Nihari Masala 50gm",
+    "description": "Premium quality Nihari Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 65,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/nihari-masala-50gm.png"
+    },
+    "sku": "p0068",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0069": {
+    "sellerId": "admin",
+    "title": "Qorma Masala 100gm",
+    "description": "Premium quality Qorma Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 135,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/qorma-masala-100gm.png"
+    },
+    "sku": "p0069",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0070": {
+    "sellerId": "admin",
+    "title": "Qorma Masala 50gm",
+    "description": "Premium quality Qorma Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 75,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/qorma-masala-50gm.png"
+    },
+    "sku": "p0070",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0071": {
+    "sellerId": "admin",
+    "title": "Red Chili Powder 1000gm",
+    "description": "Premium quality Red Chili Powder 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 540,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "1000g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/red-chili-powder-1000gm.png"
+    },
+    "sku": "p0071",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0072": {
+    "sellerId": "admin",
+    "title": "Red Chili Powder 100gm",
+    "description": "Premium quality Red Chili Powder 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 80,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/red-chili-powder-100gm.png"
+    },
+    "sku": "p0072",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0073": {
+    "sellerId": "admin",
+    "title": "Red Chili Powder 10gm",
+    "description": "Premium quality Red Chili Powder 10gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 15,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "10g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/red-chili-powder-10gm.png"
+    },
+    "sku": "p0073",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0074": {
+    "sellerId": "admin",
+    "title": "Red Chili Powder 15gm",
+    "description": "Premium quality Red Chili Powder 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 20,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "15g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/red-chili-powder-15gm.png"
+    },
+    "sku": "p0074",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0075": {
+    "sellerId": "admin",
+    "title": "Red Chili Powder 20gm",
+    "description": "Premium quality Red Chili Powder 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 25,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "20g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/red-chili-powder-20gm.png"
+    },
+    "sku": "p0075",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0076": {
+    "sellerId": "admin",
+    "title": "Red Chili Powder 250gm",
+    "description": "Premium quality Red Chili Powder 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 165,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/red-chili-powder-250gm.png"
+    },
+    "sku": "p0076",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0077": {
+    "sellerId": "admin",
+    "title": "Red Chili Powder 30gm",
+    "description": "Premium quality Red Chili Powder 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 30,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/red-chili-powder-30gm.png"
+    },
+    "sku": "p0077",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0078": {
+    "sellerId": "admin",
+    "title": "Red Chili Powder 500gm",
+    "description": "Premium quality Red Chili Powder 500gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 300,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "500g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/red-chili-powder-500gm.png"
+    },
+    "sku": "p0078",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0079": {
+    "sellerId": "admin",
+    "title": "Red Chili Powder 50gm",
+    "description": "Premium quality Red Chili Powder 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/red-chili-powder-50gm.png"
+    },
+    "sku": "p0079",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0080": {
+    "sellerId": "admin",
+    "title": "Sabji Masala 15gm",
+    "description": "Premium quality Sabji Masala 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 25,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "15g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/sabji-masala-15gm.png"
+    },
+    "sku": "p0080",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0081": {
+    "sellerId": "admin",
+    "title": "Sabji Masala 20gm",
+    "description": "Premium quality Sabji Masala 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 30,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "20g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/sabji-masala-20gm.png"
+    },
+    "sku": "p0081",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0082": {
+    "sellerId": "admin",
+    "title": "Sabji Masala 30gm",
+    "description": "Premium quality Sabji Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 40,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/sabji-masala-30gm.png"
+    },
+    "sku": "p0082",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0083": {
+    "sellerId": "admin",
+    "title": "Sabji Masala 50gm",
+    "description": "Premium quality Sabji Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 60,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/sabji-masala-50gm.png"
+    },
+    "sku": "p0083",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0084": {
+    "sellerId": "admin",
+    "title": "Seekh Kabab Masala 100gm",
+    "description": "Premium quality Seekh Kabab Masala 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 170,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/seekh-kabab-masala-100gm.png"
+    },
+    "sku": "p0084",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0085": {
+    "sellerId": "admin",
+    "title": "Seekh Kabab Masala 50gm",
+    "description": "Premium quality Seekh Kabab Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 90,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/seekh-kabab-masala-50gm.png"
+    },
+    "sku": "p0085",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0086": {
+    "sellerId": "admin",
+    "title": "Tandoori Masala 15gm",
+    "description": "Premium quality Tandoori Masala 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 35,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "15g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/tandoori-masala-15gm.png"
+    },
+    "sku": "p0086",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0087": {
+    "sellerId": "admin",
+    "title": "Tandoori Masala 20gm",
+    "description": "Premium quality Tandoori Masala 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 45,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "20g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/tandoori-masala-20gm.png"
+    },
+    "sku": "p0087",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0088": {
+    "sellerId": "admin",
+    "title": "Tandoori Masala 30gm",
+    "description": "Premium quality Tandoori Masala 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 65,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/tandoori-masala-30gm.png"
+    },
+    "sku": "p0088",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0089": {
+    "sellerId": "admin",
+    "title": "Tandoori Masala 50gm",
+    "description": "Premium quality Tandoori Masala 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 100,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/tandoori-masala-50gm.png"
+    },
+    "sku": "p0089",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0090": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder 1000gm",
+    "description": "Premium quality Turmeric Powder 1000gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 445,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "1000g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric-powder-1000gm.png"
+    },
+    "sku": "p0090",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0091": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder 100gm",
+    "description": "Premium quality Turmeric Powder 100gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 70,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric-powder-100gm.png"
+    },
+    "sku": "p0091",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0092": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder 10gm",
+    "description": "Premium quality Turmeric Powder 10gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 20,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "10g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric-powder-10gm.png"
+    },
+    "sku": "p0092",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0093": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder 15gm",
+    "description": "Premium quality Turmeric Powder 15gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 25,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "15g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric-powder-15gm.png"
+    },
+    "sku": "p0093",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0094": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder 20gm",
+    "description": "Premium quality Turmeric Powder 20gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 25,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "20g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric-powder-20gm.png"
+    },
+    "sku": "p0094",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0095": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder 250gm",
+    "description": "Premium quality Turmeric Powder 250gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 140,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric-powder-250gm.png"
+    },
+    "sku": "p0095",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0096": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder 30gm",
+    "description": "Premium quality Turmeric Powder 30gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 30,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "30g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric-powder-30gm.png"
+    },
+    "sku": "p0096",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0097": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder 500gm",
+    "description": "Premium quality Turmeric Powder 500gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 250,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "500g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric-powder-500gm.png"
+    },
+    "sku": "p0097",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0098": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder 50gm",
+    "description": "Premium quality Turmeric Powder 50gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 40,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric-powder-50gm.png"
+    },
+    "sku": "p0098",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0099": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder 5gm",
+    "description": "Premium quality Turmeric Powder 5gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 20,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "5g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric-powder-5gm.png"
+    },
+    "sku": "p0099",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0100": {
+    "sellerId": "admin",
+    "title": "Red Chili Powder 5gm",
+    "description": "Premium quality Red Chili Powder 5gm, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 15,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "5g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/red-chili-powders-5gm.png"
+    },
+    "sku": "p0100",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0101": {
+    "sellerId": "admin",
+    "title": "Black Pepper (Whole)",
+    "description": "Premium quality Black Pepper, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 285,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/black-pepper.png"
+    },
+    "sku": "p0101",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0102": {
+    "sellerId": "admin",
+    "title": "Cardamom (Elachi)",
+    "description": "Premium quality Cardamom, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 140,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "25g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/cardamom.png"
+    },
+    "sku": "p0102",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0103": {
+    "sellerId": "admin",
+    "title": "Cinnamon Stick (Dalchini)",
+    "description": "Premium quality Cinnamon Stick, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 120,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/cinnamon.png"
+    },
+    "sku": "p0103",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0104": {
+    "sellerId": "admin",
+    "title": "Cloves (Lobongo)",
+    "description": "Premium quality Cloves, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 32,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/cloves.png"
+    },
+    "sku": "p0104",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0105": {
+    "sellerId": "admin",
+    "title": "Coriander Seed (Dhonia)",
+    "description": "Premium quality Coriander Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 90,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/coriander.png"
+    },
+    "sku": "p0105",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0106": {
+    "sellerId": "admin",
+    "title": "Cumin Seed (Jira)",
+    "description": "Premium quality Cumin Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 140,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/cumin.png"
+    },
+    "sku": "p0106",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0107": {
+    "sellerId": "admin",
+    "title": "Dry Red Chilli (Shukna Morich)",
+    "description": "Premium quality Dry Red Chilli, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 150,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/dry-red-chilli.png"
+    },
+    "sku": "p0107",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0108": {
+    "sellerId": "admin",
+    "title": "Fennel Seed (Mouri)",
+    "description": "Premium quality Fennel Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 119,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/fennel.png"
+    },
+    "sku": "p0108",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0109": {
+    "sellerId": "admin",
+    "title": "Fenugreek Seed (Methi)",
+    "description": "Premium quality Fenugreek Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 40,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/fenugreek.png"
+    },
+    "sku": "p0109",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0110": {
+    "sellerId": "admin",
+    "title": "Garam Masala",
+    "description": "Premium quality Garam Masala, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 90,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "40g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garam-masala.png"
+    },
+    "sku": "p0110",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0111": {
+    "sellerId": "admin",
+    "title": "Garlic (Roshun)",
+    "description": "Premium quality Garlic, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 90,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "250g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/garlic.png"
+    },
+    "sku": "p0111",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0112": {
+    "sellerId": "admin",
+    "title": "Mustard Oil (Sorishar Tel)",
+    "description": "Premium quality Mustard Oil, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 200,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "500ml",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/mustard-oil.png"
+    },
+    "sku": "p0112",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0113": {
+    "sellerId": "admin",
+    "title": "Mustard Seed (Sorisha)",
+    "description": "Premium quality Mustard Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 90,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/mustard-seed.png"
+    },
+    "sku": "p0113",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0114": {
+    "sellerId": "admin",
+    "title": "Nigella Seed (Kalonji)",
+    "description": "Premium quality Nigella Seed, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 90,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/nigella-seed.png"
+    },
+    "sku": "p0114",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0115": {
+    "sellerId": "admin",
+    "title": "Nutmeg (Joyphol)",
+    "description": "Premium quality Nutmeg, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 150,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/nutmeg.png"
+    },
+    "sku": "p0115",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0116": {
+    "sellerId": "admin",
+    "title": "Saffron (Jafran)",
+    "description": "Premium quality Saffron, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 700,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "1g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/saffron.png"
+    },
+    "sku": "p0116",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0117": {
+    "sellerId": "admin",
+    "title": "Star Anise (Chakra Phool)",
+    "description": "Premium quality Star Anise, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 150,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/star-anise.png"
+    },
+    "sku": "p0117",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0118": {
+    "sellerId": "admin",
+    "title": "Turmeric Powder (Holud Gura)",
+    "description": "Premium quality Turmeric Powder, freshly packed for authentic Bangladeshi cooking. 100% natural, no added preservatives.",
+    "price": 95,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/turmeric.png"
+    },
+    "sku": "p0118",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0119": {
+    "sellerId": "admin",
+    "title": "Black Tea",
+    "description": "Premium black tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.",
+    "price": 180,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/black-tea.png"
+    },
+    "sku": "p0119",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0120": {
+    "sellerId": "admin",
+    "title": "Darjeeling Tea",
+    "description": "Premium darjeeling tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.",
+    "price": 400,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/darjeeling-tea.png"
+    },
+    "sku": "p0120",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0121": {
+    "sellerId": "admin",
+    "title": "Green Tea",
+    "description": "Premium green tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.",
+    "price": 280,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/green-tea.png"
+    },
+    "sku": "p0121",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0122": {
+    "sellerId": "admin",
+    "title": "Herbal Tea",
+    "description": "Premium herbal tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.",
+    "price": 300,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/herbal-tea.png"
+    },
+    "sku": "p0122",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0123": {
+    "sellerId": "admin",
+    "title": "Oolong Tea",
+    "description": "Premium oolong tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.",
+    "price": 450,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/oolong-tea.png"
+    },
+    "sku": "p0123",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0124": {
+    "sellerId": "admin",
+    "title": "Rooibos Tea",
+    "description": "Premium rooibos tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.",
+    "price": 400,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "100g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/rooibos-tea.png"
+    },
+    "sku": "p0124",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0125": {
+    "sellerId": "admin",
+    "title": "White Tea",
+    "description": "Premium white tea sourced for rich aroma and authentic taste. Carefully packed to preserve freshness.",
+    "price": 500,
+    "stock": 25,
+    "categoryId": "food_grocery",
+    "netWeight": "50g",
+    "status": "active",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/white-tea.png"
+    },
+    "sku": "p0125",
+    "specifications": {
+      "origin": "Bangladesh",
+      "shelfLife": "12 months from packing date"
+    }
+  },
+  "p0126": {
+    "sellerId": "admin",
+    "title": "Beverages",
+    "description": "Beverages — general product listing for this sub-category. Details to be completed by admin.",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "food_grocery",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/beverages.png"
+    },
+    "sku": "p0126"
+  },
+  "p0127": {
+    "sellerId": "admin",
+    "title": "Biscuit & Bakery",
+    "description": "Biscuit & Bakery — general product listing for this sub-category. Details to be completed by admin.",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "food_grocery",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/biscuit-bakery.png"
+    },
+    "sku": "p0127"
+  },
+  "p0128": {
+    "sellerId": "admin",
+    "title": "Dairy Products",
+    "description": "Dairy Products — general product listing for this sub-category. Details to be completed by admin.",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "food_grocery",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/dairy.png"
+    },
+    "sku": "p0128"
+  },
+  "p0129": {
+    "sellerId": "admin",
+    "title": "Snacks",
+    "description": "Snacks — general product listing for this sub-category. Details to be completed by admin.",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "food_grocery",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/snacks.png"
+    },
+    "sku": "p0129"
+  },
+  "p0130": {
+    "sellerId": "admin",
+    "title": "Sugar & Confectionery",
+    "description": "Sugar & Confectionery — general product listing for this sub-category. Details to be completed by admin.",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "food_grocery",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/sugar-confectionery.png"
+    },
+    "sku": "p0130"
+  },
+  "p0131": {
+    "sellerId": "admin",
+    "title": "Sample Product (Template)",
+    "description": "This is a placeholder product. The admin will update the image, title, weight, and price for this listing.",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "food_grocery",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/placeholder.png"
+    },
+    "sku": "p0131"
+  },
+  "p0132": {
+    "sellerId": "admin",
+    "title": "Pen",
+    "description": "Pen — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "office_school_supplies",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/pens.png"
+    },
+    "sku": "p0132"
+  },
+  "p0133": {
+    "sellerId": "admin",
+    "title": "Rubber Sandals",
+    "description": "Rubber Sandals — product details to be completed by admin (image, description, and price pending).",
+    "price": 100,
+    "stock": 10,
+    "categoryId": "shoes_accessories",
+    "netWeight": "",
+    "status": "pending",
+    "createdAt": 1782984093000,
+    "updatedAt": 1782984093000,
+    "images": {
+      "main": "assets/images/categories/Food & Grocery/rubber-sandals.png"
+    },
+    "sku": "p0133"
+  }
+}
