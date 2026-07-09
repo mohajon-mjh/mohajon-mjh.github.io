@@ -1,4 +1,4 @@
-const CACHE='mjh-v16';
+const CACHE='mjh-v17';
 const ASSETS=[
 '/',
 '/index.html',
