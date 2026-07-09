@@ -41,8 +41,14 @@ function buildHighlights(product){
   if(product.netWeight) items.push(`নেট ওজন: ${product.netWeight}`);
   if(product.specifications && product.specifications.origin) items.push(`উৎস: ${product.specifications.origin}`);
   if(product.specifications && product.specifications.shelfLife) items.push(`মেয়াদ: ${product.specifications.shelfLife}`);
-  items.push("১০০% প্রাকৃতিক, কোনো প্রিজারভেটিভ যুক্ত নেই");
-  items.push("সরাসরি বাংলাদেশি সরবরাহকারীর কাছ থেকে সংগৃহীত");
+
+  if(product.categoryId === "food_grocery"){
+    items.push("১০০% প্রাকৃতিক, কোনো প্রিজারভেটিভ যুক্ত নেই");
+    items.push("সরাসরি বাংলাদেশি সরবরাহকারীর কাছ থেকে সংগৃহীত");
+  } else {
+    items.push("১০০% অরিজিনাল ও মানসম্পন্ন প্রোডাক্ট");
+    items.push("ক্যাশ অন ডেলিভারি সুবিধা উপলব্ধ");
+  }
   return items;
 }
 
