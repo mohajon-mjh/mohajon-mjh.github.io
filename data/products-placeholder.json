@@ -40386,12 +40386,12 @@
   "p2658": {
     "sellerId": "admin",
     "title": "Luggage, Bags & Cases",
-    "description": "Luggage, Bags & Cases — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "description": "Luggage, Bags & Cases — a wide range of travel luggage, bags, and protective cases.",
+    "price": 500,
     "stock": 10,
     "categoryId": "luggage_bags_cases",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
