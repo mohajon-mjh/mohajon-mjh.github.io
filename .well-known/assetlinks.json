@@ -1,8 +1,18 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.wprquiz.mjh",
-        "sha256_cert_fingerprints": ["8B:85:6A:68:85:0C:C5:83:5C:CF:EE:58:9B:1A:19:40:59:55:F2:AA:A4:C5:02:3D:6B:62:61:63:7C:AC:4E:A2"]
-      }
-    }]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.wprquiz.mjh",
+      "sha256_cert_fingerprints": ["8B:85:6A:68:85:0C:C5:83:5C:CF:EE:58:9B:1A:19:40:59:55:F2:AA:A4:C5:02:3D:6B:62:61:63:7C:AC:4E:A2"]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mohajon.mjh",
+      "sha256_cert_fingerprints": ["A8:AB:67:C2:5D:A3:6C:D7:83:EF:64:B1:54:EF:02:97:C9:F8:29:04:58:BE:D0:E1:37:E5:84:8F:3A:93:90:8C"]
+    }
+  }
+]
