@@ -1,4 +1,4 @@
-const CACHE='mjh-v43';
+const CACHE='mjh-v44';
 const ASSETS=[
 '/',
 '/index.html',
@@ -7,6 +7,8 @@ const ASSETS=[
 '/cart.html',
 '/checkout.html',
 '/assets/images/logo.png',
+'/assets/icons-app/icon-192.png',
+'/assets/icons-app/icon-512.png',
 '/manifest.json'
 ];
 
