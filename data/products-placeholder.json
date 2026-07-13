@@ -40257,13 +40257,13 @@
   },
   "p2650": {
     "sellerId": "admin",
-    "title": "Gifts & Crafts",
-    "description": "Gifts & Crafts — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Gifts Crafts",
+    "description": "Gifts & Crafts — a general range of gift and craft products.",
+    "price": 500,
     "stock": 10,
     "categoryId": "gifts_crafts",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
