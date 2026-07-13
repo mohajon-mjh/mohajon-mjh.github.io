@@ -40273,13 +40273,13 @@
   },
   "p2651": {
     "sellerId": "admin",
-    "title": "Health & Medical Supplies",
-    "description": "Health & Medical Supplies — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Health Medical Supplies",
+    "description": "Health & Medical Supplies — a general range of medical care and wellness products.",
+    "price": 500,
     "stock": 10,
     "categoryId": "health_medical_supplies",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
