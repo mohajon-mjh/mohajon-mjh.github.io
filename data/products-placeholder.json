@@ -40465,13 +40465,13 @@
   },
   "p2663": {
     "sellerId": "admin",
-    "title": "Shoes & Accessories",
-    "description": "Shoes & Accessories — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Shoes Accessories",
+    "description": "Shoes & Accessories — a general range of footwear and related accessories.",
+    "price": 900,
     "stock": 10,
     "categoryId": "shoes_accessories",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
