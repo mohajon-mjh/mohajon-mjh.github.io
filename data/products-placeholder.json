@@ -41617,13 +41617,13 @@
   },
   "p2735": {
     "sellerId": "admin",
-    "title": "Furniture (Sofas, Beds, etc.)",
-    "description": "Furniture (Sofas, Beds, etc.) — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Furniture Sofas Beds Etc",
+    "description": "Furniture (Sofas, Beds, etc.) — a general range of furniture products.",
+    "price": 700,
     "stock": 10,
     "categoryId": "furniture_sofas_beds_etc",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
