@@ -41633,13 +41633,13 @@
   },
   "p2736": {
     "sellerId": "admin",
-    "title": "Power Tools & Hand Tools",
-    "description": "Power Tools & Hand Tools — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Power Tools Hand Tools",
+    "description": "Power Tools & Hand Tools — a general range of power and hand tools for workshop and home use.",
+    "price": 500,
     "stock": 10,
     "categoryId": "power_tools_hand_tools",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
