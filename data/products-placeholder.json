@@ -40241,13 +40241,13 @@
   },
   "p2649": {
     "sellerId": "admin",
-    "title": "Gardening & Outdoor Living",
-    "description": "Gardening & Outdoor Living — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Gardening Outdoor Living",
+    "description": "Gardening & Outdoor Living — a general range of gardening and outdoor products.",
+    "price": 500,
     "stock": 10,
     "categoryId": "gardening_outdoor_living",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
