@@ -40497,13 +40497,13 @@
   },
   "p2665": {
     "sellerId": "admin",
-    "title": "Sports & Outdoors, Fitness",
-    "description": "Sports & Outdoors, Fitness — product details to be completed by admin (image, description, and price pending).",
+    "title": "Sports Outdoors Fitness",
+    "description": "Sports & Outdoors, Fitness — a general range of sports, outdoor and fitness equipment.",
     "price": 100,
     "stock": 10,
     "categoryId": "sports_outdoors_fitness",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
