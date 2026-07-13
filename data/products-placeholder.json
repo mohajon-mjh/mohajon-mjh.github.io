@@ -40529,13 +40529,13 @@
   },
   "p2667": {
     "sellerId": "admin",
-    "title": "Video Games & Consoles",
-    "description": "Video Games & Consoles — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Video Games Consoles",
+    "description": "Video Games & Consoles — a general range of gaming consoles, games and accessories.",
+    "price": 500,
     "stock": 10,
     "categoryId": "video_games_consoles",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
