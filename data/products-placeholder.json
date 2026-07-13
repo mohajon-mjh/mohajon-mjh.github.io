@@ -40337,13 +40337,13 @@
   },
   "p2655": {
     "sellerId": "admin",
-    "title": "Industrial Machinery & Equipment",
-    "description": "Industrial Machinery & Equipment — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Industrial Machinery Equipment",
+    "description": "Industrial Machinery & Equipment — a general range of machines designed for industrial and manufacturing use.",
+    "price": 2500,
     "stock": 10,
     "categoryId": "industrial_machinery_equipment",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
