@@ -41553,13 +41553,13 @@
   },
   "p2731": {
     "sellerId": "admin",
-    "title": "Mobile Phones & Accessories",
-    "description": "Mobile Phones & Accessories — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Mobile Phones Accessories",
+    "description": "Mobile Phones & Accessories — a general range of phones and related accessories.",
+    "price": 500,
     "stock": 10,
     "categoryId": "mobile_phones_accessories",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
