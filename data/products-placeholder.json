@@ -41601,13 +41601,13 @@
   },
   "p2734": {
     "sellerId": "admin",
-    "title": "Makeup, Skincare & Fragrance",
-    "description": "Makeup, Skincare & Fragrance — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Makeup Skincare Fragrance",
+    "description": "Makeup, Skincare & Fragrance — a general range of beauty products.",
+    "price": 500,
     "stock": 10,
     "categoryId": "makeup_skincare_fragrance",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
