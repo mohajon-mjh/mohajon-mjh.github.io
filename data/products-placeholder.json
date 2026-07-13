@@ -40289,13 +40289,13 @@
   },
   "p2652": {
     "sellerId": "admin",
-    "title": "Health & Wellness",
-    "description": "Health & Wellness — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Health Wellness",
+    "description": "Health & Wellness Products — a general range of items designed to support wellbeing.",
+    "price": 500,
     "stock": 10,
     "categoryId": "health_wellness",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
