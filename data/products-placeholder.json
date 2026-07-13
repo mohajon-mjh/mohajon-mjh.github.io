@@ -40369,13 +40369,13 @@
   },
   "p2657": {
     "sellerId": "admin",
-    "title": "Lighting & Lamps",
-    "description": "Lighting & Lamps — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Lighting Lamps",
+    "description": "Lighting & Lamps — a general range of lighting and lamp products.",
+    "price": 500,
     "stock": 10,
     "categoryId": "lighting_lamps",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
