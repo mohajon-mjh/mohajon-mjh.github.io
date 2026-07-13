@@ -41585,13 +41585,13 @@
   },
   "p2733": {
     "sellerId": "admin",
-    "title": "Headphones, Speakers & Audio",
-    "description": "Headphones, Speakers & Audio — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Headphones Speakers Audio",
+    "description": "Headphones, Speakers & Audio — a general range of audio equipment and accessories.",
+    "price": 500,
     "stock": 10,
     "categoryId": "headphones_speakers_audio",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
