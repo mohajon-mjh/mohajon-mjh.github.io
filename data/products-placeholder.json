@@ -40481,13 +40481,13 @@
   },
   "p2664": {
     "sellerId": "admin",
-    "title": "Smart Home & Surveillance",
-    "description": "Smart Home & Surveillance — product details to be completed by admin (image, description, and price pending).",
+    "title": "Smart Home Surveillance",
+    "description": "Smart Home & Surveillance — a general range of smart home automation and security devices.",
     "price": 100,
     "stock": 10,
     "categoryId": "smart_home_surveillance",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
