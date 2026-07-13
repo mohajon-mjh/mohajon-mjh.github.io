@@ -40449,13 +40449,13 @@
   },
   "p2662": {
     "sellerId": "admin",
-    "title": "Safety & Security",
-    "description": "Safety & Security — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Safety Security",
+    "description": "Safety & Security — a general range of products for protection and monitoring.",
+    "price": 500,
     "stock": 10,
     "categoryId": "safety_security",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
