@@ -40434,12 +40434,12 @@
   "p2661": {
     "sellerId": "admin",
     "title": "Renewable Energy",
-    "description": "Renewable Energy — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "description": "Renewable Energy — a general range of products for sustainable and clean energy solutions.",
+    "price": 500,
     "stock": 10,
     "categoryId": "renewable_energy",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
