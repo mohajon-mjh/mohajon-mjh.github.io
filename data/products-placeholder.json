@@ -40353,13 +40353,13 @@
   },
   "p2656": {
     "sellerId": "admin",
-    "title": "Jewelry, Eyewear & Watches",
-    "description": "Jewelry, Eyewear & Watches — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Jewelry Eyewear Watches",
+    "description": "Jewelry, Eyewear & Watches — a general range of accessories designed for personal style.",
+    "price": 700,
     "stock": 10,
     "categoryId": "jewelry_eyewear_watches",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
