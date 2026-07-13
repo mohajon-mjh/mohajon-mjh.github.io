@@ -40305,13 +40305,13 @@
   },
   "p2653": {
     "sellerId": "admin",
-    "title": "Home & Kitchen",
-    "description": "Home & Kitchen — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Home Kitchen",
+    "description": "Home & Kitchen Products — a general range of items designed for household and kitchen use.",
+    "price": 500,
     "stock": 10,
     "categoryId": "home_kitchen",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
