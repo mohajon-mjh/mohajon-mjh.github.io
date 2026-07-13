@@ -40401,13 +40401,13 @@
   },
   "p2659": {
     "sellerId": "admin",
-    "title": "Office & School Supplies",
-    "description": "Office & School Supplies — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "title": "Office School Supplies",
+    "description": "Office & School Supplies — a general range of stationery and office essentials.",
+    "price": 300,
     "stock": 10,
     "categoryId": "office_school_supplies",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
