@@ -40418,12 +40418,12 @@
   "p2660": {
     "sellerId": "admin",
     "title": "Pet Supplies",
-    "description": "Pet Supplies — product details to be completed by admin (image, description, and price pending).",
-    "price": 100,
+    "description": "Pet Supplies — a general range of products for pet care and comfort.",
+    "price": 400,
     "stock": 10,
     "categoryId": "pet_supplies",
     "netWeight": "",
-    "status": "pending",
+    "status": "active",
     "createdAt": 1782984093000,
     "updatedAt": 1782984093000,
     "images": {
