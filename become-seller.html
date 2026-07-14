@@ -57,7 +57,7 @@
 
 <div class="box">
   <h2>🏪 Become a Seller</h2>
-  <p id="statusInfo">⏳ Loading...</p>
+  <p id="statusInfo"></p>
 
   <form id="seller-request-form" class="hidden">
     <input type="text" id="store-name" placeholder="আপনার দোকানের নাম" required>
@@ -84,7 +84,6 @@
     measurementId: "G-RX6CCQZHSH"
   };
 
-  window.addEventListener("error", (e) => { document.getElementById("statusInfo").textContent = "JS Error: " + e.message; });
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const auth = getAuth(app);
@@ -176,22 +175,5 @@
 </script>
 
 <script src="js/global-menu.js?v=2"></script>
-
-<script>
-  setTimeout(() => {
-    const s = document.getElementById("statusInfo");
-    if (s && s.textContent.includes("Loading")) {
-      s.innerHTML = "⚠️ Firebase লোড হতে সমস্যা হচ্ছে।<br>নেটওয়ার্ক/VPN/Ad-blocker চেক করুন।";
-    }
-  }, 6000);
-
-  fetch("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js")
-    .then(r => console.log("Firebase fetch status:", r.status))
-    .catch(e => {
-      const s = document.getElementById("statusInfo");
-      if (s) s.innerHTML = "❌ Firebase fetch failed: " + e.message;
-    });
-</script>
-
 </body>
 </html>
