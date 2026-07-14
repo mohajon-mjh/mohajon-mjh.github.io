@@ -176,5 +176,22 @@
 </script>
 
 <script src="js/global-menu.js?v=2"></script>
+
+<script>
+  setTimeout(() => {
+    const s = document.getElementById("statusInfo");
+    if (s && s.textContent.includes("Loading")) {
+      s.innerHTML = "⚠️ Firebase লোড হতে সমস্যা হচ্ছে।<br>নেটওয়ার্ক/VPN/Ad-blocker চেক করুন।";
+    }
+  }, 6000);
+
+  fetch("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js")
+    .then(r => console.log("Firebase fetch status:", r.status))
+    .catch(e => {
+      const s = document.getElementById("statusInfo");
+      if (s) s.innerHTML = "❌ Firebase fetch failed: " + e.message;
+    });
+</script>
+
 </body>
 </html>
