@@ -77,21 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
     sideMenu.appendChild(categoryList);
   }
 
-  // 🏪 Seller/Admin quick links (মেনুর একদম উপরে, সবসময় দৃশ্যমান)
-  if (!document.getElementById("quickLinksBox")) {
-    const quickBox = document.createElement("div");
-    quickBox.id = "quickLinksBox";
-    quickBox.style.padding = "10px";
-    quickBox.style.borderBottom = "2px solid #ddd";
-    quickBox.style.marginBottom = "10px";
-    quickBox.innerHTML = `
-      <a href="become-seller.html" style="display:block;padding:8px 0;color:#28a745;font-weight:bold;text-decoration:none;">🏪 Become a Seller</a>
-      <a href="seller-dashboard.html" style="display:block;padding:8px 0;color:#007bff;font-weight:bold;text-decoration:none;">📊 Seller Dashboard</a>
-      <a href="admin.html" style="display:block;padding:8px 0;color:#dc3545;font-weight:bold;text-decoration:none;">🔧 Admin Panel</a>
-    `;
-    sideMenu.insertBefore(quickBox, sideMenu.firstChild);
-  }
-
   categoryList.innerHTML = "";
   categories.forEach(([name, id]) => {
     const li = document.createElement("li");

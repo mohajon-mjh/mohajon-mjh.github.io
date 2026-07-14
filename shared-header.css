@@ -91,3 +91,45 @@
     text-align:center;
 }
 .logo a{display:inline-block;}
+
+.nav-home-wrap{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+}
+#homeDropdownBtn{
+  background:none;
+  border:none;
+  color:white;
+  cursor:pointer;
+  font-size:14px;
+  padding:0;
+}
+.home-dropdown-menu{
+  display:none;
+  position:absolute;
+  top:100%;
+  left:0;
+  background:#fff;
+  border-radius:6px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  min-width:200px;
+  z-index:999;
+  overflow:hidden;
+  margin-top:8px;
+}
+.home-dropdown-menu.active{
+  display:block;
+}
+.home-dropdown-menu a{
+  display:block;
+  padding:12px 16px;
+  color:#222 !important;
+  text-decoration:none;
+  font-weight:bold;
+  white-space:nowrap;
+}
+.home-dropdown-menu a:hover{
+  background:#f4f4f4;
+}

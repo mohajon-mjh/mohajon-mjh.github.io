@@ -30,13 +30,18 @@
         <a href="login.html">👤 Account</a>
         <a href="wishlist.html">❤️ Wishlist <span id="wishCount" class="count-badge">${wishCount}</span></a>
         <a href="cart.html">🛒 Cart <span id="cartCount" class="count-badge">${cartCount}</span></a>
-        <a href="become-seller.html">🏪 Seller</a>
-        <a href="seller-dashboard.html">📊 Dashboard</a>
-        <a href="admin.html">🔧 Admin</a>
       </div>
     </header>
     <nav class="market-nav" style="overflow-x:auto; white-space:nowrap; -webkit-overflow-scrolling:touch;">
-      <a href="index.html">Home</a>
+      <span class="nav-home-wrap">
+        <a href="index.html">Home</a>
+        <button type="button" id="homeDropdownBtn" aria-label="More options">▾</button>
+        <div id="homeDropdownMenu" class="home-dropdown-menu">
+          <a href="become-seller.html">🏪 Become a Seller</a>
+          <a href="seller-dashboard.html">📊 Seller Dashboard</a>
+          <a href="admin.html">🔧 Admin Panel</a>
+        </div>
+      </span>
       <a href="products.html">All Products</a>
       <a href="products.html?categoryId=consumer_electronics">Electronics</a>
       <a href="products.html?categoryId=clothing_fashion_apparel_men_women_kids">Fashion</a>
@@ -62,6 +67,20 @@
     }
     if(searchBtn) searchBtn.addEventListener("click", doSearch);
     if(searchInput) searchInput.addEventListener("keypress", function(e){ if(e.key==="Enter") doSearch(); });
+
+    const homeBtn = document.getElementById("homeDropdownBtn");
+    const homeMenu = document.getElementById("homeDropdownMenu");
+    if(homeBtn && homeMenu){
+      homeBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        homeMenu.classList.toggle("active");
+      });
+      document.addEventListener("click", function(e){
+        if(!homeMenu.contains(e.target) && e.target !== homeBtn){
+          homeMenu.classList.remove("active");
+        }
+      });
+    }
 
     document.dispatchEvent(new CustomEvent("headerLoaded"));
   }
