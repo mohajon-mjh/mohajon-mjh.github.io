@@ -57,7 +57,7 @@
 
 <div class="box">
   <h2>🏪 Become a Seller</h2>
-  <p id="statusInfo"></p>
+  <p id="statusInfo">⏳ Loading...</p>
 
   <form id="seller-request-form" class="hidden">
     <input type="text" id="store-name" placeholder="আপনার দোকানের নাম" required>
@@ -84,6 +84,7 @@
     measurementId: "G-RX6CCQZHSH"
   };
 
+  window.addEventListener("error", (e) => { document.getElementById("statusInfo").textContent = "JS Error: " + e.message; });
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const auth = getAuth(app);
