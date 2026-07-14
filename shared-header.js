@@ -43,6 +43,9 @@
       <a href="products.html?categoryId=sports_outdoors_fitness">Sports</a>
       <a href="products.html?categoryId=books_media_music">Books</a>
       <a href="products.html?categoryId=automotive_vehicle_parts_accessories">Automotive</a>
+      <a href="become-seller.html">🏪 Become a Seller</a>
+      <a href="seller-dashboard.html">📊 Seller Dashboard</a>
+      <a href="admin.html">🔧 Admin</a>
     </nav>`;
   }
 
