@@ -63,6 +63,7 @@
     color:white;
     text-decoration:none;
     white-space:nowrap;
+    font-size:16px;
 }
 
 @media(max-width:768px){
@@ -103,21 +104,19 @@
   border:none;
   color:white;
   cursor:pointer;
-  font-size:14px;
+  font-size:20px;
   padding:0;
+  line-height:1;
 }
 .home-dropdown-menu{
   display:none;
-  position:absolute;
-  top:100%;
-  left:0;
+  position:fixed;
   background:#fff;
   border-radius:6px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
   min-width:200px;
-  z-index:999;
+  z-index:99999;
   overflow:hidden;
-  margin-top:8px;
 }
 .home-dropdown-menu.active{
   display:block;

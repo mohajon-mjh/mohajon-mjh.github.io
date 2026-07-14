@@ -73,12 +73,21 @@
     if(homeBtn && homeMenu){
       homeBtn.addEventListener("click", function(e){
         e.stopPropagation();
+        const willOpen = !homeMenu.classList.contains("active");
+        if(willOpen){
+          const rect = homeBtn.getBoundingClientRect();
+          homeMenu.style.top = (rect.bottom + 6) + "px";
+          homeMenu.style.left = rect.left + "px";
+        }
         homeMenu.classList.toggle("active");
       });
       document.addEventListener("click", function(e){
         if(!homeMenu.contains(e.target) && e.target !== homeBtn){
           homeMenu.classList.remove("active");
         }
+      });
+      window.addEventListener("scroll", function(){
+        homeMenu.classList.remove("active");
       });
     }
 
