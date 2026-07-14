@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Become a Seller - Mohajon MJH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body{
+      font-family: Arial;
+      background:#f4f4f4;
+      padding:20px;
+    }
+    .box{
+      max-width:500px;
+      margin:auto;
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,0,0,0.1);
+    }
+    h2{ text-align:center; }
+    input, textarea, button{
+      width:100%;
+      padding:10px;
+      margin-top:10px;
+      box-sizing:border-box;
+    }
+    button{
+      background:#28a745;
+      color:white;
+      border:none;
+      cursor:pointer;
+    }
+    button:disabled{
+      background:gray;
+      cursor:not-allowed;
+    }
+    .msg{
+      text-align:center;
+      margin-top:10px;
+      font-weight:bold;
+    }
+    .msg.error{ color:red; }
+    .msg.success{ color:green; }
+    .hidden{ display:none; }
+  </style>
+<link rel="stylesheet" href="css/global-menu.css">
+</head>
+
+<body>
+<div id="menuBtn" class="hamburger">☰</div>
+<nav id="sideMenu" class="side-menu">
+<h3>Categories</h3>
+<ul id="categoryList"></ul>
+</nav>
+
+<div class="box">
+  <h2>🏪 Become a Seller</h2>
+  <p id="statusInfo"></p>
+
+  <form id="seller-request-form" class="hidden">
+    <input type="text" id="store-name" placeholder="আপনার দোকানের নাম" required>
+    <textarea id="store-docs" placeholder="প্রয়োজনীয় তথ্য / ডকুমেন্ট নাম্বার (ঐচ্ছিক)"></textarea>
+    <button type="submit">আবেদন জমা দিন</button>
+  </form>
+
+  <div id="msg" class="msg"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getDatabase, ref, push, set, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+    authDomain: "mohajon-mjh.firebaseapp.com",
+    databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+    projectId: "mohajon-mjh",
+    storageBucket: "mohajon-mjh.firebasestorage.app",
+    messagingSenderId: "526105903976",
+    appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd",
+    measurementId: "G-RX6CCQZHSH"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  const statusInfo = document.getElementById("statusInfo");
+  const form = document.getElementById("seller-request-form");
+  const msgEl = document.getElementById("msg");
+
+  let currentUser = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){
+      statusInfo.textContent = "আবেদন করতে হলে আগে লগইন করুন।";
+      msgEl.innerHTML = `<a href="login.html">👤 Login করুন</a>`;
+      return;
+    }
+    currentUser = user;
+
+    // ইতিমধ্যে seller কিনা চেক
+    const sellerSnap = await get(ref(db, `sellers/${user.uid}`));
+    if(sellerSnap.exists()){
+      const s = sellerSnap.val();
+      if(s.status === "approved"){
+        statusInfo.textContent = "আপনি ইতিমধ্যে একজন অনুমোদিত seller ✅";
+        msgEl.innerHTML = `<a href="seller-dashboard.html">আপনার ড্যাশবোর্ডে যান →</a>`;
+        return;
+      } else {
+        statusInfo.textContent = `আপনার আবেদনের অবস্থা: ${s.status}`;
+        return;
+      }
+    }
+
+    // আগে কোনো pending আবেদন করা আছে কিনা চেক
+    const reqQuery = query(ref(db,"sellerRequests"), orderByChild("uid"), equalTo(user.uid));
+    const reqSnap = await get(reqQuery);
+    if(reqSnap.exists()){
+      let hasPending = false;
+      reqSnap.forEach(child => {
+        if(child.val().status === "pending") hasPending = true;
+      });
+      if(hasPending){
+        statusInfo.textContent = "আপনার seller আবেদন Admin-এর অনুমোদনের অপেক্ষায় আছে। ⏳";
+        return;
+      }
+    }
+
+    // নতুন আবেদন করার ফর্ম দেখাও
+    statusInfo.textContent = "আপনার দোকানের তথ্য দিয়ে seller হওয়ার আবেদন করুন।";
+    form.classList.remove("hidden");
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const storeName = document.getElementById("store-name").value.trim();
+    const docs = document.getElementById("store-docs").value.trim();
+
+    if(!storeName){
+      msgEl.textContent = "দোকানের নাম দিন।";
+      msgEl.className = "msg error";
+      return;
+    }
+
+    const btn = form.querySelector("button");
+    btn.disabled = true;
+    btn.textContent = "জমা হচ্ছে...";
+
+    try{
+      const newReq = push(ref(db,"sellerRequests"));
+      const reqData = {
+        uid: currentUser.uid,
+        storeName: storeName,
+        status: "pending",
+        createdAt: Date.now()
+      };
+      if(docs) reqData.documents = docs;
+
+      await set(newReq, reqData);
+
+      msgEl.textContent = "✅ আবেদন সফলভাবে জমা হয়েছে। Admin অনুমোদনের অপেক্ষায় আছে।";
+      msgEl.className = "msg success";
+      form.classList.add("hidden");
+    }catch(err){
+      msgEl.textContent = "Error: " + err.message;
+      msgEl.className = "msg error";
+      btn.disabled = false;
+      btn.textContent = "আবেদন জমা দিন";
+    }
+  });
+</script>
+
+<script src="js/global-menu.js?v=2"></script>
+</body>
+</html>

@@ -39,7 +39,7 @@ onAuthStateChanged(auth,(user)=>{
     }
 
     const seller=snap.val();
-    sellerVerified = seller.verified===true;
+    sellerVerified = seller.status === "approved";
 
     window.lockSellerUI?.(sellerVerified);
 

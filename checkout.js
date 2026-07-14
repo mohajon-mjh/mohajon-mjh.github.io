@@ -180,6 +180,17 @@ function renderCheckoutForm(cart){
   });
 }
 
+// 🔥 cart কে seller অনুযায়ী গ্রুপ করে প্রতিটা seller-এর জন্য আলাদা order অবজেক্ট বানায়
+function groupCartBySeller(cart){
+  const groups = {};
+  cart.forEach(item => {
+    const sid = item.sellerId || "unknown";
+    if(!groups[sid]) groups[sid] = [];
+    groups[sid].push(item);
+  });
+  return groups;
+}
+
 async function placeOrder(cart, total){
   const msgEl = document.getElementById("coMsg");
   const btn = document.getElementById("coConfirmBtn");
@@ -209,19 +220,28 @@ async function placeOrder(cart, total){
   btn.textContent = "অর্ডার প্রসেস হচ্ছে...";
 
   try{
-    const order = {
-      buyerId: currentUser.uid,
-      sellerId: "admin",
-      items: cart,
-      total: total,
-      currency: "BDT",
-      status: "pending",
-      shippingAddress: { name, phone, area, address },
-      paymentId: refVal ? `${selectedPayment} - ${refVal}` : selectedPayment,
-      createdAt: Date.now()
-    };
+    const sellerGroups = groupCartBySeller(cart);
+    const paymentId = refVal ? `${selectedPayment} - ${refVal}` : selectedPayment;
 
-    await push(ref_db_orders(), order);
+    const orderPromises = Object.entries(sellerGroups).map(([sellerId, items]) => {
+      const sellerTotal = items.reduce((sum, item) => sum + (parseFloat(item.price)||0) * (item.qty||1), 0);
+
+      const order = {
+        buyerId: currentUser.uid,
+        sellerId: sellerId,
+        items: items,
+        total: sellerTotal,
+        currency: "BDT",
+        status: "pending",
+        shippingAddress: { name, phone, area, address },
+        paymentId: paymentId,
+        createdAt: Date.now()
+      };
+
+      return push(ref(db, "orders"), order);
+    });
+
+    await Promise.all(orderPromises);
 
     localStorage.removeItem("cart");
     if(typeof updateCartUI === "function") updateCartUI();
@@ -241,10 +261,6 @@ async function placeOrder(cart, total){
     btn.disabled = false;
     btn.textContent = "✅ Order Confirm";
   }
-}
-
-function ref_db_orders(){
-  return ref(db, "orders");
 }
 
 onAuthStateChanged(auth, (user) => {

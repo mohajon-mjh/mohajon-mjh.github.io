@@ -87,6 +87,22 @@ document.addEventListener("DOMContentLoaded", () => {
     categoryList.appendChild(li);
   });
 
+  // 🏪 Seller quick link (সব পেজে একবার যোগ হবে)
+  if (!document.getElementById("sellerMenuLink")) {
+    const sellerLink = document.createElement("a");
+    sellerLink.id = "sellerMenuLink";
+    sellerLink.href = "become-seller.html";
+    sellerLink.textContent = "🏪 Become a Seller";
+    sellerLink.style.display = "block";
+    sellerLink.style.padding = "10px";
+    sellerLink.style.borderTop = "1px solid #ddd";
+    sellerLink.style.marginTop = "10px";
+    sellerLink.style.textDecoration = "none";
+    sellerLink.style.color = "#28a745";
+    sellerLink.style.fontWeight = "bold";
+    sideMenu.appendChild(sellerLink);
+  }
+
   menuBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     sideMenu.classList.toggle("active");

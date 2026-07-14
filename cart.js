@@ -5,13 +5,13 @@ function saveCart(cart){
   localStorage.setItem("cart", JSON.stringify(cart));
   updateCartUI();
 }
-function addCart(id, name, price){
+function addCart(id, name, price, sellerId){
   let cart = getCart();
   let item = cart.find(i => i.id === id);
   if(item){
     item.qty = (item.qty || 1) + 1;
   } else {
-    cart.push({id, name, price, qty:1});
+    cart.push({id, name, price, qty:1, sellerId: sellerId || "unknown"});
   }
   saveCart(cart);
 }

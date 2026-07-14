@@ -168,7 +168,7 @@ function renderProduct(product){
     addBtn.addEventListener("click", () => {
       const qty = getQty();
       for(let i=0; i<qty; i++){
-        if(typeof addCart === "function") addCart(id, product.title, price);
+        if(typeof addCart === "function") addCart(id, product.title, price, product.sellerId);
       }
       addBtn.textContent = "Added ✓";
       setTimeout(() => { addBtn.textContent = "🛒 Add to Cart"; }, 1200);
@@ -179,7 +179,7 @@ function renderProduct(product){
     buyBtn.addEventListener("click", () => {
       const qty = getQty();
       for(let i=0; i<qty; i++){
-        if(typeof addCart === "function") addCart(id, product.title, price);
+        if(typeof addCart === "function") addCart(id, product.title, price, product.sellerId);
       }
       window.location.href = "checkout.html";
     });
