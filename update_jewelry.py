@@ -1,0 +1,207 @@
+import json
+
+price_desc = {
+    "jewelry_eyewear_watches": (700, "Jewelry, Eyewear & Watches — a general range of accessories designed for personal style."),
+    "adjustable_ring": (450, "Adjustable Ring — a ring designed with a flexible band to fit various finger sizes."),
+    "analog_watch": (1800, "Analog Watch — a classic watch with traditional hour and minute hands."),
+    "anklets": (350, "Anklets — decorative jewelry worn around the ankle."),
+    "anti_fog_wipes": (150, "Anti-Fog Wipes — wipes designed to prevent fogging on eyewear lenses."),
+    "automatic_watch": (5500, "Automatic Watch — a mechanical watch powered by the motion of the wearer's wrist."),
+    "aviator_sunglasses": (900, "Aviator Sunglasses — classic teardrop-shaped sunglasses with thin metal frames."),
+    "bangles": (450, "Bangles — rigid decorative bracelets worn around the wrist."),
+    "beaded_anklet": (300, "Beaded Anklet — an anklet crafted from decorative beads."),
+    "beaded_bracelet": (350, "Beaded Bracelet — a bracelet crafted from decorative beads."),
+    "beaded_necklace": (450, "Beaded Necklace — a necklace crafted from decorative beads."),
+    "belly_ring": (250, "Belly Ring — a decorative piercing jewelry worn on the navel."),
+    "birthstone_pendant": (700, "Birthstone Pendant — a pendant featuring a gemstone representing a birth month."),
+    "blue_light_blocking_glasses": (900, "Blue Light Blocking Glasses — eyewear designed to filter blue light from screens."),
+    "bracelet_display_stand": (450, "Bracelet Display Stand — a stand designed for displaying bracelets."),
+    "bracelet_watch": (1800, "Bracelet Watch — a watch designed with an integrated bracelet-style band."),
+    "bracelets": (450, "Bracelets — decorative jewelry worn around the wrist."),
+    "bridal_jewelry_set": (2500, "Bridal Jewelry Set — a coordinated jewelry set designed for wedding occasions."),
+    "brooch": (450, "Brooch — a decorative pin worn on clothing."),
+    "casual_watch": (1500, "Casual Watch — a versatile watch designed for everyday wear."),
+    "chain_necklace": (700, "Chain Necklace — a necklace made of linked metal chain."),
+    "charm_anklet": (350, "Charm Anklet — an anklet decorated with small hanging charms."),
+    "charm_bracelet": (450, "Charm Bracelet — a bracelet decorated with small hanging charms."),
+    "charms": (200, "Charms — small decorative pieces designed to attach to jewelry."),
+    "choker_necklace": (450, "Choker Necklace — a close-fitting necklace worn around the neck."),
+    "chronograph_watch": (3500, "Chronograph Watch — a watch featuring a built-in stopwatch function."),
+    "clasps": (150, "Clasps — small fasteners designed for securing jewelry."),
+    "clip_on_earrings": (350, "Clip-On Earrings — earrings designed to attach without piercing."),
+    "colored_contact_lenses": (900, "Colored Contact Lenses — contact lenses designed to change or enhance eye color."),
+    "computer_glasses": (900, "Computer Glasses — eyewear designed to reduce eye strain from screen use."),
+    "contact_lens_case": (150, "Contact Lens Case — a small case used to store and clean contact lenses."),
+    "contact_lens_solution": (350, "Contact Lens Solution — a cleaning solution designed for contact lens care."),
+    "contact_lenses": (700, "Contact Lenses — corrective lenses worn directly on the eye."),
+    "couple_ring": (900, "Couple Ring — a matching pair of rings designed for couples."),
+    "crescent_star_pendant": (450, "Crescent Star Pendant — a pendant featuring a crescent moon and star design."),
+    "cross_necklace": (450, "Cross Necklace — a necklace featuring a cross pendant."),
+    "cuff_bracelet": (450, "Cuff Bracelet — a rigid, open-ended bracelet worn around the wrist."),
+    "cufflinks": (700, "Cufflinks — decorative fasteners designed for shirt cuffs."),
+    "daily_contact_lenses": (900, "Daily Contact Lenses — single-use contact lenses designed for daily wear."),
+    "dangle_earrings": (450, "Dangle Earrings — earrings designed to hang below the earlobe."),
+    "diamond_bangles": (5500, "Diamond Bangles — bangles adorned with diamond accents."),
+    "diamond_necklace": (7500, "Diamond Necklace — a necklace adorned with diamond accents."),
+    "diamond_pendant": (3500, "Diamond Pendant — a pendant adorned with a diamond."),
+    "diamond_ring": (5500, "Diamond Ring — a ring adorned with a diamond."),
+    "digital_watch": (900, "Digital Watch — a watch displaying time using digital numerals."),
+    "dive_watch": (3500, "Dive Watch — a water-resistant watch designed for underwater use."),
+    "dress_watch": (2500, "Dress Watch — an elegant watch designed for formal occasions."),
+    "drop_earrings": (450, "Drop Earrings — earrings designed to hang just below the earlobe."),
+    "ear_cuffs": (350, "Ear Cuffs — decorative jewelry that wraps around the outer ear without piercing."),
+    "earring_hooks": (150, "Earring Hooks — small fastening components designed for earring making."),
+    "earrings": (350, "Earrings — decorative jewelry worn on the ears."),
+    "engagement_ring": (9500, "Engagement Ring — a ring designed to symbolize a marriage proposal."),
+    "eyeglass_case": (350, "Eyeglass Case — a protective case designed for storing eyeglasses."),
+    "eyeglass_chain": (350, "Eyeglass Chain — a chain designed to keep eyeglasses secure around the neck."),
+    "eyeglass_cleaning_cloth": (100, "Eyeglass Cleaning Cloth — a microfiber cloth designed for cleaning lenses."),
+    "eyeglass_repair_kit": (200, "Eyeglass Repair Kit — a small kit used for minor eyeglass repairs."),
+    "eyeglasses": (1500, "Eyeglasses — corrective or fashion eyewear."),
+    "fashion_watch": (1500, "Fashion Watch — a stylish watch designed as a fashion accessory."),
+    "fitness_watch": (2500, "Fitness Watch — a wearable watch that tracks fitness and health metrics."),
+    "full_rim_glasses": (1500, "Full Rim Glasses — eyeglasses with a complete frame surrounding the lenses."),
+    "gift_jewelry_set": (1800, "Gift Jewelry Set — a coordinated jewelry set designed for gifting."),
+    "glass_bangles": (350, "Glass Bangles — bangles crafted from decorative glass."),
+    "gold_anklet": (3500, "Gold Anklet — an anklet crafted from gold."),
+    "gold_bangles": (9500, "Gold Bangles — bangles crafted from gold."),
+    "gold_bracelet": (7500, "Gold Bracelet — a bracelet crafted from gold."),
+    "gold_cleaning_solution": (350, "Gold Cleaning Solution — a cleaning solution designed for gold jewelry care."),
+    "gold_necklace": (12500, "Gold Necklace — a necklace crafted from gold."),
+    "gold_pendant": (5500, "Gold Pendant — a pendant crafted from gold."),
+    "gold_ring": (7500, "Gold Ring — a ring crafted from gold."),
+    "gps_smartwatch": (5500, "GPS Smartwatch — a smartwatch featuring built-in GPS tracking."),
+    "half_rim_glasses": (1500, "Half Rim Glasses — eyeglasses with a partial frame surrounding the lenses."),
+    "hijab_pin": (150, "Hijab Pin — a decorative pin designed to secure a hijab."),
+    "hoop_earrings": (450, "Hoop Earrings — circular earrings designed to hang from the earlobe."),
+    "huggie_earrings": (350, "Huggie Earrings — small hoop earrings designed to hug the earlobe."),
+    "initial_pendant": (700, "Initial Pendant — a pendant featuring a personalized letter."),
+    "jewelry": (500, "Jewelry — a general range of decorative accessories."),
+    "jewelry_beads": (250, "Jewelry Beads — loose beads designed for jewelry making."),
+    "jewelry_box": (900, "Jewelry Box — a container designed for storing jewelry."),
+    "jewelry_cleaner": (350, "Jewelry Cleaner — a solution designed to clean and restore jewelry shine."),
+    "jewelry_organizer": (900, "Jewelry Organizer — a storage solution designed to organize jewelry."),
+    "jewelry_pliers": (450, "Jewelry Pliers — small tools designed for jewelry making and repair."),
+    "jewelry_wire": (250, "Jewelry Wire — wire designed for jewelry making projects."),
+    "jump_rings": (150, "Jump Rings — small metal rings used to connect jewelry components."),
+    "keychain": (250, "Keychain — a small accessory designed for holding keys."),
+    "kids_bracelet": (300, "Kids Bracelet — a bracelet designed for children."),
+    "kids_earrings": (300, "Kids Earrings — earrings designed for children."),
+    "kids_necklace": (350, "Kids Necklace — a necklace designed for children."),
+    "kids_ring": (250, "Kids Ring — a ring designed for children."),
+    "kids_smartwatch": (2500, "Kids Smartwatch — a smartwatch designed with parental features for children."),
+    "kids_sunglasses": (450, "Kids Sunglasses — sunglasses designed for children."),
+    "kids_watch": (900, "Kids Watch — a watch designed for children."),
+    "lapel_pin": (250, "Lapel Pin — a decorative pin worn on a jacket lapel."),
+    "leather_bracelet": (450, "Leather Bracelet — a bracelet crafted from leather."),
+    "leather_watch_band": (700, "Leather Watch Band — a replacement watch strap crafted from leather."),
+    "lens_cleaner_spray": (150, "Lens Cleaner Spray — a spray solution designed for cleaning eyewear lenses."),
+    "luxury_pen": (1800, "Luxury Pen — a premium writing instrument designed as a fashion accessory."),
+    "luxury_watch": (25000, "Luxury Watch — a premium watch designed with high-end craftsmanship."),
+    "mens_watches": (2500, "Men's Watches — a general range of watches designed for men."),
+    "metal_bangles": (450, "Metal Bangles — bangles crafted from metal."),
+    "metal_watch_band": (700, "Metal Watch Band — a replacement watch strap crafted from metal."),
+    "money_clip": (450, "Money Clip — a decorative clip designed to hold cash."),
+    "monthly_contact_lenses": (900, "Monthly Contact Lenses — contact lenses designed for monthly replacement wear."),
+    "necklace_earring_set": (1500, "Necklace & Earring Set — a coordinated jewelry set of necklace and earrings."),
+    "necklace_organizer": (700, "Necklace Organizer — a storage solution designed to organize necklaces."),
+    "necklaces_chains": (700, "Necklaces & Chains — a general range of neck-worn jewelry."),
+    "nose_pads": (150, "Nose Pads — replacement pads designed for eyeglass comfort."),
+    "nose_ring": (250, "Nose Ring — decorative piercing jewelry worn on the nose."),
+    "nose_stud": (200, "Nose Stud — a small decorative piercing jewelry worn on the nose."),
+    "oversized_sunglasses": (900, "Oversized Sunglasses — sunglasses featuring large, statement-style frames."),
+    "pearl_necklace": (2500, "Pearl Necklace — a necklace crafted from pearls."),
+    "pendant_blanks": (250, "Pendant Blanks — plain pendant bases designed for jewelry making."),
+    "pendant_necklace": (700, "Pendant Necklace — a necklace featuring a decorative pendant."),
+    "pendants": (450, "Pendants — decorative jewelry pieces designed to hang from a necklace."),
+    "pocket_watch": (2500, "Pocket Watch — a classic watch designed to be carried in a pocket."),
+    "polarized_sunglasses": (1200, "Polarized Sunglasses — sunglasses designed to reduce glare."),
+    "polishing_cloth": (150, "Polishing Cloth — a cloth designed for polishing jewelry."),
+    "prayer_beads": (450, "Prayer Beads — a string of beads used for prayer counting."),
+    "prescription_glasses_frame": (1500, "Prescription Glasses Frame — a frame designed for fitting prescription lenses."),
+    "promise_ring": (900, "Promise Ring — a ring symbolizing a commitment between partners."),
+    "protective_goggles": (350, "Protective Goggles — protective eyewear designed to shield the eyes."),
+    "quartz_watch": (1800, "Quartz Watch — a watch powered by a quartz crystal movement."),
+    "reading_glasses": (350, "Reading Glasses — glasses designed to assist with close-up reading."),
+    "religious_bracelet": (450, "Religious Bracelet — a bracelet featuring religious symbolism."),
+    "religious_pendant": (450, "Religious Pendant — a pendant featuring religious symbolism."),
+    "rimless_glasses": (1800, "Rimless Glasses — eyeglasses designed without a surrounding frame."),
+    "ring_box": (450, "Ring Box — a small box designed for presenting or storing a ring."),
+    "ring_set": (900, "Ring Set — a coordinated set of rings."),
+    "ring_sunglasses_wristwatch": (900, "Ring, Sunglasses & Wristwatch Set — a coordinated accessory bundle."),
+    "rings": (450, "Rings — decorative jewelry worn on the finger."),
+    "round_sunglasses": (900, "Round Sunglasses — sunglasses featuring circular-shaped lenses."),
+    "safety_glasses": (250, "Safety Glasses — protective eyewear designed to shield the eyes from hazards."),
+    "screen_protector": (200, "Screen Protector — a protective film designed for device screens."),
+    "signet_ring": (900, "Signet Ring — a ring featuring a flat engraved or embossed surface."),
+    "silicone_watch_band": (350, "Silicone Watch Band — a replacement watch strap crafted from silicone."),
+    "silver_anklet": (900, "Silver Anklet — an anklet crafted from silver."),
+    "silver_bangles": (1800, "Silver Bangles — bangles crafted from silver."),
+    "silver_bracelet": (1500, "Silver Bracelet — a bracelet crafted from silver."),
+    "silver_necklace": (2200, "Silver Necklace — a necklace crafted from silver."),
+    "silver_pendant": (900, "Silver Pendant — a pendant crafted from silver."),
+    "silver_polish": (250, "Silver Polish — a cleaning product designed for silver jewelry care."),
+    "silver_ring": (900, "Silver Ring — a ring crafted from silver."),
+    "smartwatch": (3500, "Smartwatch — a wearable device that tracks fitness and health metrics."),
+    "sports_sunglasses": (900, "Sports Sunglasses — sunglasses designed for active and outdoor use."),
+    "sports_watch": (2500, "Sports Watch — a durable watch designed for athletic activities."),
+    "square_sunglasses": (900, "Square Sunglasses — sunglasses featuring angular, square-shaped lenses."),
+    "stud_earrings": (350, "Stud Earrings — small earrings designed to sit directly on the earlobe."),
+    "sunglasses": (900, "Sunglasses — eyewear designed to protect the eyes from sunlight."),
+    "sunglasses_organizer": (700, "Sunglasses Organizer — a storage case designed for organizing multiple sunglasses."),
+    "tasbih": (350, "Tasbih — a string of prayer beads used for religious counting."),
+    "tennis_bracelet": (2500, "Tennis Bracelet — a bracelet featuring a continuous line of gemstones."),
+    "tie_clip": (350, "Tie Clip — a decorative clip designed to secure a necktie."),
+    "tie_pin": (300, "Tie Pin — a decorative pin designed to secure a necktie."),
+    "toe_ring": (250, "Toe Ring — decorative jewelry worn on the toe."),
+    "ultrasonic_jewelry_cleaner": (2500, "Ultrasonic Jewelry Cleaner — a device that uses ultrasonic waves to clean jewelry."),
+    "watch_box": (900, "Watch Box — a container designed for storing and displaying watches."),
+    "watch_cleaning_kit": (450, "Watch Cleaning Kit — a set of tools designed for watch maintenance."),
+    "watch_display_case": (1500, "Watch Display Case — a case designed for displaying multiple watches."),
+    "watch_repair_kit": (700, "Watch Repair Kit — a set of tools designed for basic watch repairs."),
+    "watch_strap": (450, "Watch Strap — a replacement band designed for a watch."),
+    "watch_winder": (3500, "Watch Winder — a device designed to keep automatic watches wound."),
+    "wayfarer_sunglasses": (900, "Wayfarer Sunglasses — classic trapezoidal-frame sunglasses."),
+    "wedding_ring": (7500, "Wedding Ring — a ring designed to symbolize marriage."),
+    "welding_goggles": (450, "Welding Goggles — protective eyewear designed to shield the eyes during welding."),
+    "womens_watches": (2500, "Women's Watches — a general range of watches designed for women."),
+    "wooden_bangles": (350, "Wooden Bangles — bangles crafted from wood."),
+}
+
+paths = [
+    "data/products-placeholder.json",
+    "data/products-placeholder-batch2.json",
+]
+
+total_updated = 0
+total_skipped = []
+for path in paths:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        continue
+
+    updated = 0
+    for sku, prod in data.items():
+        if prod.get("categoryId") == "jewelry_eyewear_watches":
+            img = prod["images"]["main"].split("/")[-1].replace(".png", "")
+            if img in price_desc:
+                price, desc = price_desc[img]
+                title = " ".join(w.capitalize() for w in img.split("_"))
+                prod["title"] = title
+                prod["price"] = price
+                prod["description"] = desc
+                prod["status"] = "active"
+                updated += 1
+            else:
+                total_skipped.append((path, sku, img))
+
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    print(f"{path}: Updated {updated}")
+    total_updated += updated
+
+print(f"Total Updated: {total_updated}")
+print(f"Skipped: {total_skipped}")

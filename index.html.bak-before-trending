@@ -680,125 +680,504 @@ drawDots();
 <div class="section">
 <h2>🔥 Trending Products</h2>
 <br>
+<!-- ==========================================
+     PHASE 2.4A-2a-1
+     PRODUCT CARD #1
+========================================== -->
 
-<div id="trendingProductsGrid" class="trending-grid">
-  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
-</div>
+<div class="product-card">
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-
-const trendingFirebaseConfig = {
-  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
-  authDomain: "mohajon-mjh.firebaseapp.com",
-  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
-  projectId: "mohajon-mjh",
-  storageBucket: "mohajon-mjh.firebasestorage.app",
-  messagingSenderId: "526105903976",
-  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd",
-  measurementId: "G-RX6CCQZHSH"
-};
-
-const trendingApp = initializeApp(trendingFirebaseConfig, "trendingApp");
-const trendingDb = getDatabase(trendingApp);
-
-function isWished(id){
-  const list = JSON.parse(localStorage.getItem("wishlist") || "[]");
-  return list.some(i => i.id === id);
-}
-
-function renderTrendingCard(id, data){
-  const price = parseFloat(data.price) || 0;
-  const discount = parseInt(data.discountPercent) || 0;
-  const oldPrice = discount > 0 ? (price / (1 - discount/100)) : 0;
-  const stock = parseInt(data.stock) || 0;
-
-  const imageUrl =
-    data.images && data.images.main && data.images.main.trim() !== ""
-      ? data.images.main
-      : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
-
-  const wished = isWished(id);
-
-  const card = document.createElement("div");
-  card.className = "product-card";
-
-  card.innerHTML = `
     <div class="product-image">
-      ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
-      <button class="wishlist-btn ${wished ? 'active' : ''}">❤</button>
-      <img src="${imageUrl}" alt="${data.title || data.name || 'Product'}"
-           loading="lazy"
-           onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
+
+        <span class="discount-badge">-20%</span>
+
+        <span class="new-badge">NEW</span>
+
+        <button class="wishlist-btn">❤</button>
+
+        <img src="assets/images/products/biryani-masala-100gm.png"
+             alt="Biryani Masala 100gm">
+
+        <div class="product-overlay">
+            <button class="quick-view-btn">
+                Quick View
+            </button>
+        </div>
+
     </div>
+
     <div class="product-info">
-      <h3 class="product-title">${data.title || data.name || "Unnamed Product"}</h3>
-      <div class="product-price">
-        ${oldPrice > price ? `<span class="old-price">৳${oldPrice.toFixed(0)}</span>` : ""}
-        <span class="new-price">৳${price.toFixed(0)}</span>
-      </div>
-      <span class="stock">${stock > 0 ? "✅ In Stock" : "❌ Out of Stock"}</span>
-      <div class="product-actions">
-        <button class="cart-btn" ${stock<=0 ? "disabled" : ""}>🛒 Add to Cart</button>
-        <button class="buy-btn" ${stock<=0 ? "disabled" : ""}>⚡ Buy Now</button>
-      </div>
+
+        <h3 class="product-title">
+            Biryani Masala 100gm
+        </h3>
+
+        <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span class="reviews">(128 Reviews)</span>
+        </div>
+
+        <div class="product-price">
+            <span class="old-price">৳150</span>
+            <span class="new-price">৳120</span>
+        </div>
+
+        <span class="stock">
+            ✅ In Stock
+        </span>
+
+        <div class="product-actions">
+
+            <button class="cart-btn">
+                🛒 Add to Cart
+            </button>
+
+            <button class="buy-btn">
+                ⚡ Buy Now
+            </button>
+
+        </div>
+
     </div>
-  `;
-
-  const cartBtn = card.querySelector(".cart-btn");
-  if(cartBtn && stock > 0){
-    cartBtn.addEventListener("click", () => {
-      if(typeof addCart === "function"){
-        addCart(id, data.title || data.name, price);
-      }
-      cartBtn.textContent = "Added ✓";
-      setTimeout(()=>{ cartBtn.textContent = "🛒 Add to Cart"; }, 1200);
-    });
-  }
-
-  const buyBtn = card.querySelector(".buy-btn");
-  if(buyBtn && stock > 0){
-    buyBtn.addEventListener("click", () => {
-      if(typeof addCart === "function"){
-        addCart(id, data.title || data.name, price);
-      }
-      window.location.href = "cart.html";
-    });
-  }
-
-  const wishBtn = card.querySelector(".wishlist-btn");
-  if(wishBtn){
-    wishBtn.addEventListener("click", () => {
-      if(typeof toggleWishlist === "function"){
-        toggleWishlist(id, data.title || data.name);
-      }
-      wishBtn.classList.toggle("active");
-    });
-  }
-
-  return card;
-}
-
-const trendingGrid = document.getElementById("trendingProductsGrid");
-onValue(ref(trendingDb, "products"), (snapshot) => {
-  trendingGrid.innerHTML = "";
-  let count = 0;
-  snapshot.forEach(child => {
-    const data = child.val();
-    if(data.status === "active" && data.isTrending === true){
-      trendingGrid.appendChild(renderTrendingCard(child.key, data));
-      count++;
-    }
-  });
-  if(count === 0){
-    trendingGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Trending প্রোডাক্ট যোগ করা হয়নি।</p>";
-  }
-});
-</script>
 
 </div>
 
+
+<!-- ==========================================
+     PHASE 2.4A-2a-2
+     PRODUCT CARD #2
+========================================== -->
+
+<div class="product-card">
+
+    <div class="product-image">
+
+        <span class="discount-badge">-15%</span>
+
+        <button class="wishlist-btn">❤</button>
+
+        <img src="assets/images/products/chicken-masala-100gm.png"
+             alt="Chicken Masala 100gm">
+
+        <div class="product-overlay">
+            <button class="quick-view-btn">
+                Quick View
+            </button>
+        </div>
+
+    </div>
+
+    <div class="product-info">
+
+        <h3 class="product-title">
+            Chicken Masala 100gm
+        </h3>
+
+        <div class="product-rating">
+            <span class="stars">★★★★☆</span>
+            <span class="reviews">(94 Reviews)</span>
+        </div>
+
+        <div class="product-price">
+            <span class="old-price">৳140</span>
+            <span class="new-price">৳119</span>
+        </div>
+
+        <span class="stock">
+            ✅ In Stock
+        </span>
+
+        <div class="product-actions">
+
+            <button class="cart-btn">
+                🛒 Add to Cart
+            </button>
+
+            <button class="buy-btn">
+                ⚡ Buy Now
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     PHASE 2.4A-2a-3
+     PRODUCT CARD #3
+========================================== -->
+
+<div class="product-card">
+
+    <div class="product-image">
+
+        <span class="discount-badge">-10%</span>
+
+        <button class="wishlist-btn">❤</button>
+
+        <img src="assets/images/products/garam-masala.png"
+             alt="Garam Masala">
+
+        <div class="product-overlay">
+            <button class="quick-view-btn">
+                Quick View
+            </button>
+        </div>
+
+    </div>
+
+    <div class="product-info">
+
+        <h3 class="product-title">
+            Garam Masala
+        </h3>
+
+        <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span class="reviews">(156 Reviews)</span>
+        </div>
+
+        <div class="product-price">
+            <span class="old-price">৳100</span>
+            <span class="new-price">৳90</span>
+        </div>
+
+        <span class="stock">
+            ✅ In Stock
+        </span>
+
+        <div class="product-actions">
+
+            <button class="cart-btn">
+                🛒 Add to Cart
+            </button>
+
+            <button class="buy-btn">
+                ⚡ Buy Now
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     PHASE 2.4A-2a-4
+     PRODUCT CARD #4
+========================================== -->
+
+<div class="product-card">
+
+    <div class="product-image">
+
+        <span class="discount-badge">-25%</span>
+
+        <span class="new-badge">HOT</span>
+
+        <button class="wishlist-btn">❤</button>
+
+        <img src="assets/images/products/red-chili-powder-1000gm.png"
+             alt="Red Chili Powder 1000gm">
+
+        <div class="product-overlay">
+            <button class="quick-view-btn">
+                Quick View
+            </button>
+        </div>
+
+    </div>
+
+    <div class="product-info">
+
+        <h3 class="product-title">
+            Red Chili Powder 1000gm
+        </h3>
+
+        <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span class="reviews">(212 Reviews)</span>
+        </div>
+
+        <div class="product-price">
+            <span class="old-price">৳650</span>
+            <span class="new-price">৳489</span>
+        </div>
+
+        <span class="stock">
+            ✅ In Stock
+        </span>
+
+        <div class="product-actions">
+
+            <button class="cart-btn">
+                🛒 Add to Cart
+            </button>
+
+            <button class="buy-btn">
+                ⚡ Buy Now
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     PHASE 2.4A-2b-1
+     PRODUCT CARD #5
+========================================== -->
+
+<div class="product-card">
+
+    <div class="product-image">
+
+        <span class="discount-badge">-12%</span>
+
+        <button class="wishlist-btn">❤</button>
+
+        <img src="assets/images/products/black-pepper.png"
+             alt="Black Pepper">
+
+        <div class="product-overlay">
+            <button class="quick-view-btn">
+                Quick View
+            </button>
+        </div>
+
+    </div>
+
+    <div class="product-info">
+
+        <h3 class="product-title">
+            Black Pepper
+        </h3>
+
+        <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span class="reviews">(176 Reviews)</span>
+        </div>
+
+        <div class="product-price">
+            <span class="old-price">৳250</span>
+            <span class="new-price">৳220</span>
+        </div>
+
+        <span class="stock">
+            ✅ In Stock
+        </span>
+
+        <div class="product-actions">
+
+            <button class="cart-btn">
+                🛒 Add to Cart
+            </button>
+
+            <button class="buy-btn">
+                ⚡ Buy Now
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     PHASE 2.4A-2b-2
+     PRODUCT CARD #6
+========================================== -->
+
+<div class="product-card">
+
+    <div class="product-image">
+
+        <span class="discount-badge">-18%</span>
+
+        <span class="new-badge">HOT</span>
+
+        <button class="wishlist-btn">❤</button>
+
+        <img src="assets/images/products/cardamom.png"
+             alt="Cardamom">
+
+        <div class="product-overlay">
+            <button class="quick-view-btn">
+                Quick View
+            </button>
+        </div>
+
+    </div>
+
+    <div class="product-info">
+
+        <h3 class="product-title">
+            Premium Cardamom
+        </h3>
+
+        <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span class="reviews">(231 Reviews)</span>
+        </div>
+
+        <div class="product-price">
+            <span class="old-price">৳480</span>
+            <span class="new-price">৳395</span>
+        </div>
+
+        <span class="stock">
+            ✅ In Stock
+        </span>
+
+        <div class="product-actions">
+
+            <button class="cart-btn">
+                🛒 Add to Cart
+            </button>
+
+            <button class="buy-btn">
+                ⚡ Buy Now
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     PHASE 2.4A-2b-3
+     PRODUCT CARD #7
+========================================== -->
+
+<div class="product-card">
+
+    <div class="product-image">
+
+        <span class="discount-badge">-10%</span>
+
+        <span class="new-badge">BEST SELLER</span>
+
+        <button class="wishlist-btn">❤</button>
+
+        <img src="assets/images/products/turmeric.png"
+             alt="Turmeric Powder">
+
+        <div class="product-overlay">
+            <button class="quick-view-btn">
+                Quick View
+            </button>
+        </div>
+
+    </div>
+
+    <div class="product-info">
+
+        <h3 class="product-title">
+            Turmeric Powder
+        </h3>
+
+        <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span class="reviews">(198 Reviews)</span>
+        </div>
+
+        <div class="product-price">
+            <span class="old-price">৳120</span>
+            <span class="new-price">৳108</span>
+        </div>
+
+        <span class="stock">
+            ✅ In Stock
+        </span>
+
+        <div class="product-actions">
+
+            <button class="cart-btn">
+                🛒 Add to Cart
+            </button>
+
+            <button class="buy-btn">
+                ⚡ Buy Now
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     PHASE 2.4A-2b-4
+     PRODUCT CARD #8
+========================================== -->
+
+<div class="product-card">
+
+    <div class="product-image">
+
+        <span class="discount-badge">-15%</span>
+
+        <span class="new-badge">POPULAR</span>
+
+        <button class="wishlist-btn">❤</button>
+
+        <img src="assets/images/products/cumin.png"
+             alt="Cumin Powder">
+
+        <div class="product-overlay">
+            <button class="quick-view-btn">
+                Quick View
+            </button>
+        </div>
+
+    </div>
+
+    <div class="product-info">
+
+        <h3 class="product-title">
+            Premium Cumin Powder
+        </h3>
+
+        <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span class="reviews">(167 Reviews)</span>
+        </div>
+
+        <div class="product-price">
+            <span class="old-price">৳180</span>
+            <span class="new-price">৳153</span>
+        </div>
+
+        <span class="stock">
+            ✅ In Stock
+        </span>
+
+        <div class="product-actions">
+
+            <button class="cart-btn">
+                🛒 Add to Cart
+            </button>
+
+            <button class="buy-btn">
+                ⚡ Buy Now
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
 
 <div class="section">
 <h2>⭐ Deals Of The Day</h2>
@@ -964,10 +1343,10 @@ navigator.serviceWorker.register('/sw.js');
 
 </footer>
 <script src="products-data.js"></script>
-<script src="product-render.js?v=3"></script>
+<script src="product-render.js?v=2"></script>
 <script src="cart.js"></script>
 <script src="wishlist.js"></script>
-<script src="js/global-menu.js?v=3"></script>
+<script src="js/global-menu.js?v=2"></script>
 </body>
 </html>
 
