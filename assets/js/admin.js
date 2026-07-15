@@ -23,8 +23,13 @@ const ADMIN_UIDS = [
 ];
 
 const productsDiv = document.getElementById("products");
+const allProductsDiv = document.getElementById("all-products");
 const sellerReqDiv = document.getElementById("seller-requests");
+const sellerCommDiv = document.getElementById("seller-commissions");
 const ordersDiv = document.getElementById("orders-commission");
+const notepadDiv = document.getElementById("admin-notepad");
+
+let currentAdminUid = null;
 
 onAuthStateChanged(auth, (user) => {
 
@@ -41,10 +46,15 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
 
+  currentAdminUid = user.uid;
+
   loadProducts();
+  loadAllProducts();
   loadSellerRequests();
+  loadSellerCommissions();
   loadDeliveredOrders();
   loadOrderStats();
+  loadNotepad();
 });
 
 /* ===================== OVERVIEW STATS ===================== */
@@ -74,12 +84,12 @@ function loadOrderStats(){
   });
 }
 
-/* ===================== PRODUCT APPROVAL ===================== */
+/* ===================== PENDING PRODUCT APPROVAL ===================== */
 function loadProducts(){
   const productsRef = ref(db,"products");
 
   onValue(productsRef,(snapshot)=>{
-    productsDiv.innerHTML="<h3>🆕 Pending Products</h3>";
+    productsDiv.innerHTML="<div class='section-title'><h3>🆕 Pending Products</h3></div>";
 
     let count = 0;
     snapshot.forEach(child=>{
@@ -119,6 +129,72 @@ function loadProducts(){
   });
 }
 
+/* ===================== ALL PRODUCTS - EDIT / DELETE ===================== */
+function loadAllProducts(){
+  if(!allProductsDiv) return;
+  const productsRef = ref(db,"products");
+
+  onValue(productsRef,(snapshot)=>{
+    allProductsDiv.innerHTML="<div class='section-title'><h3>✏️ সব প্রোডাক্ট — এডিট / ডিলিট</h3></div>";
+
+    let count = 0;
+    snapshot.forEach(child=>{
+      const key = child.key;
+      const data = child.val();
+      count++;
+
+      const div = document.createElement("div");
+      div.className="card";
+
+      div.innerHTML=`
+        <label>নাম
+          <input type="text" class="edit-name" value="${(data.title||data.name||'').replace(/"/g,'&quot;')}">
+        </label>
+        <label>দাম (৳)
+          <input type="number" class="edit-price" value="${data.price||0}">
+        </label>
+        <label>স্টক
+          <input type="number" class="edit-stock" value="${data.stock||0}">
+        </label>
+        <p style="font-size:12px;color:#999">Status: ${data.status} | Seller: ${data.sellerEmail || data.sellerId}</p>
+        <button class="save-btn">Save</button>
+        <button class="delete-btn">Delete</button>
+      `;
+
+      div.querySelector(".save-btn").onclick = async () => {
+        const newName = div.querySelector(".edit-name").value.trim();
+        const newPrice = parseFloat(div.querySelector(".edit-price").value);
+        const newStock = parseInt(div.querySelector(".edit-stock").value);
+
+        try{
+          const updates = {
+            price: newPrice,
+            stock: newStock,
+            updatedAt: Date.now()
+          };
+          if(data.title !== undefined) updates.title = newName;
+          else updates.name = newName;
+
+          await update(ref(db,"products/"+key), updates);
+          alert("✅ প্রোডাক্ট আপডেট হয়েছে");
+        }catch(err){
+          alert("Error: " + err.message);
+        }
+      };
+
+      div.querySelector(".delete-btn").onclick = () => {
+        if(confirm("এই প্রোডাক্ট সম্পূর্ণ ডিলিট করবেন?")){
+          remove(ref(db,"products/"+key));
+        }
+      };
+
+      allProductsDiv.appendChild(div);
+    });
+
+    if(count === 0) allProductsDiv.innerHTML += "<p>কোনো প্রোডাক্ট নেই।</p>";
+  });
+}
+
 /* ===================== SELLER REQUEST APPROVAL ===================== */
 function loadSellerRequests(){
   if(!sellerReqDiv) return;
@@ -126,7 +202,7 @@ function loadSellerRequests(){
   const reqRef = ref(db,"sellerRequests");
 
   onValue(reqRef,(snapshot)=>{
-    sellerReqDiv.innerHTML="<h3>🏪 Seller আবেদন</h3>";
+    sellerReqDiv.innerHTML="<div class='section-title'><h3>🏪 Seller আবেদন</h3></div>";
 
     let count = 0;
     snapshot.forEach(child=>{
@@ -140,6 +216,11 @@ function loadSellerRequests(){
 
       div.innerHTML=`
         <h3>${data.storeName}</h3>
+        <p>নাম: ${data.ownerName || '-'}</p>
+        <p>ফোন: ${data.phone || '-'}</p>
+        <p>ঠিকানা: ${data.address || '-'}</p>
+        <p>Location: ${data.location || '-'}</p>
+        <p>ডকুমেন্ট: ${data.documents || '-'}</p>
         <p>UID: ${data.uid}</p>
         <p>Status: ${data.status}</p>
         <label>কমিশন হার (%): <input type="number" class="commission-rate" value="10" min="0" max="100" style="width:70px"></label>
@@ -184,6 +265,54 @@ function loadSellerRequests(){
   });
 }
 
+/* ===================== APPROVED SELLERS - EDIT COMMISSION ===================== */
+function loadSellerCommissions(){
+  if(!sellerCommDiv) return;
+
+  const sellersRef = ref(db,"sellers");
+
+  onValue(sellersRef,(snapshot)=>{
+    sellerCommDiv.innerHTML="<div class='section-title'><h3>💰 Approved Sellers — কমিশন এডিট</h3></div>";
+
+    let count = 0;
+    snapshot.forEach(child=>{
+      const key = child.key;
+      const data = child.val();
+      if(data.status !== "approved") return;
+      count++;
+
+      const div = document.createElement("div");
+      div.className="card";
+
+      div.innerHTML=`
+        <h3>${data.storeName}</h3>
+        <p>UID: ${key}</p>
+        <label>কমিশন হার (%):
+          <input type="number" class="edit-commission" value="${data.commissionRate||10}" min="0" max="100">
+        </label>
+        <button class="save-commission">Save</button>
+      `;
+
+      div.querySelector(".save-commission").onclick = async () => {
+        const rate = parseFloat(div.querySelector(".edit-commission").value) || 0;
+        try{
+          await update(ref(db,"sellers/"+key), {
+            commissionRate: rate,
+            updatedAt: Date.now()
+          });
+          alert("✅ কমিশন আপডেট হয়েছে");
+        }catch(err){
+          alert("Error: " + err.message);
+        }
+      };
+
+      sellerCommDiv.appendChild(div);
+    });
+
+    if(count === 0) sellerCommDiv.innerHTML += "<p>কোনো অনুমোদিত seller নেই।</p>";
+  });
+}
+
 /* ===================== DELIVERED ORDERS + COMMISSION + STOCK SYNC ===================== */
 function loadDeliveredOrders(){
   if(!ordersDiv) return;
@@ -191,14 +320,13 @@ function loadDeliveredOrders(){
   const ordersRef = ref(db,"orders");
 
   onValue(ordersRef,(snapshot)=>{
-    ordersDiv.innerHTML="<h3>📦 Delivered Orders — Commission বাকি</h3>";
+    ordersDiv.innerHTML="<div class='section-title'><h3>📦 Delivered Orders — Commission বাকি</h3></div>";
 
     let count = 0;
     snapshot.forEach(child=>{
       const key = child.key;
       const data = child.val();
 
-      // শুধু delivered এবং এখনো কমিশন যোগ হয়নি এমন অর্ডার দেখাবে
       if(data.status !== "delivered" || data.commissionAdded) return;
       count++;
 
@@ -214,7 +342,6 @@ function loadDeliveredOrders(){
 
       div.querySelector(".add-commission").onclick = async () => {
         try{
-          // ১. কমিশন হিসাব ও সেভ
           const sellerSnap = await get(ref(db, `sellers/${data.sellerId}/commissionRate`));
           const rate = sellerSnap.exists() ? sellerSnap.val() : 10;
           const amount = data.total * (rate/100);
@@ -228,7 +355,6 @@ function loadDeliveredOrders(){
             createdAt: Date.now()
           });
 
-          // ২. Stock sync (safe, ডাবল কমানো এড়াতে commissionAdded চেক আগেই করা হয়েছে)
           const items = data.items || [];
           for(const item of items){
             const productRef = ref(db, "products/"+item.id);
@@ -242,7 +368,6 @@ function loadDeliveredOrders(){
             }
           }
 
-          // ৩. অর্ডারে flag বসানো যাতে দ্বিতীয়বার commission/stock না হয়
           await update(ref(db,"orders/"+key), { commissionAdded: true });
 
           alert(`কমিশন যোগ হয়েছে: ৳${amount.toFixed(2)} (${rate}%) এবং স্টক আপডেট হয়েছে`);
@@ -256,4 +381,42 @@ function loadDeliveredOrders(){
 
     if(count === 0) ordersDiv.innerHTML += "<p>কোনো নতুন delivered অর্ডার নেই।</p>";
   });
+}
+
+/* ===================== ADMIN NOTEPAD (secret notes) ===================== */
+function loadNotepad(){
+  if(!notepadDiv) return;
+
+  notepadDiv.innerHTML = `
+    <div class="section-title"><h3>📝 Admin Notepad (গোপন নোট)</h3></div>
+    <div class="card">
+      <textarea id="notepad-text" rows="10" placeholder="এখানে গোপন তথ্য/নোট লিখে রাখুন..."></textarea>
+      <button id="notepad-save" class="save-btn">Save Note</button>
+      <span id="notepad-status" style="margin-left:10px;font-size:13px;color:#8f8"></span>
+    </div>
+  `;
+
+  const textarea = document.getElementById("notepad-text");
+  const statusEl = document.getElementById("notepad-status");
+
+  get(ref(db, "adminNotes/main")).then(snap => {
+    if(snap.exists()){
+      textarea.value = snap.val().content || "";
+    }
+  });
+
+  document.getElementById("notepad-save").onclick = async () => {
+    try{
+      await set(ref(db,"adminNotes/main"), {
+        content: textarea.value,
+        updatedBy: currentAdminUid,
+        updatedAt: Date.now()
+      });
+      statusEl.textContent = "✅ সেভ হয়েছে " + new Date().toLocaleTimeString();
+      setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+    }catch(err){
+      statusEl.style.color = "#f88";
+      statusEl.textContent = "Error: " + err.message;
+    }
+  };
 }
