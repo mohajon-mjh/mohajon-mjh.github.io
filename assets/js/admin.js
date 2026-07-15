@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, update, remove, push, set, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, remove, push, set, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -28,17 +28,19 @@ const sellerReqDiv = document.getElementById("seller-requests");
 const sellerCommDiv = document.getElementById("seller-commissions");
 const ordersDiv = document.getElementById("orders-commission");
 const notepadDiv = document.getElementById("admin-notepad");
+const flashSaleDiv = document.getElementById("flash-sale-manager");
+const trendingDiv = document.getElementById("trending-manager");
+const searchInput = document.getElementById("product-search");
 
 let currentAdminUid = null;
+let allProductsCache = {}; // key -> data, used for search filtering
 
 onAuthStateChanged(auth, (user) => {
-
   if(!user){
     alert("Login required");
     location.href="login.html";
     return;
   }
-
   if(!ADMIN_UIDS.includes(user.uid)){
     alert("❌ Unauthorized Admin Access");
     signOut(auth);
@@ -47,7 +49,6 @@ onAuthStateChanged(auth, (user) => {
   }
 
   currentAdminUid = user.uid;
-
   loadProducts();
   loadAllProducts();
   loadSellerRequests();
@@ -55,6 +56,8 @@ onAuthStateChanged(auth, (user) => {
   loadDeliveredOrders();
   loadOrderStats();
   loadNotepad();
+  loadFlashSale();
+  loadTrending();
 });
 
 /* ===================== OVERVIEW STATS ===================== */
@@ -84,8 +87,9 @@ function loadOrderStats(){
   });
 }
 
-/* ===================== PENDING PRODUCT APPROVAL ===================== */
+/* ===================== PENDING PRODUCT APPROVAL (+ EDIT) ===================== */
 function loadProducts(){
+  if(!productsDiv) return;
   const productsRef = ref(db,"products");
 
   onValue(productsRef,(snapshot)=>{
@@ -102,24 +106,52 @@ function loadProducts(){
       div.className="card";
 
       div.innerHTML=`
-        <h3>${data.title || data.name}</h3>
-        <p>Price: ৳${data.price}</p>
+        <label>নাম
+          <input type="text" class="p-name" value="${(data.title||data.name||'').replace(/"/g,'&quot;')}">
+        </label>
+        <label>দাম (৳)
+          <input type="number" class="p-price" value="${data.price||0}">
+        </label>
+        <label>স্টক
+          <input type="number" class="p-stock" value="${data.stock||0}">
+        </label>
         <p>Seller: ${data.sellerEmail || data.sellerId}</p>
-        <p>Stock: ${data.stock}</p>
         <p>Status: ${data.status}</p>
+        <button class="save-btn">Save</button>
         <button class="approve">Approve</button>
-        <button class="reject">Reject</button>
+        <button class="reject">Reject / Delete</button>
       `;
 
-      div.querySelector(".approve").onclick = () => {
-        update(ref(db,"products/"+key),{
-          status:"active",
-          approvedAt: Date.now()
-        });
+      div.querySelector(".save-btn").onclick = async () => {
+        const newName = div.querySelector(".p-name").value.trim();
+        const newPrice = parseFloat(div.querySelector(".p-price").value);
+        const newStock = parseInt(div.querySelector(".p-stock").value);
+        try{
+          const updates = { price:newPrice, stock:newStock, updatedAt: Date.now() };
+          if(data.title !== undefined) updates.title = newName;
+          else updates.name = newName;
+          await update(ref(db,"products/"+key), updates);
+          alert("✅ আপডেট হয়েছে");
+        }catch(err){
+          alert("❌ Error: " + err.message);
+        }
       };
 
-      div.querySelector(".reject").onclick = () => {
-        if(confirm("এই প্রোডাক্ট বাতিল করবেন?")) remove(ref(db,"products/"+key));
+      div.querySelector(".approve").onclick = async () => {
+        try{
+          await update(ref(db,"products/"+key),{ status:"active", approvedAt: Date.now() });
+        }catch(err){
+          alert("❌ Approve Error: " + err.message);
+        }
+      };
+
+      div.querySelector(".reject").onclick = async () => {
+        if(!confirm("এই প্রোডাক্ট বাতিল/ডিলিট করবেন?")) return;
+        try{
+          await remove(ref(db,"products/"+key));
+        }catch(err){
+          alert("❌ Delete Error: " + err.message);
+        }
       };
 
       productsDiv.appendChild(div);
@@ -129,81 +161,192 @@ function loadProducts(){
   });
 }
 
-/* ===================== ALL PRODUCTS - EDIT / DELETE ===================== */
+/* ===================== ALL PRODUCTS - EDIT / DELETE / SEARCH ===================== */
 function loadAllProducts(){
   if(!allProductsDiv) return;
   const productsRef = ref(db,"products");
 
   onValue(productsRef,(snapshot)=>{
-    allProductsDiv.innerHTML="<div class='section-title'><h3>✏️ সব প্রোডাক্ট — এডিট / ডিলিট</h3></div>";
+    allProductsCache = {};
+    snapshot.forEach(child=>{
+      allProductsCache[child.key] = child.val();
+    });
+    renderAllProducts(searchInput ? searchInput.value : "");
+  });
 
+  if(searchInput){
+    searchInput.addEventListener("input", () => {
+      renderAllProducts(searchInput.value);
+    });
+  }
+}
+
+function renderAllProducts(filterText){
+  allProductsDiv.innerHTML="<div class='section-title'><h3>✏️ সব প্রোডাক্ট — এডিট / ডিলিট</h3></div>";
+  const search = (filterText||"").trim().toLowerCase();
+  let count = 0;
+
+  Object.keys(allProductsCache).forEach(key=>{
+    const data = allProductsCache[key];
+    const name = (data.title || data.name || "").toLowerCase();
+    if(search && !name.includes(search)) return;
+    count++;
+
+    const div = document.createElement("div");
+    div.className="card";
+
+    div.innerHTML=`
+      <label>নাম
+        <input type="text" class="edit-name" value="${(data.title||data.name||'').replace(/"/g,'&quot;')}">
+      </label>
+      <label>দাম (৳)
+        <input type="number" class="edit-price" value="${data.price||0}">
+      </label>
+      <label>স্টক
+        <input type="number" class="edit-stock" value="${data.stock||0}">
+      </label>
+      <p style="font-size:12px;color:#999">Status: ${data.status} | Seller: ${data.sellerEmail || data.sellerId}</p>
+      <button class="save-btn">Save</button>
+      <button class="delete-btn">Delete</button>
+    `;
+
+    div.querySelector(".save-btn").onclick = async () => {
+      const newName = div.querySelector(".edit-name").value.trim();
+      const newPrice = parseFloat(div.querySelector(".edit-price").value);
+      const newStock = parseInt(div.querySelector(".edit-stock").value);
+      try{
+        const updates = { price:newPrice, stock:newStock, updatedAt: Date.now() };
+        if(data.title !== undefined) updates.title = newName;
+        else updates.name = newName;
+        await update(ref(db,"products/"+key), updates);
+        alert("✅ প্রোডাক্ট আপডেট হয়েছে");
+      }catch(err){
+        alert("❌ Error: " + err.message);
+      }
+    };
+
+    div.querySelector(".delete-btn").onclick = async () => {
+      if(!confirm("এই প্রোডাক্ট সম্পূর্ণ ডিলিট করবেন?")) return;
+      try{
+        await remove(ref(db,"products/"+key));
+      }catch(err){
+        alert("❌ Delete Error: " + err.message);
+      }
+    };
+
+    allProductsDiv.appendChild(div);
+  });
+
+  if(count === 0) allProductsDiv.innerHTML += "<p>কোনো প্রোডাক্ট পাওয়া যায়নি।</p>";
+}
+
+/* ===================== FLASH SALE MANAGER ===================== */
+function loadFlashSale(){
+  if(!flashSaleDiv) return;
+  const productsRef = ref(db,"products");
+
+  onValue(productsRef,(snapshot)=>{
+    flashSaleDiv.innerHTML="<div class='section-title'><h3>⚡ Flash Sale — Up To 70% Off</h3></div>";
     let count = 0;
+
     snapshot.forEach(child=>{
       const key = child.key;
       const data = child.val();
+      if(data.status !== "active") return;
       count++;
 
       const div = document.createElement("div");
       div.className="card";
 
       div.innerHTML=`
-        <label>নাম
-          <input type="text" class="edit-name" value="${(data.title||data.name||'').replace(/"/g,'&quot;')}">
+        <h3>${data.title || data.name}</h3>
+        <p>মূল দাম: ৳${data.price}</p>
+        <label><input type="checkbox" class="fs-toggle" ${data.isFlashSale ? "checked" : ""}> Flash Sale-এ যুক্ত করুন</label>
+        <label>Discount %:
+          <input type="number" class="fs-discount" value="${data.discountPercent||0}" min="0" max="70">
         </label>
-        <label>দাম (৳)
-          <input type="number" class="edit-price" value="${data.price||0}">
-        </label>
-        <label>স্টক
-          <input type="number" class="edit-stock" value="${data.stock||0}">
-        </label>
-        <p style="font-size:12px;color:#999">Status: ${data.status} | Seller: ${data.sellerEmail || data.sellerId}</p>
         <button class="save-btn">Save</button>
-        <button class="delete-btn">Delete</button>
       `;
 
       div.querySelector(".save-btn").onclick = async () => {
-        const newName = div.querySelector(".edit-name").value.trim();
-        const newPrice = parseFloat(div.querySelector(".edit-price").value);
-        const newStock = parseInt(div.querySelector(".edit-stock").value);
-
+        const isOn = div.querySelector(".fs-toggle").checked;
+        let discount = parseInt(div.querySelector(".fs-discount").value) || 0;
+        if(discount > 70) discount = 70;
         try{
-          const updates = {
-            price: newPrice,
-            stock: newStock,
+          await update(ref(db,"products/"+key), {
+            isFlashSale: isOn,
+            discountPercent: discount,
             updatedAt: Date.now()
-          };
-          if(data.title !== undefined) updates.title = newName;
-          else updates.name = newName;
-
-          await update(ref(db,"products/"+key), updates);
-          alert("✅ প্রোডাক্ট আপডেট হয়েছে");
+          });
+          alert("✅ Flash Sale আপডেট হয়েছে");
         }catch(err){
-          alert("Error: " + err.message);
+          alert("❌ Error: " + err.message);
         }
       };
 
-      div.querySelector(".delete-btn").onclick = () => {
-        if(confirm("এই প্রোডাক্ট সম্পূর্ণ ডিলিট করবেন?")){
-          remove(ref(db,"products/"+key));
-        }
-      };
-
-      allProductsDiv.appendChild(div);
+      flashSaleDiv.appendChild(div);
     });
 
-    if(count === 0) allProductsDiv.innerHTML += "<p>কোনো প্রোডাক্ট নেই।</p>";
+    if(count === 0) flashSaleDiv.innerHTML += "<p>কোনো active প্রোডাক্ট নেই।</p>";
+  });
+}
+
+/* ===================== TRENDING PRODUCTS MANAGER ===================== */
+function loadTrending(){
+  if(!trendingDiv) return;
+  const productsRef = ref(db,"products");
+
+  onValue(productsRef,(snapshot)=>{
+    trendingDiv.innerHTML="<div class='section-title'><h3>🔥 Trending Products</h3></div>";
+    let count = 0;
+
+    snapshot.forEach(child=>{
+      const key = child.key;
+      const data = child.val();
+      if(data.status !== "active") return;
+      count++;
+
+      const div = document.createElement("div");
+      div.className="card";
+
+      div.innerHTML=`
+        <h3>${data.title || data.name}</h3>
+        <p>মূল দাম: ৳${data.price}</p>
+        <label><input type="checkbox" class="tr-toggle" ${data.isTrending ? "checked" : ""}> Trending-এ যুক্ত করুন</label>
+        <label>Discount %:
+          <input type="number" class="tr-discount" value="${data.discountPercent||0}" min="0" max="100">
+        </label>
+        <button class="save-btn">Save</button>
+      `;
+
+      div.querySelector(".save-btn").onclick = async () => {
+        const isOn = div.querySelector(".tr-toggle").checked;
+        const discount = parseInt(div.querySelector(".tr-discount").value) || 0;
+        try{
+          await update(ref(db,"products/"+key), {
+            isTrending: isOn,
+            discountPercent: discount,
+            updatedAt: Date.now()
+          });
+          alert("✅ Trending আপডেট হয়েছে");
+        }catch(err){
+          alert("❌ Error: " + err.message);
+        }
+      };
+
+      trendingDiv.appendChild(div);
+    });
+
+    if(count === 0) trendingDiv.innerHTML += "<p>কোনো active প্রোডাক্ট নেই।</p>";
   });
 }
 
 /* ===================== SELLER REQUEST APPROVAL ===================== */
 function loadSellerRequests(){
   if(!sellerReqDiv) return;
-
   const reqRef = ref(db,"sellerRequests");
-
   onValue(reqRef,(snapshot)=>{
     sellerReqDiv.innerHTML="<div class='section-title'><h3>🏪 Seller আবেদন</h3></div>";
-
     let count = 0;
     snapshot.forEach(child=>{
       const key = child.key;
@@ -268,9 +411,7 @@ function loadSellerRequests(){
 /* ===================== APPROVED SELLERS - EDIT COMMISSION ===================== */
 function loadSellerCommissions(){
   if(!sellerCommDiv) return;
-
   const sellersRef = ref(db,"sellers");
-
   onValue(sellersRef,(snapshot)=>{
     sellerCommDiv.innerHTML="<div class='section-title'><h3>💰 Approved Sellers — কমিশন এডিট</h3></div>";
 
@@ -316,7 +457,6 @@ function loadSellerCommissions(){
 /* ===================== DELIVERED ORDERS + COMMISSION + STOCK SYNC ===================== */
 function loadDeliveredOrders(){
   if(!ordersDiv) return;
-
   const ordersRef = ref(db,"orders");
 
   onValue(ordersRef,(snapshot)=>{
@@ -332,7 +472,6 @@ function loadDeliveredOrders(){
 
       const div = document.createElement("div");
       div.className="card";
-
       div.innerHTML=`
         <h3>Order #${key.slice(0,8)}</h3>
         <p>Seller ID: ${data.sellerId}</p>
@@ -369,7 +508,6 @@ function loadDeliveredOrders(){
           }
 
           await update(ref(db,"orders/"+key), { commissionAdded: true });
-
           alert(`কমিশন যোগ হয়েছে: ৳${amount.toFixed(2)} (${rate}%) এবং স্টক আপডেট হয়েছে`);
         }catch(err){
           alert("Error: " + err.message);
