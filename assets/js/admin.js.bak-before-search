@@ -241,75 +241,54 @@ function renderAllProducts(filterText){
 }
 
 /* ===================== FLASH SALE MANAGER ===================== */
-let flashSaleCache = {};
-let trendingCache = {};
-const flashSaleSearchInput = document.getElementById("flashsale-search");
-const trendingSearchInput = document.getElementById("trending-search");
-
 function loadFlashSale(){
   if(!flashSaleDiv) return;
   const productsRef = ref(db,"products");
 
   onValue(productsRef,(snapshot)=>{
-    flashSaleCache = {};
+    flashSaleDiv.innerHTML="<div class='section-title'><h3>⚡ Flash Sale — Up To 70% Off</h3></div>";
+    let count = 0;
+
     snapshot.forEach(child=>{
+      const key = child.key;
       const data = child.val();
-      if(data.status === "active") flashSaleCache[child.key] = data;
+      if(data.status !== "active") return;
+      count++;
+
+      const div = document.createElement("div");
+      div.className="card";
+
+      div.innerHTML=`
+        <h3>${data.title || data.name}</h3>
+        <p>মূল দাম: ৳${data.price}</p>
+        <label><input type="checkbox" class="fs-toggle" ${data.isFlashSale ? "checked" : ""}> Flash Sale-এ যুক্ত করুন</label>
+        <label>Discount %:
+          <input type="number" class="fs-discount" value="${data.discountPercent||0}" min="0" max="70">
+        </label>
+        <button class="save-btn">Save</button>
+      `;
+
+      div.querySelector(".save-btn").onclick = async () => {
+        const isOn = div.querySelector(".fs-toggle").checked;
+        let discount = parseInt(div.querySelector(".fs-discount").value) || 0;
+        if(discount > 70) discount = 70;
+        try{
+          await update(ref(db,"products/"+key), {
+            isFlashSale: isOn,
+            discountPercent: discount,
+            updatedAt: Date.now()
+          });
+          alert("✅ Flash Sale আপডেট হয়েছে");
+        }catch(err){
+          alert("❌ Error: " + err.message);
+        }
+      };
+
+      flashSaleDiv.appendChild(div);
     });
-    renderFlashSale(flashSaleSearchInput ? flashSaleSearchInput.value : "");
+
+    if(count === 0) flashSaleDiv.innerHTML += "<p>কোনো active প্রোডাক্ট নেই।</p>";
   });
-
-  if(flashSaleSearchInput){
-    flashSaleSearchInput.addEventListener("input", () => {
-      renderFlashSale(flashSaleSearchInput.value);
-    });
-  }
-}
-
-function renderFlashSale(filterText){
-  flashSaleDiv.innerHTML="<div class='section-title'><h3>⚡ Flash Sale — Up To 70% Off</h3></div>";
-  const search = (filterText||"").trim().toLowerCase();
-  let count = 0;
-
-  Object.keys(flashSaleCache).forEach(key=>{
-    const data = flashSaleCache[key];
-    const name = (data.title || data.name || "").toLowerCase();
-    if(search && !name.includes(search)) return;
-    count++;
-
-    const div = document.createElement("div");
-    div.className="card";
-
-    div.innerHTML=`
-      <h3>${data.title || data.name}</h3>
-      <p>মূল দাম: ৳${data.price}</p>
-      <label><input type="checkbox" class="fs-toggle" ${data.isFlashSale ? "checked" : ""}> Flash Sale-এ যুক্ত করুন</label>
-      <label>Discount %:
-        <input type="number" class="fs-discount" value="${data.discountPercent||0}" min="0" max="70">
-      </label>
-      <button class="save-btn">Save</button>
-    `;
-
-    div.querySelector(".save-btn").onclick = async () => {
-      const isOn = div.querySelector(".fs-toggle").checked;
-      let discount = parseInt(div.querySelector(".fs-discount").value) || 0;
-      if(discount > 70) discount = 70;
-      try{
-        await update(ref(db,"products/"+key), {
-          isFlashSale: isOn,
-          discountPercent: discount,
-          updatedAt: Date.now()
-        });
-        alert("✅ Flash Sale আপডেট হয়েছে");
-      }catch(err){
-        alert("❌ Error: " + err.message);
-      }
-    };
-
-    flashSaleDiv.appendChild(div);
-  });
-
-  if(count === 0) flashSaleDiv.innerHTML += "<p>কোনো প্রোডাক্ট পাওয়া যায়নি।</p>";
 }
 
 /* ===================== TRENDING PRODUCTS MANAGER ===================== */
@@ -318,64 +297,48 @@ function loadTrending(){
   const productsRef = ref(db,"products");
 
   onValue(productsRef,(snapshot)=>{
-    trendingCache = {};
+    trendingDiv.innerHTML="<div class='section-title'><h3>🔥 Trending Products</h3></div>";
+    let count = 0;
+
     snapshot.forEach(child=>{
+      const key = child.key;
       const data = child.val();
-      if(data.status === "active") trendingCache[child.key] = data;
+      if(data.status !== "active") return;
+      count++;
+
+      const div = document.createElement("div");
+      div.className="card";
+
+      div.innerHTML=`
+        <h3>${data.title || data.name}</h3>
+        <p>মূল দাম: ৳${data.price}</p>
+        <label><input type="checkbox" class="tr-toggle" ${data.isTrending ? "checked" : ""}> Trending-এ যুক্ত করুন</label>
+        <label>Discount %:
+          <input type="number" class="tr-discount" value="${data.discountPercent||0}" min="0" max="100">
+        </label>
+        <button class="save-btn">Save</button>
+      `;
+
+      div.querySelector(".save-btn").onclick = async () => {
+        const isOn = div.querySelector(".tr-toggle").checked;
+        const discount = parseInt(div.querySelector(".tr-discount").value) || 0;
+        try{
+          await update(ref(db,"products/"+key), {
+            isTrending: isOn,
+            discountPercent: discount,
+            updatedAt: Date.now()
+          });
+          alert("✅ Trending আপডেট হয়েছে");
+        }catch(err){
+          alert("❌ Error: " + err.message);
+        }
+      };
+
+      trendingDiv.appendChild(div);
     });
-    renderTrending(trendingSearchInput ? trendingSearchInput.value : "");
+
+    if(count === 0) trendingDiv.innerHTML += "<p>কোনো active প্রোডাক্ট নেই।</p>";
   });
-
-  if(trendingSearchInput){
-    trendingSearchInput.addEventListener("input", () => {
-      renderTrending(trendingSearchInput.value);
-    });
-  }
-}
-
-function renderTrending(filterText){
-  trendingDiv.innerHTML="<div class='section-title'><h3>🔥 Trending Products</h3></div>";
-  const search = (filterText||"").trim().toLowerCase();
-  let count = 0;
-
-  Object.keys(trendingCache).forEach(key=>{
-    const data = trendingCache[key];
-    const name = (data.title || data.name || "").toLowerCase();
-    if(search && !name.includes(search)) return;
-    count++;
-
-    const div = document.createElement("div");
-    div.className="card";
-
-    div.innerHTML=`
-      <h3>${data.title || data.name}</h3>
-      <p>মূল দাম: ৳${data.price}</p>
-      <label><input type="checkbox" class="tr-toggle" ${data.isTrending ? "checked" : ""}> Trending-এ যুক্ত করুন</label>
-      <label>Discount %:
-        <input type="number" class="tr-discount" value="${data.discountPercent||0}" min="0" max="100">
-      </label>
-      <button class="save-btn">Save</button>
-    `;
-
-    div.querySelector(".save-btn").onclick = async () => {
-      const isOn = div.querySelector(".tr-toggle").checked;
-      const discount = parseInt(div.querySelector(".tr-discount").value) || 0;
-      try{
-        await update(ref(db,"products/"+key), {
-          isTrending: isOn,
-          discountPercent: discount,
-          updatedAt: Date.now()
-        });
-        alert("✅ Trending আপডেট হয়েছে");
-      }catch(err){
-        alert("❌ Error: " + err.message);
-      }
-    };
-
-    trendingDiv.appendChild(div);
-  });
-
-  if(count === 0) trendingDiv.innerHTML += "<p>কোনো প্রোডাক্ট পাওয়া যায়নি।</p>";
 }
 
 /* ===================== SELLER REQUEST APPROVAL ===================== */
