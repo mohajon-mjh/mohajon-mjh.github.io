@@ -70,7 +70,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import { getDatabase, ref, push, set, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getDatabase, ref, push, set, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -95,7 +95,6 @@
   let currentUser = null;
 
   onAuthStateChanged(auth, async (user) => {
-    window.addEventListener("unhandledrejection", e => alert("ERROR: " + e.reason.message));
     if(!user){
       statusInfo.textContent = "আবেদন করতে হলে আগে লগইন করুন।";
       msgEl.innerHTML = `<a href="login.html">👤 Login করুন</a>`;
@@ -103,37 +102,27 @@
     }
     currentUser = user;
 
-    // ইতিমধ্যে seller কিনা চেক
-    const sellerSnap = await get(ref(db, `sellers/${user.uid}`));
-    if(sellerSnap.exists()){
-      const s = sellerSnap.val();
-      if(s.status === "approved"){
-        statusInfo.textContent = "আপনি ইতিমধ্যে একজন অনুমোদিত seller ✅";
-        msgEl.innerHTML = `<a href="seller-dashboard.html">আপনার ড্যাশবোর্ডে যান →</a>`;
-        return;
-      } else {
-        statusInfo.textContent = `আপনার আবেদনের অবস্থা: ${s.status}`;
-        return;
+    try{
+      // ইতিমধ্যে seller কিনা চেক (নিজের sellers/{uid} সবাই পড়তে পারে)
+      const sellerSnap = await get(ref(db, `sellers/${user.uid}`));
+      if(sellerSnap.exists()){
+        const s = sellerSnap.val();
+        if(s.status === "approved"){
+          statusInfo.textContent = "আপনি ইতিমধ্যে একজন অনুমোদিত seller ✅";
+          msgEl.innerHTML = `<a href="seller-dashboard.html">আপনার ড্যাশবোর্ডে যান →</a>`;
+          return;
+        } else {
+          statusInfo.textContent = `আপনার আবেদনের অবস্থা: ${s.status}`;
+          return;
+        }
       }
-    }
 
-    // আগে কোনো pending আবেদন করা আছে কিনা চেক
-    const reqQuery = query(ref(db,"sellerRequests"), orderByChild("uid"), equalTo(user.uid));
-    const reqSnap = await get(reqQuery);
-    if(reqSnap.exists()){
-      let hasPending = false;
-      reqSnap.forEach(child => {
-        if(child.val().status === "pending") hasPending = true;
-      });
-      if(hasPending){
-        statusInfo.textContent = "আপনার seller আবেদন Admin-এর অনুমোদনের অপেক্ষায় আছে। ⏳";
-        return;
-      }
+      // নতুন আবেদন করার ফর্ম দেখাও
+      statusInfo.textContent = "আপনার দোকানের তথ্য দিয়ে seller হওয়ার আবেদন করুন।";
+      form.classList.remove("hidden");
+    }catch(err){
+      statusInfo.textContent = "সমস্যা হয়েছে: " + err.message;
     }
-
-    // নতুন আবেদন করার ফর্ম দেখাও
-    statusInfo.textContent = "আপনার দোকানের তথ্য দিয়ে seller হওয়ার আবেদন করুন।";
-    form.classList.remove("hidden");
   });
 
   form.addEventListener("submit", async (e) => {
