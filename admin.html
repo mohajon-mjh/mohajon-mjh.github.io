@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Panel V1.2C</title>
+<title>Admin Panel V1.3</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-body{font-family:Arial;background:#111;color:#fff;padding:20px}
+body{font-family:Arial;background:#111;color:#fff;padding:0;margin:0}
 .card{background:#222;padding:15px;margin:10px 0;border-radius:10px}
 button{padding:8px 14px;margin:5px 5px 0 0;cursor:pointer;border:none;border-radius:6px;color:#fff;font-weight:bold}
 .approve{background:green}
@@ -24,12 +23,56 @@ input, textarea{
   box-sizing:border-box;
 }
 label{display:block;margin-top:8px;font-size:13px;color:#ccc}
-h2{margin-top:30px}
+h2{margin-top:0}
 .section-title{
   background:#333;
   padding:10px;
   border-radius:8px;
   margin-top:25px;
+}
+
+/* ===== Admin Tab Layout ===== */
+.admin-wrap{display:flex;min-height:100vh}
+.admin-tabs{
+  width:220px;
+  background:#1a1a1a;
+  padding:15px 0;
+  flex-shrink:0;
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+}
+.admin-tabs h2{
+  font-size:16px;
+  padding:0 15px 10px 15px;
+  border-bottom:1px solid #333;
+  margin-bottom:10px;
+}
+.tab-btn{
+  display:block;
+  width:100%;
+  text-align:left;
+  background:transparent;
+  color:#ccc;
+  padding:12px 15px;
+  border-radius:0;
+  margin:0;
+  font-weight:normal;
+  border-left:3px solid transparent;
+}
+.tab-btn:hover{background:#252525}
+.tab-btn.active{background:#252525;color:#fff;border-left:3px solid #2980b9;font-weight:bold}
+.admin-content{flex:1;padding:20px;max-width:900px}
+.tab-section{display:none}
+.tab-section.active{display:block}
+#product-search{margin-bottom:15px;font-size:15px}
+@media(max-width:700px){
+  .admin-wrap{flex-direction:column}
+  .admin-tabs{width:100%;height:auto;position:relative;display:flex;overflow-x:auto;padding:8px}
+  .admin-tabs h2{display:none}
+  .tab-btn{width:auto;white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
+  .tab-btn.active{border-left:none;border-bottom:3px solid #2980b9}
 }
 </style>
 <link rel="stylesheet" href="css/global-menu.css">
@@ -42,29 +85,79 @@ h2{margin-top:30px}
 <ul id="categoryList"></ul>
 </nav>
 
-<h2>🔥 Admin Product Approval Panel (V1.2C)</h2>
+<div class="admin-wrap">
+  <nav class="admin-tabs">
+    <h2>🔥 Admin Panel</h2>
+    <button class="tab-btn active" data-tab="overview">📊 Overview</button>
+    <button class="tab-btn" data-tab="pending">🆕 Pending Products</button>
+    <button class="tab-btn" data-tab="allproducts">✏️ সব প্রোডাক্ট Edit/Delete</button>
+    <button class="tab-btn" data-tab="notepad">📝 নোট প্যাড</button>
+    <button class="tab-btn" data-tab="sellerreq">🏪 Seller আবেদন</button>
+    <button class="tab-btn" data-tab="sellercomm">💰 Approved Sellers কমিশন</button>
+    <button class="tab-btn" data-tab="orders">📦 Delivered Orders কমিশন</button>
+    <button class="tab-btn" data-tab="flashsale">⚡ Flash Sale</button>
+    <button class="tab-btn" data-tab="trending">🔥 Trending Products</button>
+  </nav>
 
-<div class="card">
-  <h3>📊 Overview</h3>
-  <p>Total Orders: <span id="total-orders">0</span></p>
-  <p>Pending Orders: <span id="pending-orders">0</span></p>
-  <p>Delivered Revenue: <span id="admin-revenue">৳0</span></p>
+  <div class="admin-content">
+
+    <section id="tab-overview" class="tab-section active">
+      <div class="card">
+        <h3>📊 Overview</h3>
+        <p>Total Orders: <span id="total-orders">0</span></p>
+        <p>Pending Orders: <span id="pending-orders">0</span></p>
+        <p>Delivered Revenue: <span id="admin-revenue">৳0</span></p>
+      </div>
+    </section>
+
+    <section id="tab-pending" class="tab-section">
+      <div id="products"></div>
+    </section>
+
+    <section id="tab-allproducts" class="tab-section">
+      <input type="text" id="product-search" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন...">
+      <div id="all-products"></div>
+    </section>
+
+    <section id="tab-notepad" class="tab-section">
+      <div id="admin-notepad"></div>
+    </section>
+
+    <section id="tab-sellerreq" class="tab-section">
+      <div id="seller-requests"></div>
+    </section>
+
+    <section id="tab-sellercomm" class="tab-section">
+      <div id="seller-commissions"></div>
+    </section>
+
+    <section id="tab-orders" class="tab-section">
+      <div id="orders-commission"></div>
+    </section>
+
+    <section id="tab-flashsale" class="tab-section">
+      <div id="flash-sale-manager"></div>
+    </section>
+
+    <section id="tab-trending" class="tab-section">
+      <div id="trending-manager"></div>
+    </section>
+
+  </div>
 </div>
 
-<div id="products"></div>
-
-<div id="all-products"></div>
-
-<div id="seller-requests"></div>
-
-<div id="seller-commissions"></div>
-
-<div id="orders-commission"></div>
-
-<div id="admin-notepad"></div>
+<script>
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab-section").forEach(s=>s.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
+  });
+});
+</script>
 
 <script type="module" src="assets/js/admin.js"></script>
-
 <script src="js/global-menu.js?v=2"></script>
 </body>
 </html>
