@@ -1,6 +1,6 @@
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, push, set, onValue } from "firebase/database";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
