@@ -20,17 +20,28 @@
       box-shadow:0 0 10px rgba(0,0,0,0.1);
     }
     h2{ text-align:center; }
-    input, textarea, button{
+    label{
+      display:block;
+      margin-top:14px;
+      font-weight:bold;
+      font-size:14px;
+    }
+    input, textarea, select, button{
       width:100%;
       padding:10px;
-      margin-top:10px;
+      margin-top:6px;
       box-sizing:border-box;
+      border:1px solid #ccc;
+      border-radius:6px;
+      font-size:15px;
     }
     button{
       background:#28a745;
       color:white;
       border:none;
       cursor:pointer;
+      margin-top:18px;
+      font-weight:bold;
     }
     button:disabled{
       background:gray;
@@ -44,6 +55,35 @@
     .msg.error{ color:red; }
     .msg.success{ color:green; }
     .hidden{ display:none; }
+    .terms-box{
+      background:#f9f9f9;
+      border:1px solid #ddd;
+      border-radius:6px;
+      padding:12px;
+      margin-top:16px;
+      font-size:13px;
+      line-height:1.6;
+      max-height:180px;
+      overflow-y:auto;
+    }
+    .terms-box h4{
+      margin-top:0;
+    }
+    .agree-row{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+      margin-top:12px;
+    }
+    .agree-row input{
+      width:auto;
+      margin-top:2px;
+    }
+    .agree-row label{
+      margin-top:0;
+      font-weight:normal;
+      font-size:13px;
+    }
   </style>
 <link rel="stylesheet" href="css/global-menu.css">
 </head>
@@ -60,8 +100,39 @@
   <p id="statusInfo"></p>
 
   <form id="seller-request-form" class="hidden">
+
+    <label>আপনার পূর্ণ নাম *</label>
+    <input type="text" id="owner-name" placeholder="আপনার পূর্ণ নাম" required>
+
+    <label>মোবাইল নম্বর *</label>
+    <input type="tel" id="phone" placeholder="01XXXXXXXXX" required>
+
+    <label>দোকানের নাম *</label>
     <input type="text" id="store-name" placeholder="আপনার দোকানের নাম" required>
-    <textarea id="store-docs" placeholder="প্রয়োজনীয় তথ্য / ডকুমেন্ট নাম্বার (ঐচ্ছিক)"></textarea>
+
+    <label>দোকান/ব্যবসার সম্পূর্ণ ঠিকানা *</label>
+    <textarea id="address" placeholder="বাসা/হোল্ডিং, রোড, এলাকা" required></textarea>
+
+    <label>জেলা / শহর (Location) *</label>
+    <input type="text" id="location" placeholder="যেমন: ঢাকা, চট্টগ্রাম" required>
+
+    <label>প্রয়োজনীয় ডকুমেন্ট নাম্বার (NID/Trade License - ঐচ্ছিক)</label>
+    <textarea id="store-docs" placeholder="NID নাম্বার / ট্রেড লাইসেন্স নাম্বার (থাকলে দিন)"></textarea>
+
+    <div class="terms-box">
+      <h4>📜 কমিশন ও চুক্তির শর্তাবলী</h4>
+      <p><strong>১. কমিশন:</strong> প্রতিটি বিক্রিত পণ্যের উপর Admin কর্তৃক নির্ধারিত হারে কমিশন কর্তন করা হবে। কমিশনের হার ক্যাটাগরিভেদে ভিন্ন হতে পারে এবং Seller Dashboard-এ উল্লেখ থাকবে।</p>
+      <p><strong>২. পণ্য অনুমোদন:</strong> আপলোডকৃত প্রতিটি পণ্য Admin panel থেকে অনুমোদনের পরই সাইটে প্রদর্শিত হবে।</p>
+      <p><strong>৩. পেমেন্ট/Withdraw:</strong> বিক্রয়লব্ধ অর্থ কমিশন কর্তনের পর নির্ধারিত সময় অন্তর Seller-এর Wallet-এ যোগ হবে এবং Withdraw অপশনের মাধ্যমে উত্তোলনযোগ্য হবে।</p>
+      <p><strong>৪. দায়বদ্ধতা:</strong> পণ্যের মান, বিবরণ ও ডেলিভারি সংক্রান্ত সঠিকতার দায়িত্ব সম্পূর্ণভাবে Seller-এর।</p>
+      <p><strong>৫. নিয়ম ভঙ্গ:</strong> শর্ত ভঙ্গ, ভুয়া তথ্য বা প্রতারণামূলক কার্যকলাপের জন্য Admin কর্তৃক Seller একাউন্ট স্থগিত/বাতিল করা হতে পারে।</p>
+    </div>
+
+    <div class="agree-row">
+      <input type="checkbox" id="agree-terms" required>
+      <label for="agree-terms">আমি উপরোক্ত কমিশন ও চুক্তির শর্তাবলী পড়েছি এবং সম্মত আছি।</label>
+    </div>
+
     <button type="submit">আবেদন জমা দিন</button>
   </form>
 
@@ -103,7 +174,6 @@
     currentUser = user;
 
     try{
-      // ইতিমধ্যে seller কিনা চেক (নিজের sellers/{uid} সবাই পড়তে পারে)
       const sellerSnap = await get(ref(db, `sellers/${user.uid}`));
       if(sellerSnap.exists()){
         const s = sellerSnap.val();
@@ -117,7 +187,6 @@
         }
       }
 
-      // নতুন আবেদন করার ফর্ম দেখাও
       statusInfo.textContent = "আপনার দোকানের তথ্য দিয়ে seller হওয়ার আবেদন করুন।";
       form.classList.remove("hidden");
     }catch(err){
@@ -127,11 +196,29 @@
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const storeName = document.getElementById("store-name").value.trim();
-    const docs = document.getElementById("store-docs").value.trim();
 
-    if(!storeName){
-      msgEl.textContent = "দোকানের নাম দিন।";
+    const ownerName = document.getElementById("owner-name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const storeName = document.getElementById("store-name").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const location = document.getElementById("location").value.trim();
+    const docs = document.getElementById("store-docs").value.trim();
+    const agreed = document.getElementById("agree-terms").checked;
+
+    if(!ownerName || !phone || !storeName || !address || !location){
+      msgEl.textContent = "সবগুলো আবশ্যিক (*) ফিল্ড পূরণ করুন।";
+      msgEl.className = "msg error";
+      return;
+    }
+
+    if(!/^01[0-9]{9}$/.test(phone)){
+      msgEl.textContent = "সঠিক মোবাইল নম্বর দিন (যেমন: 01XXXXXXXXX)।";
+      msgEl.className = "msg error";
+      return;
+    }
+
+    if(!agreed){
+      msgEl.textContent = "চুক্তির শর্তাবলীতে সম্মত হতে হবে।";
       msgEl.className = "msg error";
       return;
     }
@@ -144,7 +231,12 @@
       const newReq = push(ref(db,"sellerRequests"));
       const reqData = {
         uid: currentUser.uid,
+        ownerName: ownerName,
+        phone: phone,
         storeName: storeName,
+        address: address,
+        location: location,
+        agreementAccepted: true,
         status: "pending",
         createdAt: Date.now()
       };
