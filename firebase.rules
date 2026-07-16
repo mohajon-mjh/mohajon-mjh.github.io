@@ -7,6 +7,10 @@
     "orders": {
       ".read": true,
       ".write": true
+    },
+    "settings": {
+      ".read": true,
+      ".write": true
     }
   }
 }

@@ -565,7 +565,8 @@ function loadDeliveredOrders(){
               const qty = Number(item.qty || 1);
               let newStock = Number(p.stock || 0) - qty;
               if(newStock < 0) newStock = 0;
-              await update(productRef, { stock: newStock });
+              const newSoldCount = Number(p.soldCount || 0) + qty;
+              await update(productRef, { stock: newStock, soldCount: newSoldCount });
             }
           }
 
