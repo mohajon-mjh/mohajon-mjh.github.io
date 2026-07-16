@@ -132,7 +132,7 @@
 .hamburger{
     position:fixed;
     top:40px;
-    left:12px;
+    right:12px;
     z-index:999999;
     font-size:32px;
     background:#ff9900;
