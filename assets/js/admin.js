@@ -58,6 +58,7 @@ onAuthStateChanged(auth, (user) => {
   loadNotepad();
   loadFlashSale();
   loadTrending();
+  loadFlashSaleLabel();
 });
 
 /* ===================== OVERVIEW STATS ===================== */
@@ -245,6 +246,30 @@ let flashSaleCache = {};
 let trendingCache = {};
 const flashSaleSearchInput = document.getElementById("flashsale-search");
 const trendingSearchInput = document.getElementById("trending-search");
+
+/* ===================== FLASH SALE LABEL (Up To X% Off) ===================== */
+function loadFlashSaleLabel(){
+  const labelInput = document.getElementById("flashsale-label-input");
+  const saveBtn = document.getElementById("flashsale-label-save");
+  const statusEl = document.getElementById("flashsale-label-status");
+  if(!labelInput || !saveBtn) return;
+
+  get(ref(db, "settings/flashSaleLabel")).then(snap => {
+    labelInput.value = snap.exists() ? snap.val() : "Up To 70% Off";
+  });
+
+  saveBtn.onclick = async () => {
+    const val = labelInput.value.trim() || "Up To 70% Off";
+    try{
+      await set(ref(db, "settings/flashSaleLabel"), val);
+      statusEl.textContent = "✅ সেভ হয়েছে";
+      setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+    }catch(err){
+      statusEl.style.color = "#f88";
+      statusEl.textContent = "Error: " + err.message;
+    }
+  };
+}
 
 function loadFlashSale(){
   if(!flashSaleDiv) return;
