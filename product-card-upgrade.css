@@ -213,3 +213,56 @@
         width: 100%;
     }
 }
+
+/* Trending Products - Horizontal Scroll */
+.trending-scroll-wrapper {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 4px 4px 14px 4px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+}
+
+.trending-scroll-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+.trending-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.trending-scroll-wrapper .product-card {
+    flex: 0 0 160px;
+    max-width: 160px;
+    scroll-snap-align: start;
+}
+
+@media (min-width: 600px) {
+    .trending-scroll-wrapper .product-card {
+        flex: 0 0 200px;
+        max-width: 200px;
+    }
+}
+
+.btn-wishlist-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.9);
+    color: #94a3b8;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.btn-wishlist-overlay.active {
+    color: #dc2626;
+}
