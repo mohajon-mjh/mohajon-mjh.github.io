@@ -35,6 +35,25 @@ border:1px solid #ccc;
 border-radius:8px;
 font-size:15px
 }
+.pass-wrap{
+position:relative;
+margin:10px 0;
+}
+.pass-wrap input{
+margin:0;
+padding-right:45px;
+width:100%;
+}
+.pass-toggle{
+position:absolute;
+right:12px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+font-size:18px;
+user-select:none;
+color:#666;
+}
 button{
 width:100%;
 padding:12px;
@@ -75,10 +94,13 @@ id="email"
 type="email"
 placeholder="Email Address">
 
-<input
-id="password"
-type="password"
-placeholder="Password">
+<div class="pass-wrap">
+  <input
+  id="password"
+  type="password"
+  placeholder="Password">
+  <span class="pass-toggle" id="togglePass">👁️</span>
+</div>
 
 <button id="loginBtn">
 Login
@@ -110,6 +132,18 @@ Create New Account
     titleEl.textContent = "Buyer Login";
     document.title = "Buyer Login - Mohajon MJH";
   }
+
+  const toggle = document.getElementById("togglePass");
+  const passInput = document.getElementById("password");
+  toggle.addEventListener("click", () => {
+    if(passInput.type === "password"){
+      passInput.type = "text";
+      toggle.textContent = "🙈";
+    }else{
+      passInput.type = "password";
+      toggle.textContent = "👁️";
+    }
+  });
 })();
 </script>
 

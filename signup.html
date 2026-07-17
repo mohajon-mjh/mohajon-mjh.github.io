@@ -32,6 +32,25 @@ border:1px solid #ccc;
 border-radius:8px;
 font-size:15px
 }
+.pass-wrap{
+position:relative;
+margin:10px 0;
+}
+.pass-wrap input{
+margin:0;
+padding-right:45px;
+width:100%;
+}
+.pass-toggle{
+position:absolute;
+right:12px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+font-size:18px;
+user-select:none;
+color:#666;
+}
 button{
 width:100%;
 padding:12px;
@@ -72,9 +91,12 @@ a{text-decoration:none}
 type="email"
 placeholder="Email Address">
 
-<input id="password"
-type="password"
-placeholder="Password (minimum 6 characters)">
+<div class="pass-wrap">
+  <input id="password"
+  type="password"
+  placeholder="Password (minimum 6 characters)">
+  <span class="pass-toggle" id="togglePass">👁️</span>
+</div>
 
 <button id="signupBtn">
 Create Account
@@ -89,6 +111,19 @@ Already have an account?
 <div id="msg"></div>
 
 </div>
+
+<script>
+document.getElementById("togglePass").addEventListener("click", function(){
+  const passInput = document.getElementById("password");
+  if(passInput.type === "password"){
+    passInput.type = "text";
+    this.textContent = "🙈";
+  }else{
+    passInput.type = "password";
+    this.textContent = "👁️";
+  }
+});
+</script>
 
 <script type="module">
 
@@ -124,9 +159,7 @@ msg.textContent="";
 if(!name||!email||!password){
 
 msg.textContent="Please fill all fields";
-
 return;
-
 }
 
 if(password.length<6){
@@ -134,7 +167,6 @@ if(password.length<6){
 msg.textContent="Password must be at least 6 characters";
 
 return;
-
 }
 
 try{
