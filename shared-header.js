@@ -37,8 +37,6 @@
         <a href="index.html">Home</a>
         <button type="button" id="homeDropdownBtn" aria-label="More options">▾</button>
         <div id="homeDropdownMenu" class="home-dropdown-menu">
-          <a href="become-seller.html">🏪 Become a Seller</a>
-          <a href="seller-dashboard.html">📊 Seller Dashboard</a>
           <a href="admin.html">🔧 Admin Panel</a>
         </div>
       </span>
