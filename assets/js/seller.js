@@ -26,7 +26,7 @@ onAuthStateChanged(auth, (user) => {
         currentUid = user.uid;
         checkIfSeller(user.uid);
     } else {
-        window.location.href = 'login.html';
+        window.location.href = 'login.html?role=seller';
     }
 });
 

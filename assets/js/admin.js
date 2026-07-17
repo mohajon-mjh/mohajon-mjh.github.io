@@ -38,13 +38,13 @@ let allProductsCache = {}; // key -> data, used for search filtering
 onAuthStateChanged(auth, (user) => {
   if(!user){
     alert("Login required");
-    location.href="login.html";
+    location.href="login.html?role=admin";
     return;
   }
   if(!ADMIN_UIDS.includes(user.uid)){
     alert("❌ Unauthorized Admin Access");
     signOut(auth);
-    location.href="login.html";
+    location.href="login.html?role=admin";
     return;
   }
 

@@ -57,8 +57,7 @@ a{
 text-decoration:none
 }
 </style>
-<link rel="stylesheet" href="css/global-menu.css">
-</head>
+<link rel="stylesheet" href="css/global-menu.css"></head>
 
 <body>
 <div id="menuBtn" class="hamburger">☰</div>
@@ -69,7 +68,7 @@ text-decoration:none
 
 <div class="box">
 
-<h2>Buyer Login</h2>
+<h2 id="login-title">Buyer Login</h2>
 
 <input
 id="email"
@@ -94,6 +93,25 @@ Create New Account
 <div id="msg"></div>
 
 </div>
+
+<script>
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const role = params.get("role");
+  const titleEl = document.getElementById("login-title");
+
+  if(role === "admin"){
+    titleEl.textContent = "Admin Login";
+    document.title = "Admin Login - Mohajon MJH";
+  }else if(role === "seller"){
+    titleEl.textContent = "Seller Login";
+    document.title = "Seller Login - Mohajon MJH";
+  }else{
+    titleEl.textContent = "Buyer Login";
+    document.title = "Buyer Login - Mohajon MJH";
+  }
+})();
+</script>
 
 <script type="module">
 
@@ -123,9 +141,7 @@ msg.textContent="";
 if(!email||!password){
 
 msg.textContent="Enter email and password";
-
 return;
-
 }
 
 try{

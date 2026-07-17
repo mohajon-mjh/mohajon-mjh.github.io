@@ -204,7 +204,7 @@
   onAuthStateChanged(auth, async (user) => {
     if(!user){
       statusInfo.textContent = "আবেদন করতে হলে আগে লগইন করুন।";
-      msgEl.innerHTML = `<a href="login.html">👤 Login করুন</a>`;
+      msgEl.innerHTML = `<a href="login.html?role=seller">👤 Login করুন</a>`;
       return;
     }
     currentUser = user;
