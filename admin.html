@@ -101,6 +101,7 @@ h2{margin-top:0}
     <button class="tab-btn" data-tab="orders">📦 Delivered Orders কমিশন</button>
     <button class="tab-btn" data-tab="flashsale">⚡ Flash Sale</button>
     <button class="tab-btn" data-tab="trending">🔥 Trending Products</button>
+    <button id="admin-logout-btn" style="background:#c0392b;color:#fff;width:100%;text-align:left;padding:12px 15px;border:none;margin-top:20px;border-radius:0;cursor:pointer;font-weight:bold">🚪 Logout</button>
   </nav>
 
   <div class="admin-content">
@@ -171,6 +172,21 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
 });
 </script>
 
+<script type="module">
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("admin-logout-btn");
+    if(btn){
+      btn.onclick = async () => {
+        if(confirm("আপনি কি লগ আউট করতে চান?")){
+          await signOut(getAuth());
+          localStorage.removeItem("user");
+          location.href = "login.html?role=admin";
+        }
+      };
+    }
+  });
+</script>
 <script type="module" src="assets/js/admin.js"></script>
 <script src="js/global-menu.js?v=2"></script>
 </body>
