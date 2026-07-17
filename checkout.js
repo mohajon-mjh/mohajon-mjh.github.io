@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, push, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -95,6 +95,81 @@ function renderLoginRequired(){
   `;
 }
 
+function renderLoading(){
+  root.innerHTML = `<div class="co-empty">লোড হচ্ছে...</div>`;
+}
+
+// 🔥 cart কে seller অনুযায়ী গ্রুপ করে প্রতিটা seller-এর জন্য আলাদা order অবজেক্ট বানায়
+function groupCartBySeller(cart){
+  const groups = {};
+  cart.forEach(item => {
+    const sid = item.sellerId || "unknown";
+    if(!groups[sid]) groups[sid] = [];
+    groups[sid].push(item);
+  });
+  return groups;
+}
+
+// 🚚 প্রতিটা প্রোডাক্টের delivery তথ্য (isFreeDelivery, deliveryCharge, deliveryTime) Firebase থেকে আনে
+async function fetchDeliveryInfo(cart){
+  const uniqueIds = [...new Set(cart.map(i => i.id))];
+  const deliveryMap = {};
+
+  await Promise.all(uniqueIds.map(async (id) => {
+    try{
+      const snap = await get(ref(db, "products/" + id));
+      if(snap.exists()){
+        const d = snap.val();
+        deliveryMap[id] = {
+          isFreeDelivery: !!d.isFreeDelivery,
+          deliveryCharge: Number(d.deliveryCharge) || 0,
+          deliveryTime: d.deliveryTime || ""
+        };
+      } else {
+        deliveryMap[id] = { isFreeDelivery: true, deliveryCharge: 0, deliveryTime: "" };
+      }
+    }catch(e){
+      deliveryMap[id] = { isFreeDelivery: true, deliveryCharge: 0, deliveryTime: "" };
+    }
+  }));
+
+  return deliveryMap;
+}
+
+// 🚚 প্রতি seller-এর জন্য একটাই delivery charge নির্ধারণ করে (সেই seller-এর প্রোডাক্টগুলোর মধ্যে সর্বোচ্চ charge)
+// যদি সেই seller-এর সব প্রোডাক্ট Free Delivery হয়, charge = 0
+function calcSellerDeliveryCharges(cart, deliveryMap){
+  const groups = groupCartBySeller(cart);
+  const sellerDelivery = {};
+
+  Object.entries(groups).forEach(([sellerId, items]) => {
+    let maxCharge = 0;
+    let allFree = true;
+    let deliveryTime = "";
+
+    items.forEach(item => {
+      const info = deliveryMap[item.id] || { isFreeDelivery: true, deliveryCharge: 0, deliveryTime: "" };
+      if(!info.isFreeDelivery){
+        allFree = false;
+        if(info.deliveryCharge > maxCharge){
+          maxCharge = info.deliveryCharge;
+          deliveryTime = info.deliveryTime;
+        }
+      } else if(!deliveryTime && info.deliveryTime){
+        deliveryTime = info.deliveryTime;
+      }
+    });
+
+    sellerDelivery[sellerId] = {
+      charge: allFree ? 0 : maxCharge,
+      isFree: allFree,
+      deliveryTime: deliveryTime
+    };
+  });
+
+  return sellerDelivery;
+}
+
 function updatePaymentInfo(){
   const pm = PAYMENT_METHODS.find(p => p.key === selectedPayment);
   const infoBox = document.getElementById("coPayInfo");
@@ -114,8 +189,11 @@ function updatePaymentInfo(){
   }
 }
 
-function renderCheckoutForm(cart){
-  const total = cart.reduce((sum, item) => sum + (parseFloat(item.price)||0) * (item.qty||1), 0);
+function renderCheckoutForm(cart, deliveryMap){
+  const itemsTotal = cart.reduce((sum, item) => sum + (parseFloat(item.price)||0) * (item.qty||1), 0);
+  const sellerDelivery = calcSellerDeliveryCharges(cart, deliveryMap);
+  const totalDelivery = Object.values(sellerDelivery).reduce((sum, d) => sum + d.charge, 0);
+  const grandTotal = itemsTotal + totalDelivery;
 
   const itemsHtml = cart.map(item => `
     <div class="co-item">
@@ -123,6 +201,17 @@ function renderCheckoutForm(cart){
       <span>৳${((parseFloat(item.price)||0) * (item.qty||1)).toFixed(2)}</span>
     </div>
   `).join("");
+
+  const deliveryHtml = Object.entries(sellerDelivery).map(([sellerId, d]) => {
+    const label = d.isFree ? "ফ্রি ডেলিভারি" : `৳${d.charge.toFixed(2)}`;
+    const timeText = d.deliveryTime ? ` (${d.deliveryTime})` : "";
+    return `
+      <div class="co-item">
+        <span>🚚 ডেলিভারি চার্জ${timeText}</span>
+        <span>${label}</span>
+      </div>
+    `;
+  }).join("");
 
   const paymentHtml = PAYMENT_METHODS.map(pm => `
     <button type="button" class="co-pay-btn ${pm.key==='COD'?'active':''}" data-method="${pm.key}">
@@ -134,9 +223,14 @@ function renderCheckoutForm(cart){
     <div class="co-box">
       <h3>🛒 অর্ডার সামারি</h3>
       ${itemsHtml}
+      <div class="co-item">
+        <span>পণ্যের মূল্য (সর্বমোট)</span>
+        <span>৳${itemsTotal.toFixed(2)}</span>
+      </div>
+      ${deliveryHtml}
       <div class="co-total">
-        <span>সর্বমোট</span>
-        <span>৳${total.toFixed(2)}</span>
+        <span>সর্বমোট (ডেলিভারিসহ)</span>
+        <span>৳${grandTotal.toFixed(2)}</span>
       </div>
     </div>
 
@@ -176,22 +270,11 @@ function renderCheckoutForm(cart){
   });
 
   document.getElementById("coConfirmBtn").addEventListener("click", async () => {
-    await placeOrder(cart, total);
+    await placeOrder(cart, sellerDelivery);
   });
 }
 
-// 🔥 cart কে seller অনুযায়ী গ্রুপ করে প্রতিটা seller-এর জন্য আলাদা order অবজেক্ট বানায়
-function groupCartBySeller(cart){
-  const groups = {};
-  cart.forEach(item => {
-    const sid = item.sellerId || "unknown";
-    if(!groups[sid]) groups[sid] = [];
-    groups[sid].push(item);
-  });
-  return groups;
-}
-
-async function placeOrder(cart, total){
+async function placeOrder(cart, sellerDelivery){
   const msgEl = document.getElementById("coMsg");
   const btn = document.getElementById("coConfirmBtn");
   msgEl.textContent = "";
@@ -224,12 +307,17 @@ async function placeOrder(cart, total){
     const paymentId = refVal ? `${selectedPayment} - ${refVal}` : selectedPayment;
 
     const orderPromises = Object.entries(sellerGroups).map(([sellerId, items]) => {
-      const sellerTotal = items.reduce((sum, item) => sum + (parseFloat(item.price)||0) * (item.qty||1), 0);
+      const sellerItemsTotal = items.reduce((sum, item) => sum + (parseFloat(item.price)||0) * (item.qty||1), 0);
+      const deliveryInfo = sellerDelivery[sellerId] || { charge: 0, isFree: true, deliveryTime: "" };
+      const sellerTotal = sellerItemsTotal + deliveryInfo.charge;
 
       const order = {
         buyerId: currentUser.uid,
         sellerId: sellerId,
         items: items,
+        itemsTotal: sellerItemsTotal,
+        deliveryCharge: deliveryInfo.charge,
+        deliveryTime: deliveryInfo.deliveryTime || "",
         total: sellerTotal,
         currency: "BDT",
         status: "pending",
@@ -263,7 +351,7 @@ async function placeOrder(cart, total){
   }
 }
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if(!user){
     renderLoginRequired();
     return;
@@ -275,5 +363,8 @@ onAuthStateChanged(auth, (user) => {
     renderEmptyCart();
     return;
   }
-  renderCheckoutForm(cart);
+
+  renderLoading();
+  const deliveryMap = await fetchDeliveryInfo(cart);
+  renderCheckoutForm(cart, deliveryMap);
 });
