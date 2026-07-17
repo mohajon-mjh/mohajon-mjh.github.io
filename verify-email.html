@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>ইমেইল ভেরিফিকেশন - Mohajon MJH</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+  font-family:Arial;
+  background:#f4f4f4;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+.box{
+  background:#fff;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 5px 20px rgba(0,0,0,.15);
+  text-align:center;
+  max-width:400px;
+}
+.spinner{
+  border:4px solid #eee;
+  border-top:4px solid #28a745;
+  border-radius:50%;
+  width:40px;
+  height:40px;
+  animation:spin 1s linear infinite;
+  margin:0 auto 16px;
+}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.success{color:#28a745;font-weight:bold}
+.error{color:#c0392b;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="box">
+  <div id="spinner" class="spinner"></div>
+  <p id="status">ভেরিফাই করা হচ্ছে...</p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getAuth, applyActionCode } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd",
+  measurementId: "G-RX6CCQZHSH"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const params = new URLSearchParams(window.location.search);
+const mode = params.get("mode");
+const oobCode = params.get("oobCode");
+const continueUrl = params.get("continueUrl") || "become-seller.html";
+
+const statusEl = document.getElementById("status");
+const spinnerEl = document.getElementById("spinner");
+
+async function run(){
+  if(mode !== "verifyEmail" || !oobCode){
+    spinnerEl.style.display = "none";
+    statusEl.className = "error";
+    statusEl.textContent = "❌ ভুল বা মেয়াদোত্তীর্ণ লিংক।";
+    return;
+  }
+
+  try{
+    await applyActionCode(auth, oobCode);
+    spinnerEl.style.display = "none";
+    statusEl.className = "success";
+    statusEl.textContent = "✅ ইমেইল ভেরিফাই সফল হয়েছে! ফর্মে নিয়ে যাওয়া হচ্ছে...";
+    setTimeout(()=>{
+      location.href = continueUrl;
+    }, 1500);
+  }catch(err){
+    spinnerEl.style.display = "none";
+    statusEl.className = "error";
+    statusEl.textContent = "❌ ভেরিফিকেশন ব্যর্থ হয়েছে: " + err.message;
+  }
+}
+
+run();
+</script>
+</body>
+</html>

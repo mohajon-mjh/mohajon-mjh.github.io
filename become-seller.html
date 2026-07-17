@@ -35,6 +35,10 @@
       border-radius:6px;
       font-size:15px;
     }
+    input[readonly]{
+      background:#f0f0f0;
+      color:#555;
+    }
     button{
       background:#28a745;
       color:white;
@@ -112,12 +116,15 @@
 
   <div id="verify-box" class="verify-box hidden">
     <p>📧 আবেদন করতে হলে আগে আপনার ইমেইল ভেরিফাই করতে হবে।</p>
-    <p style="font-size:13px;color:#555">আপনার ইমেইলে (<span id="user-email"></span>) একটি ভেরিফিকেশন লিংক পাঠানো হয়েছে। ইমেইল চেক করুন (Spam ফোল্ডারও দেখুন)।</p>
+    <p style="font-size:13px;color:#555">আপনার ইমেইলে (<span id="user-email"></span>) একটি ভেরিফিকেশন লিংক পাঠানো হয়েছে। ইমেইল চেক করুন (Spam ফোল্ডারও দেখুন)। লিংকে ক্লিক করলেই সরাসরি এই পেজে ফিরিয়ে আনবে।</p>
     <button id="resend-btn" type="button">ভেরিফিকেশন লিংক আবার পাঠান</button>
     <button id="recheck-btn" type="button" style="background:#28a745">✅ ভেরিফাই করেছি, রিফ্রেশ করুন</button>
   </div>
 
   <form id="seller-request-form" class="hidden">
+
+    <label>ইমেইল / জিমেইল *</label>
+    <input type="email" id="seller-email" readonly>
 
     <label>আপনার পূর্ণ নাম *</label>
     <input type="text" id="owner-name" placeholder="আপনার পূর্ণ নাম" required>
@@ -183,6 +190,14 @@
   const userEmailSpan = document.getElementById("user-email");
   const resendBtn = document.getElementById("resend-btn");
   const recheckBtn = document.getElementById("recheck-btn");
+  const sellerEmailInput = document.getElementById("seller-email");
+
+  function verifyActionCodeSettings(){
+    return {
+      url: "https://mohajon-mjh.github.io/verify-email.html?continueUrl=" + encodeURIComponent("become-seller.html"),
+      handleCodeInApp: true
+    };
+  }
 
   let currentUser = null;
 
@@ -205,6 +220,7 @@
     }
 
     verifyBox.classList.add("hidden");
+    sellerEmailInput.value = user.email;
 
     try{
       const sellerSnap = await get(ref(db, `sellers/${user.uid}`));
@@ -231,7 +247,7 @@
     resendBtn.disabled = true;
     resendBtn.textContent = "পাঠানো হচ্ছে...";
     try{
-      await sendEmailVerification(currentUser);
+      await sendEmailVerification(currentUser, verifyActionCodeSettings());
       alert("✅ ভেরিফিকেশন লিংক আবার পাঠানো হয়েছে। ইমেইল চেক করুন।");
     }catch(err){
       alert("Error: " + err.message);
@@ -296,6 +312,7 @@
       const newReq = push(ref(db,"sellerRequests"));
       const reqData = {
         uid: currentUser.uid,
+        email: currentUser.email,
         ownerName: ownerName,
         phone: phone,
         storeName: storeName,

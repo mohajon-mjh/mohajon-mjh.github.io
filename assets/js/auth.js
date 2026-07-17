@@ -30,6 +30,13 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
+function verifyActionCodeSettings(){
+  return {
+    url: "https://mohajon-mjh.github.io/verify-email.html?continueUrl=" + encodeURIComponent("become-seller.html"),
+    handleCodeInApp: true
+  };
+}
+
 window.signup = async function(name,email,password){
 
   const cred = await createUserWithEmailAndPassword(
@@ -53,7 +60,7 @@ window.signup = async function(name,email,password){
   });
 
   try{
-    await sendEmailVerification(cred.user);
+    await sendEmailVerification(cred.user, verifyActionCodeSettings());
   }catch(err){
     console.error("Verification email error:", err.message);
   }
@@ -145,7 +152,7 @@ window.resendVerificationEmail = async function(){
   if(!auth.currentUser){
     throw new Error("লগইন করা নেই।");
   }
-  await sendEmailVerification(auth.currentUser);
+  await sendEmailVerification(auth.currentUser, verifyActionCodeSettings());
 };
 
 window.checkEmailVerified = async function(){
