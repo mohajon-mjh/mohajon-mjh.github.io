@@ -206,6 +206,18 @@ function renderAllProducts(filterText){
       <label>স্টক
         <input type="number" class="edit-stock" value="${data.stock||0}">
       </label>
+      <label>ডেলিভারি
+        <select class="edit-free-delivery">
+          <option value="paid" ${!data.isFreeDelivery ? "selected" : ""}>Paid Delivery</option>
+          <option value="free" ${data.isFreeDelivery ? "selected" : ""}>Free Delivery</option>
+        </select>
+      </label>
+      <label>ডেলিভারি চার্জ (৳)
+        <input type="number" class="edit-delivery-charge" value="${data.deliveryCharge||0}" min="0">
+      </label>
+      <label>ডেলিভারি সময়
+        <input type="text" class="edit-delivery-time" value="${(data.deliveryTime||'').replace(/"/g,'&quot;')}" placeholder="যেমন: ৩-৫ কার্যদিবস">
+      </label>
       <p style="font-size:12px;color:#999">Status: ${data.status} | Seller: ${data.sellerEmail || data.sellerId}</p>
       <button class="save-btn">Save</button>
       <button class="delete-btn">Delete</button>
@@ -216,7 +228,17 @@ function renderAllProducts(filterText){
       const newPrice = parseFloat(div.querySelector(".edit-price").value);
       const newStock = parseInt(div.querySelector(".edit-stock").value);
       try{
-        const updates = { price:newPrice, stock:newStock, updatedAt: Date.now() };
+        const isFree = div.querySelector(".edit-free-delivery").value === "free";
+        const deliveryCharge = parseFloat(div.querySelector(".edit-delivery-charge").value) || 0;
+        const deliveryTime = div.querySelector(".edit-delivery-time").value.trim();
+        const updates = {
+          price:newPrice,
+          stock:newStock,
+          isFreeDelivery: isFree,
+          deliveryCharge: isFree ? 0 : deliveryCharge,
+          deliveryTime: deliveryTime,
+          updatedAt: Date.now()
+        };
         if(data.title !== undefined) updates.title = newName;
         else updates.name = newName;
         await update(ref(db,"products/"+key), updates);
