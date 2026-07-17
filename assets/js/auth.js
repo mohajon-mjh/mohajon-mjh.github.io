@@ -4,7 +4,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 import {
@@ -51,7 +52,13 @@ window.signup = async function(name,email,password){
     updatedAt:Date.now()
   });
 
-  alert("Account created successfully");
+  try{
+    await sendEmailVerification(cred.user);
+  }catch(err){
+    console.error("Verification email error:", err.message);
+  }
+
+  alert("✅ অ্যাকাউন্ট তৈরি হয়েছে! আপনার ইমেইলে একটি ভেরিফিকেশন লিংক পাঠানো হয়েছে, দয়া করে ইমেইল চেক করে ভেরিফাই করুন।");
   location.href="login.html";
 };
 
@@ -130,6 +137,21 @@ window.getProfile = async function(){
 
   return snap.exists() ? snap.val() : null;
 
+};
+
+/* ===================== EMAIL VERIFICATION HELPERS ===================== */
+
+window.resendVerificationEmail = async function(){
+  if(!auth.currentUser){
+    throw new Error("লগইন করা নেই।");
+  }
+  await sendEmailVerification(auth.currentUser);
+};
+
+window.checkEmailVerified = async function(){
+  if(!auth.currentUser) return false;
+  await auth.currentUser.reload();
+  return auth.currentUser.emailVerified;
 };
 
 console.log("MJH Firebase Authentication Ready");

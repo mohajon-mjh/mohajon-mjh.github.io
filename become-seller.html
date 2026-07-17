@@ -84,9 +84,20 @@
       font-weight:normal;
       font-size:13px;
     }
+    .verify-box{
+      background:#fff3cd;
+      border:1px solid #ffe69c;
+      border-radius:8px;
+      padding:16px;
+      margin-top:16px;
+      text-align:center;
+    }
+    .verify-box button{
+      background:#0d6efd;
+      margin-top:12px;
+    }
   </style>
-<link rel="stylesheet" href="css/global-menu.css">
-</head>
+<link rel="stylesheet" href="css/global-menu.css"></head>
 
 <body>
 <div id="menuBtn" class="hamburger">☰</div>
@@ -98,6 +109,13 @@
 <div class="box">
   <h2>🏪 Become a Seller</h2>
   <p id="statusInfo"></p>
+
+  <div id="verify-box" class="verify-box hidden">
+    <p>📧 আবেদন করতে হলে আগে আপনার ইমেইল ভেরিফাই করতে হবে।</p>
+    <p style="font-size:13px;color:#555">আপনার ইমেইলে (<span id="user-email"></span>) একটি ভেরিফিকেশন লিংক পাঠানো হয়েছে। ইমেইল চেক করুন (Spam ফোল্ডারও দেখুন)।</p>
+    <button id="resend-btn" type="button">ভেরিফিকেশন লিংক আবার পাঠান</button>
+    <button id="recheck-btn" type="button" style="background:#28a745">✅ ভেরিফাই করেছি, রিফ্রেশ করুন</button>
+  </div>
 
   <form id="seller-request-form" class="hidden">
 
@@ -118,7 +136,6 @@
 
     <label>প্রয়োজনীয় ডকুমেন্ট নাম্বার (NID/Trade License - ঐচ্ছিক)</label>
     <textarea id="store-docs" placeholder="NID নাম্বার / ট্রেড লাইসেন্স নাম্বার (থাকলে দিন)"></textarea>
-
     <div class="terms-box">
       <h4>📜 কমিশন ও চুক্তির শর্তাবলী</h4>
       <p><strong>১. কমিশন:</strong> প্রতিটি বিক্রিত পণ্যের উপর Admin কর্তৃক নির্ধারিত হারে কমিশন কর্তন করা হবে। কমিশনের হার ক্যাটাগরিভেদে ভিন্ন হতে পারে এবং Seller Dashboard-এ উল্লেখ থাকবে।</p>
@@ -142,7 +159,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
   import { getDatabase, ref, push, set, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -162,6 +179,10 @@
   const statusInfo = document.getElementById("statusInfo");
   const form = document.getElementById("seller-request-form");
   const msgEl = document.getElementById("msg");
+  const verifyBox = document.getElementById("verify-box");
+  const userEmailSpan = document.getElementById("user-email");
+  const resendBtn = document.getElementById("resend-btn");
+  const recheckBtn = document.getElementById("recheck-btn");
 
   let currentUser = null;
 
@@ -172,6 +193,18 @@
       return;
     }
     currentUser = user;
+
+    await user.reload();
+
+    if(!user.emailVerified){
+      statusInfo.textContent = "";
+      userEmailSpan.textContent = user.email;
+      verifyBox.classList.remove("hidden");
+      form.classList.add("hidden");
+      return;
+    }
+
+    verifyBox.classList.add("hidden");
 
     try{
       const sellerSnap = await get(ref(db, `sellers/${user.uid}`));
@@ -194,8 +227,40 @@
     }
   });
 
+  resendBtn.onclick = async () => {
+    resendBtn.disabled = true;
+    resendBtn.textContent = "পাঠানো হচ্ছে...";
+    try{
+      await sendEmailVerification(currentUser);
+      alert("✅ ভেরিফিকেশন লিংক আবার পাঠানো হয়েছে। ইমেইল চেক করুন।");
+    }catch(err){
+      alert("Error: " + err.message);
+    }
+    resendBtn.disabled = false;
+    resendBtn.textContent = "ভেরিফিকেশন লিংক আবার পাঠান";
+  };
+
+  recheckBtn.onclick = async () => {
+    recheckBtn.disabled = true;
+    recheckBtn.textContent = "চেক করা হচ্ছে...";
+    await currentUser.reload();
+    if(currentUser.emailVerified){
+      location.reload();
+    }else{
+      alert("এখনও ভেরিফাই হয়নি। ইমেইলের লিংকে ক্লিক করার পর আবার চেষ্টা করুন।");
+      recheckBtn.disabled = false;
+      recheckBtn.textContent = "✅ ভেরিফাই করেছি, রিফ্রেশ করুন";
+    }
+  };
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    if(!currentUser.emailVerified){
+      msgEl.textContent = "আগে ইমেইল ভেরিফাই করুন।";
+      msgEl.className = "msg error";
+      return;
+    }
 
     const ownerName = document.getElementById("owner-name").value.trim();
     const phone = document.getElementById("phone").value.trim();
