@@ -168,7 +168,6 @@ document.getElementById("product-form").addEventListener("submit",function(e){
     stock:parseInt(document.getElementById("product-stock").value)||0,
     categoryId:categoryId,
     sellerId:currentUser.uid,
-    sellerEmail:currentUser.email,
     createdAt:Date.now(),
     status:"pending"
   };
