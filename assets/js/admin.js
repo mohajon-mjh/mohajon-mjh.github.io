@@ -144,7 +144,7 @@ function loadProducts(){
 
       div.querySelector(".approve").onclick = async () => {
         try{
-          await update(ref(db,"products/"+key),{ status:"active", approvedAt: Date.now() });
+          await update(ref(db,"products/"+key),{ status:"active", updatedAt: Date.now() });
         }catch(err){
           alert("❌ Approve Error: " + err.message);
         }
