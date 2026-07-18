@@ -56,6 +56,7 @@ onAuthStateChanged(auth, (user) => {
   loadDeliveredOrders();
   loadOrderStats();
   loadNotepad();
+  loadNotificationBell();
   loadFlashSale();
   loadTrending();
   loadFlashSaleLabel();
@@ -642,4 +643,82 @@ function loadNotepad(){
       statusEl.textContent = "Error: " + err.message;
     }
   };
+}
+
+/* ===================== NOTIFICATION BELL ===================== */
+function loadNotificationBell(){
+  const bell = document.getElementById("notifBell");
+  const badge = document.getElementById("notifBadge");
+  const dropdown = document.getElementById("notifDropdown");
+  if(!bell || !badge || !dropdown) return;
+
+  let pendingOrdersData = [];
+  let pendingSellersData = [];
+
+  function renderDropdown(){
+    const total = pendingOrdersData.length + pendingSellersData.length;
+
+    if(total === 0){
+      badge.style.display = "none";
+      dropdown.innerHTML = `<div class="notif-empty">কোনো নতুন নোটিফিকেশন নেই।</div>`;
+      return;
+    }
+
+    badge.style.display = "flex";
+    badge.textContent = total > 99 ? "99+" : total;
+
+    let html = "";
+
+    pendingOrdersData.forEach(o => {
+      html += `<div class="notif-item" data-tab="orders">📦 নতুন অর্ডার — ৳${o.total || 0} (${o.key.slice(0,6)})</div>`;
+    });
+
+    pendingSellersData.forEach(s => {
+      html += `<div class="notif-item" data-tab="sellerreq">🏪 নতুন Seller আবেদন — ${s.storeName || 'N/A'}</div>`;
+    });
+
+    dropdown.innerHTML = html;
+
+    dropdown.querySelectorAll(".notif-item").forEach(item => {
+      item.addEventListener("click", () => {
+        const tab = item.dataset.tab;
+        const tabBtn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+        if(tabBtn) tabBtn.click();
+        dropdown.classList.remove("active");
+      });
+    });
+  }
+
+  onValue(ref(db,"orders"), (snapshot) => {
+    pendingOrdersData = [];
+    snapshot.forEach(child => {
+      const d = child.val();
+      if(d.status === "pending"){
+        pendingOrdersData.push({ key: child.key, total: d.total });
+      }
+    });
+    renderDropdown();
+  });
+
+  onValue(ref(db,"sellerRequests"), (snapshot) => {
+    pendingSellersData = [];
+    snapshot.forEach(child => {
+      const d = child.val();
+      if(d.status === "pending"){
+        pendingSellersData.push({ key: child.key, storeName: d.storeName });
+      }
+    });
+    renderDropdown();
+  });
+
+  bell.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle("active");
+  });
+
+  document.addEventListener("click", (e) => {
+    if(!bell.contains(e.target)){
+      dropdown.classList.remove("active");
+    }
+  });
 }

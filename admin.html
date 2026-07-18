@@ -47,6 +47,13 @@ h2{margin-top:0}
   height:100vh;
   overflow-y:auto;
 }
+.notif-bell-wrap{position:fixed;top:10px;right:10px;cursor:pointer;font-size:22px;z-index:1001;background:#1a1a1a;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.notif-badge{position:absolute;top:-8px;right:-10px;background:#e74c3c;color:#fff;font-size:11px;font-weight:bold;border-radius:50%;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.notif-dropdown{display:none;position:absolute;top:45px;right:0;background:#222;border:1px solid #444;border-radius:8px;width:280px;max-height:350px;overflow-y:auto;z-index:1000;box-shadow:0 5px 20px rgba(0,0,0,.4)}
+.notif-dropdown.active{display:block}
+.notif-item{padding:12px;border-bottom:1px solid #333;font-size:13px;color:#eee;cursor:pointer}
+.notif-item:hover{background:#2a2a2a}
+.notif-empty{padding:15px;text-align:center;color:#888;font-size:13px}
 .admin-tabs h2{
   font-size:16px;
   padding:0 15px 10px 15px;
@@ -74,7 +81,14 @@ h2{margin-top:0}
 @media(max-width:700px){
   .admin-wrap{flex-direction:column}
   .admin-tabs{width:100%;height:auto;position:relative;display:flex;overflow-x:auto;padding:8px}
-  .admin-tabs h2{display:none}
+  .notif-bell-wrap{position:fixed;top:10px;right:10px;cursor:pointer;font-size:22px;z-index:1001;background:#1a1a1a;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.notif-badge{position:absolute;top:-8px;right:-10px;background:#e74c3c;color:#fff;font-size:11px;font-weight:bold;border-radius:50%;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.notif-dropdown{display:none;position:absolute;top:45px;right:0;background:#222;border:1px solid #444;border-radius:8px;width:280px;max-height:350px;overflow-y:auto;z-index:1000;box-shadow:0 5px 20px rgba(0,0,0,.4)}
+.notif-dropdown.active{display:block}
+.notif-item{padding:12px;border-bottom:1px solid #333;font-size:13px;color:#eee;cursor:pointer}
+.notif-item:hover{background:#2a2a2a}
+.notif-empty{padding:15px;text-align:center;color:#888;font-size:13px}
+.admin-tabs h2{display:none}
   .tab-btn{width:auto;white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
   .tab-btn.active{border-left:none;border-bottom:3px solid #2980b9}
 }
@@ -92,6 +106,7 @@ h2{margin-top:0}
 <div class="admin-wrap">
   <nav class="admin-tabs">
     <h2>🔥 Admin Panel</h2>
+    <div class="notif-bell-wrap" id="notifBell">🔔<span class="notif-badge" id="notifBadge" style="display:none">0</span><div class="notif-dropdown" id="notifDropdown"><div class="notif-empty">লোড হচ্ছে...</div></div></div>
     <button class="tab-btn active" data-tab="overview">📊 Overview</button>
     <a href="become-seller.html" style="display:block;color:#ccc;padding:12px 15px;text-decoration:none;border-left:3px solid transparent">🏪 Become a Seller</a>
     <a href="seller-dashboard.html" style="display:block;color:#ccc;padding:12px 15px;text-decoration:none;border-left:3px solid transparent">📊 Seller Dashboard</a>
