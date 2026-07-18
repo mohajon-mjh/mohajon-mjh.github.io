@@ -57,6 +57,7 @@ onAuthStateChanged(auth, (user) => {
   loadOrderStats();
   loadNotepad();
   loadNotificationBell();
+  loadAllSellers();
   loadFlashSale();
   loadTrending();
   loadFlashSaleLabel();
@@ -720,5 +721,86 @@ function loadNotificationBell(){
     if(!bell.contains(e.target)){
       dropdown.classList.remove("active");
     }
+  });
+}
+
+/* ===================== ALL SELLERS - LIST + SUSPEND/DELETE ===================== */
+function loadAllSellers(){
+  const allSellersDiv = document.getElementById("all-sellers");
+  if(!allSellersDiv) return;
+
+  const sellersRef = ref(db,"sellers");
+
+  onValue(sellersRef,(snapshot)=>{
+    allSellersDiv.innerHTML = "<div class='section-title'><h3>👥 সব Seller (মোট: " + snapshot.size + ")</h3></div>";
+
+    let counts = { approved: 0, pending: 0, rejected: 0, suspended: 0 };
+    const rows = [];
+
+    snapshot.forEach(child => {
+      const key = child.key;
+      const data = child.val();
+      if(counts[data.status] !== undefined) counts[data.status]++;
+      rows.push({ key, data });
+    });
+
+    const summary = document.createElement("div");
+    summary.className = "card";
+    summary.innerHTML = `
+      <p>✅ Approved: <b>${counts.approved}</b> &nbsp; ⏳ Pending: <b>${counts.pending}</b> &nbsp; ❌ Rejected: <b>${counts.rejected}</b> &nbsp; 🚫 Suspended: <b>${counts.suspended}</b></p>
+    `;
+    allSellersDiv.appendChild(summary);
+
+    if(rows.length === 0){
+      allSellersDiv.innerHTML += "<p>কোনো seller নেই।</p>";
+      return;
+    }
+
+    rows.forEach(({key, data}) => {
+      const div = document.createElement("div");
+      div.className = "card";
+
+      const statusColor = {
+        approved: "#2ecc71",
+        pending: "#f39c12",
+        rejected: "#c0392b",
+        suspended: "#7f8c8d"
+      }[data.status] || "#999";
+
+      div.innerHTML = `
+        <h3>${data.storeName || 'N/A'}</h3>
+        <p>UID: ${key}</p>
+        <p>Status: <span style="color:${statusColor};font-weight:bold">${data.status}</span></p>
+        <p>কমিশন হার: ${data.commissionRate || 0}%</p>
+        <p style="font-size:12px;color:#999">যোগদান: ${data.createdAt ? new Date(data.createdAt).toLocaleDateString('bn-BD') : '-'}</p>
+        <button class="toggle-suspend-btn" style="background:${data.status === 'suspended' ? '#2ecc71' : '#e67e22'}">
+          ${data.status === 'suspended' ? '✅ Reactivate' : '🚫 Suspend'}
+        </button>
+        <button class="delete-seller-btn" style="background:#c0392b">🗑️ Delete Seller</button>
+      `;
+
+      div.querySelector(".toggle-suspend-btn").onclick = async () => {
+        const newStatus = data.status === "suspended" ? "approved" : "suspended";
+        if(!confirm(`এই seller-কে ${newStatus === 'suspended' ? 'Suspend' : 'Reactivate'} করবেন?`)) return;
+        try{
+          await update(ref(db,"sellers/"+key), { status: newStatus, updatedAt: Date.now() });
+        }catch(err){
+          alert("Error: " + err.message);
+        }
+      };
+
+      div.querySelector(".delete-seller-btn").onclick = async () => {
+        if(!confirm(`⚠️ এই seller-কে সম্পূর্ণ ডিলিট করবেন? এই কাজ Undo করা যাবে না।\n\nদোকান: ${data.storeName}`)) return;
+        try{
+          await remove(ref(db,"sellers/"+key));
+          await update(ref(db,"users/"+key), { role: "customer", updatedAt: Date.now() });
+          alert("✅ Seller ডিলিট করা হয়েছে");
+        }catch(err){
+          alert("❌ Error: " + err.message);
+        }
+      };
+
+      allSellersDiv.appendChild(div);
+    });
   });
 }
