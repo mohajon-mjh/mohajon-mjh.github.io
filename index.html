@@ -691,6 +691,7 @@ function renderFlashSaleCard(id, data){
 
   const card = document.createElement("div");
   card.className = "product-card";
+  card.style.cursor = "pointer";
 
   card.innerHTML = `
     <div class="product-card-image">
@@ -737,13 +738,25 @@ function renderFlashSaleCard(id, data){
 
   const wishBtn = card.querySelector(".btn-wishlist-overlay");
   if(wishBtn){
-    wishBtn.addEventListener("click", () => {
+    wishBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       if(typeof toggleWishlist === "function"){
         toggleWishlist(id, data.title || data.name);
       }
       wishBtn.classList.toggle("active");
     });
   }
+
+  if(cartBtn){
+    cartBtn.addEventListener("click", (e) => { e.stopPropagation(); });
+  }
+  if(buyBtn){
+    buyBtn.addEventListener("click", (e) => { e.stopPropagation(); });
+  }
+
+  card.addEventListener("click", () => {
+    window.location.href = `product-details.html?id=${id}`;
+  });
 
   return card;
 }
@@ -858,6 +871,7 @@ function renderTrendingCard(id, data){
 
   const card = document.createElement("div");
   card.className = "product-card";
+  card.style.cursor = "pointer";
 
   const stockBadge = stock <= 0
     ? '<span class="stock-badge out-of-stock">Out of Stock</span>'
@@ -910,13 +924,25 @@ function renderTrendingCard(id, data){
 
   const wishBtn = card.querySelector(".btn-wishlist-overlay");
   if(wishBtn){
-    wishBtn.addEventListener("click", () => {
+    wishBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       if(typeof toggleWishlist === "function"){
         toggleWishlist(id, data.title || data.name);
       }
       wishBtn.classList.toggle("active");
     });
   }
+
+  if(cartBtn){
+    cartBtn.addEventListener("click", (e) => { e.stopPropagation(); });
+  }
+  if(buyBtn){
+    buyBtn.addEventListener("click", (e) => { e.stopPropagation(); });
+  }
+
+  card.addEventListener("click", () => {
+    window.location.href = `product-details.html?id=${id}`;
+  });
 
   return card;
 }
@@ -1004,6 +1030,7 @@ function renderDealCard(id, data){
 
   const card = document.createElement("div");
   card.className = "product-card";
+  card.style.cursor = "pointer";
 
   card.innerHTML = `
     <div class="product-card-image">
@@ -1050,13 +1077,25 @@ function renderDealCard(id, data){
 
   const wishBtn = card.querySelector(".btn-wishlist-overlay");
   if(wishBtn){
-    wishBtn.addEventListener("click", () => {
+    wishBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       if(typeof toggleWishlist === "function"){
         toggleWishlist(id, data.title || data.name);
       }
       wishBtn.classList.toggle("active");
     });
   }
+
+  if(cartBtn){
+    cartBtn.addEventListener("click", (e) => { e.stopPropagation(); });
+  }
+  if(buyBtn){
+    buyBtn.addEventListener("click", (e) => { e.stopPropagation(); });
+  }
+
+  card.addEventListener("click", () => {
+    window.location.href = `product-details.html?id=${id}`;
+  });
 
   return card;
 }
