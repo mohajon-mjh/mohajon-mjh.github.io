@@ -58,6 +58,7 @@ onAuthStateChanged(auth, (user) => {
   loadNotepad();
   loadNotificationBell();
   loadAllSellers();
+  loadFinancePanel();
   loadFlashSale();
   loadTrending();
   loadFlashSaleLabel();
@@ -812,5 +813,129 @@ function loadAllSellers(){
 
       allSellersDiv.appendChild(div);
     });
+  });
+}
+
+/* ===================== FINANCE PANEL ===================== */
+function loadFinancePanel(){
+  const panel = document.getElementById("finance-panel");
+  if(!panel) return;
+
+  let totalRevenue = 0;
+  let totalCommission = 0;
+  let totalWalletBalance = 0;
+  let withdrawRows = [];
+
+  function render(){
+    panel.innerHTML = `
+      <div class="card">
+        <h3>📊 আর্থিক সারাংশ</h3>
+        <p>মোট Revenue (Delivered): <b>৳${totalRevenue.toFixed(2)}</b></p>
+        <p>মোট Commission আয় (Admin): <b>৳${totalCommission.toFixed(2)}</b></p>
+        <p>Seller-দের মোট Wallet ব্যালেন্স: <b>৳${totalWalletBalance.toFixed(2)}</b></p>
+      </div>
+      <div class="section-title"><h3>💳 Withdraw Requests</h3></div>
+    `;
+
+    if(withdrawRows.length === 0){
+      panel.innerHTML += "<p>কোনো Withdraw request নেই।</p>";
+      return;
+    }
+
+    withdrawRows.forEach(({key, data}) => {
+      const div = document.createElement("div");
+      div.className = "card";
+
+      const statusColor = {
+        pending: "#f39c12",
+        approved: "#2ecc71",
+        rejected: "#c0392b",
+        paid: "#2ecc71"
+      }[data.status] || "#999";
+
+      div.innerHTML = `
+        <p>Seller UID: ${data.userId}</p>
+        <p>পরিমাণ: <b>৳${data.amount}</b></p>
+        <p>মাধ্যম: ${data.bankDetails || '-'}</p>
+        <p>Status: <span style="color:${statusColor};font-weight:bold">${data.status}</span></p>
+        <p style="font-size:12px;color:#999">${new Date(data.createdAt).toLocaleString('bn-BD')}</p>
+        ${data.status === "pending" ? `
+          <button class="wd-approve-btn" style="background:#2ecc71">✅ Approve & Paid</button>
+          <button class="wd-reject-btn" style="background:#c0392b">❌ Reject</button>
+        ` : ''}
+      `;
+
+      if(data.status === "pending"){
+        div.querySelector(".wd-approve-btn").onclick = async () => {
+          if(!confirm(`৳${data.amount} পেমেন্ট সম্পন্ন করেছেন কি? এটা Seller-এর Wallet থেকে কেটে নেওয়া হবে।`)) return;
+          try{
+            const walletRef = ref(db, "wallets/"+data.userId);
+            const walletSnap = await get(walletRef);
+            const currentBalance = walletSnap.exists() ? (walletSnap.val().balance || 0) : 0;
+
+            if(currentBalance < data.amount){
+              alert("⚠️ Seller-এর Wallet balance যথেষ্ট নেই।");
+              return;
+            }
+
+            await set(walletRef, {
+              balance: currentBalance - data.amount,
+              currency: "BDT",
+              updatedAt: Date.now()
+            });
+
+            await update(ref(db,"withdrawRequests/"+key), { status: "paid" });
+            alert("✅ Withdraw সম্পন্ন হয়েছে।");
+          }catch(err){
+            alert("❌ Error: " + err.message);
+          }
+        };
+
+        div.querySelector(".wd-reject-btn").onclick = async () => {
+          if(!confirm("এই Withdraw request বাতিল করবেন?")) return;
+          try{
+            await update(ref(db,"withdrawRequests/"+key), { status: "rejected" });
+          }catch(err){
+            alert("❌ Error: " + err.message);
+          }
+        };
+      }
+
+      panel.appendChild(div);
+    });
+  }
+
+  onValue(ref(db,"orders"), (snapshot) => {
+    totalRevenue = 0;
+    snapshot.forEach(child => {
+      const o = child.val();
+      if(o.status === "delivered") totalRevenue += (o.total || 0);
+    });
+    render();
+  });
+
+  onValue(ref(db,"commissions"), (snapshot) => {
+    totalCommission = 0;
+    snapshot.forEach(child => {
+      totalCommission += (child.val().amount || 0);
+    });
+    render();
+  });
+
+  onValue(ref(db,"wallets"), (snapshot) => {
+    totalWalletBalance = 0;
+    snapshot.forEach(child => {
+      totalWalletBalance += (child.val().balance || 0);
+    });
+    render();
+  });
+
+  onValue(ref(db,"withdrawRequests"), (snapshot) => {
+    withdrawRows = [];
+    snapshot.forEach(child => {
+      withdrawRows.push({ key: child.key, data: child.val() });
+    });
+    withdrawRows.reverse();
+    render();
   });
 }
