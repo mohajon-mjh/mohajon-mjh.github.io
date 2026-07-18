@@ -177,12 +177,12 @@ document.getElementById("product-form").addEventListener("submit",function(e){
   if(file){
     const reader=new FileReader();
     reader.onload=(e)=>{
-      productData.images={ img1: e.target.result };
+      productData.images={ main: e.target.result };
       save(productData);
     };
     reader.readAsDataURL(file);
   }else{
-    productData.images={ img1: "assets/images/default-product.jpg" };
+    productData.images={ main: "assets/images/default-product.jpg" };
     save(productData);
   }
 
