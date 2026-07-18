@@ -59,6 +59,7 @@ onAuthStateChanged(auth, (user) => {
   loadNotificationBell();
   loadAllSellers();
   loadFinancePanel();
+  loadAllOrdersPanel();
   loadFlashSale();
   loadTrending();
   loadFlashSaleLabel();
@@ -937,5 +938,94 @@ function loadFinancePanel(){
     });
     withdrawRows.reverse();
     render();
+  });
+}
+
+/* ===================== ALL ORDERS - FILTER + STATUS UPDATE ===================== */
+function loadAllOrdersPanel(){
+  const filterBar = document.getElementById("order-filter-bar");
+  const ordersDiv = document.getElementById("all-orders");
+  if(!filterBar || !ordersDiv) return;
+
+  let allOrdersData = [];
+  let currentFilter = "all";
+
+  const statuses = ["all", "pending", "processing", "shipped", "delivered", "cancelled", "refunded"];
+  const statusLabels = {
+    all: "সব", pending: "Pending", processing: "Processing",
+    shipped: "Shipped", delivered: "Delivered", cancelled: "Cancelled", refunded: "Refunded"
+  };
+
+  filterBar.innerHTML = statuses.map(s =>
+    `<button class="order-filter-btn ${s==='all'?'active':''}" data-status="${s}" style="padding:8px 12px;margin:3px;border:none;border-radius:6px;cursor:pointer;background:${s==='all'?'#2980b9':'#333'};color:#fff">${statusLabels[s]}</button>`
+  ).join("");
+
+  filterBar.querySelectorAll(".order-filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      currentFilter = btn.dataset.status;
+      filterBar.querySelectorAll(".order-filter-btn").forEach(b => {
+        b.style.background = "#333";
+        b.classList.remove("active");
+      });
+      btn.style.background = "#2980b9";
+      btn.classList.add("active");
+      renderOrders();
+    });
+  });
+
+  function renderOrders(){
+    ordersDiv.innerHTML = "";
+    const filtered = currentFilter === "all" ? allOrdersData : allOrdersData.filter(o => o.data.status === currentFilter);
+
+    if(filtered.length === 0){
+      ordersDiv.innerHTML = "<p>কোনো অর্ডার পাওয়া যায়নি।</p>";
+      return;
+    }
+
+    filtered.forEach(({key, data}) => {
+      const div = document.createElement("div");
+      div.className = "card";
+
+      const addr = data.shippingAddress || {};
+      const statusColor = {
+        pending: "#f39c12", processing: "#3498db", shipped: "#9b59b6",
+        delivered: "#2ecc71", cancelled: "#c0392b", refunded: "#7f8c8d"
+      }[data.status] || "#999";
+
+      div.innerHTML = `
+        <h3>Order #${key.slice(0,8)}</h3>
+        <p>ক্রেতা: ${addr.name || 'N/A'} | ফোন: ${addr.phone || '-'}</p>
+        <p>ঠিকানা: ${addr.address || '-'} (${addr.area || '-'})</p>
+        <p>Total: ৳${data.total}</p>
+        <p>Payment: ${data.paymentId || '-'}</p>
+        <p>Status: <span style="color:${statusColor};font-weight:bold">${data.status}</span></p>
+        <p style="font-size:12px;color:#999">${new Date(data.createdAt).toLocaleString('bn-BD')}</p>
+        <select class="order-status-select">
+          ${statuses.filter(s=>s!=='all').map(s => `<option value="${s}" ${data.status===s?'selected':''}>${statusLabels[s]}</option>`).join("")}
+        </select>
+        <button class="order-status-save">Update Status</button>
+      `;
+
+      div.querySelector(".order-status-save").onclick = async () => {
+        const newStatus = div.querySelector(".order-status-select").value;
+        try{
+          await update(ref(db,"orders/"+key), { status: newStatus, updatedAt: Date.now() });
+          alert("✅ Status আপডেট হয়েছে");
+        }catch(err){
+          alert("❌ Error: " + err.message);
+        }
+      };
+
+      ordersDiv.appendChild(div);
+    });
+  }
+
+  onValue(ref(db,"orders"), (snapshot) => {
+    allOrdersData = [];
+    snapshot.forEach(child => {
+      allOrdersData.push({ key: child.key, data: child.val() });
+    });
+    allOrdersData.reverse();
+    renderOrders();
   });
 }
