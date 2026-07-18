@@ -77,6 +77,10 @@
             
             <div id="withdraw" style="display:none;">
                 <h2>Withdraw Request</h2>
+                <div class="stat-card" style="margin-bottom:20px;">
+                    <h3>Wallet Balance</h3>
+                    <p id="wallet-balance" style="font-size:24px;font-weight:bold;color:#28a745">৳0</p>
+                </div>
                 <form id="withdraw-form">
                     <input type="number" id="withdraw-amount" placeholder="Amount">
                     <select id="withdraw-method">
@@ -88,6 +92,8 @@
                     <input type="text" id="withdraw-account" placeholder="Account Number">
                     <button type="submit">Request Withdraw</button>
                 </form>
+                <h3 style="margin-top:30px;">Withdraw History</h3>
+                <div id="withdraw-history"></div>
             </div>
         </div>
     </div>

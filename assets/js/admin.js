@@ -594,8 +594,18 @@ function loadDeliveredOrders(){
             }
           }
 
+          const sellerEarning = data.total - amount;
+          const walletRef = ref(db, "wallets/"+data.sellerId);
+          const walletSnap = await get(walletRef);
+          const currentBalance = walletSnap.exists() ? (walletSnap.val().balance || 0) : 0;
+          await set(walletRef, {
+            balance: currentBalance + sellerEarning,
+            currency: "BDT",
+            updatedAt: Date.now()
+          });
+
           await update(ref(db,"orders/"+key), { commissionAdded: true });
-          alert(`কমিশন যোগ হয়েছে: ৳${amount.toFixed(2)} (${rate}%) এবং স্টক আপডেট হয়েছে`);
+          alert(`কমিশন যোগ হয়েছে: ৳${amount.toFixed(2)} (${rate}%), Seller Wallet-এ ৳${sellerEarning.toFixed(2)} যোগ হয়েছে, এবং স্টক আপডেট হয়েছে`);
         }catch(err){
           alert("Error: " + err.message);
         }

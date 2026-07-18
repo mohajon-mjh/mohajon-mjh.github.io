@@ -39,6 +39,7 @@ function checkIfSeller(uid) {
             loadDashboard();
             loadProducts();
             loadOrders();
+            loadWallet();
         } else if (snapshot.exists()) {
             alert('আপনার seller আবেদন এখনো অনুমোদিত হয়নি (status: ' + snapshot.val().status + ')');
             window.location.href = 'index.html';
@@ -195,4 +196,78 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById(target).style.display = 'block';
         });
     });
+});
+
+/* ===================== WALLET + WITHDRAW ===================== */
+function loadWallet() {
+    const walletRef = ref(db, `wallets/${currentSeller.uid}`);
+    onValue(walletRef, (snapshot) => {
+        const balance = snapshot.exists() ? (snapshot.val().balance || 0) : 0;
+        const balanceEl = document.getElementById('wallet-balance');
+        if (balanceEl) balanceEl.textContent = '৳' + balance.toFixed(2);
+        window.currentWalletBalance = balance;
+    });
+
+    const historyRef = query(ref(db, 'withdrawRequests'), orderByChild('userId'), equalTo(currentSeller.uid));
+    onValue(historyRef, (snapshot) => {
+        const historyList = document.getElementById('withdraw-history');
+        if (!historyList) return;
+        historyList.innerHTML = '';
+        const rows = snapshot.val();
+        if (!rows) {
+            historyList.innerHTML = '<p>কোনো Withdraw request নেই।</p>';
+            return;
+        }
+        Object.keys(rows).reverse().forEach(key => {
+            const r = rows[key];
+            const statusColor = { pending: '#f39c12', approved: '#2ecc71', rejected: '#c0392b', paid: '#2ecc71' }[r.status] || '#999';
+            historyList.innerHTML += `
+                <div class="order-item">
+                    <p>৳${r.amount} — <span style="color:${statusColor};font-weight:bold">${r.status}</span></p>
+                    <p style="font-size:12px;color:#888">${new Date(r.createdAt).toLocaleString('bn-BD')}</p>
+                </div>
+            `;
+        });
+    });
+}
+
+function submitWithdraw(e) {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById('withdraw-amount').value);
+    const method = document.getElementById('withdraw-method').value;
+    const account = document.getElementById('withdraw-account').value.trim();
+
+    if (!amount || amount <= 0) {
+        alert('সঠিক পরিমাণ লিখুন।');
+        return;
+    }
+    if (amount > (window.currentWalletBalance || 0)) {
+        alert('আপনার Wallet balance-এর চেয়ে বেশি টাকা তুলতে পারবেন না।');
+        return;
+    }
+    if (!account) {
+        alert('Account Number লিখুন।');
+        return;
+    }
+
+    const newReq = push(ref(db, 'withdrawRequests'));
+    set(newReq, {
+        userId: currentSeller.uid,
+        amount: amount,
+        bankDetails: method + ' - ' + account,
+        status: 'pending',
+        createdAt: Date.now()
+    }).then(() => {
+        alert('✅ Withdraw request জমা হয়েছে। Admin অনুমোদনের অপেক্ষায় আছে।');
+        document.getElementById('withdraw-form').reset();
+    }).catch(err => {
+        alert('❌ Error: ' + err.message);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const withdrawForm = document.getElementById('withdraw-form');
+    if (withdrawForm) {
+        withdrawForm.addEventListener('submit', submitWithdraw);
+    }
 });
