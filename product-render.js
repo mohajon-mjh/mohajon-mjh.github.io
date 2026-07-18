@@ -25,6 +25,7 @@
         const card = document.createElement('div');
         card.className = 'product-card';
         card.setAttribute('data-category', product.categoryId || '');
+        card.style.cursor = 'pointer';
 
         const stock = parseInt(product.stock) || 0;
 
@@ -103,13 +104,27 @@
 
         const wishBtn = card.querySelector('.btn-wishlist');
         if (wishBtn) {
-            wishBtn.addEventListener('click', () => {
+            wishBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 if (typeof toggleWishlist === 'function') {
                     toggleWishlist(product.id, product.title);
                 }
                 wishBtn.classList.toggle('active');
             });
         }
+
+        if (addBtn) {
+            addBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.btn-add-to-cart') || e.target.closest('.btn-wishlist') || e.target.closest('.btn-view-details')) {
+                return;
+            }
+            window.location.href = `product-details.html?id=${product.id}`;
+        });
 
         return card;
     }
