@@ -667,9 +667,11 @@ function loadNotificationBell(){
 
   let pendingOrdersData = [];
   let pendingSellersData = [];
+  let pendingProductsData = [];
+  let pendingWithdrawsData = [];
 
   function renderDropdown(){
-    const total = pendingOrdersData.length + pendingSellersData.length;
+    const total = pendingOrdersData.length + pendingSellersData.length + pendingProductsData.length + pendingWithdrawsData.length;
 
     if(total === 0){
       badge.style.display = "none";
@@ -682,12 +684,20 @@ function loadNotificationBell(){
 
     let html = "";
 
+    pendingProductsData.forEach(p => {
+      html += `<div class="notif-item" data-tab="pending">🆕 নতুন প্রোডাক্ট — ${p.title || 'N/A'}</div>`;
+    });
+
     pendingOrdersData.forEach(o => {
       html += `<div class="notif-item" data-tab="orders">📦 নতুন অর্ডার — ৳${o.total || 0} (${o.key.slice(0,6)})</div>`;
     });
 
     pendingSellersData.forEach(s => {
       html += `<div class="notif-item" data-tab="sellerreq">🏪 নতুন Seller আবেদন — ${s.storeName || 'N/A'}</div>`;
+    });
+
+    pendingWithdrawsData.forEach(w => {
+      html += `<div class="notif-item" data-tab="finance">💳 নতুন Withdraw — ৳${w.amount || 0}</div>`;
     });
 
     dropdown.innerHTML = html;
@@ -719,6 +729,28 @@ function loadNotificationBell(){
       const d = child.val();
       if(d.status === "pending"){
         pendingSellersData.push({ key: child.key, storeName: d.storeName });
+      }
+    });
+    renderDropdown();
+  });
+
+  onValue(ref(db,"products"), (snapshot) => {
+    pendingProductsData = [];
+    snapshot.forEach(child => {
+      const d = child.val();
+      if(d.status === "pending"){
+        pendingProductsData.push({ key: child.key, title: d.title || d.name });
+      }
+    });
+    renderDropdown();
+  });
+
+  onValue(ref(db,"withdrawRequests"), (snapshot) => {
+    pendingWithdrawsData = [];
+    snapshot.forEach(child => {
+      const d = child.val();
+      if(d.status === "pending"){
+        pendingWithdrawsData.push({ key: child.key, amount: d.amount });
       }
     });
     renderDropdown();
