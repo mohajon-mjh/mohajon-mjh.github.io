@@ -732,7 +732,7 @@ function loadAllSellers(){
   const sellersRef = ref(db,"sellers");
 
   onValue(sellersRef,(snapshot)=>{
-    allSellersDiv.innerHTML = "<div class='section-title'><h3>👥 সব Seller (মোট: " + snapshot.size + ")</h3></div>";
+    allSellersDiv.innerHTML = "<div class='section-title'><h3>👥 সব Seller</h3></div>";
 
     let counts = { approved: 0, pending: 0, rejected: 0, suspended: 0 };
     const rows = [];
