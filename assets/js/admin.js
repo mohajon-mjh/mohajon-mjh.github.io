@@ -61,6 +61,7 @@ onAuthStateChanged(auth, (user) => {
   loadFinancePanel();
   loadAllOrdersPanel();
   loadCurrencyPanel();
+  loadBulkUpload();
   loadFlashSale();
   loadTrending();
   loadFlashSaleLabel();
@@ -1170,4 +1171,158 @@ function loadCurrencyPanel(){
       statusEl.textContent = "Error: " + err.message;
     }
   };
+}
+
+/* ===================== BULK PRODUCT UPLOAD ===================== */
+function loadBulkUpload(){
+  const fileInput = document.getElementById("bulk-file-input");
+  const listDiv = document.getElementById("bulk-upload-list");
+  if(!fileInput || !listDiv) return;
+
+  const PRICE_TABLE = {
+    extension_board: 350, power_strip: 450, spike_guard: 550, multi_plug: 250, cube_adapter: 150,
+    ceiling_fan: 2200, exhaust_fan: 900, table_fan: 1500, wall_fan: 1800, pedestal_fan: 2500,
+    fan_capacitor_mk: 80, fan_regulator: 150, fan_hook: 100, fan_box: 60,
+    led_bulb: 120, tube_light: 250, led_tube: 350, panel_light: 450, down_light: 300,
+    flood_light: 800, street_light: 1500, spot_light: 250, emergency_light: 600, night_lamp: 150,
+    batten_holder: 40, angle_holder: 50, pendant_holder: 80, e27_holder: 30, b22_holder: 30,
+    mcb: 150, rccb: 800, rcbo: 1200, mccb: 2000, isolator: 300, changeover_switch: 900,
+    distribution_board: 1200, mcb_box: 200,
+    single_core_wire: 1800, twin_cable: 1500, flexible_cable: 800
+  };
+
+  const CATEGORY_MAP = {
+    extension_board: "electrical_equipment_supplies", power_strip: "electrical_equipment_supplies",
+    spike_guard: "electrical_equipment_supplies", multi_plug: "electrical_equipment_supplies", cube_adapter: "electrical_equipment_supplies",
+    ceiling_fan: "appliances_home_appliances_large_small", exhaust_fan: "appliances_home_appliances_large_small",
+    table_fan: "appliances_home_appliances_large_small", wall_fan: "appliances_home_appliances_large_small", pedestal_fan: "appliances_home_appliances_large_small",
+    fan_capacitor_mk: "electrical_equipment_supplies", fan_regulator: "electrical_equipment_supplies",
+    fan_hook: "electrical_equipment_supplies", fan_box: "electrical_equipment_supplies",
+    led_bulb: "lighting_lamps", tube_light: "lighting_lamps", led_tube: "lighting_lamps", panel_light: "lighting_lamps",
+    down_light: "lighting_lamps", flood_light: "lighting_lamps", street_light: "lighting_lamps",
+    spot_light: "lighting_lamps", emergency_light: "lighting_lamps", night_lamp: "lighting_lamps",
+    batten_holder: "lighting_lamps", angle_holder: "lighting_lamps", pendant_holder: "lighting_lamps",
+    e27_holder: "lighting_lamps", b22_holder: "lighting_lamps",
+    mcb: "electrical_equipment_supplies", rccb: "electrical_equipment_supplies", rcbo: "electrical_equipment_supplies",
+    mccb: "electrical_equipment_supplies", isolator: "electrical_equipment_supplies",
+    changeover_switch: "electrical_equipment_supplies", distribution_board: "electrical_equipment_supplies", mcb_box: "electrical_equipment_supplies",
+    single_core_wire: "electrical_equipment_supplies", twin_cable: "electrical_equipment_supplies", flexible_cable: "electrical_equipment_supplies"
+  };
+
+  const CATEGORY_LABELS = {
+    electrical_equipment_supplies: "Electrical Equipment & Supplies",
+    appliances_home_appliances_large_small: "Appliances (Home Appliances)",
+    lighting_lamps: "Lighting & Lamps"
+  };
+
+  function filenameToTitle(filename){
+    const base = filename.replace(/\.[^/.]+$/, "");
+    return base.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  }
+
+  function filenameToKey(filename){
+    return filename.replace(/\.[^/.]+$/, "");
+  }
+
+  let selectedFiles = [];
+
+  fileInput.addEventListener("change", (e) => {
+    selectedFiles = Array.from(e.target.files);
+    renderBulkList();
+  });
+
+  function renderBulkList(){
+    listDiv.innerHTML = "";
+    if(selectedFiles.length === 0) return;
+
+    listDiv.innerHTML = `<div class="section-title"><h3>${selectedFiles.length}টি প্রোডাক্ট প্রস্তুত</h3></div>`;
+
+    const uploadBtn = document.createElement("button");
+    uploadBtn.textContent = `✅ Upload All (${selectedFiles.length})`;
+    uploadBtn.className = "save-btn";
+    uploadBtn.style.marginBottom = "15px";
+    listDiv.appendChild(uploadBtn);
+
+    const itemsContainer = document.createElement("div");
+    listDiv.appendChild(itemsContainer);
+
+    selectedFiles.forEach((file, idx) => {
+      const key = filenameToKey(file.name);
+      const title = filenameToTitle(file.name);
+      const categoryId = CATEGORY_MAP[key] || "";
+      const price = PRICE_TABLE[key] || 100;
+
+      const div = document.createElement("div");
+      div.className = "card";
+      div.dataset.index = idx;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = div.querySelector(".bulk-preview-img");
+        if(img) img.src = e.target.result;
+        div.dataset.imageData = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      div.innerHTML = `
+        <img class="bulk-preview-img" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px" src="">
+        <label>নাম <input type="text" class="bulk-title" value="${title}"></label>
+        <label>দাম (৳) <input type="number" class="bulk-price" value="${price}"></label>
+        <label>স্টক <input type="number" class="bulk-stock" value="20"></label>
+        <label>ক্যাটাগরি
+          <select class="bulk-category">
+            <option value="electrical_equipment_supplies" ${categoryId==='electrical_equipment_supplies'?'selected':''}>Electrical Equipment & Supplies</option>
+            <option value="appliances_home_appliances_large_small" ${categoryId==='appliances_home_appliances_large_small'?'selected':''}>Appliances (Home Appliances)</option>
+            <option value="lighting_lamps" ${categoryId==='lighting_lamps'?'selected':''}>Lighting & Lamps</option>
+            <option value="home_kitchen" ${categoryId==='home_kitchen'?'selected':''}>Home & Kitchen</option>
+          </select>
+        </label>
+        <div style="clear:both"></div>
+      `;
+
+      itemsContainer.appendChild(div);
+    });
+
+    uploadBtn.onclick = async () => {
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = "আপলোড হচ্ছে...";
+
+      const cards = itemsContainer.querySelectorAll(".card");
+      let successCount = 0;
+
+      for(const card of cards){
+        try{
+          const title = card.querySelector(".bulk-title").value.trim();
+          const price = parseFloat(card.querySelector(".bulk-price").value) || 0;
+          const stock = parseInt(card.querySelector(".bulk-stock").value) || 0;
+          const categoryId = card.querySelector(".bulk-category").value;
+          const imageData = card.dataset.imageData;
+
+          if(!title || !imageData) continue;
+
+          const productData = {
+            title: title,
+            price: price,
+            stock: stock,
+            categoryId: categoryId,
+            sellerId: currentAdminUid,
+            status: "active",
+            createdAt: Date.now(),
+            images: { main: imageData }
+          };
+
+          const newRef = push(ref(db, "products"));
+          await set(newRef, productData);
+          successCount++;
+        }catch(err){
+          console.error("Bulk upload error:", err);
+        }
+      }
+
+      uploadBtn.textContent = `✅ সম্পন্ন (${successCount}/${cards.length})`;
+      alert(`✅ ${successCount}টি প্রোডাক্ট সফলভাবে আপলোড হয়েছে!`);
+      selectedFiles = [];
+      fileInput.value = "";
+    };
+  }
 }

@@ -122,6 +122,7 @@ h2{margin-top:0}
     <button class="tab-btn" data-tab="finance">💰 Finance</button>
     <button class="tab-btn" data-tab="allorders">📦 All Orders</button>
     <button class="tab-btn" data-tab="currency">🌍 Currency</button>
+    <button class="tab-btn" data-tab="bulkupload">📤 Bulk Upload</button>
     <button id="admin-logout-btn" style="background:#c0392b;color:#fff;width:100%;text-align:left;padding:12px 15px;border:none;margin-top:20px;border-radius:0;cursor:pointer;font-weight:bold">🚪 Logout</button>
   </nav>
 
@@ -176,6 +177,15 @@ h2{margin-top:0}
       </div>
       <input type="text" id="flashsale-search" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন...">
       <div id="flash-sale-manager"></div>
+    </section>
+
+    <section id="tab-bulkupload" class="tab-section">
+      <div class="card">
+        <h3>📤 Bulk Product Upload</h3>
+        <p style="font-size:13px;color:#aaa">একসাথে অনেক প্রোডাক্টের ছবি সিলেক্ট করুন, প্রতিটার জন্য নাম/ক্যাটাগরি/দাম অটো বসবে, প্রয়োজনে এডিট করুন, তারপর Upload All চাপুন।</p>
+        <input type="file" id="bulk-file-input" accept="image/*" multiple>
+      </div>
+      <div id="bulk-upload-list"></div>
     </section>
 
     <section id="tab-currency" class="tab-section">
