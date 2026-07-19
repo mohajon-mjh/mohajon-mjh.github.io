@@ -60,6 +60,7 @@ onAuthStateChanged(auth, (user) => {
   loadAllSellers();
   loadFinancePanel();
   loadAllOrdersPanel();
+  loadCurrencyPanel();
   loadFlashSale();
   loadTrending();
   loadFlashSaleLabel();
@@ -1060,4 +1061,66 @@ function loadAllOrdersPanel(){
     allOrdersData.reverse();
     renderOrders();
   });
+}
+
+/* ===================== CURRENCY RATE MANAGEMENT ===================== */
+function loadCurrencyPanel(){
+  const panel = document.getElementById("currency-panel");
+  if(!panel) return;
+
+  const CURRENCIES = [
+    { code: "USD", label: "US Dollar ($)" },
+    { code: "SAR", label: "Saudi Riyal (﷼)" },
+    { code: "MYR", label: "Malaysian Ringgit (RM)" }
+  ];
+
+  panel.innerHTML = `
+    <div class="section-title"><h3>🌍 Currency Exchange Rate</h3></div>
+    <div class="card">
+      <p style="font-size:13px;color:#aaa">সব প্রোডাক্টের দাম ৳ BDT-তে সেভ থাকে। এখানে ১ ইউনিট বিদেশি মুদ্রা = কত টাকা (BDT) সেট করুন। ক্রেতারা navbar থেকে মুদ্রা বেছে নিলে দাম স্বয়ংক্রিয়ভাবে কনভার্ট হয়ে দেখাবে।</p>
+      <div id="currency-rate-fields"></div>
+      <button id="currency-save-btn" class="save-btn">Save Rates</button>
+      <span id="currency-save-status" style="margin-left:10px;font-size:13px;color:#8f8"></span>
+    </div>
+  `;
+
+  const fieldsDiv = document.getElementById("currency-rate-fields");
+  fieldsDiv.innerHTML = CURRENCIES.map(c => `
+    <label>${c.label} — ১ ${c.code} = কত টাকা (৳)?
+      <input type="number" step="0.01" class="currency-rate-input" data-code="${c.code}" value="0">
+    </label>
+  `).join("");
+
+  get(ref(db, "settings/currencyRates")).then(snap => {
+    if(snap.exists()){
+      const rates = snap.val();
+      CURRENCIES.forEach(c => {
+        const input = fieldsDiv.querySelector(`[data-code="${c.code}"]`);
+        if(input && rates[c.code]) input.value = rates[c.code];
+      });
+    } else {
+      const defaults = { USD: 110, SAR: 29.3, MYR: 23.5 };
+      CURRENCIES.forEach(c => {
+        const input = fieldsDiv.querySelector(`[data-code="${c.code}"]`);
+        if(input) input.value = defaults[c.code];
+      });
+    }
+  });
+
+  document.getElementById("currency-save-btn").onclick = async () => {
+    const rates = {};
+    fieldsDiv.querySelectorAll(".currency-rate-input").forEach(input => {
+      rates[input.dataset.code] = parseFloat(input.value) || 0;
+    });
+
+    const statusEl = document.getElementById("currency-save-status");
+    try{
+      await set(ref(db, "settings/currencyRates"), rates);
+      statusEl.textContent = "✅ সেভ হয়েছে " + new Date().toLocaleTimeString();
+      setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+    }catch(err){
+      statusEl.style.color = "#f88";
+      statusEl.textContent = "Error: " + err.message;
+    }
+  };
 }

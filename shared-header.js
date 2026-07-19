@@ -17,7 +17,14 @@
     return `
     <div class="topbar">
       <div>🌐 EN | العربية | বাংলা</div>
-      <div>💲 USD | SAR | BDT</div>
+      <div>
+        <select id="currencySelector" style="background:transparent;color:inherit;border:1px solid rgba(255,255,255,0.4);border-radius:4px;font-size:12px;padding:2px 4px;cursor:pointer">
+          <option value="BDT">৳ BDT</option>
+          <option value="USD">$ USD</option>
+          <option value="SAR">﷼ SAR</option>
+          <option value="MYR">RM MYR</option>
+        </select>
+      </div>
       <div>Help Center | Track Order</div>
     </div>
     <header class="market-header">
@@ -86,6 +93,17 @@
       });
       window.addEventListener("scroll", function(){
         homeMenu.classList.remove("active");
+      });
+    }
+
+    const currencySel = document.getElementById("currencySelector");
+    if(currencySel){
+      const saved = localStorage.getItem("selectedCurrency") || "BDT";
+      currencySel.value = saved;
+      currencySel.addEventListener("change", () => {
+        localStorage.setItem("selectedCurrency", currencySel.value);
+        document.dispatchEvent(new CustomEvent("currencyChanged", { detail: { currency: currencySel.value } }));
+        location.reload();
       });
     }
 
