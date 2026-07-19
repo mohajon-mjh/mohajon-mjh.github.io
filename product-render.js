@@ -21,6 +21,13 @@
         return list.some(i => i.id === id);
     }
 
+    function fmtPrice(bdtPrice) {
+        if (window.MJHCurrency && typeof window.MJHCurrency.formatPrice === 'function') {
+            return window.MJHCurrency.formatPrice(bdtPrice);
+        }
+        return '৳' + (parseFloat(bdtPrice) || 0).toFixed(2);
+    }
+
     function createProductCard(product) {
         const card = document.createElement('div');
         card.className = 'product-card';
@@ -69,9 +76,9 @@
                     ${product.categoryId || "Uncategorized"}
                 </div>
                 <div class="product-card-price">
-                    <span class="current-price">৳${price.toFixed(2)}</span>
+                    <span class="current-price">${fmtPrice(price)}</span>
                     ${oldPrice > price
-                        ? `<span class="old-price">৳${oldPrice.toFixed(2)}</span>`
+                        ? `<span class="old-price">${fmtPrice(oldPrice)}</span>`
                         : ""}
                 </div>
                 ${product.weight
