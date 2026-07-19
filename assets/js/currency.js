@@ -61,14 +61,14 @@ function formatPrice(priceBDT){
   const code = getSelectedCurrency();
   const rate = currentRates[code] || 1;
   const info = CURRENCY_INFO[code] || CURRENCY_INFO.BDT;
-  const converted = (parseFloat(priceBDT) || 0) / (currentRates.BDT || 1) * rate;
+  const converted = code === "BDT" ? (parseFloat(priceBDT) || 0) : (parseFloat(priceBDT) || 0) / rate;
   return `${info.symbol}${converted.toFixed(2)}`;
 }
 
 function convertPrice(priceBDT){
   const code = getSelectedCurrency();
   const rate = currentRates[code] || 1;
-  return (parseFloat(priceBDT) || 0) / (currentRates.BDT || 1) * rate;
+  return code === "BDT" ? (parseFloat(priceBDT) || 0) : (parseFloat(priceBDT) || 0) / rate;
 }
 
 window.MJHCurrency = {
