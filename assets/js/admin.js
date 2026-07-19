@@ -1070,8 +1070,55 @@ function loadCurrencyPanel(){
 
   const CURRENCIES = [
     { code: "USD", label: "US Dollar ($)" },
+    { code: "EUR", label: "Euro (€)" },
+    { code: "GBP", label: "British Pound (£)" },
     { code: "SAR", label: "Saudi Riyal (﷼)" },
-    { code: "MYR", label: "Malaysian Ringgit (RM)" }
+    { code: "AED", label: "UAE Dirham (د.إ)" },
+    { code: "QAR", label: "Qatari Riyal (﷼)" },
+    { code: "KWD", label: "Kuwaiti Dinar (د.ك)" },
+    { code: "BHD", label: "Bahraini Dinar (.د.ب)" },
+    { code: "OMR", label: "Omani Rial (﷼)" },
+    { code: "MYR", label: "Malaysian Ringgit (RM)" },
+    { code: "SGD", label: "Singapore Dollar (S$)" },
+    { code: "INR", label: "Indian Rupee (₹)" },
+    { code: "PKR", label: "Pakistani Rupee (₨)" },
+    { code: "NPR", label: "Nepalese Rupee (₨)" },
+    { code: "LKR", label: "Sri Lankan Rupee (₨)" },
+    { code: "CNY", label: "Chinese Yuan (¥)" },
+    { code: "JPY", label: "Japanese Yen (¥)" },
+    { code: "KRW", label: "South Korean Won (₩)" },
+    { code: "THB", label: "Thai Baht (฿)" },
+    { code: "IDR", label: "Indonesian Rupiah (Rp)" },
+    { code: "PHP", label: "Philippine Peso (₱)" },
+    { code: "VND", label: "Vietnamese Dong (₫)" },
+    { code: "AUD", label: "Australian Dollar (A$)" },
+    { code: "NZD", label: "New Zealand Dollar (NZ$)" },
+    { code: "CAD", label: "Canadian Dollar (C$)" },
+    { code: "CHF", label: "Swiss Franc (Fr)" },
+    { code: "SEK", label: "Swedish Krona (kr)" },
+    { code: "NOK", label: "Norwegian Krone (kr)" },
+    { code: "DKK", label: "Danish Krone (kr)" },
+    { code: "RUB", label: "Russian Ruble (₽)" },
+    { code: "TRY", label: "Turkish Lira (₺)" },
+    { code: "ZAR", label: "South African Rand (R)" },
+    { code: "EGP", label: "Egyptian Pound (£)" },
+    { code: "NGN", label: "Nigerian Naira (₦)" },
+    { code: "KES", label: "Kenyan Shilling (KSh)" },
+    { code: "BRL", label: "Brazilian Real (R$)" },
+    { code: "MXN", label: "Mexican Peso ($)" },
+    { code: "ARS", label: "Argentine Peso ($)" },
+    { code: "HKD", label: "Hong Kong Dollar (HK$)" },
+    { code: "TWD", label: "Taiwan Dollar (NT$)" },
+    { code: "ILS", label: "Israeli Shekel (₪)" },
+    { code: "JOD", label: "Jordanian Dinar (د.ا)" },
+    { code: "IQD", label: "Iraqi Dinar (ع.د)" },
+    { code: "IRR", label: "Iranian Rial (﷼)" },
+    { code: "AFN", label: "Afghan Afghani (؋)" },
+    { code: "MMK", label: "Myanmar Kyat (K)" },
+    { code: "PLN", label: "Polish Zloty (zł)" },
+    { code: "UAH", label: "Ukrainian Hryvnia (₴)" },
+    { code: "RON", label: "Romanian Leu (lei)" },
+    { code: "MAD", label: "Moroccan Dirham (د.م.)" }
   ];
 
   panel.innerHTML = `
@@ -1099,7 +1146,7 @@ function loadCurrencyPanel(){
         if(input && rates[c.code]) input.value = rates[c.code];
       });
     } else {
-      const defaults = { USD: 110, SAR: 29.3, MYR: 23.5 };
+      const defaults = { USD: 110, EUR: 119, GBP: 139, SAR: 29.3, AED: 30, QAR: 30.2, KWD: 358, BHD: 292, OMR: 286, MYR: 23.5, SGD: 82, INR: 1.32, PKR: 0.39, NPR: 0.83, LKR: 0.37, CNY: 15.3, JPY: 0.75, KRW: 0.081, THB: 3.1, IDR: 0.007, PHP: 1.9, VND: 0.0044, AUD: 71, NZD: 65, CAD: 80, CHF: 125, SEK: 10.4, NOK: 10.2, DKK: 16, RUB: 1.15, TRY: 3.3, ZAR: 6, EGP: 2.25, NGN: 0.068, KES: 0.85, BRL: 19.5, MXN: 5.7, ARS: 0.11, HKD: 14.1, TWD: 3.4, ILS: 30, JOD: 155, IQD: 0.084, IRR: 0.0026, AFN: 1.55, MMK: 0.052, PLN: 27.6, UAH: 2.65, RON: 24, MAD: 11 };
       CURRENCIES.forEach(c => {
         const input = fieldsDiv.querySelector(`[data-code="${c.code}"]`);
         if(input) input.value = defaults[c.code];
