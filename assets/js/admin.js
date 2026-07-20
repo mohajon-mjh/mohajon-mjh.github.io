@@ -243,6 +243,12 @@ function renderAllProducts(filterText){
       <label>ডেলিভারি সময়
         <input type="text" class="edit-delivery-time" value="${(data.deliveryTime||'').replace(/"/g,'&quot;')}" placeholder="যেমন: ৩-৫ কার্যদিবস">
       </label>
+      <label>Rating (0-5, "Top Rated" ট্যাবের জন্য)
+        <input type="number" class="edit-rating" value="${data.rating||0}" min="0" max="5" step="0.1">
+      </label>
+      <label>Sold Count ("Best Sellers" ট্যাবের জন্য)
+        <input type="number" class="edit-soldcount" value="${data.soldCount||0}" min="0">
+      </label>
       <p style="font-size:12px;color:#999">Status: ${data.status} | Seller: ${data.sellerEmail || data.sellerId}</p>
       <button class="save-btn">Save</button>
       <button class="delete-btn">Delete</button>
@@ -256,12 +262,16 @@ function renderAllProducts(filterText){
         const isFree = div.querySelector(".edit-free-delivery").value === "free";
         const deliveryCharge = parseFloat(div.querySelector(".edit-delivery-charge").value) || 0;
         const deliveryTime = div.querySelector(".edit-delivery-time").value.trim();
+        const newRating = parseFloat(div.querySelector(".edit-rating").value) || 0;
+        const newSoldCount = parseInt(div.querySelector(".edit-soldcount").value) || 0;
         const updates = {
           price:newPrice,
           stock:newStock,
           isFreeDelivery: isFree,
           deliveryCharge: isFree ? 0 : deliveryCharge,
           deliveryTime: deliveryTime,
+          rating: newRating,
+          soldCount: newSoldCount,
           updatedAt: Date.now()
         };
         if(data.title !== undefined) updates.title = newName;
