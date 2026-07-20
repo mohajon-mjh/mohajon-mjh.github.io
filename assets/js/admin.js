@@ -35,6 +35,25 @@ const searchInput = document.getElementById("product-search");
 let currentAdminUid = null;
 let allProductsCache = {}; // key -> data, used for search filtering
 
+function adminFmt(bdtAmount){
+  if(window.MJHCurrency && typeof window.MJHCurrency.formatPrice === 'function'){
+    return window.MJHCurrency.formatPrice(bdtAmount);
+  }
+  return "৳" + (parseFloat(bdtAmount) || 0).toFixed(2);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const sel = document.getElementById("adminCurrencySelector");
+  if(sel){
+    const saved = localStorage.getItem("selectedCurrency") || "BDT";
+    sel.value = saved;
+    sel.addEventListener("change", () => {
+      localStorage.setItem("selectedCurrency", sel.value);
+      location.reload();
+    });
+  }
+});
+
 onAuthStateChanged(auth, (user) => {
   if(!user){
     alert("Login required");
@@ -90,7 +109,7 @@ function loadOrderStats(){
 
     totalEl.textContent = Object.keys(orders).length;
     pendingEl.textContent = pending;
-    if(revenueEl) revenueEl.textContent = "৳" + revenue.toFixed(2);
+    if(revenueEl) revenueEl.textContent = adminFmt(revenue);
   });
 }
 
@@ -565,7 +584,7 @@ function loadDeliveredOrders(){
       div.innerHTML=`
         <h3>Order #${key.slice(0,8)}</h3>
         <p>Seller ID: ${data.sellerId}</p>
-        <p>Total: ৳${data.total}</p>
+        <p>Total: ${adminFmt(data.total)}</p>
         <button class="add-commission">Confirm & Add Commission</button>
       `;
 
@@ -865,9 +884,9 @@ function loadFinancePanel(){
     panel.innerHTML = `
       <div class="card">
         <h3>📊 আর্থিক সারাংশ</h3>
-        <p>মোট Revenue (Delivered): <b>৳${totalRevenue.toFixed(2)}</b></p>
-        <p>মোট Commission আয় (Admin): <b>৳${totalCommission.toFixed(2)}</b></p>
-        <p>Seller-দের মোট Wallet ব্যালেন্স: <b>৳${totalWalletBalance.toFixed(2)}</b></p>
+        <p>মোট Revenue (Delivered): <b>${adminFmt(totalRevenue)}</b></p>
+        <p>মোট Commission আয় (Admin): <b>${adminFmt(totalCommission)}</b></p>
+        <p>Seller-দের মোট Wallet ব্যালেন্স: <b>${adminFmt(totalWalletBalance)}</b></p>
       </div>
       <div class="section-title"><h3>💳 Withdraw Requests</h3></div>
     `;
@@ -890,7 +909,7 @@ function loadFinancePanel(){
 
       div.innerHTML = `
         <p>Seller UID: ${data.userId}</p>
-        <p>পরিমাণ: <b>৳${data.amount}</b></p>
+        <p>পরিমাণ: <b>${adminFmt(data.amount)}</b></p>
         <p>মাধ্যম: ${data.bankDetails || '-'}</p>
         <p>Status: <span style="color:${statusColor};font-weight:bold">${data.status}</span></p>
         <p style="font-size:12px;color:#999">${new Date(data.createdAt).toLocaleString('bn-BD')}</p>
@@ -1030,7 +1049,7 @@ function loadAllOrdersPanel(){
         <h3>Order #${key.slice(0,8)}</h3>
         <p>ক্রেতা: ${addr.name || 'N/A'} | ফোন: ${addr.phone || '-'}</p>
         <p>ঠিকানা: ${addr.address || '-'} (${addr.area || '-'})</p>
-        <p>Total: ৳${data.total}</p>
+        <p>Total: ${adminFmt(data.total)}</p>
         <p>Payment: ${data.paymentId || '-'}</p>
         <p>Status: <span style="color:${statusColor};font-weight:bold">${data.status}</span></p>
         <p style="font-size:12px;color:#999">${new Date(data.createdAt).toLocaleString('bn-BD')}</p>

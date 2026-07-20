@@ -106,6 +106,19 @@ h2{margin-top:0}
 <div class="admin-wrap">
   <nav class="admin-tabs">
     <h2>🔥 Admin Panel</h2>
+    <select id="adminCurrencySelector" style="width:90%;margin:8px 15px;padding:6px;border-radius:6px;background:#222;color:#fff;border:1px solid #444">
+      <option value="BDT">৳ BDT</option>
+      <option value="USD">$ USD</option>
+      <option value="EUR">€ EUR</option>
+      <option value="GBP">£ GBP</option>
+      <option value="SAR">﷼ SAR</option>
+      <option value="AED">د.إ AED</option>
+      <option value="INR">₹ INR</option>
+      <option value="PKR">₨ PKR</option>
+      <option value="CNY">¥ CNY</option>
+      <option value="NPR">₨ NPR</option>
+      <option value="MYR">RM MYR</option>
+    </select>
     <div class="notif-bell-wrap" id="notifBell">🔔<span class="notif-badge" id="notifBadge" style="display:none">0</span><div class="notif-dropdown" id="notifDropdown"><div class="notif-empty">লোড হচ্ছে...</div></div></div>
     <button class="tab-btn active" data-tab="overview">📊 Overview</button>
     <a href="become-seller.html" style="display:block;color:#ccc;padding:12px 15px;text-decoration:none;border-left:3px solid transparent">🏪 Become a Seller</a>
@@ -235,6 +248,7 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
     }
   });
 </script>
+<script type="module" src="assets/js/currency.js"></script>
 <script type="module" src="assets/js/admin.js"></script>
 <script src="js/global-menu.js?v=2"></script>
 </body>
