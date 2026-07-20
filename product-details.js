@@ -105,8 +105,8 @@ function renderProduct(product){
         ${stockHtml}
 
         <div class="pd-price-row">
-          <span class="pd-price">৳${price.toFixed(2)}</span>
-          ${oldPrice > price ? `<span class="pd-old-price">৳${oldPrice.toFixed(2)}</span>` : ""}
+          <span class="pd-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(price) : '৳'+price.toFixed(2)}</span>
+          ${oldPrice > price ? `<span class="pd-old-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(oldPrice) : '৳'+oldPrice.toFixed(2)}</span>` : ""}
           ${discount > 0 ? `<span class="pd-discount">-${discount}%</span>` : ""}
         </div>
 
