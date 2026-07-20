@@ -249,6 +249,7 @@ function renderAllProducts(filterText){
       <label>Sold Count ("Best Sellers" ট্যাবের জন্য)
         <input type="number" class="edit-soldcount" value="${data.soldCount||0}" min="0">
       </label>
+      <label><input type="checkbox" class="edit-recommended" ${data.isRecommended ? "checked" : ""}> ⭐ Recommended (Deals of the Day - Recommended ট্যাবে দেখাবে)</label>
       <p style="font-size:12px;color:#999">Status: ${data.status} | Seller: ${data.sellerEmail || data.sellerId}</p>
       <button class="save-btn">Save</button>
       <button class="delete-btn">Delete</button>
@@ -264,6 +265,7 @@ function renderAllProducts(filterText){
         const deliveryTime = div.querySelector(".edit-delivery-time").value.trim();
         const newRating = parseFloat(div.querySelector(".edit-rating").value) || 0;
         const newSoldCount = parseInt(div.querySelector(".edit-soldcount").value) || 0;
+        const newRecommended = div.querySelector(".edit-recommended").checked;
         const updates = {
           price:newPrice,
           stock:newStock,
@@ -272,6 +274,7 @@ function renderAllProducts(filterText){
           deliveryTime: deliveryTime,
           rating: newRating,
           soldCount: newSoldCount,
+          isRecommended: newRecommended,
           updatedAt: Date.now()
         };
         if(data.title !== undefined) updates.title = newName;

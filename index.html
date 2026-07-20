@@ -1112,7 +1112,7 @@ function renderDealsTab(tab){
   } else if(tab === "toprated"){
     list.sort((a,b) => (b.data.rating||0) - (a.data.rating||0));
   } else if(tab === "recommended"){
-    list = list.filter(p => p.data.isTrending || p.data.isFlashSale);
+    list = list.filter(p => p.data.isRecommended || p.data.isTrending || p.data.isFlashSale);
     for(let i = list.length - 1; i > 0; i--){
       const j = Math.floor(Math.random() * (i+1));
       [list[i], list[j]] = [list[j], list[i]];
