@@ -1208,10 +1208,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-document.querySelector(".menu-btn").onclick = function(){
-  const nav=document.querySelector("nav");
-  nav.style.display=(nav.style.display==="block")?"none":"block";
-};
+try{
+  const menuBtnEl = document.getElementById("menuBtn");
+  const navEl = document.getElementById("sideMenu");
+  if(menuBtnEl && navEl){
+    menuBtnEl.onclick = function(){
+      navEl.style.display=(navEl.style.display==="block")?"none":"block";
+    };
+  }
+}catch(e){ console.error("menu btn setup failed:", e); }
 
 document.querySelectorAll(".cat")[0].onclick=()=>location.href="products.html?category=মসলা";
 document.querySelectorAll(".cat")[1].onclick=()=>location.href="products.html?category=গ্রোসারি";
