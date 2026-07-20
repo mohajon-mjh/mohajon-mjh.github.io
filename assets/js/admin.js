@@ -1220,7 +1220,16 @@ function loadBulkUpload(){
     batten_holder: 40, angle_holder: 50, pendant_holder: 80, e27_holder: 30, b22_holder: 30,
     mcb: 150, rccb: 800, rcbo: 1200, mccb: 2000, isolator: 300, changeover_switch: 900,
     distribution_board: 1200, mcb_box: 200,
-    single_core_wire: 1800, twin_cable: 1500, flexible_cable: 800
+    single_core_wire: 1800, twin_cable: 1500, flexible_cable: 800,
+    armoured_cable: 2500, lan_cable: 1500, telephone_cable: 800, coaxial_cable: 700,
+    pvc_conduit_pipe: 150, pvc_bend: 25, junction_box: 40, inspection_box: 60, saddle_clip: 50, coupler: 15,
+    cable_tie_100mm: 50, cable_tie_150mm: 60, cable_tie_200mm: 70, cable_tie_250mm: 80, cable_tie_300mm: 90,
+    cable_clip: 30, cable_gland: 40,
+    indicator_lamp: 60, neon_tester: 40, line_tester: 50, digital_multimeter: 900, voltage_tester: 300,
+    connector_strip: 50, terminal_block: 30, wire_connector: 20, lug_terminal: 15, ferrule: 10,
+    pvc_insulation_tape: 25, heat_shrink_tube: 60, double_sided_tape: 50,
+    door_bell: 350, bell_transformer: 250, timer_switch: 450, motion_sensor: 550, photo_cell_sensor: 400,
+    relay: 200, contactor: 800, push_button: 60, selector_switch: 150, industrial_socket: 350
   };
 
   const CATEGORY_MAP = {
@@ -1238,7 +1247,16 @@ function loadBulkUpload(){
     mcb: "electrical_equipment_supplies", rccb: "electrical_equipment_supplies", rcbo: "electrical_equipment_supplies",
     mccb: "electrical_equipment_supplies", isolator: "electrical_equipment_supplies",
     changeover_switch: "electrical_equipment_supplies", distribution_board: "electrical_equipment_supplies", mcb_box: "electrical_equipment_supplies",
-    single_core_wire: "electrical_equipment_supplies", twin_cable: "electrical_equipment_supplies", flexible_cable: "electrical_equipment_supplies"
+    single_core_wire: "electrical_equipment_supplies", twin_cable: "electrical_equipment_supplies", flexible_cable: "electrical_equipment_supplies",
+    armoured_cable: "electrical_equipment_supplies", lan_cable: "electrical_equipment_supplies", telephone_cable: "electrical_equipment_supplies", coaxial_cable: "electrical_equipment_supplies",
+    pvc_conduit_pipe: "electrical_equipment_supplies", pvc_bend: "electrical_equipment_supplies", junction_box: "electrical_equipment_supplies", inspection_box: "electrical_equipment_supplies", saddle_clip: "electrical_equipment_supplies", coupler: "electrical_equipment_supplies",
+    cable_tie_100mm: "electrical_equipment_supplies", cable_tie_150mm: "electrical_equipment_supplies", cable_tie_200mm: "electrical_equipment_supplies", cable_tie_250mm: "electrical_equipment_supplies", cable_tie_300mm: "electrical_equipment_supplies",
+    cable_clip: "electrical_equipment_supplies", cable_gland: "electrical_equipment_supplies",
+    indicator_lamp: "electrical_equipment_supplies", neon_tester: "electrical_equipment_supplies", line_tester: "electrical_equipment_supplies", digital_multimeter: "electrical_equipment_supplies", voltage_tester: "electrical_equipment_supplies",
+    connector_strip: "electrical_equipment_supplies", terminal_block: "electrical_equipment_supplies", wire_connector: "electrical_equipment_supplies", lug_terminal: "electrical_equipment_supplies", ferrule: "electrical_equipment_supplies",
+    pvc_insulation_tape: "electrical_equipment_supplies", heat_shrink_tube: "electrical_equipment_supplies", double_sided_tape: "electrical_equipment_supplies",
+    door_bell: "electrical_equipment_supplies", bell_transformer: "electrical_equipment_supplies", timer_switch: "electrical_equipment_supplies", motion_sensor: "electrical_equipment_supplies", photo_cell_sensor: "electrical_equipment_supplies",
+    relay: "electrical_equipment_supplies", contactor: "electrical_equipment_supplies", push_button: "electrical_equipment_supplies", selector_switch: "electrical_equipment_supplies", industrial_socket: "electrical_equipment_supplies"
   };
 
   const CATEGORY_LABELS = {
