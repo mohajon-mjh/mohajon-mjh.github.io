@@ -1223,14 +1223,15 @@ document.querySelectorAll(".cat")[1].onclick=()=>location.href="products.html?ca
 document.querySelectorAll(".cat")[2].onclick=()=>location.href="products.html?category=খাদ্য";
 document.querySelectorAll(".cat")[3].onclick=()=>location.href="products.html?category=অন্যান্য";
 
-document.querySelector(".badge").textContent =
-localStorage.getItem("cartCount") || 0;
+const badgeEl = document.getElementById("cartCount");
+if(badgeEl) badgeEl.textContent = localStorage.getItem("cartCount") || 0;
 
 window.addCart = function(id){
   let c=parseInt(localStorage.getItem("cartCount")||0);
   c++;
   localStorage.setItem("cartCount",c);
-  document.querySelector(".badge").textContent=c;
+  const badgeEl2 = document.getElementById("cartCount");
+  if(badgeEl2) badgeEl2.textContent=c;
   alert("Added To Cart");
 };
 
