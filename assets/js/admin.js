@@ -1211,6 +1211,55 @@ function loadBulkUpload(){
   const listDiv = document.getElementById("bulk-upload-list");
   if(!fileInput || !listDiv) return;
 
+  const ALL_CATEGORIES = {
+    agriculture_food_beverage: "Agriculture, Food & Beverage",
+    appliances_home_appliances_large_small: "Appliances (Home Appliances, Large & Small)",
+    art_collectibles_crafts: "Art, Collectibles & Crafts",
+    automotive_vehicle_parts_accessories: "Automotive, Vehicle Parts & Accessories",
+    baby_products_baby_essentials: "Baby Products, Baby Essentials",
+    beauty_personal_care: "Beauty & Personal Care",
+    books_media_music: "Books, Media & Music",
+    business_industrial_machinery: "Business & Industrial, Machinery",
+    cameras_photo: "Cameras & Photo",
+    clothing_fashion_apparel_men_women_kids: "Clothing, Fashion & Apparel (Men, Women, Kids)",
+    computers_tablets_networking: "Computers, Tablets & Networking",
+    construction_building_materials: "Construction & Building Materials",
+    consumer_electronics: "Consumer Electronics",
+    electrical_equipment_supplies: "Electrical Equipment & Supplies",
+    electronics_tv_audio_gaming: "Electronics (TV, Audio, Gaming, etc.)",
+    food_grocery: "Food & Grocery",
+    furniture_home_decor: "Furniture & Home Decor",
+    gardening_outdoor_living: "Gardening & Outdoor Living",
+    gifts_crafts: "Gifts & Crafts",
+    health_medical_supplies: "Health & Medical Supplies",
+    health_wellness: "Health & Wellness",
+    home_kitchen: "Home & Kitchen",
+    home_improvement_tools_hardware: "Home Improvement, Tools & Hardware",
+    industrial_machinery_equipment: "Industrial Machinery & Equipment",
+    jewelry_eyewear_watches: "Jewelry, Eyewear & Watches",
+    lighting_lamps: "Lighting & Lamps",
+    luggage_bags_cases: "Luggage, Bags & Cases",
+    office_school_supplies: "Office & School Supplies",
+    pet_supplies: "Pet Supplies",
+    renewable_energy: "Renewable Energy",
+    safety_security: "Safety & Security",
+    shoes_accessories: "Shoes & Accessories",
+    smart_home_surveillance: "Smart Home & Surveillance",
+    sports_outdoors_fitness: "Sports & Outdoors, Fitness",
+    toys_games_hobbies: "Toys, Games & Hobbies",
+    video_games_consoles: "Video Games & Consoles",
+    vehicles_transportation: "Vehicles & Transportation",
+    air_conditioners_refrigerators_washing_machines: "Air Conditioners, Refrigerators, Washing Machines",
+    mobile_phones_accessories: "Mobile Phones & Accessories",
+    laptops_pcs: "Laptops & PCs",
+    headphones_speakers_audio: "Headphones, Speakers & Audio",
+    makeup_skincare_fragrance: "Makeup, Skincare & Fragrance",
+    furniture_sofas_beds_etc: "Furniture (Sofas, Beds, etc.)",
+    power_tools_hand_tools: "Power Tools & Hand Tools",
+    drones_action_cameras: "Drones & Action Cameras",
+    bicycles_scooters_electric_vehicles: "Bicycles, Scooters & Electric Vehicles"
+  };
+
   const PRICE_TABLE = {
     extension_board: 350, power_strip: 450, spike_guard: 550, multi_plug: 250, cube_adapter: 150,
     ceiling_fan: 2200, exhaust_fan: 900, table_fan: 1500, wall_fan: 1800, pedestal_fan: 2500,
@@ -1229,7 +1278,30 @@ function loadBulkUpload(){
     connector_strip: 50, terminal_block: 30, wire_connector: 20, lug_terminal: 15, ferrule: 10,
     pvc_insulation_tape: 25, heat_shrink_tube: 60, double_sided_tape: 50,
     door_bell: 350, bell_transformer: 250, timer_switch: 450, motion_sensor: 550, photo_cell_sensor: 400,
-    relay: 200, contactor: 800, push_button: 60, selector_switch: 150, industrial_socket: 350
+    relay: 200, contactor: 800, push_button: 60, selector_switch: 150, industrial_socket: 350,
+
+    rice: 65, paddy: 28, wheat: 35, corn: 30, barley: 90, oats: 180, millet: 120, soybeans: 90,
+    lentils: 140, chickpeas: 120, green_gram: 130, black_gram: 140, mustard_seeds: 150,
+    sesame_seeds: 220, sunflower_seeds: 200, groundnuts: 160, potatoes: 30, onions: 60,
+    garlic: 180, ginger: 200, turmeric: 300, fresh_vegetables: 50, fresh_fruits: 100, herbs: 150,
+    tea_leaves: 400, coffee_beans: 900, cotton: 120, jute: 60, sugarcane: 40, tobacco_leaves: 250,
+    animal_feed: 40, organic_fertilizer: 25, compost: 20, bio_fertilizer: 150, seeds: 100, seedlings: 15,
+
+    frozen_foods: 350, meat: 750, chicken: 220, fish: 400, shrimp: 700, eggs: 130, milk: 80,
+    cheese: 600, butter: 500, yogurt: 100, honey: 700, bread: 60, biscuits: 40, cakes: 350,
+    pasta: 120, noodles: 60, rice_flour: 70, wheat_flour: 55, sugar: 130, salt: 40, spices: 250,
+    cooking_oil: 180, ghee: 900, pickles: 150, sauces: 120, jam: 250, jelly: 200, chocolate: 300,
+    candy: 150, snacks: 100, dry_fruits: 900, nuts: 700,
+
+    mineral_water: 20, drinking_water: 60, soft_drinks: 60, juice: 100, fruit_juice: 120,
+    energy_drinks: 100, tea: 400, green_tea: 500, coffee: 600, instant_coffee: 550,
+    milk_drinks: 40, yogurt_drinks: 40, coconut_water: 80, flavored_water: 40, syrup: 250,
+    smoothies: 100, protein_drinks: 350,
+
+    organic_rice: 120, organic_vegetables: 100, organic_fruits: 150, organic_honey: 900,
+    organic_tea: 600, organic_coffee: 1100, organic_spices: 350, herbal_tea: 450,
+    herbal_products: 300, natural_sweeteners: 350, stevia_leaves: 500, jaggery: 150,
+    coconut_sugar: 400, agave_syrup: 800, monk_fruit_sweetener: 1200, xylitol: 900
   };
 
   const CATEGORY_MAP = {
@@ -1256,13 +1328,46 @@ function loadBulkUpload(){
     connector_strip: "electrical_equipment_supplies", terminal_block: "electrical_equipment_supplies", wire_connector: "electrical_equipment_supplies", lug_terminal: "electrical_equipment_supplies", ferrule: "electrical_equipment_supplies",
     pvc_insulation_tape: "electrical_equipment_supplies", heat_shrink_tube: "electrical_equipment_supplies", double_sided_tape: "electrical_equipment_supplies",
     door_bell: "electrical_equipment_supplies", bell_transformer: "electrical_equipment_supplies", timer_switch: "electrical_equipment_supplies", motion_sensor: "electrical_equipment_supplies", photo_cell_sensor: "electrical_equipment_supplies",
-    relay: "electrical_equipment_supplies", contactor: "electrical_equipment_supplies", push_button: "electrical_equipment_supplies", selector_switch: "electrical_equipment_supplies", industrial_socket: "electrical_equipment_supplies"
-  };
+    relay: "electrical_equipment_supplies", contactor: "electrical_equipment_supplies", push_button: "electrical_equipment_supplies", selector_switch: "electrical_equipment_supplies", industrial_socket: "electrical_equipment_supplies",
 
-  const CATEGORY_LABELS = {
-    electrical_equipment_supplies: "Electrical Equipment & Supplies",
-    appliances_home_appliances_large_small: "Appliances (Home Appliances)",
-    lighting_lamps: "Lighting & Lamps"
+    rice: "agriculture_food_beverage", paddy: "agriculture_food_beverage", wheat: "agriculture_food_beverage",
+    corn: "agriculture_food_beverage", barley: "agriculture_food_beverage", oats: "agriculture_food_beverage",
+    millet: "agriculture_food_beverage", soybeans: "agriculture_food_beverage", lentils: "agriculture_food_beverage",
+    chickpeas: "agriculture_food_beverage", green_gram: "agriculture_food_beverage", black_gram: "agriculture_food_beverage",
+    mustard_seeds: "agriculture_food_beverage", sesame_seeds: "agriculture_food_beverage", sunflower_seeds: "agriculture_food_beverage",
+    groundnuts: "agriculture_food_beverage", potatoes: "agriculture_food_beverage", onions: "agriculture_food_beverage",
+    garlic: "agriculture_food_beverage", ginger: "agriculture_food_beverage", turmeric: "agriculture_food_beverage",
+    fresh_vegetables: "agriculture_food_beverage", fresh_fruits: "agriculture_food_beverage", herbs: "agriculture_food_beverage",
+    tea_leaves: "agriculture_food_beverage", coffee_beans: "agriculture_food_beverage", cotton: "agriculture_food_beverage",
+    jute: "agriculture_food_beverage", sugarcane: "agriculture_food_beverage", tobacco_leaves: "agriculture_food_beverage",
+    animal_feed: "agriculture_food_beverage", organic_fertilizer: "agriculture_food_beverage", compost: "agriculture_food_beverage",
+    bio_fertilizer: "agriculture_food_beverage", seeds: "agriculture_food_beverage", seedlings: "agriculture_food_beverage",
+
+    frozen_foods: "agriculture_food_beverage", meat: "agriculture_food_beverage", chicken: "agriculture_food_beverage",
+    fish: "agriculture_food_beverage", shrimp: "agriculture_food_beverage", eggs: "agriculture_food_beverage",
+    milk: "agriculture_food_beverage", cheese: "agriculture_food_beverage", butter: "agriculture_food_beverage",
+    yogurt: "agriculture_food_beverage", honey: "agriculture_food_beverage", bread: "agriculture_food_beverage",
+    biscuits: "agriculture_food_beverage", cakes: "agriculture_food_beverage", pasta: "agriculture_food_beverage",
+    noodles: "agriculture_food_beverage", rice_flour: "agriculture_food_beverage", wheat_flour: "agriculture_food_beverage",
+    sugar: "agriculture_food_beverage", salt: "agriculture_food_beverage", spices: "agriculture_food_beverage",
+    cooking_oil: "agriculture_food_beverage", ghee: "agriculture_food_beverage", pickles: "agriculture_food_beverage",
+    sauces: "agriculture_food_beverage", jam: "agriculture_food_beverage", jelly: "agriculture_food_beverage",
+    chocolate: "agriculture_food_beverage", candy: "agriculture_food_beverage", snacks: "agriculture_food_beverage",
+    dry_fruits: "agriculture_food_beverage", nuts: "agriculture_food_beverage",
+
+    mineral_water: "agriculture_food_beverage", drinking_water: "agriculture_food_beverage", soft_drinks: "agriculture_food_beverage",
+    juice: "agriculture_food_beverage", fruit_juice: "agriculture_food_beverage", energy_drinks: "agriculture_food_beverage",
+    tea: "agriculture_food_beverage", green_tea: "agriculture_food_beverage", coffee: "agriculture_food_beverage",
+    instant_coffee: "agriculture_food_beverage", milk_drinks: "agriculture_food_beverage", yogurt_drinks: "agriculture_food_beverage",
+    coconut_water: "agriculture_food_beverage", flavored_water: "agriculture_food_beverage", syrup: "agriculture_food_beverage",
+    smoothies: "agriculture_food_beverage", protein_drinks: "agriculture_food_beverage",
+
+    organic_rice: "agriculture_food_beverage", organic_vegetables: "agriculture_food_beverage", organic_fruits: "agriculture_food_beverage",
+    organic_honey: "agriculture_food_beverage", organic_tea: "agriculture_food_beverage", organic_coffee: "agriculture_food_beverage",
+    organic_spices: "agriculture_food_beverage", herbal_tea: "agriculture_food_beverage", herbal_products: "agriculture_food_beverage",
+    natural_sweeteners: "agriculture_food_beverage", stevia_leaves: "agriculture_food_beverage", jaggery: "agriculture_food_beverage",
+    coconut_sugar: "agriculture_food_beverage", agave_syrup: "agriculture_food_beverage", monk_fruit_sweetener: "agriculture_food_beverage",
+    xylitol: "agriculture_food_beverage"
   };
 
   function filenameToTitle(filename){
@@ -1296,6 +1401,10 @@ function loadBulkUpload(){
     const itemsContainer = document.createElement("div");
     listDiv.appendChild(itemsContainer);
 
+    const categoryOptionsHTML = (selectedId) => Object.entries(ALL_CATEGORIES).map(
+      ([id, label]) => `<option value="${id}" ${selectedId===id?'selected':''}>${label}</option>`
+    ).join('');
+
     selectedFiles.forEach((file, idx) => {
       const key = filenameToKey(file.name);
       const title = filenameToTitle(file.name);
@@ -1321,10 +1430,7 @@ function loadBulkUpload(){
         <label>স্টক <input type="number" class="bulk-stock" value="20"></label>
         <label>ক্যাটাগরি
           <select class="bulk-category">
-            <option value="electrical_equipment_supplies" ${categoryId==='electrical_equipment_supplies'?'selected':''}>Electrical Equipment & Supplies</option>
-            <option value="appliances_home_appliances_large_small" ${categoryId==='appliances_home_appliances_large_small'?'selected':''}>Appliances (Home Appliances)</option>
-            <option value="lighting_lamps" ${categoryId==='lighting_lamps'?'selected':''}>Lighting & Lamps</option>
-            <option value="home_kitchen" ${categoryId==='home_kitchen'?'selected':''}>Home & Kitchen</option>
+            ${categoryOptionsHTML(categoryId)}
           </select>
         </label>
         <div style="clear:both"></div>
@@ -1370,7 +1476,7 @@ function loadBulkUpload(){
       }
 
       uploadBtn.textContent = `✅ সম্পন্ন (${successCount}/${cards.length})`;
-      alert(`✅ ${successCount}টি প্রোডাক্ট সফলভাবে আপলোড হয়েছে!`);
+      alert(`✅ ${successCount}টি প্রোডাক্ট সফলভাবে আপলোড হয়েছে!`);
       selectedFiles = [];
       fileInput.value = "";
     };
