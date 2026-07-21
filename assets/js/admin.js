@@ -81,6 +81,7 @@ onAuthStateChanged(auth, (user) => {
   loadAllOrdersPanel();
   loadCurrencyPanel();
   loadBulkUpload();
+  loadComingSoon();
   loadFlashSale();
   loadTrending();
   loadFlashSaleLabel();
@@ -1480,5 +1481,151 @@ function loadBulkUpload(){
       selectedFiles = [];
       fileInput.value = "";
     };
+  }
+}
+
+
+/* ===================== COMING SOON (FUTURE PRODUCTS) ===================== */
+function loadComingSoon(){
+  const addBtn = document.getElementById("cs-add-btn");
+  const listDiv = document.getElementById("coming-soon-list");
+  if(!addBtn || !listDiv) return;
+
+  let csSelectedImage = null;
+  const imgInput = document.getElementById("cs-image");
+  if(imgInput){
+    imgInput.addEventListener("change", (e)=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev)=>{ csSelectedImage = ev.target.result; };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  addBtn.addEventListener("click", async ()=>{
+    const title = document.getElementById("cs-title").value.trim();
+    const price = parseFloat(document.getElementById("cs-price").value) || 0;
+    const categoryId = document.getElementById("cs-category").value;
+
+    if(!title){ alert("নাম দিন"); return; }
+    if(!csSelectedImage){ alert("ছবি দিন"); return; }
+
+    addBtn.disabled = true;
+    addBtn.textContent = "যোগ হচ্ছে...";
+
+    try{
+      const newRef = push(ref(db, "futureProducts"));
+      await set(newRef, {
+        title: title,
+        categoryId: categoryId,
+        expectedPrice: price,
+        images: { main: csSelectedImage },
+        createdAt: Date.now(),
+        released: false
+      });
+      document.getElementById("cs-title").value = "";
+      document.getElementById("cs-price").value = "";
+      if(imgInput) imgInput.value = "";
+      csSelectedImage = null;
+      alert("✅ Coming Soon প্রোডাক্ট যোগ হয়েছে");
+      csRenderList();
+    }catch(err){
+      console.error(err);
+      alert("❌ সমস্যা: " + err.message);
+    }finally{
+      addBtn.disabled = false;
+      addBtn.textContent = "➕ যোগ করুন";
+    }
+  });
+
+  csRenderList();
+
+  async function csRenderList(){
+    listDiv.innerHTML = '<p style="color:#888">লোড হচ্ছে...</p>';
+    try{
+      const snap = await get(ref(db, "futureProducts"));
+      const data = snap.val() || {};
+      const entries = Object.entries(data).filter(([id, item]) => !item.released);
+
+      if(entries.length === 0){
+        listDiv.innerHTML = '<p style="color:#888">কোনো Coming Soon প্রোডাক্ট নেই</p>';
+        return;
+      }
+
+      listDiv.innerHTML = "";
+      entries.forEach(([id, item])=>{
+        const div = document.createElement("div");
+        div.className = "card";
+        const img = (item.images && item.images.main) ? item.images.main : "";
+        div.innerHTML = `
+          <img src="${img}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px">
+          <h4>${item.title}</h4>
+          <p>আনুমানিক দাম: ৳${item.expectedPrice}</p>
+          <p>ক্যাটাগরি: ${item.categoryId}</p>
+          <div style="clear:both;margin-top:10px">
+            <label>বাস্তব দাম (৳) <input type="number" class="cs-release-price" value="${item.expectedPrice}" style="width:100px"></label>
+            <label>স্টক <input type="number" class="cs-release-stock" value="20" style="width:80px"></label>
+            <button class="save-btn cs-release-btn">🚀 Release করুন</button>
+            <button class="danger-btn cs-delete-btn">🗑️ Delete</button>
+          </div>
+        `;
+
+        div.querySelector(".cs-release-btn").onclick = async ()=>{
+          if(!confirm(`"${item.title}" এখন Release করবেন?`)) return;
+          const realPrice = parseFloat(div.querySelector(".cs-release-price").value) || item.expectedPrice;
+          const realStock = parseInt(div.querySelector(".cs-release-stock").value) || 0;
+
+          try{
+            const newProductRef = push(ref(db, "products"));
+            await set(newProductRef, {
+              title: item.title,
+              price: realPrice,
+              stock: realStock,
+              categoryId: item.categoryId,
+              sellerId: currentAdminUid,
+              status: "active",
+              createdAt: Date.now(),
+              images: item.images || {}
+            });
+
+            const notifySnap = await get(ref(db, "futureNotify/"+id));
+            const notifyData = notifySnap.val() || {};
+            const uids = Object.keys(notifyData);
+            for(const uid of uids){
+              const notifRef = push(ref(db, "notifications/"+uid));
+              await set(notifRef, {
+                title: "🎉 প্রোডাক্ট এসে গেছে!",
+                message: `আপনার অপেক্ষা করা "${item.title}" এখন কেনার জন্য পাওয়া যাচ্ছে!`,
+                read: false,
+                type: "product_release",
+                createdAt: Date.now()
+              });
+            }
+
+            await remove(ref(db, "futureProducts/"+id));
+            await remove(ref(db, "futureNotify/"+id));
+
+            alert(`✅ Release সফল! ${uids.length} জন ইউজারকে নোটিফাই করা হয়েছে।`);
+            csRenderList();
+          }catch(err){
+            console.error(err);
+            alert("❌ সমস্যা: " + err.message);
+          }
+        };
+
+        div.querySelector(".cs-delete-btn").onclick = async ()=>{
+          if(!confirm(`"${item.title}" ডিলিট করবেন?`)) return;
+          await remove(ref(db, "futureProducts/"+id));
+          await remove(ref(db, "futureNotify/"+id));
+          csRenderList();
+        };
+
+        listDiv.appendChild(div);
+      });
+    }catch(err){
+      console.error(err);
+      listDiv.innerHTML = '<p style="color:red">লোড করতে সমস্যা হয়েছে</p>';
+    }
   }
 }
