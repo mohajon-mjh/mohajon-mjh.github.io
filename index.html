@@ -1241,17 +1241,20 @@ onValue(ref(db,"products"),(snapshot)=>{
   const data=snapshot.val()||{};
   box.innerHTML="";
 
-  Object.values(data)
+  Object.entries(data)
+    .filter(([id, p]) => p.status === "active")
     .slice(-8)
     .reverse()
-    .forEach(p=>{
+    .forEach(([id, p])=>{
+      const imgUrl = (p.images && p.images.main && p.images.main.trim() !== "") ? p.images.main : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+      const priceDisplay = window.MJHCurrency ? window.MJHCurrency.formatPrice(p.price||0) : "৳"+(p.price||0);
       box.innerHTML += `
-      <div class="card">
-        <img src="${p.image}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${p.name}">
-        <h3>${p.name}</h3>
-        <p>${p.weight || ""}</p>
-        <p><b>৳${p.price}</b></p>
-        <button class="buy" onclick="addCart('${p.id}')">Add Cart</button>
+      <div class="card" style="cursor:pointer" onclick="window.location.href='product-details.html?id=${id}'">
+        <img src="${imgUrl}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${p.title || 'Product'}">
+        <h3>${p.title || "Unnamed Product"}</h3>
+        <p>${p.netWeight || ""}</p>
+        <p><b>${priceDisplay}</b></p>
+        <button class="buy" onclick="event.stopPropagation(); addCart('${id}')">Add Cart</button>
       </div>`;
     });
 });
