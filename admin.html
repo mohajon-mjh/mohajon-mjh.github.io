@@ -136,6 +136,7 @@ h2{margin-top:0}
     <button class="tab-btn" data-tab="allorders">📦 All Orders</button>
     <button class="tab-btn" data-tab="currency">🌍 Currency</button>
     <button class="tab-btn" data-tab="bulkupload">📤 Bulk Upload</button>
+    <button class="tab-btn" data-tab="comingsoon">🔮 Coming Soon</button>
     <button id="admin-logout-btn" style="background:#c0392b;color:#fff;width:100%;text-align:left;padding:12px 15px;border:none;margin-top:20px;border-radius:0;cursor:pointer;font-weight:bold">🚪 Logout</button>
   </nav>
 
@@ -190,6 +191,29 @@ h2{margin-top:0}
       </div>
       <input type="text" id="flashsale-search" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন...">
       <div id="flash-sale-manager"></div>
+    </section>
+
+    <section id="tab-comingsoon" class="tab-section">
+      <div class="card">
+        <h3>🔮 নতুন Coming Soon প্রোডাক্ট যোগ করুন</h3>
+        <label>নাম <input type="text" id="cs-title"></label>
+        <label>আনুমানিক দাম (৳) <input type="number" id="cs-price"></label>
+        <label>ক্যাটাগরি
+          <select id="cs-category">
+            <option value="electrical_equipment_supplies">Electrical Equipment & Supplies</option>
+            <option value="consumer_electronics">Consumer Electronics</option>
+            <option value="mobile_phones_accessories">Mobile Phones & Accessories</option>
+            <option value="lighting_lamps">Lighting & Lamps</option>
+            <option value="appliances_home_appliances_large_small">Appliances</option>
+            <option value="home_kitchen">Home & Kitchen</option>
+            <option value="clothing_fashion_apparel_men_women_kids">Clothing & Fashion</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label>ছবি <input type="file" id="cs-image" accept="image/*"></label>
+        <button id="cs-add-btn" class="save-btn">➕ যোগ করুন</button>
+      </div>
+      <div id="coming-soon-list"></div>
     </section>
 
     <section id="tab-bulkupload" class="tab-section">
