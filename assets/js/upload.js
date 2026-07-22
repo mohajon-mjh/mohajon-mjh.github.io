@@ -140,7 +140,7 @@ function isValidProduct(name, price){
   return true;
 }
 
-document.getElementById("product-form").addEventListener("submit",function(e){
+document.getElementById("product-form").addEventListener("submit",async function(e){
 
   e.preventDefault();
 
@@ -172,18 +172,21 @@ document.getElementById("product-form").addEventListener("submit",function(e){
     status:"pending"
   };
 
+  const submitBtn = e.target.querySelector('button[type="submit"]');
   const file=document.getElementById("product-image").files[0];
 
-  if(file){
-    const reader=new FileReader();
-    reader.onload=(e)=>{
-      productData.images={ main: e.target.result };
-      save(productData);
-    };
-    reader.readAsDataURL(file);
-  }else{
-    productData.images={ main: "assets/images/default-product.jpg" };
+  try{
+    if(file){
+      if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = "ছবি আপলোড হচ্ছে..."; }
+      const imageUrl = await uploadToCloudinary(file);
+      productData.images={ main: imageUrl };
+    }else{
+      productData.images={ main: "assets/images/default-product.jpg" };
+    }
     save(productData);
+  }catch(err){
+    alert("ছবি আপলোড সমস্যা: " + err.message);
+    if(submitBtn){ submitBtn.disabled = false; submitBtn.textContent = "Submit"; }
   }
 
 });
