@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Image Migration Tool</title>
+<style>
+body{font-family:sans-serif;background:#111;color:#eee;padding:20px}
+.log{background:#222;padding:10px;border-radius:6px;margin-top:10px;max-height:70vh;overflow-y:auto;font-size:13px}
+.ok{color:#4ade80}
+.err{color:#f87171}
+.info{color:#60a5fa}
+</style>
+</head>
+<body>
+<h2>🔄 Image Migration Tool (base64 → Cloudinary)</h2>
+<p id="status">শুরু হচ্ছে...</p>
+<div class="log" id="log"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDj_LLHWBgKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+const CLOUD_NAME = "fd70754d";
+const UPLOAD_PRESET = "mohajon-mjh";
+
+const logDiv = document.getElementById("log");
+const statusEl = document.getElementById("status");
+
+function log(msg, cls){
+  const p = document.createElement("div");
+  p.textContent = msg;
+  if(cls) p.className = cls;
+  logDiv.appendChild(p);
+  logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+function dataURLtoBlob(dataUrl){
+  const arr = dataUrl.split(",");
+  const mimeMatch = arr[0].match(/:(.*?);/);
+  const mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+  return new Blob([u8arr], {type: mime});
+}
+
+async function uploadToCloudinary(blob){
+  const formData = new FormData();
+  formData.append("file", blob);
+  formData.append("upload_preset", UPLOAD_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+    method: "POST",
+    body: formData
+  });
+  if(!res.ok){
+    const errText = await res.text();
+    throw new Error(errText);
+  }
+  const data = await res.json();
+  return data.secure_url;
+}
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+onAuthStateChanged(auth, async (user) => {
+  if(!user){
+    statusEl.textContent = "❌ আপনি লগইন নেই। আগে admin.html এ লগইন করুন, তারপর এই পেজ খুলুন।";
+    return;
+  }
+
+  statusEl.textContent = "লগইন ঠিক আছে (" + user.email + ")। প্রোডাক্ট লোড হচ্ছে...";
+
+  const snap = await get(ref(db, "products"));
+  if(!snap.exists()){
+    statusEl.textContent = "কোনো প্রোডাক্ট পাওয়া যায়নি।";
+    return;
+  }
+
+  const products = [];
+  snap.forEach(child => {
+    products.push({ id: child.key, data: child.val() });
+  });
+
+  const toMigrate = products.filter(p =>
+    p.data.images && p.data.images.main && p.data.images.main.startsWith("data:")
+  );
+
+  statusEl.textContent = `মোট প্রোডাক্ট: ${products.length}, base64 ছবি সহ: ${toMigrate.length}`;
+  log(`মাইগ্রেশন শুরু হচ্ছে... মোট ${toMigrate.length}টা প্রোডাক্ট`, "info");
+
+  let successCount = 0;
+  let failCount = 0;
+
+  for(let i = 0; i < toMigrate.length; i++){
+    const p = toMigrate[i];
+    try{
+      const blob = dataURLtoBlob(p.data.images.main);
+      const url = await uploadToCloudinary(blob);
+      await update(ref(db, "products/" + p.id), {
+        "images/main": url
+      });
+      successCount++;
+      log(`✅ (${i+1}/${toMigrate.length}) ${p.data.title || p.id} - সফল`, "ok");
+    }catch(err){
+      failCount++;
+      log(`❌ (${i+1}/${toMigrate.length}) ${p.data.title || p.id} - এরর: ${err.message}`, "err");
+    }
+    statusEl.textContent = `চলছে... ${i+1}/${toMigrate.length} (সফল: ${successCount}, ব্যর্থ: ${failCount})`;
+    await sleep(400);
+  }
+
+  statusEl.textContent = `✅ সম্পূর্ণ! সফল: ${successCount}, ব্যর্থ: ${failCount}`;
+  log(`মাইগ্রেশন সম্পূর্ণ হয়েছে।`, "info");
+});
+</script>
+</body>
+</html>
