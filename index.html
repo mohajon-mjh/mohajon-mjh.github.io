@@ -1272,6 +1272,105 @@ onValue(ref(db,"products"),(snapshot)=>{
 });
 </script>
 
+<div class="section" id="comingSoonSection" style="display:none">
+<h2>🔮 Coming Soon</h2>
+<br>
+<div id="comingSoonGrid" class="trending-scroll-wrapper">
+  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, onValue, push, set, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const csFirebaseConfig = {
+  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd",
+  measurementId: "G-RX6CCQZHSH"
+};
+
+const csApp = initializeApp(csFirebaseConfig, "comingSoonApp");
+const csDb = getDatabase(csApp);
+const csAuth = getAuth(csApp);
+
+let csCurrentUid = null;
+onAuthStateChanged(csAuth, (user)=>{
+  if(user){ csCurrentUid = user.uid; }
+});
+
+const csSection = document.getElementById("comingSoonSection");
+const csGrid = document.getElementById("comingSoonGrid");
+
+function csFmtPrice(bdtPrice){
+  if(window.MJHCurrency && typeof window.MJHCurrency.formatPrice === 'function'){
+    return window.MJHCurrency.formatPrice(bdtPrice);
+  }
+  return '৳' + (parseFloat(bdtPrice) || 0).toFixed(0);
+}
+
+async function csNotifyMe(productId, btn){
+  if(!csCurrentUid){
+    try{
+      await signInAnonymously(csAuth);
+    }catch(err){
+      alert("লগইন সমস্যা: " + err.message);
+      return;
+    }
+  }
+  const uid = csAuth.currentUser ? csAuth.currentUser.uid : csCurrentUid;
+  if(!uid){ alert("লগইন দরকার"); return; }
+  try{
+    await set(ref(csDb, "futureNotify/" + productId + "/" + uid), true);
+    btn.textContent = "✅ কন্ফার্ম হয়েছে";
+    btn.disabled = true;
+  }catch(err){
+    alert("সমস্যা: " + err.message);
+  }
+}
+window.csNotifyMe = csNotifyMe;
+
+onValue(ref(csDb, "futureProducts"), (snapshot)=>{
+  const data = snapshot.val() || {};
+  const entries = Object.entries(data).filter(([id, item]) => !item.released);
+
+  if(entries.length === 0){
+    csSection.style.display = "none";
+    return;
+  }
+
+  csSection.style.display = "block";
+  csGrid.innerHTML = "";
+
+  entries.forEach(([id, item])=>{
+    const imgUrl = (item.images && item.images.main) ? item.images.main : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+    const priceDisplay = csFmtPrice(item.expectedPrice || 0);
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div style="position:relative">
+        <img src="${imgUrl}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${item.title || 'Product'}">
+        <span style="position:absolute;top:6px;left:6px;background:#8b5cf6;color:#fff;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px">🔜 Next Coming</span>
+      </div>
+      <h3>${item.title || "Unnamed Product"}</h3>
+      <p><b>${priceDisplay}</b></p>
+      <button class="btn-add-to-cart" disabled style="width:100%;background:#94a3b8;cursor:not-allowed">Add to Cart</button>
+      <button class="btn-buy-now" disabled style="width:100%;background:#fbbf24;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:not-allowed;opacity:0.7">⚡ Buy Now</button>
+      <button class="cs-notify-btn" style="width:100%;background:#2563eb;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer">🔔 Notify Me</button>
+    `;
+    const notifyBtn = card.querySelector(".cs-notify-btn");
+    notifyBtn.addEventListener("click", ()=> csNotifyMe(id, notifyBtn));
+    csGrid.appendChild(card);
+  });
+});
+</script>
+
 <script>
 if('serviceWorker' in navigator){
 window.addEventListener('load',()=>{
