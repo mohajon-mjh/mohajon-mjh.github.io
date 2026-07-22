@@ -33,6 +33,24 @@ const trendingDiv = document.getElementById("trending-manager");
 const searchInput = document.getElementById("product-search");
 
 let currentAdminUid = null;
+
+async function uploadToCloudinaryGlobal(file){
+  const CLOUD_NAME = "fd70754d";
+  const UPLOAD_PRESET = "mohajon-mjh";
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", UPLOAD_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+    method: "POST",
+    body: formData
+  });
+  if(!res.ok){
+    const errText = await res.text();
+    throw new Error("Cloudinary upload failed: " + errText);
+  }
+  const data = await res.json();
+  return data.secure_url;
+}
 let allProductsCache = {}; // key -> data, used for search filtering
 
 function adminFmt(bdtAmount){
@@ -1416,11 +1434,11 @@ function loadBulkUpload(){
       div.className = "card";
       div.dataset.index = idx;
 
+      div.bulkFile = file;
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = div.querySelector(".bulk-preview-img");
         if(img) img.src = e.target.result;
-        div.dataset.imageData = e.target.result;
       };
       reader.readAsDataURL(file);
 
@@ -1453,9 +1471,12 @@ function loadBulkUpload(){
           const price = parseFloat(card.querySelector(".bulk-price").value) || 0;
           const stock = parseInt(card.querySelector(".bulk-stock").value) || 0;
           const categoryId = card.querySelector(".bulk-category").value;
-          const imageData = card.dataset.imageData;
+          const file = card.bulkFile;
 
-          if(!title || !imageData) continue;
+          if(!title || !file) continue;
+
+          uploadBtn.textContent = `ছবি আপলোড হচ্ছে (${successCount+1}/${cards.length})...`;
+          const imageUrl = await uploadToCloudinaryGlobal(file);
 
           const productData = {
             title: title,
@@ -1465,7 +1486,7 @@ function loadBulkUpload(){
             sellerId: currentAdminUid,
             status: "active",
             createdAt: Date.now(),
-            images: { main: imageData }
+            images: { main: imageUrl }
           };
 
           const newRef = push(ref(db, "products"));
