@@ -184,6 +184,18 @@ margin-bottom:10px;
 
 }
 
+.trending-scroll-wrapper .card {
+    flex: 0 0 160px;
+    max-width: 160px;
+    scroll-snap-align: start;
+}
+@media (min-width: 600px) {
+    .trending-scroll-wrapper .card {
+        flex: 0 0 200px;
+        max-width: 200px;
+    }
+}
+
 
 .buy{
 
@@ -1189,7 +1201,7 @@ onValue(ref(dealsDb, "products"), (snapshot) => {
 <h2>Featured Products</h2>
 <br>
 
-<div id="featuredProducts" class="products"></div>
+<div id="featuredProducts" class="trending-scroll-wrapper"></div>
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
