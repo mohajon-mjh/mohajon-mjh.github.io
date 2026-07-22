@@ -1491,16 +1491,30 @@ function loadComingSoon(){
   const listDiv = document.getElementById("coming-soon-list");
   if(!addBtn || !listDiv) return;
 
-  let csSelectedImage = null;
+  let csSelectedFile = null;
   const imgInput = document.getElementById("cs-image");
   if(imgInput){
     imgInput.addEventListener("change", (e)=>{
-      const file = e.target.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev)=>{ csSelectedImage = ev.target.result; };
-      reader.readAsDataURL(file);
+      csSelectedFile = e.target.files[0] || null;
     });
+  }
+
+  async function uploadToCloudinary(file){
+    const CLOUD_NAME = "fd70754d";
+    const UPLOAD_PRESET = "mohajon-mjh";
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+      method: "POST",
+      body: formData
+    });
+    if(!res.ok){
+      const errText = await res.text();
+      throw new Error("Cloudinary upload failed: " + errText);
+    }
+    const data = await res.json();
+    return data.secure_url;
   }
 
   addBtn.addEventListener("click", async ()=>{
@@ -1509,25 +1523,29 @@ function loadComingSoon(){
     const categoryId = document.getElementById("cs-category").value;
 
     if(!title){ alert("নাম দিন"); return; }
-    if(!csSelectedImage){ alert("ছবি দিন"); return; }
+    if(!csSelectedFile){ alert("ছবি দিন"); return; }
 
     addBtn.disabled = true;
-    addBtn.textContent = "যোগ হচ্ছে...";
+    addBtn.textContent = "ছবি আপলোড হচ্ছে...";
 
     try{
+      const imageUrl = await uploadToCloudinary(csSelectedFile);
+
+      addBtn.textContent = "যোগ হচ্ছে...";
+
       const newRef = push(ref(db, "futureProducts"));
       await set(newRef, {
         title: title,
         categoryId: categoryId,
         expectedPrice: price,
-        images: { main: csSelectedImage },
+        images: { main: imageUrl },
         createdAt: Date.now(),
         released: false
       });
       document.getElementById("cs-title").value = "";
       document.getElementById("cs-price").value = "";
       if(imgInput) imgInput.value = "";
-      csSelectedImage = null;
+      csSelectedFile = null;
       alert("✅ Coming Soon প্রোডাক্ট যোগ হয়েছে");
       csRenderList();
     }catch(err){
