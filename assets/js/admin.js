@@ -1460,10 +1460,26 @@ function loadBulkUpload(){
 
     uploadBtn.onclick = async () => {
       uploadBtn.disabled = true;
-      uploadBtn.textContent = "আপলোড হচ্ছে...";
+      uploadBtn.textContent = "চেক করা হচ্ছে...";
+
+      const existingByTitle = {};
+      try{
+        const snap = await get(ref(db, "products"));
+        if(snap.exists()){
+          snap.forEach(child=>{
+            const d = child.val();
+            if(d.sellerId === currentAdminUid && d.title){
+              existingByTitle[d.title.trim().toLowerCase()] = child.key;
+            }
+          });
+        }
+      }catch(err){
+        console.error("Existing products fetch error:", err);
+      }
 
       const cards = itemsContainer.querySelectorAll(".card");
       let successCount = 0;
+      let updatedCount = 0;
 
       for(const card of cards){
         try{
@@ -1478,19 +1494,33 @@ function loadBulkUpload(){
           uploadBtn.textContent = `ছবি আপলোড হচ্ছে (${successCount+1}/${cards.length})...`;
           const imageUrl = await uploadToCloudinaryGlobal(file);
 
-          const productData = {
-            title: title,
-            price: price,
-            stock: stock,
-            categoryId: categoryId,
-            sellerId: currentAdminUid,
-            status: "active",
-            createdAt: Date.now(),
-            images: { main: imageUrl }
-          };
+          const existingKey = existingByTitle[title.toLowerCase()];
 
-          const newRef = push(ref(db, "products"));
-          await set(newRef, productData);
+          if(existingKey){
+            await update(ref(db, "products/"+existingKey), {
+              price: price,
+              stock: stock,
+              categoryId: categoryId,
+              status: "active",
+              images: { main: imageUrl },
+              updatedAt: Date.now()
+            });
+            updatedCount++;
+          }else{
+            const productData = {
+              title: title,
+              price: price,
+              stock: stock,
+              categoryId: categoryId,
+              sellerId: currentAdminUid,
+              status: "active",
+              createdAt: Date.now(),
+              images: { main: imageUrl }
+            };
+
+            const newRef = push(ref(db, "products"));
+            await set(newRef, productData);
+          }
           successCount++;
         }catch(err){
           console.error("Bulk upload error:", err);
@@ -1498,7 +1528,7 @@ function loadBulkUpload(){
       }
 
       uploadBtn.textContent = `✅ সম্পন্ন (${successCount}/${cards.length})`;
-      alert(`✅ ${successCount}টি প্রোডাক্ট সফলভাবে আপলোড হয়েছে!`);
+      alert(`✅ ${successCount}টি প্রোডাক্ট প্রসেস হয়েছে! (${updatedCount}টি আপডেট/replace, ${successCount-updatedCount}টি নতুন)`);
       selectedFiles = [];
       fileInput.value = "";
     };
