@@ -1478,8 +1478,37 @@ function loadBulkUpload(){
     uploadBtn.style.marginBottom = "15px";
     listDiv.appendChild(uploadBtn);
 
+    const bulkCatWrap = document.createElement("div");
+    bulkCatWrap.style.marginBottom = "15px";
+    bulkCatWrap.innerHTML = `
+      <label style="display:block;margin-bottom:5px">🏷️ সব আইটেমের জন্য একসাথে ক্যাটাগরি বসান:
+        <select id="bulk-apply-category-select" style="margin-left:8px;max-width:220px">
+          <option value="">-- ক্যাটাগরি বাছাই করুন --</option>
+        </select>
+        <button id="bulk-apply-category-btn" type="button" class="save-btn" style="margin-left:8px;padding:6px 12px">সবগুলোতে বসাও</button>
+      </label>
+    `;
+    listDiv.appendChild(bulkCatWrap);
+
+    const bulkApplySelect = bulkCatWrap.querySelector("#bulk-apply-category-select");
+    Object.entries(ALL_CATEGORIES).forEach(([id, label])=>{
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = label;
+      bulkApplySelect.appendChild(opt);
+    });
+
     const itemsContainer = document.createElement("div");
     listDiv.appendChild(itemsContainer);
+
+    bulkCatWrap.querySelector("#bulk-apply-category-btn").onclick = () => {
+      const val = bulkApplySelect.value;
+      if(!val){ alert("আগে একটা ক্যাটাগরি বাছাই করুন"); return; }
+      itemsContainer.querySelectorAll(".bulk-category").forEach(sel=>{
+        sel.value = val;
+      });
+      alert(`✅ সব প্রোডাক্টে "${ALL_CATEGORIES[val]}" ক্যাটাগরি বসানো হয়েছে`);
+    };
 
     const categoryOptionsHTML = (selectedId) => Object.entries(ALL_CATEGORIES).map(
       ([id, label]) => `<option value="${id}" ${selectedId===id?'selected':''}>${label}</option>`
