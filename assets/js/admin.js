@@ -1389,6 +1389,67 @@ function loadBulkUpload(){
     xylitol: "agriculture_food_beverage"
   };
 
+  const BULK_CATEGORY_KEYWORDS = {
+    mobile_phones_accessories: ["mobile","phone","smartphone","iphone","samsung galaxy","xiaomi","oppo","vivo","realme","phone case","screen protector","charger cable","power bank"],
+    laptops_pcs: ["laptop","notebook","macbook","desktop pc","computer pc","chromebook"],
+    computers_tablets_networking: ["tablet","ipad","router","wifi","networking","modem","keyboard","mouse","monitor","webcam","ssd","hard drive","ram","motherboard","graphics card","cooling fan","pc case","cpu","processor"],
+    consumer_electronics: ["television","tv","electronics","gadget"],
+    electronics_tv_audio_gaming: ["smart tv","led tv","audio system","home theater"],
+    headphones_speakers_audio: ["headphone","earphone","earbuds","speaker","bluetooth speaker","microphone","audio"],
+    cameras_photo: ["camera","dslr","lens","tripod","photography"],
+    drones_action_cameras: ["drone","action camera","gopro"],
+    air_conditioners_refrigerators_washing_machines: ["ac ","air conditioner","refrigerator","fridge","washing machine","freezer","washer","dryer"],
+    appliances_home_appliances_large_small: ["blender","microwave","oven","toaster","iron","vacuum cleaner","rice cooker","kettle"],
+    beauty_personal_care: ["shampoo","soap","perfume","deodorant","razor","toothbrush"],
+    makeup_skincare_fragrance: ["makeup","lipstick","skincare","cream","serum","foundation","fragrance"],
+    clothing_fashion_apparel_men_women_kids: ["shirt","t-shirt","pant","jeans","dress","saree","panjabi","kurta","jacket","clothing"],
+    shoes_accessories: ["shoe","sandal","sneaker","boot","slipper"],
+    jewelry_eyewear_watches: ["jewelry","necklace","ring","earring","watch","sunglasses","eyewear"],
+    luggage_bags_cases: ["bag","backpack","luggage","suitcase","wallet","purse"],
+    baby_products_baby_essentials: ["baby","diaper","infant","stroller","baby food"],
+    toys_games_hobbies: ["toy","game","puzzle","doll","lego"],
+    video_games_consoles: ["playstation","xbox","nintendo","video game","gaming console","game cartridge"],
+    sports_outdoors_fitness: ["sports","fitness","gym","yoga","cricket","football","exercise"],
+    bicycles_scooters_electric_vehicles: ["bicycle","bike","scooter","electric vehicle","golf cart"],
+    vehicles_transportation: ["car","motorcycle","vehicle","truck"],
+    automotive_vehicle_parts_accessories: ["car parts","engine oil","tire","tyre","car accessories"],
+    home_kitchen: ["kitchen","cookware","utensil","plate","dinner set","pan","pot"],
+    furniture_home_decor: ["furniture","home decor","curtain","carpet","rug","wall art"],
+    furniture_sofas_beds_etc: ["sofa","bed","mattress","chair","table","wardrobe"],
+    lighting_lamps: ["light","lamp","bulb","led","chandelier","fixture","sconce","spotlight","floodlight","lantern"],
+    home_improvement_tools_hardware: ["tool","hardware","screwdriver","drill","hammer","nail"],
+    power_tools_hand_tools: ["power tool","hand tool","wrench","saw"],
+    gardening_outdoor_living: ["garden","plant","pot","outdoor","lawn"],
+    pet_supplies: ["pet","dog food","cat food","aquarium","pet toy"],
+    office_school_supplies: ["pen","pencil","notebook","paper","stapler","office supplies","school bag"],
+    books_media_music: ["book","novel","magazine","cd","dvd","vinyl"],
+    food_grocery: ["food","grocery","rice","spice","snack","beverage","masala","tea","coffee","chili","turmeric","cumin","chicken","meat","biscuit","chocolate"],
+    agriculture_food_beverage: ["agriculture","farming","seed","fertilizer","paddy","wheat","corn","organic"],
+    health_medical_supplies: ["medical","first aid","thermometer","mask","medicine"],
+    health_wellness: ["vitamin","supplement","wellness","health"],
+    safety_security: ["safety","security camera","lock","alarm","cctv"],
+    smart_home_surveillance: ["smart home","surveillance","smart bulb","smart plug"],
+    renewable_energy: ["solar","renewable energy","solar panel"],
+    construction_building_materials: ["cement","brick","construction","building material"],
+    industrial_machinery_equipment: ["industrial","machinery","equipment"],
+    business_industrial_machinery: ["machine","factory equipment"],
+    electrical_equipment_supplies: ["wire","cable","electrical","switch","socket","mcb","fan","holder","connector","circuit","plug"],
+    art_collectibles_crafts: ["art","craft","collectible","painting","handmade"],
+    gifts_crafts: ["gift","craft item"]
+  };
+
+  function detectCategoryFromTitle(title){
+    const nameLower = title.toLowerCase();
+    for(const [categoryId, keywords] of Object.entries(BULK_CATEGORY_KEYWORDS)){
+      for(const kw of keywords){
+        if(nameLower.includes(kw)){
+          return categoryId;
+        }
+      }
+    }
+    return "";
+  }
+
   function filenameToTitle(filename){
     const base = filename.replace(/\.[^/.]+$/, "");
     return base.split(/[_-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
@@ -1427,7 +1488,7 @@ function loadBulkUpload(){
     selectedFiles.forEach((file, idx) => {
       const key = filenameToKey(file.name);
       const title = filenameToTitle(file.name);
-      const categoryId = CATEGORY_MAP[key] || "";
+      const categoryId = CATEGORY_MAP[key] || detectCategoryFromTitle(title) || "";
       const price = PRICE_TABLE[key] || 100;
 
       const div = document.createElement("div");
