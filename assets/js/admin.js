@@ -1543,7 +1543,20 @@ function loadBulkUpload(){
           </select>
         </label>
         <div style="clear:both"></div>
+        <button type="button" class="danger-btn bulk-remove-btn" style="margin-top:8px">🗑️ বাদ দিন</button>
       `;
+
+      div.querySelector(".bulk-remove-btn").onclick = () => {
+        div.remove();
+        selectedFiles = selectedFiles.filter(f => f !== file);
+        const remaining = itemsContainer.querySelectorAll(".card").length;
+        const titleEl = listDiv.querySelector(".section-title h3");
+        if(titleEl) titleEl.textContent = `${remaining}টি প্রোডাক্ট প্রস্তুত`;
+        uploadBtn.textContent = `✅ Upload All (${remaining})`;
+        if(remaining === 0){
+          listDiv.innerHTML = "";
+        }
+      };
 
       itemsContainer.appendChild(div);
     });
