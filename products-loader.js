@@ -9,7 +9,7 @@
 
     function loadProducts() {
         const productsRef = db.ref('products');
-        productsRef.on('value', (snapshot) => {
+        productsRef.once('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 productsCache = Object.keys(data).map(key => ({
