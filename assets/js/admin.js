@@ -1542,7 +1542,9 @@ function loadBulkUpload(){
             ${categoryOptionsHTML(categoryId)}
           </select>
         </label>
+        <label>বিবরণ (ঐচ্ছিক)<textarea class="bulk-desc" rows="2" placeholder="প্রোডাক্টের বিবরণ লিখুন"></textarea></label>
         <div style="clear:both"></div>
+        <button type="button" class="save-btn bulk-save-btn" style="margin-top:8px">✅ Save (এককভাবে)</button>
         <button type="button" class="danger-btn bulk-remove-btn" style="margin-top:8px">🗑️ বাদ দিন</button>
       `;
 
@@ -1555,6 +1557,67 @@ function loadBulkUpload(){
         uploadBtn.textContent = `✅ Upload All (${remaining})`;
         if(remaining === 0){
           listDiv.innerHTML = "";
+        }
+      };
+
+      div.querySelector(".bulk-save-btn").onclick = async () => {
+        const saveBtn = div.querySelector(".bulk-save-btn");
+        const itemTitle = div.querySelector(".bulk-title").value.trim();
+        const itemPrice = parseFloat(div.querySelector(".bulk-price").value) || 0;
+        const itemStock = parseInt(div.querySelector(".bulk-stock").value) || 0;
+        const itemCategoryId = div.querySelector(".bulk-category").value;
+        const itemDesc = div.querySelector(".bulk-desc").value.trim();
+
+        if(!itemTitle){ alert("নাম দিন"); return; }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = "সেভ হচ্ছে...";
+
+        try{
+          const imageUrl = await uploadToCloudinaryGlobal(file);
+
+          const existingSnap = await get(ref(db, "products"));
+          let existingKey = null;
+          if(existingSnap.exists()){
+            existingSnap.forEach(child=>{
+              const d = child.val();
+              if(d.sellerId === currentAdminUid && d.title && d.title.trim().toLowerCase() === itemTitle.toLowerCase()){
+                existingKey = child.key;
+              }
+            });
+          }
+
+          if(existingKey){
+            await update(ref(db, "products/"+existingKey), {
+              price: itemPrice,
+              stock: itemStock,
+              categoryId: itemCategoryId,
+              description: itemDesc,
+              status: "active",
+              images: { main: imageUrl },
+              updatedAt: Date.now()
+            });
+          }else{
+            const newRef = push(ref(db, "products"));
+            await set(newRef, {
+              title: itemTitle,
+              price: itemPrice,
+              stock: itemStock,
+              categoryId: itemCategoryId,
+              description: itemDesc,
+              sellerId: currentAdminUid,
+              status: "active",
+              createdAt: Date.now(),
+              images: { main: imageUrl }
+            });
+          }
+
+          saveBtn.textContent = "✅ সেভ হয়েছে";
+        }catch(err){
+          console.error("Individual save error:", err);
+          alert("❌ সমস্যা: " + err.message);
+          saveBtn.disabled = false;
+          saveBtn.textContent = "✅ Save (এককভাবে)";
         }
       };
 
@@ -1591,6 +1654,7 @@ function loadBulkUpload(){
           const stock = parseInt(card.querySelector(".bulk-stock").value) || 0;
           const categoryId = card.querySelector(".bulk-category").value;
           const file = card.bulkFile;
+          const desc = card.querySelector(".bulk-desc") ? card.querySelector(".bulk-desc").value.trim() : "";
 
           if(!title || !file) continue;
 
@@ -1604,6 +1668,7 @@ function loadBulkUpload(){
               price: price,
               stock: stock,
               categoryId: categoryId,
+              description: desc,
               status: "active",
               images: { main: imageUrl },
               updatedAt: Date.now()
@@ -1615,6 +1680,7 @@ function loadBulkUpload(){
               price: price,
               stock: stock,
               categoryId: categoryId,
+              description: desc,
               sellerId: currentAdminUid,
               status: "active",
               createdAt: Date.now(),
