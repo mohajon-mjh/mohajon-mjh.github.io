@@ -1,6 +1,7 @@
 (function() {
     let allProducts = [];
     let filteredProducts = [];
+    let loadMoreBtn = null;
 
     const grid = document.getElementById('productGrid');
     const searchInput = document.getElementById('searchInput');
@@ -136,31 +137,45 @@
         return card;
     }
 
+    function ensureLoadMoreButton() {
+        if (!grid || loadMoreBtn) return;
+        loadMoreBtn = document.createElement('button');
+        loadMoreBtn.id = 'loadMoreBtn';
+        loadMoreBtn.textContent = 'আরও প্রোডাক্ট দেখুন';
+        loadMoreBtn.className = 'btn-load-more';
+        loadMoreBtn.style.cssText = 'display:block;margin:24px auto;padding:10px 28px;cursor:pointer;border:1px solid #ccc;border-radius:6px;background:#fff;';
+        loadMoreBtn.addEventListener('click', () => {
+            if (window.ProductsLoader && window.ProductsLoader.loadMore) {
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.textContent = 'লোড হচ্ছে...';
+                window.ProductsLoader.loadMore();
+            }
+        });
+        grid.insertAdjacentElement('afterend', loadMoreBtn);
+    }
+
+    function updateLoadMoreButton() {
+        ensureLoadMoreButton();
+        if (!loadMoreBtn) return;
+        const hasMore = window.ProductsLoader && window.ProductsLoader.hasMore && window.ProductsLoader.hasMore();
+        const searchTerm = searchInput ? searchInput.value.trim() : "";
+        if (hasMore && !searchTerm) {
+            loadMoreBtn.style.display = 'block';
+            loadMoreBtn.disabled = false;
+            loadMoreBtn.textContent = 'আরও প্রোডাক্ট দেখুন';
+        } else {
+            loadMoreBtn.style.display = 'none';
+        }
+    }
+
     function applyFilters() {
         const searchTerm = searchInput
             ? searchInput.value.toLowerCase().trim()
             : "";
 
-        const dropdownCategory = categoryFilter
-            ? categoryFilter.value
-            : "all";
-
-        const urlCategory = getCategoryFromURL();
-
-        filteredProducts = allProducts.filter(product => {
-            const matchName = (product.title || "")
-                .toLowerCase()
-                .includes(searchTerm);
-
-            const matchDropdown =
-                dropdownCategory === "all" || product.categoryId === dropdownCategory;
-
-            const matchUrl =
-                !urlCategory || urlCategory === "all" ||
-                (product.categoryId || "").trim() === urlCategory.trim();
-
-            return matchName && matchDropdown && matchUrl;
-        });
+        filteredProducts = allProducts.filter(product =>
+            (product.title || "").toLowerCase().includes(searchTerm)
+        );
 
         if (grid) {
             grid.innerHTML = "";
@@ -173,6 +188,8 @@
             }
         }
 
+        updateLoadMoreButton();
+
         const count = document.getElementById("product-count");
         if (count) {
             count.textContent =
@@ -180,23 +197,41 @@
         }
     }
 
-    function renderProducts(products) {
+    function renderProducts(products, isReset) {
         allProducts = products || [];
 
-        const urlSearch = getSearchFromURL();
-        if (urlSearch && searchInput) {
-            searchInput.value = urlSearch;
+        if (isReset) {
+            const urlSearch = getSearchFromURL();
+            if (urlSearch && searchInput) {
+                searchInput.value = urlSearch;
+            }
+            if (categoryFilter) {
+                categoryFilter.value = getCategoryFromURL() || "all";
+            }
         }
 
         applyFilters();
     }
 
     document.addEventListener("productsLoaded", function(e) {
-        renderProducts(e.detail ? e.detail.products : []);
+        const detail = e.detail || {};
+        renderProducts(detail.products || [], detail.reset !== false);
     });
 
     if (searchInput) searchInput.addEventListener("input", applyFilters);
-    if (categoryFilter) categoryFilter.addEventListener("change", applyFilters);
+
+    if (categoryFilter) {
+        categoryFilter.addEventListener("change", () => {
+            const val = categoryFilter.value;
+            const url = new URL(window.location.href);
+            if (val && val !== "all") {
+                url.searchParams.set("categoryId", val);
+            } else {
+                url.searchParams.delete("categoryId");
+            }
+            window.location.href = url.toString();
+        });
+    }
 
     window.renderProducts = renderProducts;
     window.applyFilters = applyFilters;
