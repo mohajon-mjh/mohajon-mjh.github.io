@@ -1391,7 +1391,7 @@ function loadBulkUpload(){
 
   function filenameToTitle(filename){
     const base = filename.replace(/\.[^/.]+$/, "");
-    return base.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    return base.split(/[_-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   }
 
   function filenameToKey(filename){
