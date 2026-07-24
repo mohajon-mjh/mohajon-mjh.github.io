@@ -106,6 +106,11 @@ placeholder="Email Address">
 Login
 </button>
 
+<button id="googleLoginBtn" type="button" style="margin-top:10px;background:#fff;color:#444;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;gap:8px;">
+  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width:18px;height:18px;">
+  Continue with Google
+</button>
+
 <p style="text-align:center">
 <a href="signup.html">
 Create New Account
@@ -192,6 +197,14 @@ err.message;
 
 }
 
+};
+
+document.getElementById("googleLoginBtn").onclick = async () => {
+  try{
+    await window.loginWithGoogle();
+  }catch(err){
+    document.getElementById("msg").textContent = err.message;
+  }
 };
 
 window.currentUser(user=>{

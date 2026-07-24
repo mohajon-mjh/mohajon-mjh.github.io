@@ -6,6 +6,9 @@ import {
   signOut,
   onAuthStateChanged,
   sendEmailVerification
+,
+  GoogleAuthProvider,
+  signInWithPopup
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 import {
@@ -116,6 +119,48 @@ window.login = async function(email,password){
 
   }
 
+};
+
+window.loginWithGoogle = async function(){
+  try{
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const uid = user.uid;
+
+    let snap = await get(ref(db,"users/"+uid));
+
+    if(!snap.exists()){
+      await set(ref(db,"users/"+uid),{
+        uid,
+        name: user.displayName || "",
+        email: user.email || "",
+        role: "customer",
+        phone: "",
+        avatar: user.photoURL || "",
+        address: "",
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      });
+      snap = await get(ref(db,"users/"+uid));
+    }
+
+    const profile = snap.val();
+    localStorage.setItem("user", JSON.stringify(profile));
+    await update(ref(db,"users/"+uid), { updatedAt: Date.now() });
+
+    switch(profile.role){
+      case "admin":
+        location.href="admin.html"; break;
+      case "seller":
+        location.href="seller.html"; break;
+      default:
+        location.href="index.html";
+    }
+  }catch(err){
+    console.error("Google login error:", err.message);
+    alert("Google লগইনে সমস্যা হয়েছে: " + err.message);
+  }
 };
 
 window.logout = async function(){
