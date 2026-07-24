@@ -1584,7 +1584,7 @@ function loadBulkUpload(){
           if(existingSnap.exists()){
             existingSnap.forEach(child=>{
               const d = child.val();
-              if((d.sellerId === currentAdminUid || d.sellerId === "admin") && d.title && d.title.trim().toLowerCase() === itemTitle.toLowerCase()){
+              if((d.sellerId === currentAdminUid || d.sellerId === "admin") && d.title && d.title.trim().toLowerCase() === itemTitle.toLowerCase() && d.categoryId === itemCategoryId){
                 existingKey = child.key;
               }
             });
@@ -1642,7 +1642,8 @@ function loadBulkUpload(){
           snap.forEach(child=>{
             const d = child.val();
             if((d.sellerId === currentAdminUid || d.sellerId === "admin") && d.title){
-              existingByTitle[d.title.trim().toLowerCase()] = child.key;
+              const compositeKey = d.title.trim().toLowerCase() + "|" + (d.categoryId || "");
+              existingByTitle[compositeKey] = child.key;
             }
           });
         }
@@ -1670,7 +1671,7 @@ function loadBulkUpload(){
           uploadBtn.textContent = `ছবি আপলোড হচ্ছে (${successCount+1}/${cards.length})...`;
           const imageUrl = await uploadToCloudinaryGlobal(file);
 
-          const existingKey = existingByTitle[title.toLowerCase()];
+          const existingKey = existingByTitle[title.toLowerCase() + "|" + categoryId];
 
           if(existingKey){
             await update(ref(db, "products/"+existingKey), {
