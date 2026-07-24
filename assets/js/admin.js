@@ -1584,7 +1584,7 @@ function loadBulkUpload(){
           if(existingSnap.exists()){
             existingSnap.forEach(child=>{
               const d = child.val();
-              if(d.sellerId === currentAdminUid && d.title && d.title.trim().toLowerCase() === itemTitle.toLowerCase()){
+              if((d.sellerId === currentAdminUid || d.sellerId === "admin") && d.title && d.title.trim().toLowerCase() === itemTitle.toLowerCase()){
                 existingKey = child.key;
               }
             });
@@ -1641,7 +1641,7 @@ function loadBulkUpload(){
         if(snap.exists()){
           snap.forEach(child=>{
             const d = child.val();
-            if(d.sellerId === currentAdminUid && d.title){
+            if((d.sellerId === currentAdminUid || d.sellerId === "admin") && d.title){
               existingByTitle[d.title.trim().toLowerCase()] = child.key;
             }
           });
