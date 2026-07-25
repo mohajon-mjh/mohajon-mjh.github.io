@@ -1189,6 +1189,112 @@ onValue(ref(dealsDb, "products"), (snapshot) => {
 </div>
 
 </div>
+<div class="section">
+<h2>♻️ Second-Hand & Refurbished Goods</h2>
+<br>
+<div id="carouselSecondhand" class="trending-scroll-wrapper">
+  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+</div>
+</div>
+
+<div class="section">
+<h2>🎵 Musical Instruments</h2>
+<br>
+<div id="carouselMusical" class="trending-scroll-wrapper">
+  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+</div>
+</div>
+
+<div class="section">
+<h2>🖨️ Printing Supplies</h2>
+<br>
+<div id="carouselPrinting" class="trending-scroll-wrapper">
+  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+</div>
+</div>
+
+<div class="section">
+<h2>🎉 Seasonal & Festival Products</h2>
+<br>
+<div id="carouselSeasonal" class="trending-scroll-wrapper">
+  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+</div>
+</div>
+
+<div class="section">
+<h2>☪️ Islamic & Religious Products</h2>
+<br>
+<div id="carouselIslamic" class="trending-scroll-wrapper">
+  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+</div>
+</div>
+
+<div class="section">
+<h2>💍 Wedding & Event Supplies</h2>
+<br>
+<div id="carouselWedding" class="trending-scroll-wrapper">
+  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+const scFirebaseConfig = {
+  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
+};
+
+const scApp = getApps().length ? getApps()[0] : initializeApp(scFirebaseConfig);
+const scDb = getDatabase(scApp);
+
+const scCategories = [
+  { slug: "secondhand_refurbished_goods", elId: "carouselSecondhand" },
+  { slug: "musical_instruments", elId: "carouselMusical" },
+  { slug: "printing_supplies", elId: "carouselPrinting" },
+  { slug: "seasonal_festival_products", elId: "carouselSeasonal" },
+  { slug: "islamic_religious_products", elId: "carouselIslamic" },
+  { slug: "wedding_event_supplies", elId: "carouselWedding" }
+];
+
+onValue(ref(scDb, "products"), (snapshot) => {
+  const data = snapshot.val() || {};
+  const allProducts = Object.entries(data);
+
+  scCategories.forEach(cat => {
+    const box = document.getElementById(cat.elId);
+    if (!box) return;
+
+    const matched = allProducts.filter(([id, p]) => p.status === "active" && p.categoryId === cat.slug);
+
+    if (matched.length === 0) {
+      box.innerHTML = "<p style='text-align:center;color:#888'>শীঘ্রই পণ্য যুক্ত হবে...</p>";
+      return;
+    }
+
+    box.innerHTML = "";
+    matched.forEach(([id, p]) => {
+      const imgUrl = (p.images && p.images.main && p.images.main.trim() !== "") ? p.images.main : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+      const priceDisplay = window.MJHCurrency ? window.MJHCurrency.formatPrice(p.price||0) : "৳"+(p.price||0);
+      box.innerHTML += `
+      <div class="card" style="cursor:pointer" onclick="window.location.href='product-details.html?id=${id}'">
+        <img src="${imgUrl}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${p.title || 'Product'}">
+        <h3>${p.title || "Unnamed Product"}</h3>
+        <p>${p.netWeight || ""}</p>
+        <p><b>${priceDisplay}</b></p>
+        <button class="buy" onclick="event.stopPropagation(); addCart('${id}')">Add Cart</button>
+      </div>`;
+    });
+  });
+});
+</script>
+
 
 
 
