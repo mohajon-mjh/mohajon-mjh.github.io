@@ -661,7 +661,7 @@ drawDots();
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const fsFirebaseConfig = {
@@ -847,7 +847,7 @@ onValue(ref(fsDb, "products"), (snapshot) => {
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const trendingFirebaseConfig = {
@@ -997,7 +997,7 @@ onValue(ref(trendingDb, "products"), (snapshot) => {
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const dealsFirebaseConfig = {
@@ -1178,13 +1178,12 @@ onValue(ref(dealsDb, "products"), (snapshot) => {
 <div class="categories">
 
 
-<div class="cat">🌶️ মসলা</div>
-
-<div class="cat">🛒 গ্রোসারি</div>
-
-<div class="cat">🍚 খাদ্য</div>
-
-<div class="cat">📦 অন্যান্য</div>
+<div class="cat">♻️ Second-Hand / Refurbished Goods</div>
+<div class="cat">🎵 Musical Instruments</div>
+<div class="cat">🖨️ Printing Supplies</div>
+<div class="cat">🎉 Seasonal/Festival Products</div>
+<div class="cat">☪️ Islamic/Religious Products</div>
+<div class="cat">💍 Wedding & Event Supplies</div>
 
 
 </div>
@@ -1204,7 +1203,7 @@ onValue(ref(dealsDb, "products"), (snapshot) => {
 <div id="featuredProducts" class="trending-scroll-wrapper"></div>
 </div>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -1217,7 +1216,7 @@ const firebaseConfig = {
   appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 try{
@@ -1230,10 +1229,19 @@ try{
   }
 }catch(e){ console.error("menu btn setup failed:", e); }
 
-document.querySelectorAll(".cat")[0].onclick=()=>location.href="products.html?category=মসলা";
-document.querySelectorAll(".cat")[1].onclick=()=>location.href="products.html?category=গ্রোসারি";
-document.querySelectorAll(".cat")[2].onclick=()=>location.href="products.html?category=খাদ্য";
-document.querySelectorAll(".cat")[3].onclick=()=>location.href="products.html?category=অন্যান্য";
+const specialCatSlugs = [
+  "secondhand_refurbished_goods",
+  "musical_instruments",
+  "printing_supplies",
+  "seasonal_festival_products",
+  "islamic_religious_products",
+  "wedding_event_supplies"
+];
+document.querySelectorAll(".cat").forEach((el, i) => {
+  if(specialCatSlugs[i]){
+    el.onclick = () => location.href = "products.html?category=" + specialCatSlugs[i];
+  }
+});
 
 const badgeEl = document.getElementById("cartCount");
 if(badgeEl) badgeEl.textContent = localStorage.getItem("cartCount") || 0;
@@ -1281,7 +1289,7 @@ onValue(ref(db,"products"),(snapshot)=>{
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, push, set, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
