@@ -46,7 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
     ["Furniture (Sofas, Beds, etc.)", "furniture_sofas_beds_etc"],
     ["Power Tools & Hand Tools", "power_tools_hand_tools"],
     ["Drones & Action Cameras", "drones_action_cameras"],
-    ["Bicycles, Scooters & Electric Vehicles", "bicycles_scooters_electric_vehicles"]
+    ["Bicycles, Scooters & Electric Vehicles", "bicycles_scooters_electric_vehicles"],
+    ["Second-Hand & Refurbished Goods", "secondhand_refurbished_goods"],
+    ["Musical Instruments", "musical_instruments"],
+    ["Printing Supplies", "printing_supplies"],
+    ["Seasonal & Festival Products", "seasonal_festival_products"],
+    ["Islamic & Religious Products", "islamic_religious_products"],
+    ["Wedding & Event Supplies", "wedding_event_supplies"]
   ];
 
   const menuBtn = document.getElementById("menuBtn");

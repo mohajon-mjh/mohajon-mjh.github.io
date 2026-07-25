@@ -1276,7 +1276,13 @@ function loadBulkUpload(){
     furniture_sofas_beds_etc: "Furniture (Sofas, Beds, etc.)",
     power_tools_hand_tools: "Power Tools & Hand Tools",
     drones_action_cameras: "Drones & Action Cameras",
-    bicycles_scooters_electric_vehicles: "Bicycles, Scooters & Electric Vehicles"
+    bicycles_scooters_electric_vehicles: "Bicycles, Scooters & Electric Vehicles",
+    secondhand_refurbished_goods: "Second-Hand & Refurbished Goods",
+    musical_instruments: "Musical Instruments",
+    printing_supplies: "Printing Supplies",
+    seasonal_festival_products: "Seasonal & Festival Products",
+    islamic_religious_products: "Islamic & Religious Products",
+    wedding_event_supplies: "Wedding & Event Supplies"
   };
 
   const PRICE_TABLE = {
