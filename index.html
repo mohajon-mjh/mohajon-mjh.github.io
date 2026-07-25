@@ -1178,12 +1178,12 @@ onValue(ref(dealsDb, "products"), (snapshot) => {
 <div class="categories">
 
 
-<div class="cat">♻️ Second-Hand & Refurbished Goods</div>
-<div class="cat">🎵 Musical Instruments</div>
-<div class="cat">🖨️ Printing Supplies</div>
-<div class="cat">🎉 Seasonal & Festival Products</div>
-<div class="cat">☪️ Islamic & Religious Products</div>
-<div class="cat">💍 Wedding & Event Supplies</div>
+<div class="cat special-cat">♻️ Second-Hand & Refurbished Goods</div>
+<div class="cat special-cat">🎵 Musical Instruments</div>
+<div class="cat special-cat">🖨️ Printing Supplies</div>
+<div class="cat special-cat">🎉 Seasonal & Festival Products</div>
+<div class="cat special-cat">☪️ Islamic & Religious Products</div>
+<div class="cat special-cat">💍 Wedding & Event Supplies</div>
 
 
 </div>
@@ -1237,7 +1237,7 @@ const specialCatSlugs = [
   "islamic_religious_products",
   "wedding_event_supplies"
 ];
-document.querySelectorAll(".cat").forEach((el, i) => {
+document.querySelectorAll(".special-cat").forEach((el, i) => {
   if(specialCatSlugs[i]){
     el.onclick = () => location.href = "products.html?category=" + specialCatSlugs[i];
   }
