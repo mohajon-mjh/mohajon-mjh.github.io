@@ -1190,8 +1190,6 @@ onValue(ref(dealsDb, "products"), (snapshot) => {
 
 </div>
 <div class="section" id="specialCatProductSection" style="display:none">
-<h2 id="specialCatProductTitle">📦 Products</h2>
-<br>
 <div id="specialCatCarousel" class="trending-scroll-wrapper">
   <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
 </div>
@@ -1229,7 +1227,6 @@ const scCarousel = document.getElementById("specialCatCarousel");
 
 function loadSpecialCategoryProducts(slug){
   scSection.style.display = "block";
-  scTitle.textContent = scCategoryNames[slug] || "📦 Products";
   scCarousel.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
   scSection.scrollIntoView({ behavior: "smooth", block: "start" });
 
