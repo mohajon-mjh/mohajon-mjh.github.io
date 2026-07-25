@@ -1239,7 +1239,7 @@ const specialCatSlugs = [
 ];
 document.querySelectorAll(".special-cat").forEach((el, i) => {
   if(specialCatSlugs[i]){
-    el.onclick = () => location.href = "products.html?category=" + specialCatSlugs[i];
+    el.onclick = () => location.href = "products.html?categoryId=" + specialCatSlugs[i];
   }
 });
 
@@ -1437,8 +1437,6 @@ navigator.serviceWorker.register('/sw.js');
 <script src="cart.js"></script>
 <script src="wishlist.js"></script>
 <script src="js/global-menu.js?v=3"></script>
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
 </body>
 </html>
 
