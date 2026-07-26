@@ -137,6 +137,7 @@ h2{margin-top:0}
     <button class="tab-btn" data-tab="currency">🌍 Currency</button>
     <button class="tab-btn" data-tab="bulkupload">📤 Bulk Upload</button>
     <button class="tab-btn" data-tab="comingsoon">🔮 Coming Soon</button>
+    <button class="tab-btn" data-tab="specialcats">🌟 Special Categories</button>
     <button id="admin-logout-btn" style="background:#c0392b;color:#fff;width:100%;text-align:left;padding:12px 15px;border:none;margin-top:20px;border-radius:0;cursor:pointer;font-weight:bold">🚪 Logout</button>
   </nav>
 
@@ -191,6 +192,17 @@ h2{margin-top:0}
       </div>
       <input type="text" id="flashsale-search" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন...">
       <div id="flash-sale-manager"></div>
+    </section>
+
+    <section id="tab-specialcats" class="tab-section">
+      <div class="card">
+        <h3>🌟 নতুন Special Category যোগ করুন</h3>
+        <label>নাম (আইকন সহ) <input type="text" id="sc-name" placeholder="যেমন: ♻️ Second-Hand & Refurbished Goods"></label>
+        <label>Category ID / Slug <input type="text" id="sc-slug" placeholder="যেমন: secondhand_refurbished_goods"></label>
+        <label>Order (ক্রম নম্বর, ছোট আগে দেখাবে) <input type="number" id="sc-order" value="0"></label>
+        <button class="save-btn" id="sc-add-btn">➕ যোগ করুন</button>
+      </div>
+      <div id="sc-list"></div>
     </section>
 
     <section id="tab-comingsoon" class="tab-section">

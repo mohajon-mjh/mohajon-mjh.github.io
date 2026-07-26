@@ -1890,3 +1890,93 @@ function loadComingSoon(){
     }
   }
 }
+
+(function(){
+  const scNameInput = document.getElementById("sc-name");
+  const scSlugInput = document.getElementById("sc-slug");
+  const scOrderInput = document.getElementById("sc-order");
+  const scAddBtn = document.getElementById("sc-add-btn");
+  const scListDiv = document.getElementById("sc-list");
+
+  if(!scAddBtn || !scListDiv) return;
+
+  scAddBtn.addEventListener("click", async ()=>{
+    const name = scNameInput.value.trim();
+    const slug = scSlugInput.value.trim();
+    const order = parseInt(scOrderInput.value) || 0;
+    if(!name || !slug){ alert("নাম ও Category ID দুটোই দিন"); return; }
+    try{
+      const newRef = push(ref(db, "settings/specialCategories"));
+      await set(newRef, { name, slug, order, createdAt: Date.now() });
+      scNameInput.value = "";
+      scSlugInput.value = "";
+      scOrderInput.value = "0";
+      alert("✅ Special Category যোগ হয়েছে");
+      scRenderList();
+    }catch(err){
+      console.error(err);
+      alert("❌ সমস্যা: " + err.message);
+    }
+  });
+
+  async function scRenderList(){
+    scListDiv.innerHTML = '<p style="color:#888">লোড হচ্ছে...</p>';
+    try{
+      const snap = await get(ref(db, "settings/specialCategories"));
+      const data = snap.val() || {};
+      const entries = Object.entries(data).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+
+      if(entries.length === 0){
+        scListDiv.innerHTML = '<p style="color:#888">কোনো Special Category যোগ করা হয়নি</p>';
+        return;
+      }
+
+      scListDiv.innerHTML = "";
+      entries.forEach(([id, item])=>{
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <label>নাম <input type="text" class="sc-edit-name" value="${(item.name||'').replace(/"/g,'&quot;')}"></label>
+          <label>Category ID <input type="text" class="sc-edit-slug" value="${(item.slug||'').replace(/"/g,'&quot;')}"></label>
+          <label>Order <input type="number" class="sc-edit-order" value="${item.order||0}" style="width:80px"></label>
+          <div style="margin-top:10px">
+            <button class="save-btn sc-save-btn">💾 Save</button>
+            <button class="danger-btn sc-delete-btn">🗑️ Delete</button>
+          </div>
+        `;
+
+        div.querySelector(".sc-save-btn").onclick = async ()=>{
+          const newName = div.querySelector(".sc-edit-name").value.trim();
+          const newSlug = div.querySelector(".sc-edit-slug").value.trim();
+          const newOrder = parseInt(div.querySelector(".sc-edit-order").value) || 0;
+          try{
+            await update(ref(db, "settings/specialCategories/"+id), { name: newName, slug: newSlug, order: newOrder });
+            alert("✅ Update হয়েছে");
+            scRenderList();
+          }catch(err){
+            console.error(err);
+            alert("❌ সমস্যা: " + err.message);
+          }
+        };
+
+        div.querySelector(".sc-delete-btn").onclick = async ()=>{
+          if(!confirm(`"${item.name}" ডিলিট করবেন?`)) return;
+          try{
+            await remove(ref(db, "settings/specialCategories/"+id));
+            scRenderList();
+          }catch(err){
+            console.error(err);
+            alert("❌ সমস্যা: " + err.message);
+          }
+        };
+
+        scListDiv.appendChild(div);
+      });
+    }catch(err){
+      console.error(err);
+      scListDiv.innerHTML = '<p style="color:red">লোড করতে সমস্যা হয়েছে</p>';
+    }
+  }
+
+  scRenderList();
+})();
