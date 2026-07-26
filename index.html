@@ -1201,7 +1201,7 @@ onValue(ref(dealsDb, "products"), (snapshot) => {
 
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const scFirebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -1225,9 +1225,10 @@ function loadSpecialCategoryProducts(slug, scroll = true){
   scCarousel.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
   if (scroll) scSection.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  onValue(ref(scDb, "products"), (snapshot) => {
+  const scQuery = query(ref(scDb, "products"), orderByChild("categoryId"), equalTo(slug), limitToFirst(30));
+  onValue(scQuery, (snapshot) => {
     const data = snapshot.val() || {};
-    const matched = Object.entries(data).filter(([id, p]) => p.status === "active" && p.categoryId === slug);
+    const matched = Object.entries(data).filter(([id, p]) => p.status === "active");
 
     if (matched.length === 0) {
       scCarousel.innerHTML = "<p style='text-align:center;color:#888'>শীঘ্রই পণ্য যুক্ত হবে...</p>";
