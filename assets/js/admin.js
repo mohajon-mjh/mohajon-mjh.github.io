@@ -269,6 +269,7 @@ function renderAllProducts(filterText){
         <input type="number" class="edit-soldcount" value="${data.soldCount||0}" min="0">
       </label>
       <label><input type="checkbox" class="edit-recommended" ${data.isRecommended ? "checked" : ""}> ⭐ Recommended (Deals of the Day - Recommended ট্যাবে দেখাবে)</label>
+      <label><input type="checkbox" class="edit-featured" ${data.isFeatured ? "checked" : ""}> 🌟 Featured (Featured Products সেকশনে দেখাবে)</label>
       <p style="font-size:12px;color:#999">Status: ${data.status} | Seller: ${data.sellerEmail || data.sellerId}</p>
       <button class="save-btn">Save</button>
       <button class="delete-btn">Delete</button>
@@ -285,6 +286,7 @@ function renderAllProducts(filterText){
         const newRating = parseFloat(div.querySelector(".edit-rating").value) || 0;
         const newSoldCount = parseInt(div.querySelector(".edit-soldcount").value) || 0;
         const newRecommended = div.querySelector(".edit-recommended").checked;
+        const newFeatured = div.querySelector(".edit-featured").checked;
         const updates = {
           price:newPrice,
           stock:newStock,
@@ -294,6 +296,7 @@ function renderAllProducts(filterText){
           rating: newRating,
           soldCount: newSoldCount,
           isRecommended: newRecommended,
+          isFeatured: newFeatured,
           updatedAt: Date.now()
         };
         if(data.title !== undefined) updates.title = newName;
