@@ -883,10 +883,13 @@ if(fsLoadMoreBtn){
 <div id="trendingProductsGrid" class="trending-scroll-wrapper">
   <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
 </div>
+<div style="text-align:center;margin-top:10px">
+<button id="trendingLoadMoreBtn" style="display:none;padding:8px 20px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer">আরও প্রোডাক্ট দেখুন</button>
+</div>
 
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, query, orderByChild, limitToLast, endBefore } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const trendingFirebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -999,20 +1002,42 @@ function renderTrendingCard(id, data){
 }
 
 const trendingGrid = document.getElementById("trendingProductsGrid");
-onValue(ref(trendingDb, "products"), (snapshot) => {
-  trendingGrid.innerHTML = "";
-  let count = 0;
-  snapshot.forEach(child => {
-    const data = child.val();
-    if(data.status === "active" && data.isTrending === true){
-      trendingGrid.appendChild(renderTrendingCard(child.key, data));
-      count++;
+const TR_BATCH = 30;
+let trCursor = null;
+let trDone = false;
+let trAnyShown = false;
+
+function trLoadBatch(){
+  const q = trCursor === null
+    ? query(ref(trendingDb, "products"), orderByChild("createdAt"), limitToLast(TR_BATCH))
+    : query(ref(trendingDb, "products"), orderByChild("createdAt"), endBefore(trCursor), limitToLast(TR_BATCH));
+
+  onValue(q, (snapshot) => {
+    let items = [];
+    snapshot.forEach(child => items.push({ id: child.key, data: child.val() }));
+    if(items.length < TR_BATCH) trDone = true;
+    if(items.length > 0) trCursor = items[0].data.createdAt;
+    items.reverse();
+    items.forEach(it => {
+      if(it.data.status === "active" && it.data.isTrending === true){
+        trendingGrid.appendChild(renderTrendingCard(it.id, it.data));
+        trAnyShown = true;
+      }
+    });
+    if(!trAnyShown && trDone){
+      trendingGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Trending প্রোডাক্ট যোগ করা হয়নি।</p>";
     }
-  });
-  if(count === 0){
-    trendingGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Trending প্রোডাক্ট যোগ করা হয়নি।</p>";
-  }
-});
+    const btn = document.getElementById("trendingLoadMoreBtn");
+    if(btn) btn.style.display = trDone ? "none" : "inline-block";
+  }, { onlyOnce: true });
+}
+
+trendingGrid.innerHTML = "";
+trLoadBatch();
+const trLoadMoreBtn = document.getElementById("trendingLoadMoreBtn");
+if(trLoadMoreBtn){
+  trLoadMoreBtn.addEventListener("click", () => trLoadBatch());
+}
 </script>
 
 </div>
@@ -1036,7 +1061,7 @@ onValue(ref(trendingDb, "products"), (snapshot) => {
 
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const dealsFirebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -1188,7 +1213,8 @@ document.querySelectorAll(".deal-tab").forEach(btn => {
   });
 });
 
-onValue(ref(dealsDb, "products"), (snapshot) => {
+const dealsQuery = query(ref(dealsDb, "products"), orderByChild("createdAt"), limitToLast(300));
+onValue(dealsQuery, (snapshot) => {
   dealsAllProducts = [];
   snapshot.forEach(child => {
     const data = child.val();
