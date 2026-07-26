@@ -1188,17 +1188,8 @@ onValue(ref(dealsDb, "products"), (snapshot) => {
 <br>
 
 
-<div class="categories special-categories-row">
-
-
-<div class="cat special-cat">♻️ Second-Hand & Refurbished Goods</div>
-<div class="cat special-cat">🎵 Musical Instruments</div>
-<div class="cat special-cat">🖨️ Printing Supplies</div>
-<div class="cat special-cat">🎉 Seasonal & Festival Products</div>
-<div class="cat special-cat">☪️ Islamic & Religious Products</div>
-<div class="cat special-cat">💍 Wedding & Event Supplies</div>
-
-
+<div class="categories special-categories-row" id="specialCatsContainer">
+<p style="text-align:center;color:#888">লোড হচ্ছে...</p>
 </div>
 
 </div>
@@ -1224,15 +1215,6 @@ const scFirebaseConfig = {
 
 const scApp = getApps().length ? getApps()[0] : initializeApp(scFirebaseConfig);
 const scDb = getDatabase(scApp);
-
-const scCategoryNames = {
-  secondhand_refurbished_goods: "♻️ Second-Hand & Refurbished Goods",
-  musical_instruments: "🎵 Musical Instruments",
-  printing_supplies: "🖨️ Printing Supplies",
-  seasonal_festival_products: "🎉 Seasonal & Festival Products",
-  islamic_religious_products: "☪️ Islamic & Religious Products",
-  wedding_event_supplies: "💍 Wedding & Event Supplies"
-};
 
 const scSection = document.getElementById("specialCatProductSection");
 const scTitle = document.getElementById("specialCatProductTitle");
@@ -1269,11 +1251,23 @@ function loadSpecialCategoryProducts(slug){
 }
 window.loadSpecialCategoryProducts = loadSpecialCategoryProducts;
 
-document.querySelectorAll(".special-cat").forEach((el) => {
-  el.addEventListener("click", (e) => {
-    e.preventDefault();
-  }, true);
-});
+const scContainer = document.getElementById("specialCatsContainer");
+onValue(ref(scDb, "settings/specialCategories"), (snapshot) => {
+  const data = snapshot.val() || {};
+  const entries = Object.entries(data).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+  scContainer.innerHTML = "";
+  entries.forEach(([id, item]) => {
+    const div = document.createElement("div");
+    div.className = "cat special-cat";
+    div.textContent = item.name || "";
+    div.onclick = () => {
+      document.querySelectorAll(".special-cat").forEach(b => b.classList.remove("active"));
+      div.classList.add("active");
+      window.loadSpecialCategoryProducts && window.loadSpecialCategoryProducts(item.slug);
+    };
+    scContainer.appendChild(div);
+  });
+}, { onlyOnce: true });
 </script>
 
 
@@ -1316,23 +1310,7 @@ try{
   }
 }catch(e){ console.error("menu btn setup failed:", e); }
 
-const specialCatSlugs = [
-  "secondhand_refurbished_goods",
-  "musical_instruments",
-  "printing_supplies",
-  "seasonal_festival_products",
-  "islamic_religious_products",
-  "wedding_event_supplies"
-];
-document.querySelectorAll(".special-cat").forEach((el, i) => {
-  if(specialCatSlugs[i]){
-    el.onclick = () => {
-      document.querySelectorAll(".special-cat").forEach(b => b.classList.remove("active"));
-      el.classList.add("active");
-      window.loadSpecialCategoryProducts && window.loadSpecialCategoryProducts(specialCatSlugs[i]);
-    };
-  }
-});
+
 
 const badgeEl = document.getElementById("cartCount");
 if(badgeEl) badgeEl.textContent = localStorage.getItem("cartCount") || 0;
