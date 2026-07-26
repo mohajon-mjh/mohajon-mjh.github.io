@@ -701,6 +701,9 @@ function fsIsWished(id){
 
 function renderFlashSaleCard(id, data){
   const price = parseFloat(data.price) || 0;
+  const maxPrice = parseFloat(data.maxPrice) || 0;
+  const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
+  const priceDisplay = (maxPrice > price) ? `${fmtP(price)} - ${fmtP(maxPrice)}` : fmtP(price);
   const discount = parseInt(data.discountPercent) || 0;
   const oldPrice = discount > 0 ? (price / (1 - discount/100)) : 0;
   const stock = parseInt(data.stock) || 0;
@@ -734,7 +737,7 @@ function renderFlashSaleCard(id, data){
     <div class="product-card-content">
       <h3 class="product-card-title">${data.title || data.name || "Unnamed Product"}</h3>
       <div class="product-card-price">
-        <span class="current-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(price) : '৳'+price.toFixed(0)}</span>
+        <span class="current-price">${priceDisplay}</span>
         ${oldPrice > price ? `<span class="old-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(oldPrice) : '৳'+oldPrice.toFixed(0)}</span>` : ""}
       </div>
       <div class="product-card-actions" style="flex-direction:column">
@@ -912,6 +915,9 @@ function isWished(id){
 
 function renderTrendingCard(id, data){
   const price = parseFloat(data.price) || 0;
+  const maxPrice = parseFloat(data.maxPrice) || 0;
+  const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
+  const priceDisplay = (maxPrice > price) ? `${fmtP(price)} - ${fmtP(maxPrice)}` : fmtP(price);
   const discount = parseInt(data.discountPercent) || 0;
   const oldPrice = discount > 0 ? (price / (1 - discount/100)) : 0;
   const stock = parseInt(data.stock) || 0;
@@ -945,7 +951,7 @@ function renderTrendingCard(id, data){
     <div class="product-card-content">
       <h3 class="product-card-title">${data.title || data.name || "Unnamed Product"}</h3>
       <div class="product-card-price">
-        <span class="current-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(price) : '৳'+price.toFixed(0)}</span>
+        <span class="current-price">${priceDisplay}</span>
         ${oldPrice > price ? `<span class="old-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(oldPrice) : '৳'+oldPrice.toFixed(0)}</span>` : ""}
       </div>
       <div class="product-card-actions" style="flex-direction:column">
@@ -1087,6 +1093,9 @@ function dealsIsWished(id){
 
 function renderDealCard(id, data){
   const price = parseFloat(data.price) || 0;
+  const maxPrice = parseFloat(data.maxPrice) || 0;
+  const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
+  const priceDisplay = (maxPrice > price) ? `${fmtP(price)} - ${fmtP(maxPrice)}` : fmtP(price);
   const discount = parseInt(data.discountPercent) || 0;
   const oldPrice = discount > 0 ? (price / (1 - discount/100)) : 0;
   const stock = parseInt(data.stock) || 0;
@@ -1120,7 +1129,7 @@ function renderDealCard(id, data){
     <div class="product-card-content">
       <h3 class="product-card-title">${data.title || data.name || "Unnamed Product"}</h3>
       <div class="product-card-price">
-        <span class="current-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(price) : '৳'+price.toFixed(0)}</span>
+        <span class="current-price">${priceDisplay}</span>
         ${oldPrice > price ? `<span class="old-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(oldPrice) : '৳'+oldPrice.toFixed(0)}</span>` : ""}
       </div>
       <div class="product-card-actions" style="flex-direction:column">

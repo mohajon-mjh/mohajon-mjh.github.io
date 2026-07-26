@@ -54,6 +54,9 @@ function buildHighlights(product){
 
 function renderProduct(product){
   const price = parseFloat(product.price) || 0;
+  const maxPrice = parseFloat(product.maxPrice) || 0;
+  const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(2);
+  const priceDisplay = (maxPrice > price) ? `${fmtP(price)} - ${fmtP(maxPrice)}` : fmtP(price);
   const oldPrice = parseFloat(product.oldPrice) || 0;
   const stock = parseInt(product.stock) || 0;
 
@@ -105,7 +108,7 @@ function renderProduct(product){
         ${stockHtml}
 
         <div class="pd-price-row">
-          <span class="pd-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(price) : '৳'+price.toFixed(2)}</span>
+          <span class="pd-price">${priceDisplay}</span>
           ${oldPrice > price ? `<span class="pd-old-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(oldPrice) : '৳'+oldPrice.toFixed(2)}</span>` : ""}
           ${discount > 0 ? `<span class="pd-discount">-${discount}%</span>` : ""}
         </div>
