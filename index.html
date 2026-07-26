@@ -1291,7 +1291,7 @@ document.querySelectorAll(".special-cat").forEach((el) => {
 </div>
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -1348,14 +1348,14 @@ window.addCart = function(id){
 
 const box=document.getElementById("featuredProducts");
 
-onValue(ref(db,"products"),(snapshot)=>{
+const featuredQuery = query(ref(db,"products"), orderByChild("isFeatured"), equalTo(true));
+
+onValue(featuredQuery,(snapshot)=>{
   const data=snapshot.val()||{};
   box.innerHTML="";
 
   Object.entries(data)
     .filter(([id, p]) => p.status === "active")
-    .slice(-8)
-    .reverse()
     .forEach(([id, p])=>{
       const imgUrl = (p.images && p.images.main && p.images.main.trim() !== "") ? p.images.main : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
       const priceDisplay = window.MJHCurrency ? window.MJHCurrency.formatPrice(p.price||0) : "৳"+(p.price||0);
