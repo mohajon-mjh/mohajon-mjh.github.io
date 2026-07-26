@@ -672,10 +672,13 @@ drawDots();
 <div id="flashSaleProductsGrid" class="trending-scroll-wrapper">
   <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
 </div>
+<div style="text-align:center;margin-top:10px">
+<button id="flashSaleLoadMoreBtn" style="display:none;padding:8px 20px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer">আরও প্রোডাক্ট দেখুন</button>
+</div>
 
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, query, orderByChild, limitToLast, endBefore } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const fsFirebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -799,20 +802,42 @@ if(flashSaleLabelEl){
 }
 
 const flashSaleGrid = document.getElementById("flashSaleProductsGrid");
-onValue(ref(fsDb, "products"), (snapshot) => {
-  flashSaleGrid.innerHTML = "";
-  let count = 0;
-  snapshot.forEach(child => {
-    const data = child.val();
-    if(data.status === "active" && data.isFlashSale === true){
-      flashSaleGrid.appendChild(renderFlashSaleCard(child.key, data));
-      count++;
+const FS_BATCH = 30;
+let fsCursor = null;
+let fsDone = false;
+let fsAnyShown = false;
+
+function fsLoadBatch(){
+  const q = fsCursor === null
+    ? query(ref(fsDb, "products"), orderByChild("createdAt"), limitToLast(FS_BATCH))
+    : query(ref(fsDb, "products"), orderByChild("createdAt"), endBefore(fsCursor), limitToLast(FS_BATCH));
+
+  onValue(q, (snapshot) => {
+    let items = [];
+    snapshot.forEach(child => items.push({ id: child.key, data: child.val() }));
+    if(items.length < FS_BATCH) fsDone = true;
+    if(items.length > 0) fsCursor = items[0].data.createdAt;
+    items.reverse();
+    items.forEach(it => {
+      if(it.data.status === "active" && it.data.isFlashSale === true){
+        flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data));
+        fsAnyShown = true;
+      }
+    });
+    if(!fsAnyShown && fsDone){
+      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
     }
-  });
-  if(count === 0){
-    flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
-  }
-});
+    const btn = document.getElementById("flashSaleLoadMoreBtn");
+    if(btn) btn.style.display = fsDone ? "none" : "inline-block";
+  }, { onlyOnce: true });
+}
+
+flashSaleGrid.innerHTML = "";
+fsLoadBatch();
+const fsLoadMoreBtn = document.getElementById("flashSaleLoadMoreBtn");
+if(fsLoadMoreBtn){
+  fsLoadMoreBtn.addEventListener("click", () => fsLoadBatch());
+}
 </script>
 
 </div>
