@@ -1220,10 +1220,10 @@ const scSection = document.getElementById("specialCatProductSection");
 const scTitle = document.getElementById("specialCatProductTitle");
 const scCarousel = document.getElementById("specialCatCarousel");
 
-function loadSpecialCategoryProducts(slug){
+function loadSpecialCategoryProducts(slug, scroll = true){
   scSection.style.display = "block";
   scCarousel.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
-  scSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (scroll) scSection.scrollIntoView({ behavior: "smooth", block: "start" });
 
   onValue(ref(scDb, "products"), (snapshot) => {
     const data = snapshot.val() || {};
@@ -1256,17 +1256,20 @@ onValue(ref(scDb, "settings/specialCategories"), (snapshot) => {
   const data = snapshot.val() || {};
   const entries = Object.entries(data).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
   scContainer.innerHTML = "";
-  entries.forEach(([id, item]) => {
+  entries.forEach(([id, item], index) => {
     const div = document.createElement("div");
-    div.className = "cat special-cat";
-    div.textContent = item.name || "";
+    div.className = "cat special-cat" + (index === 0 ? " active" : "");
+    div.innerHTML = (item.name || "").replace(/ & /g, " &<br>");
     div.onclick = () => {
       document.querySelectorAll(".special-cat").forEach(b => b.classList.remove("active"));
       div.classList.add("active");
-      window.loadSpecialCategoryProducts && window.loadSpecialCategoryProducts(item.slug);
+      window.loadSpecialCategoryProducts && window.loadSpecialCategoryProducts(item.slug, true);
     };
     scContainer.appendChild(div);
   });
+  if (entries.length > 0) {
+    window.loadSpecialCategoryProducts && window.loadSpecialCategoryProducts(entries[0][1].slug, false);
+  }
 }, { onlyOnce: true });
 </script>
 
