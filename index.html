@@ -1313,7 +1313,11 @@ const specialCatSlugs = [
 ];
 document.querySelectorAll(".special-cat").forEach((el, i) => {
   if(specialCatSlugs[i]){
-    el.onclick = () => window.loadSpecialCategoryProducts && window.loadSpecialCategoryProducts(specialCatSlugs[i]);
+    el.onclick = () => {
+      document.querySelectorAll(".special-cat").forEach(b => b.classList.remove("active"));
+      el.classList.add("active");
+      window.loadSpecialCategoryProducts && window.loadSpecialCategoryProducts(specialCatSlugs[i]);
+    };
   }
 });
 
