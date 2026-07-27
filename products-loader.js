@@ -5,13 +5,17 @@
         return;
     }
 
-    const PAGE_SIZE = 24;
+    const PAGE_SIZE = 30;
 
     let productsCache = [];
     let lastKey = null;
     let hasMore = true;
     let currentCategory = null;
     let isLoading = false;
+
+    // ক্যাটাগরি মোডে পুরো ম্যাচিং লিস্ট এখানে থাকবে, productsCache-এ ধাপে ধাপে দেখানো হবে
+    let fullCategoryProducts = [];
+    let categoryRenderedCount = 0;
 
     function getCategoryFromURL() {
         const params = new URLSearchParams(window.location.search);
@@ -30,17 +34,28 @@
         const productsRef = db.ref('products');
         productsRef.orderByChild('categoryId').equalTo(categoryId).once('value', (snapshot) => {
             const data = snapshot.val();
-            productsCache = data
+            fullCategoryProducts = data
                 ? Object.keys(data).map(key => ({ id: key, ...data[key] }))
                 : [];
-            hasMore = false;
+            categoryRenderedCount = Math.min(PAGE_SIZE, fullCategoryProducts.length);
+            productsCache = fullCategoryProducts.slice(0, categoryRenderedCount);
+            hasMore = categoryRenderedCount < fullCategoryProducts.length;
             isLoading = false;
-            console.log('✅ Category products loaded:', productsCache.length);
+            console.log('✅ Category products loaded (total match):', fullCategoryProducts.length, '| দেখানো হচ্ছে:', productsCache.length);
             dispatchLoaded(true);
         }, (error) => {
             isLoading = false;
             console.error('Error loading category products:', error);
         });
+    }
+
+    function loadMoreCategoryProducts() {
+        if (!hasMore || isLoading) return;
+        categoryRenderedCount = Math.min(categoryRenderedCount + PAGE_SIZE, fullCategoryProducts.length);
+        productsCache = fullCategoryProducts.slice(0, categoryRenderedCount);
+        hasMore = categoryRenderedCount < fullCategoryProducts.length;
+        console.log('✅ আরও ক্যাটাগরি প্রোডাক্ট দেখানো হচ্ছে, মোট:', productsCache.length);
+        dispatchLoaded(false);
     }
 
     function loadFirstPage() {
@@ -62,7 +77,12 @@
     }
 
     function loadMore() {
-        if (!hasMore || isLoading || currentCategory) return;
+        if (isLoading) return;
+        if (currentCategory && currentCategory !== 'all') {
+            loadMoreCategoryProducts();
+            return;
+        }
+        if (!hasMore) return;
         isLoading = true;
         const productsRef = db.ref('products');
         productsRef.orderByKey().startAfter(lastKey).limitToFirst(PAGE_SIZE).once('value', (snapshot) => {
