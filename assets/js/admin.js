@@ -1553,6 +1553,8 @@ function loadBulkUpload(){
         <label>সর্বনিম্ন দাম (৳) <input type="number" class="bulk-price" value="${price}"></label>
         <label>সর্বোচ্চ দাম (৳) <input type="number" class="bulk-price-max" value="${price}"></label>
         <label>মার্কেট প্রাইস (ঐচ্ছিক, ৳) <input type="number" class="bulk-old-price" value="" placeholder="আসল বাজার দাম"></label>
+        <label><input type="checkbox" class="bulk-flashsale"> ⚡ Flash Sale</label>
+        <label><input type="checkbox" class="bulk-trending"> 🔥 Trending</label>
         <label>স্টক <input type="number" class="bulk-stock" value="20"></label>
         <label>ক্যাটাগরি
           <select class="bulk-category">
@@ -1585,6 +1587,8 @@ function loadBulkUpload(){
         const itemMaxPrice = itemMaxPriceEl ? (parseFloat(itemMaxPriceEl.value) || itemPrice) : itemPrice;
         const itemOldPriceEl = div.querySelector(".bulk-old-price");
         const itemOldPrice = itemOldPriceEl ? (parseFloat(itemOldPriceEl.value) || 0) : 0;
+        const itemFlashSale = div.querySelector(".bulk-flashsale").checked;
+        const itemTrending = div.querySelector(".bulk-trending").checked;
         const itemStock = parseInt(div.querySelector(".bulk-stock").value) || 0;
         const itemCategoryId = div.querySelector(".bulk-category").value;
         const itemDesc = div.querySelector(".bulk-desc").value.trim();
@@ -1614,6 +1618,8 @@ function loadBulkUpload(){
               minPrice: itemPrice,
               maxPrice: itemMaxPrice,
               discountPrice: itemOldPrice,
+              isFlashSale: itemFlashSale,
+              isTrending: itemTrending,
               stock: itemStock,
               categoryId: itemCategoryId,
               description: itemDesc,
@@ -1629,6 +1635,8 @@ function loadBulkUpload(){
               minPrice: itemPrice,
               maxPrice: itemMaxPrice,
               discountPrice: itemOldPrice,
+              isFlashSale: itemFlashSale,
+              isTrending: itemTrending,
               stock: itemStock,
               categoryId: itemCategoryId,
               description: itemDesc,
