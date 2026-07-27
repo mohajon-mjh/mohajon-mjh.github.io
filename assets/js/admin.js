@@ -270,6 +270,8 @@ function renderAllProducts(filterText){
       </label>
       <label><input type="checkbox" class="edit-recommended" ${data.isRecommended ? "checked" : ""}> ⭐ Recommended (Deals of the Day - Recommended ট্যাবে দেখাবে)</label>
       <label><input type="checkbox" class="edit-featured" ${data.isFeatured ? "checked" : ""}> 🌟 Featured (Featured Products সেকশনে দেখাবে)</label>
+      <label><input type="checkbox" class="edit-flashsale" ${data.isFlashSale ? "checked" : ""}> ⚡ Flash Sale (Flash Sale সেকশনে দেখাবে)</label>
+      <label><input type="checkbox" class="edit-trending" ${data.isTrending ? "checked" : ""}> 🔥 Trending (Trending Products সেকশনে দেখাবে)</label>
       <p style="font-size:12px;color:#999">Status: ${data.status} | Seller: ${data.sellerEmail || data.sellerId}</p>
       <button class="save-btn">Save</button>
       <button class="delete-btn">Delete</button>
@@ -287,6 +289,8 @@ function renderAllProducts(filterText){
         const newSoldCount = parseInt(div.querySelector(".edit-soldcount").value) || 0;
         const newRecommended = div.querySelector(".edit-recommended").checked;
         const newFeatured = div.querySelector(".edit-featured").checked;
+        const newFlashSale = div.querySelector(".edit-flashsale").checked;
+        const newTrending = div.querySelector(".edit-trending").checked;
         const updates = {
           price:newPrice,
           stock:newStock,
@@ -297,6 +301,8 @@ function renderAllProducts(filterText){
           soldCount: newSoldCount,
           isRecommended: newRecommended,
           isFeatured: newFeatured,
+          isFlashSale: newFlashSale,
+          isTrending: newTrending,
           updatedAt: Date.now()
         };
         if(data.title !== undefined) updates.title = newName;
