@@ -1232,7 +1232,7 @@ onValue(dealsQuery, (snapshot) => {
     }
   });
   renderDealsTab(currentDealTab);
-});
+}, { onlyOnce: true });
 </script>
 
 </div>
@@ -1349,7 +1349,7 @@ onValue(ref(scDb, "settings/specialCategories"), (snapshot) => {
 </div>
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -1390,7 +1390,7 @@ window.addCart = function(id){
 
 const box=document.getElementById("featuredProducts");
 
-const featuredQuery = query(ref(db,"products"), orderByChild("isFeatured"), equalTo(true));
+const featuredQuery = query(ref(db,"products"), orderByChild("isFeatured"), equalTo(true), limitToFirst(30));
 
 onValue(featuredQuery,(snapshot)=>{
   const data=snapshot.val()||{};
@@ -1410,7 +1410,7 @@ onValue(featuredQuery,(snapshot)=>{
         <button class="buy" onclick="event.stopPropagation(); addCart('${id}')">Add Cart</button>
       </div>`;
     });
-});
+}, { onlyOnce: true });
 </script>
 
 <div class="section" id="comingSoonSection" style="display:none">
@@ -1509,7 +1509,7 @@ onValue(ref(csDb, "futureProducts"), (snapshot)=>{
     notifyBtn.addEventListener("click", ()=> csNotifyMe(id, notifyBtn));
     csGrid.appendChild(card);
   });
-});
+}, { onlyOnce: true });
 </script>
 
 <script>
