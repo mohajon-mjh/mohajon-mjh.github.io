@@ -49,7 +49,7 @@
         const price = parseFloat(product.price) || 0;
         const maxPrice = parseFloat(product.maxPrice) || 0;
         const priceDisplay = (maxPrice > price) ? `${fmtPrice(price)} - ${fmtPrice(maxPrice)}` : fmtPrice(price);
-        const oldPrice = parseFloat(product.oldPrice) || 0;
+        const oldPrice = parseFloat(product.discountPrice) || 0;
 
         let discount = 0;
         if (oldPrice > price) {

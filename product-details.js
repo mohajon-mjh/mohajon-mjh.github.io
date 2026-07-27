@@ -57,7 +57,7 @@ function renderProduct(product){
   const maxPrice = parseFloat(product.maxPrice) || 0;
   const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(2);
   const priceDisplay = (maxPrice > price) ? `${fmtP(price)} - ${fmtP(maxPrice)}` : fmtP(price);
-  const oldPrice = parseFloat(product.oldPrice) || 0;
+  const oldPrice = parseFloat(product.discountPrice) || 0;
   const stock = parseInt(product.stock) || 0;
 
   let discount = 0;

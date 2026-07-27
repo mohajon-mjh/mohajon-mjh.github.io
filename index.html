@@ -705,7 +705,7 @@ function renderFlashSaleCard(id, data){
   const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
   const priceDisplay = (maxPrice > price) ? `${fmtP(price)} - ${fmtP(maxPrice)}` : fmtP(price);
   const discount = parseInt(data.discountPercent) || 0;
-  const oldPrice = (parseFloat(data.oldPrice) || 0) > price ? parseFloat(data.oldPrice) : (discount > 0 ? (price / (1 - discount/100)) : 0);
+  const oldPrice = (parseFloat(data.discountPrice) || 0) > price ? parseFloat(data.discountPrice) : (discount > 0 ? (price / (1 - discount/100)) : 0);
   const stock = parseInt(data.stock) || 0;
 
   const imageUrl =
@@ -919,7 +919,7 @@ function renderTrendingCard(id, data){
   const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
   const priceDisplay = (maxPrice > price) ? `${fmtP(price)} - ${fmtP(maxPrice)}` : fmtP(price);
   const discount = parseInt(data.discountPercent) || 0;
-  const oldPrice = (parseFloat(data.oldPrice) || 0) > price ? parseFloat(data.oldPrice) : (discount > 0 ? (price / (1 - discount/100)) : 0);
+  const oldPrice = (parseFloat(data.discountPrice) || 0) > price ? parseFloat(data.discountPrice) : (discount > 0 ? (price / (1 - discount/100)) : 0);
   const stock = parseInt(data.stock) || 0;
 
   const imageUrl =
@@ -1097,7 +1097,7 @@ function renderDealCard(id, data){
   const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
   const priceDisplay = (maxPrice > price) ? `${fmtP(price)} - ${fmtP(maxPrice)}` : fmtP(price);
   const discount = parseInt(data.discountPercent) || 0;
-  const oldPrice = (parseFloat(data.oldPrice) || 0) > price ? parseFloat(data.oldPrice) : (discount > 0 ? (price / (1 - discount/100)) : 0);
+  const oldPrice = (parseFloat(data.discountPrice) || 0) > price ? parseFloat(data.discountPrice) : (discount > 0 ? (price / (1 - discount/100)) : 0);
   const stock = parseInt(data.stock) || 0;
 
   const imageUrl =
