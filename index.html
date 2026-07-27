@@ -818,7 +818,6 @@ function fsLoadBatch(){
   onValue(q, (snapshot) => {
     let items = [];
     snapshot.forEach(child => items.push({ id: child.key, data: child.val() }));
-    console.log("FS_DEBUG items count:", items.length, items.map(i=>i.data.title));
     if(items.length < FS_BATCH) fsDone = true;
     if(items.length > 0) fsCursor = items[0].data.createdAt;
     items.reverse();
@@ -1022,7 +1021,6 @@ function trLoadBatch(){
   onValue(q, (snapshot) => {
     let items = [];
     snapshot.forEach(child => items.push({ id: child.key, data: child.val() }));
-    console.log("FS_DEBUG items count:", items.length, items.map(i=>i.data.title));
     if(items.length < TR_BATCH) trDone = true;
     if(items.length > 0) trCursor = items[0].data.createdAt;
     items.reverse();
