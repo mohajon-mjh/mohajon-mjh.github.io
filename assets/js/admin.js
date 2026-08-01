@@ -1550,8 +1550,7 @@ function loadBulkUpload(){
       div.innerHTML = `
         <img class="bulk-preview-img" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px" src="">
         <label>নাম <input type="text" class="bulk-title" value="${title}"></label>
-        <label>সর্বনিম্ন দাম (৳) <input type="number" class="bulk-price" value="${price}"></label>
-        <label>সর্বোচ্চ দাম (৳) <input type="number" class="bulk-price-max" value="${price}"></label>
+        <label>দাম (৳) <input type="number" class="bulk-price" value="${price}"></label>
         <label>মার্কেট প্রাইস (ঐচ্ছিক, ৳) <input type="number" class="bulk-old-price" value="" placeholder="আসল বাজার দাম"></label>
         <label><input type="checkbox" class="bulk-flashsale"> ⚡ Flash Sale</label>
         <label><input type="checkbox" class="bulk-trending"> 🔥 Trending</label>
@@ -1583,8 +1582,6 @@ function loadBulkUpload(){
         const saveBtn = div.querySelector(".bulk-save-btn");
         const itemTitle = div.querySelector(".bulk-title").value.trim();
         const itemPrice = parseFloat(div.querySelector(".bulk-price").value) || 0;
-        const itemMaxPriceEl = div.querySelector(".bulk-price-max");
-        const itemMaxPrice = itemMaxPriceEl ? (parseFloat(itemMaxPriceEl.value) || itemPrice) : itemPrice;
         const itemOldPriceEl = div.querySelector(".bulk-old-price");
         const itemOldPrice = itemOldPriceEl ? (parseFloat(itemOldPriceEl.value) || 0) : 0;
         const itemFlashSale = div.querySelector(".bulk-flashsale").checked;
@@ -1615,8 +1612,6 @@ function loadBulkUpload(){
           if(existingKey){
             await update(ref(db, "products/"+existingKey), {
               price: itemPrice,
-              minPrice: itemPrice,
-              maxPrice: itemMaxPrice,
               discountPrice: itemOldPrice,
               isFlashSale: itemFlashSale,
               isTrending: itemTrending,
@@ -1632,8 +1627,6 @@ function loadBulkUpload(){
             await set(newRef, {
               title: itemTitle,
               price: itemPrice,
-              minPrice: itemPrice,
-              maxPrice: itemMaxPrice,
               discountPrice: itemOldPrice,
               isFlashSale: itemFlashSale,
               isTrending: itemTrending,
@@ -1687,8 +1680,6 @@ function loadBulkUpload(){
         try{
           const title = card.querySelector(".bulk-title").value.trim();
           const price = parseFloat(card.querySelector(".bulk-price").value) || 0;
-          const maxPriceEl = card.querySelector(".bulk-price-max");
-          const maxPrice = maxPriceEl ? (parseFloat(maxPriceEl.value) || price) : price;
           const stock = parseInt(card.querySelector(".bulk-stock").value) || 0;
           const categoryId = card.querySelector(".bulk-category").value;
           const file = card.bulkFile;
@@ -1704,8 +1695,6 @@ function loadBulkUpload(){
           if(existingKey){
             await update(ref(db, "products/"+existingKey), {
               price: price,
-              minPrice: price,
-              maxPrice: maxPrice,
               stock: stock,
               categoryId: categoryId,
               description: desc,
@@ -1718,8 +1707,6 @@ function loadBulkUpload(){
             const productData = {
               title: title,
               price: price,
-              minPrice: price,
-              maxPrice: maxPrice,
               stock: stock,
               categoryId: categoryId,
               description: desc,
