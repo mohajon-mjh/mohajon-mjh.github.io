@@ -676,7 +676,7 @@ drawDots();
 
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst, startAfter, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const fsFirebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -806,31 +806,67 @@ if(flashSaleLabelEl){
 
 const flashSaleGrid = document.getElementById("flashSaleProductsGrid");
 const FS_STRIP_LIMIT = 30;
+let fsLastKey = null;
+let fsLoading = false;
 
-const fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), limitToFirst(FS_STRIP_LIMIT));
-onValue(fsQuery, (snapshot) => {
-  flashSaleGrid.innerHTML = "";
-  let items = [];
-  snapshot.forEach(child => {
-    if(child.val().status === "active"){
-      items.push({ id: child.key, data: child.val() });
-    }
-  });
-  if(items.length === 0){
-    flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
+function fsRemoveArrow(){
+  const old = flashSaleGrid.querySelector(".scroll-arrow-card");
+  if(old) old.remove();
+}
+
+function fsAddArrow(){
+  fsRemoveArrow();
+  const arrowCard = document.createElement("div");
+  arrowCard.className = "scroll-arrow-card";
+  arrowCard.innerHTML = "<span>→</span>";
+  arrowCard.addEventListener("click", () => { loadFlashSaleBatch(); });
+  flashSaleGrid.appendChild(arrowCard);
+}
+
+function loadFlashSaleBatch(){
+  if(fsLoading) return;
+  fsLoading = true;
+  fsRemoveArrow();
+
+  let fsQuery;
+  if(fsLastKey){
+    fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), startAfter(true, fsLastKey), limitToFirst(FS_STRIP_LIMIT));
   } else {
-    items.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data)));
+    fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), limitToFirst(FS_STRIP_LIMIT));
   }
-  if(items.length >= FS_STRIP_LIMIT){
-    const arrowCard = document.createElement("div");
-    arrowCard.className = "scroll-arrow-card";
-    arrowCard.innerHTML = "<span>→</span>";
-    arrowCard.addEventListener("click", () => {
-      window.location.href = "products.html?flashSale=true";
+
+  get(fsQuery).then((snapshot) => {
+    let items = [];
+    snapshot.forEach(child => {
+      if(child.val().status === "active"){
+        items.push({ id: child.key, data: child.val() });
+      }
     });
-    flashSaleGrid.appendChild(arrowCard);
-  }
-}, { onlyOnce: true });
+
+    if(items.length === 0 && !fsLastKey){
+      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
+      fsLoading = false;
+      return;
+    }
+
+    items.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data)));
+
+    if(items.length > 0){
+      fsLastKey = items[items.length - 1].id;
+    }
+
+    if(items.length >= FS_STRIP_LIMIT){
+      fsAddArrow();
+    }
+
+    fsLoading = false;
+  }).catch((err) => {
+    console.error("Flash sale load error:", err);
+    fsLoading = false;
+  });
+}
+
+loadFlashSaleBatch();
 </script>
 
 </div>
@@ -1249,7 +1285,7 @@ onValue(dealsQuery, (snapshot) => {
 
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst, startAfter, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const scFirebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -1337,7 +1373,7 @@ onValue(ref(scDb, "settings/specialCategories"), (snapshot) => {
 </div>
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst, startAfter, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
