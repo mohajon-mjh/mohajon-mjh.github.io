@@ -701,10 +701,12 @@ function fsIsWished(id){
 
 function renderFlashSaleCard(id, data){
   const price = parseFloat(data.price) || 0;
-  const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
-  const priceDisplay = fmtP(price);
   const discount = parseInt(data.discountPercent) || 0;
-  const oldPrice = (parseFloat(data.discountPrice) || 0) > price ? parseFloat(data.discountPrice) : (discount > 0 ? (price / (1 - discount/100)) : 0);
+  const salePrice = discount > 0 ? Math.round(price - (price * discount / 100)) : price;
+  const saveAmount = price - salePrice;
+  const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
+  const priceDisplay = fmtP(salePrice);
+  const oldPriceDisplay = fmtP(price);
   const stock = parseInt(data.stock) || 0;
 
   const imageUrl =
@@ -728,6 +730,7 @@ function renderFlashSaleCard(id, data){
     <div class="product-card-image">
       ${stockBadge}
       ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
+      ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
       <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
       <img src="${imageUrl}" alt="${data.title || data.name || 'Product'}"
            loading="lazy"
@@ -737,7 +740,7 @@ function renderFlashSaleCard(id, data){
       <h3 class="product-card-title">${data.title || data.name || "Unnamed Product"}</h3>
       <div class="product-card-price">
         <span class="current-price">${priceDisplay}</span>
-        ${oldPrice > price ? `<span class="old-price">${window.MJHCurrency ? window.MJHCurrency.formatPrice(oldPrice) : '৳'+oldPrice.toFixed(0)}</span>` : ""}
+        ${discount > 0 ? `<span class="old-price">${oldPriceDisplay}</span>` : ""}
       </div>
       <div class="product-card-actions" style="flex-direction:column">
         <button class="btn-add-to-cart" ${stock<=0 ? "disabled" : ""} style="width:100%">${stock<=0 ? "Out of Stock" : "🛒 Add to Cart"}</button>
@@ -750,7 +753,7 @@ function renderFlashSaleCard(id, data){
   if(cartBtn && stock > 0){
     cartBtn.addEventListener("click", () => {
       if(typeof addCart === "function"){
-        addCart(id, data.title || data.name, price);
+        addCart(id, data.title || data.name, salePrice);
       }
       cartBtn.textContent = "Added ✓";
       setTimeout(()=>{ cartBtn.textContent = "🛒 Add to Cart"; }, 1200);
@@ -761,7 +764,7 @@ function renderFlashSaleCard(id, data){
   if(buyBtn && stock > 0){
     buyBtn.addEventListener("click", () => {
       if(typeof addCart === "function"){
-        addCart(id, data.title || data.name, price);
+        addCart(id, data.title || data.name, salePrice);
       }
       window.location.href = "cart.html";
     });
@@ -804,7 +807,7 @@ if(flashSaleLabelEl){
 }
 
 const flashSaleGrid = document.getElementById("flashSaleProductsGrid");
-const FS_STRIP_LIMIT = 20;
+const FS_STRIP_LIMIT = 30;
 
 const fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), limitToFirst(FS_STRIP_LIMIT));
 onValue(fsQuery, (snapshot) => {
@@ -821,7 +824,15 @@ onValue(fsQuery, (snapshot) => {
     items.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data)));
   }
   const btn = document.getElementById("flashSaleLoadMoreBtn");
-  if(btn) btn.style.display = "none";
+  if(btn){
+    if(items.length >= FS_STRIP_LIMIT){
+      btn.style.display = "inline-block";
+      btn.textContent = "আরও প্রোডাক্ট দেখুন →";
+      btn.onclick = () => { window.location.href = "products.html?flashSale=true"; };
+    } else {
+      btn.style.display = "none";
+    }
+  }
 }, { onlyOnce: true });
 </script>
 
