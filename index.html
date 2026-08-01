@@ -806,8 +806,8 @@ if(flashSaleLabelEl){
 
 const flashSaleGrid = document.getElementById("flashSaleProductsGrid");
 const FS_STRIP_LIMIT = 30;
-let fsLastKey = null;
-let fsLoading = false;
+let fsAllItems = [];
+let fsRenderedCount = 0;
 
 function fsRemoveArrow(){
   const old = flashSaleGrid.querySelector(".scroll-arrow-card");
@@ -819,54 +819,36 @@ function fsAddArrow(){
   const arrowCard = document.createElement("div");
   arrowCard.className = "scroll-arrow-card";
   arrowCard.innerHTML = "<span>→</span>";
-  arrowCard.addEventListener("click", () => { loadFlashSaleBatch(); });
+  arrowCard.addEventListener("click", () => { fsRenderNextBatch(); });
   flashSaleGrid.appendChild(arrowCard);
 }
 
-function loadFlashSaleBatch(){
-  if(fsLoading) return;
-  fsLoading = true;
+function fsRenderNextBatch(){
   fsRemoveArrow();
-
-  let fsQuery;
-  if(fsLastKey){
-    fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), startAfter(true, fsLastKey), limitToFirst(FS_STRIP_LIMIT));
-  } else {
-    fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), limitToFirst(FS_STRIP_LIMIT));
+  const nextItems = fsAllItems.slice(fsRenderedCount, fsRenderedCount + FS_STRIP_LIMIT);
+  nextItems.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data)));
+  fsRenderedCount += nextItems.length;
+  if(fsRenderedCount < fsAllItems.length){
+    fsAddArrow();
   }
-
-  get(fsQuery).then((snapshot) => {
-    let items = [];
-    snapshot.forEach(child => {
-      if(child.val().status === "active"){
-        items.push({ id: child.key, data: child.val() });
-      }
-    });
-
-    if(items.length === 0 && !fsLastKey){
-      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
-      fsLoading = false;
-      return;
-    }
-
-    items.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data)));
-
-    if(items.length > 0){
-      fsLastKey = items[items.length - 1].id;
-    }
-
-    if(items.length >= FS_STRIP_LIMIT){
-      fsAddArrow();
-    }
-
-    fsLoading = false;
-  }).catch((err) => {
-    console.error("Flash sale load error:", err);
-    fsLoading = false;
-  });
 }
 
-loadFlashSaleBatch();
+const fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), limitToFirst(500));
+onValue(fsQuery, (snapshot) => {
+  flashSaleGrid.innerHTML = "";
+  fsAllItems = [];
+  fsRenderedCount = 0;
+  snapshot.forEach(child => {
+    if(child.val().status === "active"){
+      fsAllItems.push({ id: child.key, data: child.val() });
+    }
+  });
+  if(fsAllItems.length === 0){
+    flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
+    return;
+  }
+  fsRenderNextBatch();
+}, { onlyOnce: true });
 </script>
 
 </div>
