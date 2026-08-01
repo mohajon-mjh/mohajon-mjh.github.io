@@ -22,6 +22,44 @@
         return params.get("categoryId");
     }
 
+    function getFlashSaleFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get("flashSale") === "true";
+    }
+
+    let isFlashSaleMode = false;
+    let fullFlashSaleProducts = [];
+    let flashSaleRenderedCount = 0;
+
+    function loadFlashSaleProducts() {
+        isLoading = true;
+        const productsRef = db.ref('products');
+        productsRef.orderByChild('isFlashSale').equalTo(true).once('value', (snapshot) => {
+            const data = snapshot.val();
+            fullFlashSaleProducts = data
+                ? Object.keys(data).map(key => ({ id: key, ...data[key] }))
+                : [];
+            flashSaleRenderedCount = Math.min(PAGE_SIZE, fullFlashSaleProducts.length);
+            productsCache = fullFlashSaleProducts.slice(0, flashSaleRenderedCount);
+            hasMore = flashSaleRenderedCount < fullFlashSaleProducts.length;
+            isLoading = false;
+            console.log('✅ Flash Sale products loaded (total match):', fullFlashSaleProducts.length, '| দেখানো হচ্ছে:', productsCache.length);
+            dispatchLoaded(true);
+        }, (error) => {
+            isLoading = false;
+            console.error('Error loading flash sale products:', error);
+        });
+    }
+
+    function loadMoreFlashSaleProducts() {
+        if (!hasMore || isLoading) return;
+        flashSaleRenderedCount = Math.min(flashSaleRenderedCount + PAGE_SIZE, fullFlashSaleProducts.length);
+        productsCache = fullFlashSaleProducts.slice(0, flashSaleRenderedCount);
+        hasMore = flashSaleRenderedCount < fullFlashSaleProducts.length;
+        console.log('✅ আরও Flash Sale প্রোডাক্ট দেখানো হচ্ছে, মোট:', productsCache.length);
+        dispatchLoaded(false);
+    }
+
     function dispatchLoaded(reset) {
         const event = new CustomEvent('productsLoaded', {
             detail: { products: productsCache, hasMore, reset }
@@ -78,6 +116,10 @@
 
     function loadMore() {
         if (isLoading) return;
+        if (isFlashSaleMode) {
+            loadMoreFlashSaleProducts();
+            return;
+        }
         if (currentCategory && currentCategory !== 'all') {
             loadMoreCategoryProducts();
             return;
@@ -102,6 +144,11 @@
     }
 
     function loadProducts() {
+        isFlashSaleMode = getFlashSaleFromURL();
+        if (isFlashSaleMode) {
+            loadFlashSaleProducts();
+            return;
+        }
         currentCategory = getCategoryFromURL();
         if (currentCategory && currentCategory !== 'all') {
             loadCategoryProducts(currentCategory);

@@ -662,7 +662,7 @@ drawDots();
 <br>
 
 <div class="categories">
-<a href="products.html" class="cat">🔥 <span id="flashSaleLabelText">Up To 70% Off</span></a>
+<a href="products.html?flashSale=true" class="cat">🔥 <span id="flashSaleLabelText">Up To 70% Off</span></a>
 <a href="products.html?categoryId=consumer_electronics" class="cat">📱 Electronics Deals</a>
 <a href="products.html?categoryId=clothing_fashion_apparel_men_women_kids" class="cat">👕 Fashion Sale</a>
 <a href="products.html?categoryId=home_kitchen" class="cat">🏠 Home Essentials</a>
@@ -678,7 +678,7 @@ drawDots();
 
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, query, orderByChild, limitToLast, endBefore } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const fsFirebaseConfig = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
@@ -804,42 +804,25 @@ if(flashSaleLabelEl){
 }
 
 const flashSaleGrid = document.getElementById("flashSaleProductsGrid");
-const FS_BATCH = 30;
-let fsCursor = null;
-let fsDone = false;
-let fsAnyShown = false;
+const FS_STRIP_LIMIT = 20;
 
-function fsLoadBatch(){
-  const q = fsCursor === null
-    ? query(ref(fsDb, "products"), orderByChild("createdAt"), limitToLast(FS_BATCH))
-    : query(ref(fsDb, "products"), orderByChild("createdAt"), endBefore(fsCursor), limitToLast(FS_BATCH));
-
-  onValue(q, (snapshot) => {
-    let items = [];
-    snapshot.forEach(child => items.push({ id: child.key, data: child.val() }));
-    if(items.length < FS_BATCH) fsDone = true;
-    if(items.length > 0) fsCursor = items[0].data.createdAt;
-    items.reverse();
-    items.forEach(it => {
-      if(it.data.status === "active" && it.data.isFlashSale === true){
-        flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data));
-        fsAnyShown = true;
-      }
-    });
-    if(!fsAnyShown && fsDone){
-      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
+const fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), limitToFirst(FS_STRIP_LIMIT));
+onValue(fsQuery, (snapshot) => {
+  flashSaleGrid.innerHTML = "";
+  let items = [];
+  snapshot.forEach(child => {
+    if(child.val().status === "active"){
+      items.push({ id: child.key, data: child.val() });
     }
-    const btn = document.getElementById("flashSaleLoadMoreBtn");
-    if(btn) btn.style.display = fsDone ? "none" : "inline-block";
-  }, { onlyOnce: true });
-}
-
-flashSaleGrid.innerHTML = "";
-fsLoadBatch();
-const fsLoadMoreBtn = document.getElementById("flashSaleLoadMoreBtn");
-if(fsLoadMoreBtn){
-  fsLoadMoreBtn.addEventListener("click", () => fsLoadBatch());
-}
+  });
+  if(items.length === 0){
+    flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
+  } else {
+    items.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data)));
+  }
+  const btn = document.getElementById("flashSaleLoadMoreBtn");
+  if(btn) btn.style.display = "none";
+}, { onlyOnce: true });
 </script>
 
 </div>
