@@ -672,9 +672,7 @@ drawDots();
 <div id="flashSaleProductsGrid" class="trending-scroll-wrapper">
   <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
 </div>
-<div style="text-align:center;margin-top:10px">
-<button id="flashSaleLoadMoreBtn" style="display:none;padding:8px 20px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer">আরও প্রোডাক্ট দেখুন</button>
-</div>
+
 
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
@@ -823,15 +821,14 @@ onValue(fsQuery, (snapshot) => {
   } else {
     items.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data)));
   }
-  const btn = document.getElementById("flashSaleLoadMoreBtn");
-  if(btn){
-    if(items.length >= FS_STRIP_LIMIT){
-      btn.style.display = "inline-block";
-      btn.textContent = "আরও প্রোডাক্ট দেখুন →";
-      btn.onclick = () => { window.location.href = "products.html?flashSale=true"; };
-    } else {
-      btn.style.display = "none";
-    }
+  if(items.length >= FS_STRIP_LIMIT){
+    const arrowCard = document.createElement("div");
+    arrowCard.className = "scroll-arrow-card";
+    arrowCard.innerHTML = "<span>→</span>";
+    arrowCard.addEventListener("click", () => {
+      window.location.href = "products.html?flashSale=true";
+    });
+    flashSaleGrid.appendChild(arrowCard);
   }
 }, { onlyOnce: true });
 </script>
