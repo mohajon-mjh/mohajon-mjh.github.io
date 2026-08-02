@@ -1511,9 +1511,24 @@ function loadBulkUpload(){
     renderBulkList();
   });
 
-  function renderBulkList(){
+  async function renderBulkList(){
     listDiv.innerHTML = "";
     if(selectedFiles.length === 0) return;
+
+    let COMBINED_CATEGORIES = { ...ALL_CATEGORIES };
+    try{
+      const scSnap = await get(ref(db, "settings/specialCategories"));
+      if(scSnap.exists()){
+        scSnap.forEach(child => {
+          const d = child.val();
+          if(d && d.slug && d.name){
+            COMBINED_CATEGORIES[d.slug] = "✦ " + d.name;
+          }
+        });
+      }
+    }catch(err){
+      console.error("Special categories load error:", err);
+    }
 
     listDiv.innerHTML = `<div class="section-title"><h3>${selectedFiles.length}টি প্রোডাক্ট প্রস্তুত</h3></div>`;
 
@@ -1536,7 +1551,7 @@ function loadBulkUpload(){
     listDiv.appendChild(bulkCatWrap);
 
     const bulkApplySelect = bulkCatWrap.querySelector("#bulk-apply-category-select");
-    Object.entries(ALL_CATEGORIES).forEach(([id, label])=>{
+    Object.entries(COMBINED_CATEGORIES).forEach(([id, label])=>{
       const opt = document.createElement("option");
       opt.value = id;
       opt.textContent = label;
@@ -1552,10 +1567,10 @@ function loadBulkUpload(){
       itemsContainer.querySelectorAll(".bulk-category").forEach(sel=>{
         sel.value = val;
       });
-      alert(`✅ সব প্রোডাক্টে "${ALL_CATEGORIES[val]}" ক্যাটাগরি বসানো হয়েছে`);
+      alert(`✅ সব প্রোডাক্টে "${COMBINED_CATEGORIES[val]}" ক্যাটাগরি বসানো হয়েছে`);
     };
 
-    const categoryOptionsHTML = (selectedId) => Object.entries(ALL_CATEGORIES).map(
+    const categoryOptionsHTML = (selectedId) => Object.entries(COMBINED_CATEGORIES).map(
       ([id, label]) => `<option value="${id}" ${selectedId===id?'selected':''}>${label}</option>`
     ).join('');
 
