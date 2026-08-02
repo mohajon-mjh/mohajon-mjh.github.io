@@ -1946,6 +1946,8 @@ function loadComingSoon(){
   const scNameInput = document.getElementById("sc-name");
   const scSlugInput = document.getElementById("sc-slug");
   const scOrderInput = document.getElementById("sc-order");
+  const scStartInput = document.getElementById("sc-startdate");
+  const scEndInput = document.getElementById("sc-enddate");
   const scAddBtn = document.getElementById("sc-add-btn");
   const scListDiv = document.getElementById("sc-list");
 
@@ -1958,10 +1960,14 @@ function loadComingSoon(){
     if(!name || !slug){ alert("নাম ও Category ID দুটোই দিন"); return; }
     try{
       const newRef = push(ref(db, "settings/specialCategories"));
-      await set(newRef, { name, slug, order, createdAt: Date.now() });
+      const startDate = scStartInput ? scStartInput.value.trim() : "";
+      const endDate = scEndInput ? scEndInput.value.trim() : "";
+      await set(newRef, { name, slug, order, startDate, endDate, createdAt: Date.now() });
       scNameInput.value = "";
       scSlugInput.value = "";
       scOrderInput.value = "0";
+      if(scStartInput) scStartInput.value = "";
+      if(scEndInput) scEndInput.value = "";
       alert("✅ Special Category যোগ হয়েছে");
       scRenderList();
     }catch(err){
@@ -1990,6 +1996,8 @@ function loadComingSoon(){
           <label>নাম <input type="text" class="sc-edit-name" value="${(item.name||'').replace(/"/g,'&quot;')}"></label>
           <label>Category ID <input type="text" class="sc-edit-slug" value="${(item.slug||'').replace(/"/g,'&quot;')}"></label>
           <label>Order <input type="number" class="sc-edit-order" value="${item.order||0}" style="width:80px"></label>
+          <label>শুরুর তারিখ <input type="text" class="sc-edit-startdate" value="${(item.startDate||'').replace(/"/g,'&quot;')}" placeholder="dd-mm-yyyy"></label>
+          <label>শেষের তারিখ <input type="text" class="sc-edit-enddate" value="${(item.endDate||'').replace(/"/g,'&quot;')}" placeholder="dd-mm-yyyy"></label>
           <div style="margin-top:10px">
             <button class="save-btn sc-save-btn">💾 Save</button>
             <button class="danger-btn sc-delete-btn">🗑️ Delete</button>
@@ -2000,8 +2008,10 @@ function loadComingSoon(){
           const newName = div.querySelector(".sc-edit-name").value.trim();
           const newSlug = div.querySelector(".sc-edit-slug").value.trim();
           const newOrder = parseInt(div.querySelector(".sc-edit-order").value) || 0;
+        const newStartDate = div.querySelector(".sc-edit-startdate").value.trim();
+        const newEndDate = div.querySelector(".sc-edit-enddate").value.trim();
           try{
-            await update(ref(db, "settings/specialCategories/"+id), { name: newName, slug: newSlug, order: newOrder });
+            await update(ref(db, "settings/specialCategories/"+id), { name: newName, slug: newSlug, order: newOrder, startDate: newStartDate, endDate: newEndDate });
             alert("✅ Update হয়েছে");
             scRenderList();
           }catch(err){
