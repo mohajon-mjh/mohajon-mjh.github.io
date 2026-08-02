@@ -190,6 +190,15 @@ h2{margin-top:0}
         <button id="flashsale-label-save" class="save-btn">Save</button>
         <span id="flashsale-label-status" style="margin-left:10px;font-size:13px;color:#8f8"></span>
       </div>
+      <div class="card">
+        <h3>⚡ Global Discount % (ডিফল্ট)</h3>
+        <label>যে প্রোডাক্টে আলাদা করে discount% সেট করা নেই, সেগুলোতে এই % অটো প্রযোগ হবে:
+          <input type="number" id="global-discount-input" min="0" max="90" placeholder="যেমন: 30">
+        </label>
+        <button id="global-discount-save" class="save-btn">Save Global Discount</button>
+        <span id="global-discount-status" style="margin-left:10px;font-size:13px;color:#8f8"></span>
+        <p style="font-size:12px;color:#999;margin-top:6px">যে প্রোডাক্টে আলাদা discount% সেট করা আছে (নিচের লিস্টে), সেগুলো এই global % দিয়ে প্রভাবিত হবে না — সেগুলোর আলাদা % ই থাকবে।</p>
+      </div>
       <input type="text" id="flashsale-search" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন...">
       <div id="flash-sale-manager"></div>
     </section>

@@ -359,8 +359,38 @@ function loadFlashSaleLabel(){
   };
 }
 
+function loadGlobalDiscount(){
+  const input = document.getElementById("global-discount-input");
+  const saveBtn = document.getElementById("global-discount-save");
+  const statusEl = document.getElementById("global-discount-status");
+  if(!input || !saveBtn) return;
+
+  get(ref(db, "settings/flashSaleGlobalDiscount")).then(snap => {
+    input.value = snap.exists() ? snap.val() : "";
+  });
+
+  saveBtn.onclick = async () => {
+    let val = parseInt(input.value);
+    if(isNaN(val) || val < 0 || val > 90){
+      statusEl.style.color = "#f88";
+      statusEl.textContent = "সঠিক % দিন (0-90)";
+      return;
+    }
+    try{
+      await set(ref(db, "settings/flashSaleGlobalDiscount"), val);
+      statusEl.style.color = "#8f8";
+      statusEl.textContent = "✅ সেভ হয়েছে, হোমপেজ অটো আপডেট হবে";
+      setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+    }catch(err){
+      statusEl.style.color = "#f88";
+      statusEl.textContent = "Error: " + err.message;
+    }
+  };
+}
+
 function loadFlashSale(){
   if(!flashSaleDiv) return;
+  loadGlobalDiscount();
   const productsRef = ref(db,"products");
 
   onValue(productsRef,(snapshot)=>{
