@@ -697,9 +697,10 @@ function fsIsWished(id){
   return list.some(i => i.id === id);
 }
 
-function renderFlashSaleCard(id, data){
+function renderFlashSaleCard(id, data, globalDiscount){
   const price = parseFloat(data.price) || 0;
-  const discount = parseInt(data.discountPercent) || 0;
+  const ownDiscount = parseInt(data.discountPercent) || 0;
+  const discount = ownDiscount > 0 ? ownDiscount : (parseInt(globalDiscount) || 0);
   const salePrice = discount > 0 ? Math.round(price - (price * discount / 100)) : price;
   const saveAmount = price - salePrice;
   const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
@@ -808,6 +809,7 @@ const flashSaleGrid = document.getElementById("flashSaleProductsGrid");
 const FS_STRIP_LIMIT = 30;
 let fsAllItems = [];
 let fsRenderedCount = 0;
+let fsGlobalDiscount = 0;
 
 function fsRemoveArrow(){
   const old = flashSaleGrid.querySelector(".scroll-arrow-card");
@@ -826,29 +828,33 @@ function fsAddArrow(){
 function fsRenderNextBatch(){
   fsRemoveArrow();
   const nextItems = fsAllItems.slice(fsRenderedCount, fsRenderedCount + FS_STRIP_LIMIT);
-  nextItems.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data)));
+  nextItems.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data, fsGlobalDiscount)));
   fsRenderedCount += nextItems.length;
   if(fsRenderedCount < fsAllItems.length){
     fsAddArrow();
   }
 }
 
-const fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), limitToFirst(500));
-onValue(fsQuery, (snapshot) => {
-  flashSaleGrid.innerHTML = "";
-  fsAllItems = [];
-  fsRenderedCount = 0;
-  snapshot.forEach(child => {
-    if(child.val().status === "active"){
-      fsAllItems.push({ id: child.key, data: child.val() });
+get(ref(fsDb, "settings/flashSaleGlobalDiscount")).then(snap => {
+  fsGlobalDiscount = snap.exists() ? (parseInt(snap.val()) || 0) : 0;
+}).catch(() => { fsGlobalDiscount = 0; }).finally(() => {
+  const fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), limitToFirst(500));
+  onValue(fsQuery, (snapshot) => {
+    flashSaleGrid.innerHTML = "";
+    fsAllItems = [];
+    fsRenderedCount = 0;
+    snapshot.forEach(child => {
+      if(child.val().status === "active"){
+        fsAllItems.push({ id: child.key, data: child.val() });
+      }
+    });
+    if(fsAllItems.length === 0){
+      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
+      return;
     }
-  });
-  if(fsAllItems.length === 0){
-    flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
-    return;
-  }
-  fsRenderNextBatch();
-}, { onlyOnce: true });
+    fsRenderNextBatch();
+  }, { onlyOnce: true });
+});
 </script>
 
 </div>
