@@ -698,15 +698,12 @@ drawDots();
 <h2>⚡ Flash Sale</h2>
 <br>
 
-<div class="scroll-row-wrapper">
-<button class="scroll-arrow-btn" onclick="document.getElementById('flashCatsRow').scrollBy({left:-200,behavior:'smooth'})">‹</button>
 <div class="categories" id="flashCatsRow">
 <a href="products.html?flashSale=true" class="cat">🔥 <span id="flashSaleLabelText">Up To 70% Off</span></a>
+<a href="products.html?categoryId=lighting_lamps" class="cat">🎉 Special Offers<br>for One Week</a>
 <a href="products.html?categoryId=consumer_electronics" class="cat">📱 Electronics Deals</a>
 <a href="products.html?categoryId=clothing_fashion_apparel_men_women_kids" class="cat">👕 Fashion Sale</a>
 <a href="products.html?categoryId=home_kitchen" class="cat">🏠 Home Essentials</a>
-</div>
-<button class="scroll-arrow-btn" onclick="document.getElementById('flashCatsRow').scrollBy({left:200,behavior:'smooth'})">›</button>
 </div>
 
 <br>
@@ -1302,13 +1299,8 @@ onValue(dealsQuery, (snapshot) => {
 <br>
 
 
-<div class="scroll-row-wrapper" id="specialCatsScrollWrap">
-<button class="scroll-arrow-btn" onclick="document.getElementById('specialCatsContainer').scrollBy({left:-200,behavior:'smooth'})">‹</button>
 <div class="categories special-categories-row" id="specialCatsContainer">
 <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
-</div>
-<button class="scroll-arrow-btn" onclick="document.getElementById('specialCatsContainer').scrollBy({left:200,behavior:'smooth'})">›</button>
-
 </div>
 <div class="section" id="specialCatProductSection" style="display:none">
 <div id="specialCatCarousel" class="trending-scroll-wrapper">
