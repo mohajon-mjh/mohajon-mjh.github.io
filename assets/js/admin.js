@@ -422,6 +422,27 @@ function selectFscCategory(catId){
 let fscCurrentSubview = "owncat";
 let fscSelectedIds = new Set();
 
+async function fscUpdateCategoryMaxDiscount(catId){
+  try{
+    const mapSnap = await get(ref(db, "settings/flashSaleCategoryProducts/"+catId));
+    const map = mapSnap.exists() ? mapSnap.val() : {};
+    let maxDiscount = 0;
+    Object.values(map).forEach(info => {
+      const d = parseInt(info.discountPercent) || 0;
+      if(d > maxDiscount) maxDiscount = d;
+    });
+    const catSnap = await get(ref(db, "settings/flashSaleCategories/"+catId));
+    if(!catSnap.exists()) return;
+    const oldName = catSnap.val().name || "";
+    if(/\d+\s*%/.test(oldName)){
+      const newName = oldName.replace(/\d+(\s*%)/, maxDiscount + "$1");
+      if(newName !== oldName){
+        await update(ref(db, "settings/flashSaleCategories/"+catId), { name: newName });
+      }
+    }
+  }catch(err){ console.error("fscUpdateCategoryMaxDiscount error:", err); }
+}
+
 function setupFscNav(){
   const navView = document.getElementById("fsc-nav-view");
   const navAdd = document.getElementById("fsc-nav-add");
@@ -511,6 +532,7 @@ function fscBuildProductCard(pid, data, opts){
         await update(ref(db, `settings/flashSaleCategoryProducts/${fscSelectedCatId}/${pid}`), {
           discountPercent: newDiscount, startDate: newStart, endDate: newEnd
         });
+        await fscUpdateCategoryMaxDiscount(fscSelectedCatId);
       }
       alert("✅ সেভ হয়েছে");
     }catch(err){ alert("❌ Error: " + err.message); }
@@ -521,6 +543,7 @@ function fscBuildProductCard(pid, data, opts){
       if(!confirm("এই প্রোডাক্টটি এই ক্যাটাগরি থেকে সরাবেন?")) return;
       try{
         await remove(ref(db, `settings/flashSaleCategoryProducts/${fscSelectedCatId}/${pid}`));
+        await fscUpdateCategoryMaxDiscount(fscSelectedCatId);
       }catch(err){ alert("❌ Error: " + err.message); }
     };
   } else {
@@ -591,6 +614,7 @@ function setupFscToolbar(getIdsAndData){
     }
     try{
       await update(ref(db), updates);
+      await fscUpdateCategoryMaxDiscount(fscSelectedCatId);
       statusEl.textContent = `✅ ${checked.length}টি প্রোডাক্ট সেভ হয়েছে`;
       setTimeout(()=>{ statusEl.textContent=""; }, 3000);
     }catch(err){
@@ -607,6 +631,7 @@ function setupFscToolbar(getIdsAndData){
       for(const cb of checked){
         await remove(ref(db, `settings/flashSaleCategoryProducts/${fscSelectedCatId}/${cb.dataset.pid}`));
       }
+      await fscUpdateCategoryMaxDiscount(fscSelectedCatId);
       statusEl.textContent = "✅ সরানো হয়েছে";
       setTimeout(()=>{ statusEl.textContent=""; }, 3000);
     }catch(err){
@@ -764,6 +789,7 @@ function renderFscAddList(files, addListDiv){
         await set(ref(db, `settings/flashSaleCategoryProducts/${fscSelectedCatId}/${newRef.key}`), {
           discountPercent: itemDiscount, startDate: itemStart, endDate: itemEnd, addedAt: Date.now()
         });
+        await fscUpdateCategoryMaxDiscount(fscSelectedCatId);
         saveBtn.textContent = "✅ সেভ হয়েছে";
       }catch(err){
         alert("❌ সমস্যা: " + err.message);
