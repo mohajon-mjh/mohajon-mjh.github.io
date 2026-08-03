@@ -351,16 +351,12 @@ function loadFlashSaleCategories(){
     addBtn.onclick = async () => {
       const name = document.getElementById("fsc-name").value.trim();
       const order = parseInt(document.getElementById("fsc-order").value) || 0;
-      const startDate = document.getElementById("fsc-startdate").value.trim();
-      const endDate = document.getElementById("fsc-enddate").value.trim();
       if(!name){ alert("ক্যাটাগরির নাম দিন"); return; }
       try{
         const newRef = push(ref(db, "settings/flashSaleCategories"));
-        await set(newRef, { name, order, startDate, endDate, createdAt: Date.now() });
+        await set(newRef, { name, order, createdAt: Date.now() });
         document.getElementById("fsc-name").value = "";
         document.getElementById("fsc-order").value = "0";
-        document.getElementById("fsc-startdate").value = "";
-        document.getElementById("fsc-enddate").value = "";
         alert("✅ ক্যাটাগরি যোগ হয়েছে");
       }catch(err){
         alert("❌ Error: " + err.message);
@@ -381,29 +377,14 @@ function renderFscList(){
   entries.forEach(([id, item]) => {
     const div = document.createElement("div");
     div.className = "card";
+    div.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer";
     div.innerHTML = `
-      <label>নাম <input type="text" class="fsc-edit-name" value="${(item.name||"").replace(/"/g,"&quot;")}"></label>
-      <label>Order <input type="number" class="fsc-edit-order" value="${item.order||0}" style="width:80px"></label>
-      <label>শুরুর তারিখ <input type="text" class="fsc-edit-startdate" value="${(item.startDate||"").replace(/"/g,"&quot;")}" placeholder="dd-mm-yyyy"></label>
-      <label>শেষের তারিখ <input type="text" class="fsc-edit-enddate" value="${(item.endDate||"").replace(/"/g,"&quot;")}" placeholder="dd-mm-yyyy"></label>
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-        <button class="save-btn fsc-view-btn">🛍️ প্রোডাক্ট দেখুন / যোগ করুন</button>
-        <button class="save-btn fsc-save-btn">💾 Save</button>
-        <button class="danger-btn fsc-delete-btn">🗑️ Delete</button>
-      </div>
+      <h3 class="fsc-cat-name" style="margin:0">${(item.name||"").replace(/</g,"&lt;")}</h3>
+      <button class="danger-btn fsc-delete-btn">🗑️ Delete</button>
     `;
-    div.querySelector(".fsc-view-btn").onclick = () => selectFscCategory(id);
-    div.querySelector(".fsc-save-btn").onclick = async () => {
-      const newName = div.querySelector(".fsc-edit-name").value.trim();
-      const newOrder = parseInt(div.querySelector(".fsc-edit-order").value) || 0;
-      const newStart = div.querySelector(".fsc-edit-startdate").value.trim();
-      const newEnd = div.querySelector(".fsc-edit-enddate").value.trim();
-      try{
-        await update(ref(db, "settings/flashSaleCategories/"+id), { name: newName, order: newOrder, startDate: newStart, endDate: newEnd });
-        alert("✅ Update হয়েছে");
-      }catch(err){ alert("❌ Error: " + err.message); }
-    };
-    div.querySelector(".fsc-delete-btn").onclick = async () => {
+    div.querySelector(".fsc-cat-name").onclick = () => selectFscCategory(id);
+    div.querySelector(".fsc-delete-btn").onclick = async (e) => {
+      e.stopPropagation();
       if(!confirm(`"${item.name}" ক্যাটাগরি এবং এর সব প্রোডাক্ট লিংক ডিলিট করবেন? (মূল প্রোডাক্ট ডিলিট হবে না)`)) return;
       try{
         await remove(ref(db, "settings/flashSaleCategories/"+id));
