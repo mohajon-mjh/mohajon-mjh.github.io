@@ -187,6 +187,8 @@ margin-top:4px;
 }
 #flashCatsRow{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 #flashCatsRow::-webkit-scrollbar{display:none;}
+#flashCatsRow{display:flex;flex-wrap:nowrap;gap:12px;}
+#flashCatsRow .cat{flex:0 0 auto;min-width:150px;}
 #specialCatsContainer{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 #specialCatsContainer::-webkit-scrollbar{display:none;}
 
@@ -699,11 +701,11 @@ drawDots();
 <br>
 
 <div class="categories" id="flashCatsRow">
-<a href="products.html?flashSale=true" class="cat">🔥 <span id="flashSaleLabelText">Up To 70% Off</span></a>
-<a href="products.html?categoryId=lighting_lamps" class="cat">🎉 Special Offers<br>for One Week</a>
-<a href="products.html?categoryId=consumer_electronics" class="cat">📱 Electronics Deals</a>
-<a href="products.html?categoryId=clothing_fashion_apparel_men_women_kids" class="cat">👕 Fashion Sale</a>
-<a href="products.html?categoryId=home_kitchen" class="cat">🏠 Home Essentials</a>
+<a href="javascript:void(0)" class="cat" data-mode="flashsale" data-cat="" onclick="loadFlashCategoryProducts('flashsale', null)">🔥 <span id="flashSaleLabelText">Up To 70% Off</span></a>
+<a href="javascript:void(0)" class="cat" data-mode="category" data-cat="lighting_lamps" onclick="loadFlashCategoryProducts('category', 'lighting_lamps')">🎉 Special Offers<br>for One Week</a>
+<a href="javascript:void(0)" class="cat" data-mode="category" data-cat="consumer_electronics" onclick="loadFlashCategoryProducts('category', 'consumer_electronics')">📱 Electronics Deals</a>
+<a href="javascript:void(0)" class="cat" data-mode="category" data-cat="clothing_fashion_apparel_men_women_kids" onclick="loadFlashCategoryProducts('category', 'clothing_fashion_apparel_men_women_kids')">👕 Fashion Sale</a>
+<a href="javascript:void(0)" class="cat" data-mode="category" data-cat="home_kitchen" onclick="loadFlashCategoryProducts('category', 'home_kitchen')">🏠 Home Essentials</a>
 </div>
 
 <br>
@@ -873,26 +875,40 @@ function fsRenderNextBatch(){
   }
 }
 
-get(ref(fsDb, "settings/flashSaleGlobalDiscount")).then(snap => {
-  fsGlobalDiscount = snap.exists() ? (parseInt(snap.val()) || 0) : 0;
-}).catch(() => { fsGlobalDiscount = 0; }).finally(() => {
-  const fsQuery = query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), limitToFirst(500));
-  onValue(fsQuery, (snapshot) => {
-    flashSaleGrid.innerHTML = "";
-    fsAllItems = [];
-    fsRenderedCount = 0;
-    snapshot.forEach(child => {
-      if(child.val().status === "active"){
-        fsAllItems.push({ id: child.key, data: child.val() });
+function loadFlashCategoryProducts(mode, categoryId){
+  document.querySelectorAll("#flashCatsRow .cat").forEach(b => b.classList.remove("active"));
+  const activeBtn = document.querySelector(`#flashCatsRow .cat[data-mode="${mode}"][data-cat="${categoryId||''}"]`);
+  if(activeBtn) activeBtn.classList.add("active");
+
+  flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
+
+  const fsQuery = mode === "flashsale"
+    ? query(ref(fsDb, "products"), orderByChild("isFlashSale"), equalTo(true), limitToFirst(500))
+    : query(ref(fsDb, "products"), orderByChild("categoryId"), equalTo(categoryId), limitToFirst(500));
+
+  get(ref(fsDb, "settings/flashSaleGlobalDiscount")).then(snap => {
+    fsGlobalDiscount = snap.exists() ? (parseInt(snap.val()) || 0) : 0;
+  }).catch(() => { fsGlobalDiscount = 0; }).finally(() => {
+    onValue(fsQuery, (snapshot) => {
+      flashSaleGrid.innerHTML = "";
+      fsAllItems = [];
+      fsRenderedCount = 0;
+      snapshot.forEach(child => {
+        if(child.val().status === "active"){
+          fsAllItems.push({ id: child.key, data: child.val() });
+        }
+      });
+      if(fsAllItems.length === 0){
+        flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো প্রোডাক্ট যোগ করা হয়নি।</p>";
+        return;
       }
-    });
-    if(fsAllItems.length === 0){
-      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Flash Sale প্রোডাক্ট যোগ করা হয়নি।</p>";
-      return;
-    }
-    fsRenderNextBatch();
-  }, { onlyOnce: true });
-});
+      fsRenderNextBatch();
+    }, { onlyOnce: true });
+  });
+}
+window.loadFlashCategoryProducts = loadFlashCategoryProducts;
+
+loadFlashCategoryProducts("flashsale", null);
 </script>
 
 </div>
