@@ -28,7 +28,6 @@ const sellerReqDiv = document.getElementById("seller-requests");
 const sellerCommDiv = document.getElementById("seller-commissions");
 const ordersDiv = document.getElementById("orders-commission");
 const notepadDiv = document.getElementById("admin-notepad");
-const flashSaleDiv = document.getElementById("flash-sale-manager");
 const trendingDiv = document.getElementById("trending-manager");
 const searchInput = document.getElementById("product-search");
 
@@ -100,9 +99,8 @@ onAuthStateChanged(auth, (user) => {
   loadCurrencyPanel();
   loadBulkUpload();
   loadComingSoon();
-  loadFlashSale();
+  loadFlashSaleCategories();
   loadTrending();
-  loadFlashSaleLabel();
 });
 
 /* ===================== OVERVIEW STATS ===================== */
@@ -329,131 +327,223 @@ function renderAllProducts(filterText){
   if(count === 0) allProductsDiv.innerHTML += "<p>কোনো প্রোডাক্ট পাওয়া যায়নি।</p>";
 }
 
-/* ===================== FLASH SALE MANAGER ===================== */
-let flashSaleCache = {};
+/* ===================== FLASH SALE CATEGORY MANAGER (v2) ===================== */
 let trendingCache = {};
-const flashSaleSearchInput = document.getElementById("flashsale-search");
 const trendingSearchInput = document.getElementById("trending-search");
 
-/* ===================== FLASH SALE LABEL (Up To X% Off) ===================== */
-function loadFlashSaleLabel(){
-  const labelInput = document.getElementById("flashsale-label-input");
-  const saveBtn = document.getElementById("flashsale-label-save");
-  const statusEl = document.getElementById("flashsale-label-status");
-  if(!labelInput || !saveBtn) return;
+let fscCategoriesCache = {};
+let fscSelectedCatId = null;
+let fscSelectedCatProducts = {}; // pid -> {discountPercent, addedAt}
 
-  get(ref(db, "settings/flashSaleLabel")).then(snap => {
-    labelInput.value = snap.exists() ? snap.val() : "Up To 70% Off";
+function loadFlashSaleCategories(){
+  const listDiv = document.getElementById("fsc-list");
+  if(!listDiv) return;
+  onValue(ref(db, "settings/flashSaleCategories"), (snapshot) => {
+    fscCategoriesCache = snapshot.val() || {};
+    renderFscList();
+    if(fscSelectedCatId && fscCategoriesCache[fscSelectedCatId]){
+      document.getElementById("fsc-products-title").textContent = "🛍️ প্রোডাক্ট — " + (fscCategoriesCache[fscSelectedCatId].name||"").replace(/\n/g," ");
+    }
   });
 
-  saveBtn.onclick = async () => {
-    const val = labelInput.value.trim() || "Up To 70% Off";
-    try{
-      await set(ref(db, "settings/flashSaleLabel"), val);
-      statusEl.textContent = "✅ সেভ হয়েছে";
-      setTimeout(()=>{ statusEl.textContent=""; }, 3000);
-    }catch(err){
-      statusEl.style.color = "#f88";
-      statusEl.textContent = "Error: " + err.message;
-    }
-  };
-}
-
-function loadGlobalDiscount(){
-  const input = document.getElementById("global-discount-input");
-  const saveBtn = document.getElementById("global-discount-save");
-  const statusEl = document.getElementById("global-discount-status");
-  if(!input || !saveBtn) return;
-
-  get(ref(db, "settings/flashSaleGlobalDiscount")).then(snap => {
-    input.value = snap.exists() ? snap.val() : "";
-  });
-
-  saveBtn.onclick = async () => {
-    let val = parseInt(input.value);
-    if(isNaN(val) || val < 0 || val > 90){
-      statusEl.style.color = "#f88";
-      statusEl.textContent = "সঠিক % দিন (0-90)";
-      return;
-    }
-    try{
-      await set(ref(db, "settings/flashSaleGlobalDiscount"), val);
-      statusEl.style.color = "#8f8";
-      statusEl.textContent = "✅ সেভ হয়েছে, হোমপেজ অটো আপডেট হবে";
-      setTimeout(()=>{ statusEl.textContent=""; }, 3000);
-    }catch(err){
-      statusEl.style.color = "#f88";
-      statusEl.textContent = "Error: " + err.message;
-    }
-  };
-}
-
-function loadFlashSale(){
-  if(!flashSaleDiv) return;
-  loadGlobalDiscount();
-  const productsRef = ref(db,"products");
-
-  onValue(productsRef,(snapshot)=>{
-    flashSaleCache = {};
-    snapshot.forEach(child=>{
-      const data = child.val();
-      if(data.status === "active") flashSaleCache[child.key] = data;
-    });
-    renderFlashSale(flashSaleSearchInput ? flashSaleSearchInput.value : "");
-  });
-
-  if(flashSaleSearchInput){
-    flashSaleSearchInput.addEventListener("input", () => {
-      renderFlashSale(flashSaleSearchInput.value);
-    });
-  }
-}
-
-function renderFlashSale(filterText){
-  flashSaleDiv.innerHTML="<div class='section-title'><h3>⚡ Flash Sale — Up To 70% Off</h3></div>";
-  const search = (filterText||"").trim().toLowerCase();
-  let count = 0;
-
-  Object.keys(flashSaleCache).forEach(key=>{
-    const data = flashSaleCache[key];
-    const name = (data.title || data.name || "").toLowerCase();
-    if(search && !name.includes(search)) return;
-    count++;
-
-    const div = document.createElement("div");
-    div.className="card";
-
-    div.innerHTML=`
-      <h3>${data.title || data.name}</h3>
-      <p>মূল দাম: ৳${data.price}</p>
-      <label><input type="checkbox" class="fs-toggle" ${data.isFlashSale ? "checked" : ""}> Flash Sale-এ যুক্ত করুন</label>
-      <label>Discount %:
-        <input type="number" class="fs-discount" value="${data.discountPercent||0}" min="0" max="70">
-      </label>
-      <button class="save-btn">Save</button>
-    `;
-
-    div.querySelector(".save-btn").onclick = async () => {
-      const isOn = div.querySelector(".fs-toggle").checked;
-      let discount = parseInt(div.querySelector(".fs-discount").value) || 0;
-      if(discount > 70) discount = 70;
+  const addBtn = document.getElementById("fsc-add-btn");
+  if(addBtn){
+    addBtn.onclick = async () => {
+      const name = document.getElementById("fsc-name").value.trim();
+      const order = parseInt(document.getElementById("fsc-order").value) || 0;
+      const startDate = document.getElementById("fsc-startdate").value.trim();
+      const endDate = document.getElementById("fsc-enddate").value.trim();
+      if(!name){ alert("ক্যাটাগরির নাম দিন"); return; }
       try{
-        await update(ref(db,"products/"+key), {
-          isFlashSale: isOn,
-          discountPercent: discount,
-          updatedAt: Date.now()
-        });
-        alert("✅ Flash Sale আপডেট হয়েছে");
+        const newRef = push(ref(db, "settings/flashSaleCategories"));
+        await set(newRef, { name, order, startDate, endDate, createdAt: Date.now() });
+        document.getElementById("fsc-name").value = "";
+        document.getElementById("fsc-order").value = "0";
+        document.getElementById("fsc-startdate").value = "";
+        document.getElementById("fsc-enddate").value = "";
+        alert("✅ ক্যাটাগরি যোগ হয়েছে");
       }catch(err){
         alert("❌ Error: " + err.message);
       }
     };
+  }
+}
 
-    flashSaleDiv.appendChild(div);
+function renderFscList(){
+  const listDiv = document.getElementById("fsc-list");
+  if(!listDiv) return;
+  const entries = Object.entries(fscCategoriesCache).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+  if(entries.length === 0){
+    listDiv.innerHTML = "<p style=\"color:#888\">কোনো Flash Sale ক্যাটাগরি নেই</p>";
+    return;
+  }
+  listDiv.innerHTML = "";
+  entries.forEach(([id, item]) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <label>নাম <input type="text" class="fsc-edit-name" value="${(item.name||"").replace(/"/g,"&quot;")}"></label>
+      <label>Order <input type="number" class="fsc-edit-order" value="${item.order||0}" style="width:80px"></label>
+      <label>শুরুর তারিখ <input type="text" class="fsc-edit-startdate" value="${(item.startDate||"").replace(/"/g,"&quot;")}" placeholder="dd-mm-yyyy"></label>
+      <label>শেষের তারিখ <input type="text" class="fsc-edit-enddate" value="${(item.endDate||"").replace(/"/g,"&quot;")}" placeholder="dd-mm-yyyy"></label>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="save-btn fsc-view-btn">🛍️ প্রোডাক্ট দেখুন / যোগ করুন</button>
+        <button class="save-btn fsc-save-btn">💾 Save</button>
+        <button class="danger-btn fsc-delete-btn">🗑️ Delete</button>
+      </div>
+    `;
+    div.querySelector(".fsc-view-btn").onclick = () => selectFscCategory(id);
+    div.querySelector(".fsc-save-btn").onclick = async () => {
+      const newName = div.querySelector(".fsc-edit-name").value.trim();
+      const newOrder = parseInt(div.querySelector(".fsc-edit-order").value) || 0;
+      const newStart = div.querySelector(".fsc-edit-startdate").value.trim();
+      const newEnd = div.querySelector(".fsc-edit-enddate").value.trim();
+      try{
+        await update(ref(db, "settings/flashSaleCategories/"+id), { name: newName, order: newOrder, startDate: newStart, endDate: newEnd });
+        alert("✅ Update হয়েছে");
+      }catch(err){ alert("❌ Error: " + err.message); }
+    };
+    div.querySelector(".fsc-delete-btn").onclick = async () => {
+      if(!confirm(`"${item.name}" ক্যাটাগরি এবং এর সব প্রোডাক্ট লিংক ডিলিট করবেন? (মূল প্রোডাক্ট ডিলিট হবে না)`)) return;
+      try{
+        await remove(ref(db, "settings/flashSaleCategories/"+id));
+        await remove(ref(db, "settings/flashSaleCategoryProducts/"+id));
+        if(fscSelectedCatId === id){
+          fscSelectedCatId = null;
+          document.getElementById("fsc-products-panel").style.display = "none";
+        }
+      }catch(err){ alert("❌ Error: " + err.message); }
+    };
+    listDiv.appendChild(div);
+  });
+}
+
+function selectFscCategory(catId){
+  fscSelectedCatId = catId;
+  const panel = document.getElementById("fsc-products-panel");
+  panel.style.display = "block";
+  const title = document.getElementById("fsc-products-title");
+  title.textContent = "🛍️ প্রোডাক্ট — " + ((fscCategoriesCache[catId]||{}).name||"").replace(/\n/g," ");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  onValue(ref(db, "settings/flashSaleCategoryProducts/"+catId), (snapshot) => {
+    fscSelectedCatProducts = snapshot.val() || {};
+    renderFscProductsList();
+  });
+}
+
+async function renderFscProductsList(){
+  const listDiv = document.getElementById("fsc-products-list");
+  if(!listDiv) return;
+  const pids = Object.keys(fscSelectedCatProducts);
+  if(pids.length === 0){
+    listDiv.innerHTML = "<p style=\"color:#888\">এই ক্যাটাগরিতে কোনো প্রোডাক্ট নেই। উপরে সার্চ করে যোগ করুন।</p>";
+    return;
+  }
+  listDiv.innerHTML = "<p style=\"color:#888\">লোড হচ্ছে...</p>";
+
+  const rows = await Promise.all(pids.map(async (pid) => {
+    try{
+      const snap = await get(ref(db, "products/"+pid));
+      const data = snap.val();
+      return { pid, data, mapInfo: fscSelectedCatProducts[pid] };
+    }catch(e){
+      return { pid, data: null, mapInfo: fscSelectedCatProducts[pid] };
+    }
+  }));
+
+  listDiv.innerHTML = "";
+  rows.forEach(({pid, data, mapInfo}) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    const title = data ? (data.title || data.name || "Unnamed") : "⚠️ প্রোডাক্ট পাওয়া যায়নি (ডিলিট হয়ে থাকতে পারে)";
+    const price = data ? data.price : "-";
+    div.innerHTML = `
+      <h3>${title}</h3>
+      <p>মূল দাম: ৳${price}</p>
+      <label>Discount %: <input type="number" class="fsc-item-discount" value="${mapInfo.discountPercent||0}" min="0" max="100" style="width:80px"></label>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="save-btn fsc-item-save">💾 Save</button>
+        <button class="danger-btn fsc-item-remove">🗑️ সরিয়ে ফেলুন</button>
+      </div>
+    `;
+    div.querySelector(".fsc-item-save").onclick = async () => {
+      const disc = parseInt(div.querySelector(".fsc-item-discount").value) || 0;
+      try{
+        await update(ref(db, `settings/flashSaleCategoryProducts/${fscSelectedCatId}/${pid}`), { discountPercent: disc });
+        alert("✅ সেভ হয়েছে");
+      }catch(err){ alert("❌ Error: " + err.message); }
+    };
+    div.querySelector(".fsc-item-remove").onclick = async () => {
+      if(!confirm("এই প্রোডাক্টটি এই ক্যাটাগরি থেকে সরাবেন?")) return;
+      try{
+        await remove(ref(db, `settings/flashSaleCategoryProducts/${fscSelectedCatId}/${pid}`));
+      }catch(err){ alert("❌ Error: " + err.message); }
+    };
+    listDiv.appendChild(div);
   });
 
-  if(count === 0) flashSaleDiv.innerHTML += "<p>কোনো প্রোডাক্ট পাওয়া যায়নি।</p>";
+  const bulkBtn = document.getElementById("fsc-bulk-apply-btn");
+  if(bulkBtn){
+    bulkBtn.onclick = async () => {
+      const bulkVal = parseInt(document.getElementById("fsc-bulk-discount").value);
+      if(isNaN(bulkVal) || bulkVal < 0 || bulkVal > 100){
+        alert("সঠিক % দিন (0-100)"); return;
+      }
+      const statusEl = document.getElementById("fsc-bulk-status");
+      const updates = {};
+      pids.forEach(pid => {
+        updates[`settings/flashSaleCategoryProducts/${fscSelectedCatId}/${pid}/discountPercent`] = bulkVal;
+      });
+      try{
+        await update(ref(db), updates);
+        statusEl.textContent = "✅ সব প্রোডাক্টে " + bulkVal + "% প্রয়োগ হয়েছে";
+        setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+      }catch(err){
+        statusEl.style.color = "#f88";
+        statusEl.textContent = "❌ Error: " + err.message;
+      }
+    };
+  }
 }
+
+function setupFscSearch(){
+  const searchInput = document.getElementById("fsc-search-input");
+  const resultsDiv = document.getElementById("fsc-search-results");
+  if(!searchInput || !resultsDiv) return;
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.trim().toLowerCase();
+    resultsDiv.innerHTML = "";
+    if(!q || !fscSelectedCatId){ return; }
+    const matches = Object.entries(allProductsCache).filter(([pid, data]) => {
+      const name = (data.title || data.name || "").toLowerCase();
+      return name.includes(q) && !fscSelectedCatProducts[pid];
+    }).slice(0, 20);
+    if(matches.length === 0){
+      resultsDiv.innerHTML = "<p style=\"color:#888;font-size:13px\">কোনো ফলাফল পাওয়া যায়নি</p>";
+      return;
+    }
+    matches.forEach(([pid, data]) => {
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #333";
+      row.innerHTML = `<span>${data.title||data.name} — ৳${data.price}</span>`;
+      const addBtn = document.createElement("button");
+      addBtn.className = "save-btn";
+      addBtn.textContent = "+ যোগ করুন";
+      addBtn.onclick = async () => {
+        try{
+          await set(ref(db, `settings/flashSaleCategoryProducts/${fscSelectedCatId}/${pid}`), { discountPercent: 0, addedAt: Date.now() });
+          searchInput.value = "";
+          resultsDiv.innerHTML = "";
+        }catch(err){ alert("❌ Error: " + err.message); }
+      };
+      row.appendChild(addBtn);
+      resultsDiv.appendChild(row);
+    });
+  });
+}
+
+setupFscSearch();
 
 /* ===================== TRENDING PRODUCTS MANAGER ===================== */
 function loadTrending(){
