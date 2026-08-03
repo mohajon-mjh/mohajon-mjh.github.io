@@ -569,6 +569,21 @@ function fscBuildProductCard(pid, data, opts){
     </div>
   `;
 
+  (function(){
+    const priceInput = div.querySelector(".fsc-item-price");
+    const oldPriceInput = div.querySelector(".fsc-item-oldprice");
+    const discountInput = div.querySelector(".fsc-item-discount");
+    function fscRecalc(){
+      const op = parseFloat(oldPriceInput.value);
+      const d = parseInt(discountInput.value) || 0;
+      if(!isNaN(op) && op > 0){
+        priceInput.value = Math.round(op * (1 - d/100));
+      }
+    }
+    oldPriceInput.addEventListener("input", fscRecalc);
+    discountInput.addEventListener("input", fscRecalc);
+  })();
+
   div.querySelector(".fsc-item-save").onclick = async () => {
     const newPrice = parseFloat(div.querySelector(".fsc-item-price").value) || 0;
     const oldPriceVal = div.querySelector(".fsc-item-oldprice").value.trim();
@@ -637,6 +652,14 @@ function setupFscToolbar(getIdsAndData){
       const card = cb.closest(".card");
       const discInput = card.querySelector(".fsc-item-discount");
       if(discInput) discInput.value = val;
+      const oldPriceInput = card.querySelector(".fsc-item-oldprice");
+      const priceInput = card.querySelector(".fsc-item-price");
+      if(oldPriceInput && priceInput){
+        const op = parseFloat(oldPriceInput.value);
+        if(!isNaN(op) && op > 0){
+          priceInput.value = Math.round(op * (1 - val/100));
+        }
+      }
     });
     statusEl.textContent = "✅ সিলেক্টেড প্রোডাক্টে % বসানো হয়েছে, এখন Save চাপুন";
     setTimeout(()=>{ statusEl.textContent=""; }, 4000);
@@ -804,6 +827,21 @@ function renderFscAddList(files, addListDiv){
       <button type="button" class="save-btn fsc-add-save">💾 Save</button>
       <button type="button" class="danger-btn fsc-add-remove">🗑️ বাদ দিন</button>
     `;
+
+    (function(){
+      const priceInput = div.querySelector(".fsc-add-price");
+      const oldPriceInput = div.querySelector(".fsc-add-oldprice");
+      const discountInput = div.querySelector(".fsc-add-discount");
+      function fscRecalcAdd(){
+        const op = parseFloat(oldPriceInput.value);
+        const d = parseInt(discountInput.value) || 0;
+        if(!isNaN(op) && op > 0){
+          priceInput.value = Math.round(op * (1 - d/100));
+        }
+      }
+      oldPriceInput.addEventListener("input", fscRecalcAdd);
+      discountInput.addEventListener("input", fscRecalcAdd);
+    })();
 
     div.querySelector(".fsc-add-remove").onclick = () => div.remove();
 
