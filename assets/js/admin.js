@@ -85,6 +85,7 @@ onAuthStateChanged(auth, (user) => {
   }
 
   currentAdminUid = user.uid;
+  loadFlashSaleCategories();
   loadProducts();
   loadAllProducts();
   loadSellerRequests();
@@ -99,7 +100,6 @@ onAuthStateChanged(auth, (user) => {
   loadCurrencyPanel();
   loadBulkUpload();
   loadComingSoon();
-  loadFlashSaleCategories();
   loadTrending();
 });
 
@@ -224,15 +224,26 @@ function loadAllProducts(){
   }
 }
 
+let allProductsRenderLimit = 50;
+
 function renderAllProducts(filterText){
   allProductsDiv.innerHTML="<div class='section-title'><h3>✏️ সব প্রোডাক্ট — এডিট / ডিলিট</h3></div>";
   const search = (filterText||"").trim().toLowerCase();
   let count = 0;
 
-  Object.keys(allProductsCache).forEach(key=>{
+  let allKeys = Object.keys(allProductsCache);
+  if(search){
+    allKeys = allKeys.filter(key=>{
+      const data = allProductsCache[key];
+      const name = (data.title || data.name || "").toLowerCase();
+      return name.includes(search);
+    });
+  } else {
+    allKeys = allKeys.slice(0, allProductsRenderLimit);
+  }
+
+  allKeys.forEach(key=>{
     const data = allProductsCache[key];
-    const name = (data.title || data.name || "").toLowerCase();
-    if(search && !name.includes(search)) return;
     count++;
 
     const div = document.createElement("div");
@@ -325,6 +336,19 @@ function renderAllProducts(filterText){
   });
 
   if(count === 0) allProductsDiv.innerHTML += "<p>কোনো প্রোডাক্ট পাওয়া যায়নি।</p>";
+
+  const totalCount = Object.keys(allProductsCache).length;
+  if(!search && totalCount > allProductsRenderLimit){
+    const moreBtn = document.createElement("button");
+    moreBtn.className = "save-btn";
+    moreBtn.style.cssText = "display:block;margin:15px auto";
+    moreBtn.textContent = `⬇️ আরও দেখান (${totalCount - allProductsRenderLimit}টি বাকি)`;
+    moreBtn.onclick = () => {
+      allProductsRenderLimit += 50;
+      renderAllProducts(searchInput ? searchInput.value : "");
+    };
+    allProductsDiv.appendChild(moreBtn);
+  }
 }
 
 /* ===================== FLASH SALE CATEGORY MANAGER (v2) ===================== */
