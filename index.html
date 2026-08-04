@@ -752,6 +752,19 @@ function renderFlashSaleCard(id, data, mapInfo){
 
   const wished = fsIsWished(id);
 
+  let dateRangeHTML = "";
+  if(mapInfo.startDate || mapInfo.endDate){
+    let dateText = "";
+    if(mapInfo.startDate && mapInfo.endDate){
+      dateText = "⏰ অফার: " + mapInfo.startDate + " থেকে " + mapInfo.endDate + " পর্যন্ত";
+    } else if(mapInfo.endDate){
+      dateText = "⏰ অফার শেষ: " + mapInfo.endDate;
+    } else if(mapInfo.startDate){
+      dateText = "⏰ অফার শুরু: " + mapInfo.startDate;
+    }
+    dateRangeHTML = '<div class="offer-date-badge" style="font-size:11px;color:#e67e22;margin:4px 0;font-weight:600">' + dateText + '</div>';
+  }
+
   const stockBadge = stock <= 0
     ? '<span class="stock-badge out-of-stock">Out of Stock</span>'
     : (stock <= 5
@@ -778,6 +791,7 @@ function renderFlashSaleCard(id, data, mapInfo){
         <span class="current-price">${priceDisplay}</span>
         ${hasOldPrice ? `<span class="old-price">${oldPriceDisplay}</span>` : ""}
       </div>
+      ${dateRangeHTML}
       <div class="product-card-actions" style="flex-direction:column">
         <button class="btn-add-to-cart" ${stock<=0 ? "disabled" : ""} style="width:100%">${stock<=0 ? "Out of Stock" : "🛒 Add to Cart"}</button>
         <button class="btn-buy-now" ${stock<=0 ? "disabled" : ""} style="width:100%;background:#f59e0b;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer">⚡ Buy Now</button>
