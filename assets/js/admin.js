@@ -940,9 +940,6 @@ function renderFscAddList(files, addListDiv){
 
 
 /* ===================== DEALS OF THE DAY CATEGORY MANAGER ===================== */
-let trendingCache = {};
-const trendingSearchInput = document.getElementById("trending-search");
-
 let dotdCategoriesCache = {};
 let dotdSelectedCatId = null;
 let dotdSelectedCatProducts = {}; // pid -> {discountPercent, addedAt}
