@@ -858,18 +858,18 @@ function fsRenderNextBatch(){
   }
 }
 
-function fsParseDate(str){
+function fsParseDate(str, endOfDay){
   if(!str) return null;
   const parts = str.split("-");
   if(parts.length !== 3) return null;
   const d = parseInt(parts[0]), m = parseInt(parts[1]), y = parseInt(parts[2]);
   if(!d || !m || !y) return null;
-  return new Date(y, m-1, d, 23, 59, 59);
+  return endOfDay ? new Date(y, m-1, d, 23, 59, 59) : new Date(y, m-1, d, 0, 0, 0);
 }
 
 function fsIsOfferActive(mapInfo){
-  const start = fsParseDate(mapInfo.startDate);
-  const end = fsParseDate(mapInfo.endDate);
+  const start = fsParseDate(mapInfo.startDate, false);
+  const end = fsParseDate(mapInfo.endDate, true);
   const now = new Date();
   if(start && now < start) return false;
   if(end && now > end) return false;
