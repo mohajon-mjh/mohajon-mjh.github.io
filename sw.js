@@ -1,4 +1,4 @@
-const CACHE = 'mjh-v82';
+const CACHE = 'mjh-v83';
 const ASSETS = [
   '/assets/images/logo.png',
   '/assets/icons-app/icon-192.png',
@@ -34,7 +34,7 @@ self.addEventListener('fetch', e => {
   // HTML/navigation request => সবসময় আগে নেটওয়ার্ক থেকে নতুন ভার্সন আনার চেষ্টা
   if (req.mode === 'navigate' || (req.method === 'GET' && req.headers.get('accept')?.includes('text/html'))) {
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-store' })
         .then(res => {
           const resClone = res.clone();
           caches.open(CACHE).then(c => c.put(req, resClone));
