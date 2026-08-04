@@ -86,6 +86,7 @@ onAuthStateChanged(auth, (user) => {
 
   currentAdminUid = user.uid;
   loadFlashSaleCategories();
+  loadDealsOfDayCategories();
   loadProducts();
   loadAllProducts();
   loadSellerRequests();
@@ -924,6 +925,593 @@ function renderFscAddList(files, addListDiv){
           discountPercent: itemDiscount, startDate: itemStart, endDate: itemEnd, addedAt: Date.now()
         });
         await fscUpdateCategoryMaxDiscount(fscSelectedCatId);
+        saveBtn.textContent = "✅ সেভ হয়েছে";
+      }catch(err){
+        alert("❌ সমস্যা: " + err.message);
+        saveBtn.disabled = false;
+        saveBtn.textContent = "💾 Save";
+      }
+    };
+
+    addListDiv.appendChild(div);
+  });
+}
+
+
+
+/* ===================== DEALS OF THE DAY CATEGORY MANAGER ===================== */
+let trendingCache = {};
+const trendingSearchInput = document.getElementById("trending-search");
+
+let dotdCategoriesCache = {};
+let dotdSelectedCatId = null;
+let dotdSelectedCatProducts = {}; // pid -> {discountPercent, addedAt}
+
+function loadDealsOfDayCategories(){
+  const listDiv = document.getElementById("dotd-list");
+  if(!listDiv) return;
+  onValue(ref(db, "settings/dealsOfDayCategories"), (snapshot) => {
+    dotdCategoriesCache = snapshot.val() || {};
+    renderDotdList();
+    if(dotdSelectedCatId && dotdCategoriesCache[dotdSelectedCatId]){
+      document.getElementById("dotd-products-title").textContent = "🛍️ প্রোডাক্ট — " + (dotdCategoriesCache[dotdSelectedCatId].name||"").replace(/\n/g," ");
+    }
+  });
+
+  const addBtn = document.getElementById("dotd-add-btn");
+  if(addBtn){
+    addBtn.onclick = async () => {
+      const name = document.getElementById("dotd-name").value.trim();
+      const order = parseInt(document.getElementById("dotd-order").value) || 0;
+      if(!name){ alert("ক্যাটাগরির নাম দিন"); return; }
+      try{
+        const newRef = push(ref(db, "settings/dealsOfDayCategories"));
+        await set(newRef, { name, order, createdAt: Date.now() });
+        document.getElementById("dotd-name").value = "";
+        document.getElementById("dotd-order").value = "0";
+        alert("✅ ক্যাটাগরি যোগ হয়েছে");
+      }catch(err){
+        alert("❌ Error: " + err.message);
+      }
+    };
+  }
+}
+
+function renderDotdList(){
+  const listDiv = document.getElementById("dotd-list");
+  if(!listDiv) return;
+  const entries = Object.entries(dotdCategoriesCache).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+  if(entries.length === 0){
+    listDiv.innerHTML = "<p style=\"color:#888\">কোনো Flash Sale ক্যাটাগরি নেই</p>";
+    return;
+  }
+  listDiv.innerHTML = "";
+  entries.forEach(([id, item]) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer";
+    div.innerHTML = `
+      <h3 class="dotd-cat-name" style="margin:0;flex:1">${(item.name||"").replace(/</g,"&lt;")}</h3>
+      <div style="display:flex;gap:8px">
+        <button class="save-btn dotd-edit-btn">✏️ Edit</button>
+        <button class="danger-btn dotd-delete-btn">🗑️ Delete</button>
+      </div>
+    `;
+    div.querySelector(".dotd-cat-name").onclick = () => selectDotdCategory(id);
+    div.querySelector(".dotd-edit-btn").onclick = (e) => {
+      e.stopPropagation();
+      const h3 = div.querySelector(".dotd-cat-name");
+      const currentName = item.name || "";
+      h3.outerHTML = `<div class="dotd-cat-editbox" style="flex:1;display:flex;gap:8px;align-items:center">
+        <input type="text" class="dotd-cat-name-input" value="${currentName.replace(/"/g,"&quot;")}" style="flex:1">
+        <button class="save-btn dotd-cat-save-btn">💾</button>
+      </div>`;
+      const editBox = div.querySelector(".dotd-cat-editbox");
+      const input = editBox.querySelector(".dotd-cat-name-input");
+      const saveBtn = editBox.querySelector(".dotd-cat-save-btn");
+      const editBtn = div.querySelector(".dotd-edit-btn");
+      editBtn.style.display = "none";
+      input.focus();
+      saveBtn.onclick = async (ev) => {
+        ev.stopPropagation();
+        const newName = input.value.trim();
+        if(!newName){ alert("নাম খালি রাখা যাবে না"); return; }
+        try{
+          await update(ref(db, "settings/dealsOfDayCategories/"+id), { name: newName });
+        }catch(err){ alert("❌ Error: " + err.message); }
+      };
+    };
+    div.querySelector(".dotd-delete-btn").onclick = async (e) => {
+      e.stopPropagation();
+      if(!confirm(`"${item.name}" ক্যাটাগরি এবং এর সব প্রোডাক্ট লিংক ডিলিট করবেন? (মূল প্রোডাক্ট ডিলিট হবে না)`)) return;
+      try{
+        await remove(ref(db, "settings/dealsOfDayCategories/"+id));
+        await remove(ref(db, "settings/dealsOfDayCategoryProducts/"+id));
+        if(dotdSelectedCatId === id){
+          dotdSelectedCatId = null;
+          document.getElementById("dotd-products-panel").style.display = "none";
+        }
+      }catch(err){ alert("❌ Error: " + err.message); }
+    };
+    listDiv.appendChild(div);
+  });
+}
+
+function selectDotdCategory(catId){
+  dotdSelectedCatId = catId;
+  const panel = document.getElementById("dotd-products-panel");
+  panel.style.display = "block";
+  const title = document.getElementById("dotd-products-title");
+  title.textContent = "🛍️ " + ((dotdCategoriesCache[catId]||{}).name||"").replace(/\\n/g," ");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  document.getElementById("dotd-view-section").style.display = "none";
+  document.getElementById("dotd-add-section").style.display = "none";
+
+  onValue(ref(db, "settings/dealsOfDayCategoryProducts/"+catId), (snapshot) => {
+    dotdSelectedCatProducts = snapshot.val() || {};
+    if(dotdCurrentSubview === "owncat") renderDotdOwnCatView();
+  });
+
+  setupDotdNav();
+  setupDotdAddSection();
+}
+
+let dotdCurrentSubview = "owncat";
+let dotdSelectedIds = new Set();
+
+async function dotdUpdateCategoryMaxDiscount(catId){
+  try{
+    const mapSnap = await get(ref(db, "settings/dealsOfDayCategoryProducts/"+catId));
+    const map = mapSnap.exists() ? mapSnap.val() : {};
+    let maxDiscount = 0;
+    Object.values(map).forEach(info => {
+      const d = parseInt(info.discountPercent) || 0;
+      if(d > maxDiscount) maxDiscount = d;
+    });
+    const catSnap = await get(ref(db, "settings/dealsOfDayCategories/"+catId));
+    if(!catSnap.exists()) return;
+    const oldName = catSnap.val().name || "";
+    if(/\d+\s*%/.test(oldName)){
+      const newName = oldName.replace(/\d+(\s*%)/, maxDiscount + "$1");
+      if(newName !== oldName){
+        await update(ref(db, "settings/dealsOfDayCategories/"+catId), { name: newName });
+      }
+    }
+  }catch(err){ console.error("dotdUpdateCategoryMaxDiscount error:", err); }
+}
+
+function setupDotdNav(){
+  const navView = document.getElementById("dotd-nav-view");
+  const navAdd = document.getElementById("dotd-nav-add");
+  const viewSection = document.getElementById("dotd-view-section");
+  const addSection = document.getElementById("dotd-add-section");
+
+  navView.onclick = () => {
+    viewSection.style.display = "block";
+    addSection.style.display = "none";
+    switchDotdSubview("owncat");
+  };
+  navAdd.onclick = () => {
+    viewSection.style.display = "none";
+    addSection.style.display = "block";
+  };
+
+  document.getElementById("dotd-sub-owncat").onclick = () => switchDotdSubview("owncat");
+  document.getElementById("dotd-sub-all").onclick = () => switchDotdSubview("all");
+  document.getElementById("dotd-sub-search").onclick = () => switchDotdSubview("search");
+
+  // ডিফল্টে প্রোডাক্ট ভিউ খোলা থাকবে
+  viewSection.style.display = "block";
+  addSection.style.display = "none";
+  switchDotdSubview("owncat");
+}
+
+function switchDotdSubview(mode){
+  dotdCurrentSubview = mode;
+  dotdSelectedIds = new Set();
+  document.getElementById("dotd-search-box").style.display = (mode === "search") ? "block" : "none";
+  document.getElementById("dotd-toolbar").style.display = (mode === "search") ? "none" : "block";
+
+  if(mode === "owncat") renderDotdOwnCatView();
+  else if(mode === "all") renderDotdAllProductsView();
+  else if(mode === "search") renderDotdSearchView();
+}
+
+function dotdFormatPriceRow(data){
+  let html = "";
+  if(data.discountPrice && data.discountPrice > 0){
+    html += `<span style="text-decoration:line-through;color:#888;margin-right:8px">৳${data.discountPrice}</span>`;
+  }
+  html += `<span style="font-weight:bold">৳${data.price||0}</span>`;
+  return html;
+}
+
+function dotdBuildProductCard(pid, data, opts){
+  // opts: { mode: 'owncat'|'all'|'search', mapInfo }
+  const div = document.createElement("div");
+  div.className = "card";
+  const title = data ? (data.title || data.name || "Unnamed") : "⚠️ প্রোডাক্ট পাওয়া যায়নি";
+  const mapInfo = opts.mapInfo || {};
+  const isInCategory = opts.mode === "owncat";
+
+  const checkboxHTML = isInCategory
+    ? `<label style="display:inline-block;margin-right:8px"><input type="checkbox" class="dotd-item-check" data-pid="${pid}"></label>`
+    : "";
+
+  const actionBtnHTML = isInCategory
+    ? `<button class="danger-btn dotd-item-remove">🗑️ Remove</button>`
+    : `<button class="save-btn dotd-item-addcat">➕ এই ক্যাটাগরিতে যোগ করুন</button>`;
+
+  const initialPrice = data ? (data.price||0) : 0;
+  const initialOldPrice = (data && data.discountPrice) ? data.discountPrice : initialPrice;
+
+  div.innerHTML = `
+    ${checkboxHTML}<h3 style="display:inline-block">${title}</h3>
+    <label>মূল দাম / Market Price (৳) <input type="number" class="dotd-item-oldprice" value="${initialOldPrice}"></label>
+    <label>Discount % <input type="number" class="dotd-item-discount" value="${mapInfo.discountPercent||0}" min="0" max="100" style="width:80px"></label>
+    <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="dotd-item-price" value="${initialPrice}" readonly style="background:#222;color:#8f8"></label>
+    <div class="dotd-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
+    <label>Offer শুরুর তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="dotd-item-startdate" value="${mapInfo.startDate||''}" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
+    <label>Offer শেষের তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="dotd-item-enddate" value="${mapInfo.endDate||''}" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="save-btn dotd-item-save">💾 Save</button>
+      ${actionBtnHTML}
+    </div>
+  `;
+
+  (function(){
+    const priceInput = div.querySelector(".dotd-item-price");
+    const oldPriceInput = div.querySelector(".dotd-item-oldprice");
+    const discountInput = div.querySelector(".dotd-item-discount");
+    const previewEl = div.querySelector(".dotd-item-preview");
+    function fscRecalc(){
+      const op = parseFloat(oldPriceInput.value) || 0;
+      const d = parseInt(discountInput.value) || 0;
+      const newPrice = Math.round(op * (1 - d/100));
+      priceInput.value = newPrice;
+      const save = op - newPrice;
+      if(d > 0 && save > 0){
+        previewEl.innerHTML = '<span style="text-decoration:line-through;color:#888">৳' + op + '</span> → <strong style="color:#8f8">৳' + newPrice + '</strong> &nbsp; <span style="color:#fc6">(Save ৳' + save + ')</span>';
+      } else {
+        previewEl.innerHTML = '<strong>৳' + newPrice + '</strong> <span style="color:#888">(কোনো ডিসকাউন্ট নেই)</span>';
+      }
+    }
+    oldPriceInput.addEventListener("input", fscRecalc);
+    discountInput.addEventListener("input", fscRecalc);
+    fscRecalc();
+  })();
+
+  div.querySelector(".dotd-item-save").onclick = async () => {
+    const newOldPrice = parseFloat(div.querySelector(".dotd-item-oldprice").value) || 0;
+    const newDiscount = parseInt(div.querySelector(".dotd-item-discount").value) || 0;
+    const newPrice = Math.round(newOldPrice * (1 - newDiscount/100));
+    const savedOldPrice = newDiscount > 0 ? newOldPrice : null;
+    const newStart = div.querySelector(".dotd-item-startdate").value.trim();
+    const newEnd = div.querySelector(".dotd-item-enddate").value.trim();
+    try{
+      await update(ref(db, "products/"+pid), { price: newPrice, discountPrice: savedOldPrice, updatedAt: Date.now() });
+      if(isInCategory){
+        await update(ref(db, `settings/dealsOfDayCategoryProducts/${dotdSelectedCatId}/${pid}`), {
+          discountPercent: newDiscount, startDate: newStart, endDate: newEnd
+        });
+        await dotdUpdateCategoryMaxDiscount(dotdSelectedCatId);
+      }
+      alert("✅ সেভ হয়েছে");
+    }catch(err){ alert("❌ Error: " + err.message); }
+  };
+
+  if(isInCategory){
+    div.querySelector(".dotd-item-remove").onclick = async () => {
+      if(!confirm("এই প্রোডাক্টটি এই ক্যাটাগরি থেকে সরাবেন?")) return;
+      try{
+        await remove(ref(db, `settings/dealsOfDayCategoryProducts/${dotdSelectedCatId}/${pid}`));
+        await dotdUpdateCategoryMaxDiscount(dotdSelectedCatId);
+      }catch(err){ alert("❌ Error: " + err.message); }
+    };
+  } else {
+    div.querySelector(".dotd-item-addcat").onclick = async () => {
+      try{
+        await set(ref(db, `settings/dealsOfDayCategoryProducts/${dotdSelectedCatId}/${pid}`), { discountPercent: 0, addedAt: Date.now() });
+        alert("✅ যোগ হয়েছে — এখন 'এই ক্যাটাগরির প্রোডাক্ট' এ দেখা যাবে");
+      }catch(err){ alert("❌ Error: " + err.message); }
+    };
+  }
+
+  return div;
+}
+
+function setupDotdToolbar(getIdsAndData){
+  const selectAllBox = document.getElementById("dotd-select-all");
+  selectAllBox.checked = false;
+  selectAllBox.onchange = () => {
+    document.querySelectorAll(".dotd-item-check").forEach(cb => {
+      cb.checked = selectAllBox.checked;
+      const pid = cb.dataset.pid;
+      if(selectAllBox.checked) dotdSelectedIds.add(pid); else dotdSelectedIds.delete(pid);
+    });
+  };
+  document.querySelectorAll(".dotd-item-check").forEach(cb => {
+    cb.onchange = () => {
+      const pid = cb.dataset.pid;
+      if(cb.checked) dotdSelectedIds.add(pid); else dotdSelectedIds.delete(pid);
+    };
+  });
+
+  const bulkApplyBtn = document.getElementById("dotd-bulk-apply-btn");
+  const bulkSaveBtn = document.getElementById("dotd-bulk-save-btn");
+  const bulkActionBtn = document.getElementById("dotd-bulk-action-btn");
+  const bulkDateApplyBtn = document.getElementById("dotd-bulk-date-apply-btn");
+  const statusEl = document.getElementById("dotd-bulk-status");
+
+  if(bulkDateApplyBtn){
+    bulkDateApplyBtn.onclick = () => {
+      const checked = document.querySelectorAll(".dotd-item-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      const startVal = document.getElementById("dotd-bulk-startdate").value.trim();
+      const endVal = document.getElementById("dotd-bulk-enddate").value.trim();
+      if(!startVal && !endVal){ alert("অন্তত একটা তারিখ দিন"); return; }
+      checked.forEach(cb => {
+        const card = cb.closest(".card");
+        const startInput = card.querySelector(".dotd-item-startdate");
+        const endInput = card.querySelector(".dotd-item-enddate");
+        if(startVal && startInput) startInput.value = startVal;
+        if(endVal && endInput) endInput.value = endVal;
+      });
+      statusEl.textContent = "✅ সিলেক্টেড " + checked.length + "টি প্রোডাক্টে তারিখ বসানো হয়েছে, এখন Save চাপুন";
+      setTimeout(()=>{ statusEl.textContent=""; }, 4000);
+    };
+  }
+
+  bulkApplyBtn.onclick = () => {
+    const val = parseInt(document.getElementById("dotd-bulk-discount").value);
+    if(isNaN(val) || val < 0 || val > 100){ alert("সঠিক % দিন (0-100)"); return; }
+    document.querySelectorAll(".dotd-item-check:checked").forEach(cb => {
+      const card = cb.closest(".card");
+      const discInput = card.querySelector(".dotd-item-discount");
+      if(discInput) discInput.value = val;
+      const oldPriceInput = card.querySelector(".dotd-item-oldprice");
+      const priceInput = card.querySelector(".dotd-item-price");
+      const previewEl = card.querySelector(".dotd-item-preview");
+      if(oldPriceInput && priceInput){
+        const op = parseFloat(oldPriceInput.value) || 0;
+        const newPrice = Math.round(op * (1 - val/100));
+        priceInput.value = newPrice;
+        if(previewEl){
+          const save = op - newPrice;
+          if(val > 0 && save > 0){
+            previewEl.innerHTML = '<span style="text-decoration:line-through;color:#888">৳' + op + '</span> → <strong style="color:#8f8">৳' + newPrice + '</strong> &nbsp; <span style="color:#fc6">(Save ৳' + save + ')</span>';
+          } else {
+            previewEl.innerHTML = '<strong>৳' + newPrice + '</strong> <span style="color:#888">(কোনো ডিসকাউন্ট নেই)</span>';
+          }
+        }
+      }
+    });
+    statusEl.textContent = "✅ সিলেক্টেড প্রোডাক্টে % বসানো হয়েছে, এখন Save চাপুন";
+    setTimeout(()=>{ statusEl.textContent=""; }, 4000);
+  };
+
+  bulkSaveBtn.onclick = async () => {
+    const checked = document.querySelectorAll(".dotd-item-check:checked");
+    if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+    const updates = {};
+    for(const cb of checked){
+      const pid = cb.dataset.pid;
+      const card = cb.closest(".card");
+      const oldPrice = parseFloat(card.querySelector(".dotd-item-oldprice").value) || 0;
+      const discount = parseInt(card.querySelector(".dotd-item-discount").value) || 0;
+      const price = Math.round(oldPrice * (1 - discount/100));
+      const savedOldPrice = discount > 0 ? oldPrice : null;
+      const start = card.querySelector(".dotd-item-startdate").value.trim();
+      const end = card.querySelector(".dotd-item-enddate").value.trim();
+      updates[`products/${pid}/price`] = price;
+      updates[`products/${pid}/discountPrice`] = savedOldPrice;
+      updates[`products/${pid}/updatedAt`] = Date.now();
+      updates[`settings/dealsOfDayCategoryProducts/${dotdSelectedCatId}/${pid}/discountPercent`] = discount;
+      updates[`settings/dealsOfDayCategoryProducts/${dotdSelectedCatId}/${pid}/startDate`] = start;
+      updates[`settings/dealsOfDayCategoryProducts/${dotdSelectedCatId}/${pid}/endDate`] = end;
+    }
+    try{
+      await update(ref(db), updates);
+      await dotdUpdateCategoryMaxDiscount(dotdSelectedCatId);
+      statusEl.textContent = `✅ ${checked.length}টি প্রোডাক্ট সেভ হয়েছে`;
+      setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+    }catch(err){
+      statusEl.style.color = "#f88";
+      statusEl.textContent = "❌ Error: " + err.message;
+    }
+  };
+
+  bulkActionBtn.onclick = async () => {
+    const checked = document.querySelectorAll(".dotd-item-check:checked");
+    if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+    if(!confirm(`${checked.length}টি প্রোডাক্ট এই ক্যাটাগরি থেকে সরাবেন?`)) return;
+    try{
+      for(const cb of checked){
+        await remove(ref(db, `settings/dealsOfDayCategoryProducts/${dotdSelectedCatId}/${cb.dataset.pid}`));
+      }
+      await dotdUpdateCategoryMaxDiscount(dotdSelectedCatId);
+      statusEl.textContent = "✅ সরানো হয়েছে";
+      setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+    }catch(err){
+      statusEl.style.color = "#f88";
+      statusEl.textContent = "❌ Error: " + err.message;
+    }
+  };
+}
+
+async function renderDotdOwnCatView(){
+  const listDiv = document.getElementById("dotd-products-list");
+  if(!listDiv) return;
+  const pids = Object.keys(dotdSelectedCatProducts);
+  if(pids.length === 0){
+    listDiv.innerHTML = "<p style='color:#888'>এই ক্যাটাগরিতে কোনো প্রোডাক্ট নেই। 'All Products' বা 'Search' থেকে যোগ করুন।</p>";
+    return;
+  }
+  listDiv.innerHTML = "<p style='color:#888'>লোড হচ্ছে...</p>";
+  const rows = await Promise.all(pids.map(async (pid) => {
+    try{
+      const snap = await get(ref(db, "products/"+pid));
+      return { pid, data: snap.val(), mapInfo: dotdSelectedCatProducts[pid] };
+    }catch(e){ return { pid, data: null, mapInfo: dotdSelectedCatProducts[pid] }; }
+  }));
+  listDiv.innerHTML = "";
+  rows.forEach(({pid, data, mapInfo}) => {
+    listDiv.appendChild(dotdBuildProductCard(pid, data, { mode: "owncat", mapInfo }));
+  });
+  setupDotdToolbar();
+}
+
+function renderDotdAllProductsView(){
+  const listDiv = document.getElementById("dotd-products-list");
+  if(!listDiv) return;
+  listDiv.innerHTML = "";
+  const entries = Object.entries(allProductsCache).slice(0, 100);
+  if(entries.length === 0){
+    listDiv.innerHTML = "<p style='color:#888'>কোনো প্রোডাক্ট পাওয়া যায়নি</p>";
+    return;
+  }
+  entries.forEach(([pid, data]) => {
+    if(dotdSelectedCatProducts[pid]) return; // আগে থেকেই আছে
+    listDiv.appendChild(dotdBuildProductCard(pid, data, { mode: "all", mapInfo: {} }));
+  });
+  const note = document.createElement("p");
+  note.style.cssText = "color:#888;font-size:12px;text-align:center;margin-top:10px";
+  note.textContent = "সর্বোচ্চ ১০০টি দেখানো হচ্ছে — নির্দিষ্ট প্রোডাক্ট খুঁজতে 'Search Products' ব্যবহার করুন";
+  listDiv.appendChild(note);
+}
+
+function renderDotdSearchView(){
+  const listDiv = document.getElementById("dotd-products-list");
+  const searchInput = document.getElementById("dotd-search-input");
+  if(!listDiv || !searchInput) return;
+  listDiv.innerHTML = "<p style='color:#888'>উপরে সার্চ বক্সে প্রোডাক্টের নাম লিখুন</p>";
+
+  searchInput.oninput = () => {
+    const q = searchInput.value.trim().toLowerCase();
+    listDiv.innerHTML = "";
+    if(!q){
+      listDiv.innerHTML = "<p style='color:#888'>উপরে সার্চ বক্সে প্রোডাক্টের নাম লিখুন</p>";
+      return;
+    }
+    const matches = Object.entries(allProductsCache).filter(([pid, data]) => {
+      const name = (data.title || data.name || "").toLowerCase();
+      return name.includes(q);
+    }).slice(0, 30);
+    if(matches.length === 0){
+      listDiv.innerHTML = "<p style='color:#888'>কোনো ফলাফল পাওয়া যায়নি</p>";
+      return;
+    }
+    matches.forEach(([pid, data]) => {
+      const isAlready = !!dotdSelectedCatProducts[pid];
+      listDiv.appendChild(dotdBuildProductCard(pid, data, { mode: isAlready ? "owncat" : "all", mapInfo: dotdSelectedCatProducts[pid] || {} }));
+    });
+  };
+}
+
+function setupDotdAddSection(){
+  const fileInput = document.getElementById("dotd-add-file-input");
+  const addListDiv = document.getElementById("dotd-add-list");
+  if(!fileInput || !addListDiv) return;
+
+  fileInput.onchange = (e) => {
+    const files = Array.from(e.target.files);
+    renderDotdAddList(files, addListDiv);
+  };
+}
+
+function dotdFilenameToTitle(filename){
+  const base = filename.replace(/\.[^/.]+$/, "");
+  return base.split(/[_-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
+function renderDotdAddList(files, addListDiv){
+  addListDiv.innerHTML = "";
+  if(files.length === 0) return;
+
+  files.forEach((file) => {
+    const title = dotdFilenameToTitle(file.name);
+    const div = document.createElement("div");
+    div.className = "card";
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = div.querySelector(".dotd-add-preview");
+      if(img) img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    div.innerHTML = `
+      <img class="dotd-add-preview" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px" src="">
+      <label>নাম <input type="text" class="dotd-add-title" value="${title}"></label>
+      <label>মূল দাম / Market Price (৳) <input type="number" class="dotd-add-oldprice" value="0"></label>
+      <label>Discount % <input type="number" class="dotd-add-discount" value="0" min="0" max="100" style="width:80px"></label>
+      <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="dotd-add-price" value="0" readonly style="background:#222;color:#8f8"></label>
+      <div class="dotd-add-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
+      <label>Offer শুরুর তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="dotd-add-startdate" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
+      <label>Offer শেষের তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="dotd-add-enddate" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
+      <label>স্টক <input type="number" class="dotd-add-stock" value="20"></label>
+      <div style="clear:both"></div>
+      <button type="button" class="save-btn dotd-add-save">💾 Save</button>
+      <button type="button" class="danger-btn dotd-add-remove">🗑️ বাদ দিন</button>
+    `;
+
+    (function(){
+      const priceInput = div.querySelector(".dotd-add-price");
+      const oldPriceInput = div.querySelector(".dotd-add-oldprice");
+      const discountInput = div.querySelector(".dotd-add-discount");
+      const previewEl = div.querySelector(".dotd-add-item-preview");
+      function fscRecalcAdd(){
+        const op = parseFloat(oldPriceInput.value) || 0;
+        const d = parseInt(discountInput.value) || 0;
+        const newPrice = Math.round(op * (1 - d/100));
+        priceInput.value = newPrice;
+        const save = op - newPrice;
+        if(d > 0 && save > 0){
+          previewEl.innerHTML = '<span style="text-decoration:line-through;color:#888">৳' + op + '</span> → <strong style="color:#8f8">৳' + newPrice + '</strong> &nbsp; <span style="color:#fc6">(Save ৳' + save + ')</span>';
+        } else {
+          previewEl.innerHTML = '<strong>৳' + newPrice + '</strong> <span style="color:#888">(কোনো ডিসকাউন্ট নেই)</span>';
+        }
+      }
+      oldPriceInput.addEventListener("input", fscRecalcAdd);
+      discountInput.addEventListener("input", fscRecalcAdd);
+      fscRecalcAdd();
+    })();
+
+    div.querySelector(".dotd-add-remove").onclick = () => div.remove();
+
+    div.querySelector(".dotd-add-save").onclick = async () => {
+      const saveBtn = div.querySelector(".dotd-add-save");
+      const itemTitle = div.querySelector(".dotd-add-title").value.trim();
+      const itemOldPriceRaw = parseFloat(div.querySelector(".dotd-add-oldprice").value) || 0;
+      const itemDiscount = parseInt(div.querySelector(".dotd-add-discount").value) || 0;
+      const itemPrice = Math.round(itemOldPriceRaw * (1 - itemDiscount/100));
+      const itemOldPrice = itemDiscount > 0 ? itemOldPriceRaw : null;
+      const itemStart = div.querySelector(".dotd-add-startdate").value.trim();
+      const itemEnd = div.querySelector(".dotd-add-enddate").value.trim();
+      const itemStock = parseInt(div.querySelector(".dotd-add-stock").value) || 0;
+
+      if(!itemTitle){ alert("নাম দিন"); return; }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "সেভ হচ্ছে...";
+      try{
+        const imageUrl = await uploadToCloudinaryGlobal(file);
+        const newRef = push(ref(db, "products"));
+        await set(newRef, {
+          title: itemTitle,
+          price: itemPrice,
+          discountPrice: itemOldPrice,
+          stock: itemStock,
+          categoryId: "flashsale_only",
+          sellerId: currentAdminUid,
+          status: "active",
+          createdAt: Date.now(),
+          images: { main: imageUrl }
+        });
+        await set(ref(db, `settings/dealsOfDayCategoryProducts/${dotdSelectedCatId}/${newRef.key}`), {
+          discountPercent: itemDiscount, startDate: itemStart, endDate: itemEnd, addedAt: Date.now()
+        });
+        await dotdUpdateCategoryMaxDiscount(dotdSelectedCatId);
         saveBtn.textContent = "✅ সেভ হয়েছে";
       }catch(err){
         alert("❌ সমস্যা: " + err.message);
