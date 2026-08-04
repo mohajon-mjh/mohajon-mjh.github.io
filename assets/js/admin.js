@@ -982,7 +982,7 @@ function renderDotdList(){
   if(!listDiv) return;
   const entries = Object.entries(dotdCategoriesCache).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
   if(entries.length === 0){
-    listDiv.innerHTML = "<p style=\"color:#888\">কোনো Flash Sale ক্যাটাগরি নেই</p>";
+    listDiv.innerHTML = "<p style=\"color:#888\">কোনো Deals of the Day ক্যাটাগরি নেই</p>";
     return;
   }
   listDiv.innerHTML = "";
