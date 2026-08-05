@@ -289,6 +289,15 @@
     border-color: #2563eb !important;
 }
 
+/* Flash Sale & Deals of the Day - Active Tab Style */
+#flashCatsRow .cat.active,
+#dotdCatsRow .cat.active {
+    background: #2563eb !important;
+    color: #fff !important;
+    border-color: #2563eb !important;
+    text-decoration: none;
+}
+
 /* Save Amount Badge */
 .save-badge {
     position: absolute;
