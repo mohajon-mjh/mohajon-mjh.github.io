@@ -355,6 +355,59 @@ h2{margin-top:0}
         <button class="save-btn" id="sc-add-btn">➕ যোগ করুন</button>
       </div>
       <div id="sc-list"></div>
+
+  <div class="card" id="sc-products-panel" style="display:none">
+    <h3 id="sc-products-title">ক্যাটাগরি</h3>
+    <div id="sc-nav-buttons" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">
+      <button id="sc-nav-view" class="save-btn">🛍️ প্রোডাক্ট ভিউ</button>
+      <button id="sc-nav-add" class="save-btn">➕ নতুন প্রোডাক্ট এড</button>
+    </div>
+    <div id="sc-view-section" style="display:none">
+      <div id="sc-view-subnav" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <button id="sc-sub-owncat" class="save-btn">📦 এই ক্যাটাগরির প্রোডাক্ট</button>
+        <button id="sc-sub-all" class="save-btn">🗂️ All Products</button>
+        <button id="sc-sub-search" class="save-btn">🔍 Search Products</button>
+      </div>
+      <div id="sc-search-box" style="display:none;margin-bottom:12px">
+        <input type="text" id="sc-search-input" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন...">
+      </div>
+      <div id="sc-toolbar" style="display:none;margin-bottom:12px;padding:10px;background:#1a1a1a;border-radius:8px">
+        <label style="display:block;margin-bottom:8px"><input type="checkbox" id="sc-select-all"> সব সিলেক্ট করুন</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <label style="margin:0">% <input type="number" id="sc-bulk-discount" min="0" max="100" style="width:70px" placeholder="%"></label>
+          <button id="sc-bulk-apply-btn" class="save-btn">✅ সিলেক্টেডে % বসান</button>
+          <button id="sc-bulk-save-btn" class="save-btn">💾 সিলেক্টেড Save</button>
+          <button id="sc-bulk-action-btn" class="danger-btn">🗑️ সিলেক্টেড রিমুভ</button>
+        </div>
+        <div style="margin-top:8px">
+          <label style="display:block;margin-bottom:6px">প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+            <textarea id="sc-view-price-paste" rows="4" placeholder="Acoustic Guitar — ৳9500"></textarea>
+          </label>
+          <button id="sc-view-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+          <span id="sc-view-price-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+        </div>
+        <span id="sc-bulk-status" style="font-size:13px;color:#8f8"></span>
+      </div>
+      <div id="sc-products-list"></div>
+    </div>
+    <div id="sc-add-section" style="display:none">
+      <p style="font-size:13px;color:#aaa">গ্যালারি/স্টোরেজ থেকে একাধিক ছবি সিলেক্ট করুন (.png ফাইলনাম অনুযায়ী নাম অটো বসবে)</p>
+      <input type="file" id="sc-add-file-input" accept="image/*" multiple>
+      <div style="margin:12px 0;padding:10px;background:#1a1a1a;border-radius:8px">
+        <div style="margin-top:14px">
+          <label>প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+            <textarea id="sc-price-paste" rows="6" placeholder="Acoustic Guitar — ৳9500"></textarea>
+          </label>
+          <button id="sc-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+          <span id="sc-price-status" style="font-size:13px;color:#8f8;display:block;margin-top:6px"></span>
+        </div>
+        <label style="display:block;margin-bottom:8px"><input type="checkbox" id="sc-add-select-all"> সব সিলেক্ট করুন</label>
+        <button id="sc-add-save-all-btn" class="save-btn">💾 সিলেক্টেড সব Save</button>
+        <span id="sc-add-save-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+      </div>
+      <div id="sc-add-list"></div>
+    </div>
+  </div>
     </section>
 
     <section id="tab-comingsoon" class="tab-section">
@@ -475,7 +528,7 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
   });
 </script>
 <script type="module" src="assets/js/currency.js"></script>
-<script type="module" src="assets/js/admin.js?v=20260805b"></script>
+<script type="module" src="assets/js/admin.js?v=20260805c"></script>
 <script src="js/global-menu.js?v=2"></script>
 </body>
 </html>

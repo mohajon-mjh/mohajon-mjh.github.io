@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, update, remove, push, set, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, remove, push, set, get, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -3247,6 +3247,431 @@ function loadComingSoon(){
   }
 }
 
+/* ===================== SPECIAL CATEGORIES PRODUCT MANAGER ===================== */
+let scSelectedSlug = null;
+let scSelectedName = "";
+let scCurrentSubview = "owncat";
+
+function selectSpecialCategory(slug, name){
+  scSelectedSlug = slug;
+  scSelectedName = name || slug;
+  const panel = document.getElementById("sc-products-panel");
+  if(!panel) return;
+  panel.style.display = "block";
+  const title = document.getElementById("sc-products-title");
+  if(title) title.textContent = "🛍️ প্রোডাক্ট — " + scSelectedName;
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  setupScNav();
+  setupScAddSection();
+  document.getElementById("sc-view-section").style.display = "block";
+  document.getElementById("sc-add-section").style.display = "none";
+  renderScOwnCatView();
+}
+
+function setupScNav(){
+  const navView = document.getElementById("sc-nav-view");
+  const navAdd = document.getElementById("sc-nav-add");
+  if(navView) navView.onclick = () => {
+    document.getElementById("sc-view-section").style.display = "block";
+    document.getElementById("sc-add-section").style.display = "none";
+    switchScSubview("owncat");
+  };
+  if(navAdd) navAdd.onclick = () => {
+    document.getElementById("sc-view-section").style.display = "none";
+    document.getElementById("sc-add-section").style.display = "block";
+  };
+  const subOwn = document.getElementById("sc-sub-owncat");
+  const subAll = document.getElementById("sc-sub-all");
+  const subSearch = document.getElementById("sc-sub-search");
+  if(subOwn) subOwn.onclick = () => switchScSubview("owncat");
+  if(subAll) subAll.onclick = () => switchScSubview("all");
+  if(subSearch) subSearch.onclick = () => switchScSubview("search");
+  const searchBox = document.getElementById("sc-search-input");
+  if(searchBox) searchBox.oninput = () => { if(scCurrentSubview === "search") renderScAllProductsView(searchBox.value); };
+}
+
+function switchScSubview(mode){
+  scCurrentSubview = mode;
+  document.getElementById("sc-search-box").style.display = (mode === "search") ? "block" : "none";
+  document.getElementById("sc-toolbar").style.display = (mode === "search") ? "none" : "block";
+  if(mode === "owncat") renderScOwnCatView();
+  else if(mode === "all") renderScAllProductsView("");
+  else renderScAllProductsView(document.getElementById("sc-search-input").value || "");
+}
+
+function scCalcDiscount(data){
+  const price = parseFloat(data.price) || 0;
+  const old = parseFloat(data.discountPrice) || 0;
+  if(old > price && old > 0) return Math.round((1 - price/old) * 100);
+  return 0;
+}
+
+function scBuildProductCard(pid, data, opts){
+  const div = document.createElement("div");
+  div.className = "card";
+  const title = data ? (data.title || data.name || "Unnamed") : "⚠️ প্রোডাক্ট পাওয়া যায়নি";
+  const isInCategory = opts.mode === "owncat";
+  const checkboxHTML = isInCategory
+    ? `<label style="display:inline-block;margin-right:8px"><input type="checkbox" class="sc-item-check" data-pid="${pid}"></label>`
+    : "";
+  const actionBtnHTML = isInCategory
+    ? `<button class="danger-btn sc-item-remove">🗑️ Remove</button>`
+    : `<button class="save-btn sc-item-addcat">➕ এই ক্যাটাগরিতে যোগ করুন</button>`;
+  const initialPrice = data ? (data.price||0) : 0;
+  const initialOldPrice = (data && data.discountPrice) ? data.discountPrice : initialPrice;
+  const initialDiscount = data ? scCalcDiscount(data) : 0;
+
+  div.innerHTML = `
+    ${checkboxHTML}<h3 class="sc-item-title" style="display:inline-block">${title}</h3>
+    <label>মূল দাম / Market Price (৳) <input type="number" class="sc-item-oldprice" value="${initialOldPrice}"></label>
+    <label>Discount % <input type="number" class="sc-item-discount" value="${initialDiscount}" min="0" max="100" style="width:80px"></label>
+    <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="sc-item-price" value="${initialPrice}" readonly style="background:#222;color:#8f8"></label>
+    <div class="sc-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="save-btn sc-item-save">💾 Save</button>
+      ${actionBtnHTML}
+    </div>
+  `;
+
+  (function(){
+    const priceInput = div.querySelector(".sc-item-price");
+    const oldPriceInput = div.querySelector(".sc-item-oldprice");
+    const discountInput = div.querySelector(".sc-item-discount");
+    const previewEl = div.querySelector(".sc-item-preview");
+    function scRecalc(){
+      const op = parseFloat(oldPriceInput.value) || 0;
+      const d = parseInt(discountInput.value) || 0;
+      const newPrice = Math.round(op * (1 - d/100));
+      priceInput.value = newPrice;
+      const save = op - newPrice;
+      if(d > 0 && save > 0){
+        previewEl.innerHTML = '<span style="text-decoration:line-through;color:#888">৳' + op + '</span> → <strong style="color:#8f8">৳' + newPrice + '</strong> &nbsp; <span style="color:#fc6">(Save ৳' + save + ')</span>';
+      } else {
+        previewEl.innerHTML = '<strong>৳' + newPrice + '</strong> <span style="color:#888">(কোনো ডিসকাউন্ট নেই)</span>';
+      }
+    }
+    oldPriceInput.addEventListener("input", scRecalc);
+    discountInput.addEventListener("input", scRecalc);
+    scRecalc();
+  })();
+
+  div.querySelector(".sc-item-save").onclick = async () => {
+    const newOldPrice = parseFloat(div.querySelector(".sc-item-oldprice").value) || 0;
+    const newDiscount = parseInt(div.querySelector(".sc-item-discount").value) || 0;
+    const newPrice = Math.round(newOldPrice * (1 - newDiscount/100));
+    const savedOldPrice = newDiscount > 0 ? newOldPrice : null;
+    try{
+      await update(ref(db, "products/"+pid), { price: newPrice, discountPrice: savedOldPrice, updatedAt: Date.now() });
+      alert("✅ সেভ হয়েছে");
+    }catch(err){ alert("❌ Error: " + err.message); }
+  };
+
+  if(isInCategory){
+    div.querySelector(".sc-item-remove").onclick = async () => {
+      if(!confirm("এই প্রোডাক্টটি এই ক্যাটাগরি থেকে সরবে (প্রোডাক্ট ডিলিট হবে না)। চালিয়ে যাবেন?")) return;
+      try{
+        await update(ref(db, "products/"+pid), { categoryId: "" });
+        renderScOwnCatView();
+      }catch(err){ alert("❌ Error: " + err.message); }
+    };
+  } else {
+    div.querySelector(".sc-item-addcat").onclick = async () => {
+      try{
+        await update(ref(db, "products/"+pid), { categoryId: scSelectedSlug });
+        alert("✅ যোগ হয়েছে — এখন 'এই ক্যাটাগরির প্রোডাক্ট' এ দেখা যাবে");
+      }catch(err){ alert("❌ Error: " + err.message); }
+    };
+  }
+  return div;
+}
+
+async function renderScOwnCatView(){
+  const listDiv = document.getElementById("sc-products-list");
+  if(!listDiv) return;
+  if(!scSelectedSlug){ listDiv.innerHTML = ""; return; }
+  listDiv.innerHTML = "<p style='color:#888'>লোড হচ্ছে...</p>";
+  try{
+    const snap = await get(query(ref(db, "products"), orderByChild("categoryId"), equalTo(scSelectedSlug), limitToFirst(1000)));
+    listDiv.innerHTML = "";
+    let count = 0;
+    snap.forEach(child => {
+      count++;
+      listDiv.appendChild(scBuildProductCard(child.key, child.val(), { mode: "owncat" }));
+    });
+    if(count === 0){
+      listDiv.innerHTML = "<p style='color:#888'>এই ক্যাটাগরিতে কোনো প্রোডাক্ট নেই। 'All Products' বা 'Search' থেকে যোগ করুন।</p>";
+    }
+  }catch(err){
+    listDiv.innerHTML = "<p style='color:#888'>লোড করতে সমস্যা হয়েছে।</p>";
+  }
+  setupScToolbar();
+  setupScViewPricePaste();
+}
+
+function renderScAllProductsView(filter){
+  const listDiv = document.getElementById("sc-products-list");
+  if(!listDiv) return;
+  const search = (filter || "").trim().toLowerCase();
+  listDiv.innerHTML = "";
+  let count = 0;
+  Object.entries(allProductsCache).forEach(([pid, data]) => {
+    const name = (data.title || data.name || "").toLowerCase();
+    if(search && !name.includes(search)) return;
+    if(count >= 100) return;
+    count++;
+    listDiv.appendChild(scBuildProductCard(pid, data, { mode: "all" }));
+  });
+  if(count === 0){
+    listDiv.innerHTML = "<p style='color:#888'>কোনো প্রোডাক্ট পাওয়া যায়নি।</p>";
+  }
+}
+
+function setupScToolbar(){
+  const selectAllBox = document.getElementById("sc-select-all");
+  if(!selectAllBox) return;
+  selectAllBox.checked = false;
+  selectAllBox.onchange = () => {
+    document.querySelectorAll(".sc-item-check").forEach(cb => { cb.checked = selectAllBox.checked; });
+  };
+  const bulkApplyBtn = document.getElementById("sc-bulk-apply-btn");
+  const bulkSaveBtn = document.getElementById("sc-bulk-save-btn");
+  const bulkActionBtn = document.getElementById("sc-bulk-action-btn");
+  const statusEl = document.getElementById("sc-bulk-status");
+
+  if(bulkApplyBtn) bulkApplyBtn.onclick = () => {
+    const val = parseInt(document.getElementById("sc-bulk-discount").value);
+    if(isNaN(val) || val < 0 || val > 100){ alert("সঠিক % দিন (0-100)"); return; }
+    document.querySelectorAll(".sc-item-check:checked").forEach(cb => {
+      const card = cb.closest(".card");
+      const discInput = card.querySelector(".sc-item-discount");
+      if(discInput){ discInput.value = val; discInput.dispatchEvent(new Event("input")); }
+    });
+    statusEl.textContent = "✅ সিলেক্টেড প্রোডাক্টে % বসানো হয়েছে, এখন Save চাপুন";
+    setTimeout(()=>{ statusEl.textContent=""; }, 4000);
+  };
+
+  if(bulkSaveBtn) bulkSaveBtn.onclick = async () => {
+    const checked = document.querySelectorAll(".sc-item-check:checked");
+    if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+    const updates = {};
+    checked.forEach(cb => {
+      const pid = cb.dataset.pid;
+      const card = cb.closest(".card");
+      const oldPrice = parseFloat(card.querySelector(".sc-item-oldprice").value) || 0;
+      const discount = parseInt(card.querySelector(".sc-item-discount").value) || 0;
+      const price = Math.round(oldPrice * (1 - discount/100));
+      const savedOldPrice = discount > 0 ? oldPrice : null;
+      updates["products/" + pid + "/price"] = price;
+      updates["products/" + pid + "/discountPrice"] = savedOldPrice;
+      updates["products/" + pid + "/updatedAt"] = Date.now();
+    });
+    try{
+      await update(ref(db), updates);
+      statusEl.textContent = "✅ " + checked.length + "টি প্রোডাক্ট সেভ হয়েছে";
+      setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+    }catch(err){
+      statusEl.textContent = "❌ Error: " + err.message;
+    }
+  };
+
+  if(bulkActionBtn) bulkActionBtn.onclick = async () => {
+    const checked = document.querySelectorAll(".sc-item-check:checked");
+    if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+    if(!confirm(checked.length + "টি প্রোডাক্ট এই ক্যাটাগরি থেকে সরবে (প্রোডাক্ট ডিলিট হবে না)। চালিয়ে যাবেন?")) return;
+    try{
+      const updates = {};
+      checked.forEach(cb => { updates["products/" + cb.dataset.pid + "/categoryId"] = ""; });
+      await update(ref(db), updates);
+      statusEl.textContent = "✅ সরানো হয়েছে";
+      setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+      renderScOwnCatView();
+    }catch(err){
+      statusEl.textContent = "❌ Error: " + err.message;
+    }
+  };
+}
+
+function setupScViewPricePaste(){
+  const btn = document.getElementById("sc-view-price-apply-btn");
+  const statusEl = document.getElementById("sc-view-price-status");
+  if(!btn) return;
+  btn.onclick = () => {
+    const raw = (document.getElementById("sc-view-price-paste")||{}).value || "";
+    if(!raw.trim()){ alert("প্রাইস লিস্ট পেস্ট করুন"); return; }
+    function normalizeText(s){ return (s||"").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]/g, ""); }
+    const parsed = [];
+    raw.split("\n").map(l=>l.trim()).filter(Boolean).forEach(line => {
+      const m = line.match(/৳\s*([\d,]+)/) || line.match(/([\d,]+)\s*$/);
+      if(!m) return;
+      const price = parseInt(m[1].replace(/,/g,""));
+      const namePart = line.slice(0, m.index).replace(/[—–-]+\s*$/,"").trim();
+      if(!namePart || isNaN(price)) return;
+      parsed.push({ normalized: normalizeText(namePart), price });
+    });
+    let matched = 0;
+    document.querySelectorAll("#sc-products-list .sc-item-title").forEach(h3 => {
+      const card = h3.closest(".card");
+      if(!card) return;
+      const cardNorm = normalizeText(h3.textContent);
+      const match = parsed.find(p=>p.normalized===cardNorm) || parsed.find(p=>cardNorm.includes(p.normalized)||p.normalized.includes(cardNorm));
+      if(match){
+        const op = card.querySelector(".sc-item-oldprice");
+        if(op){ op.value = match.price; op.dispatchEvent(new Event("input")); matched++; }
+      }
+    });
+    if(statusEl){
+      statusEl.textContent = "✅ " + matched + "টি প্রোডাক্টে দাম বসেছে (মোট লাইন: " + parsed.length + ") — এবার সব সিলেক্ট করে 💾 সিলেক্টেড Save চাপুন";
+      setTimeout(()=>{ statusEl.textContent=""; }, 10000);
+    }
+  };
+}
+
+function setupScAddSection(){
+  const fileInput = document.getElementById("sc-add-file-input");
+  const addListDiv = document.getElementById("sc-add-list");
+  if(!fileInput || !addListDiv) return;
+  fileInput.onchange = (e) => { renderScAddList(Array.from(e.target.files), addListDiv); };
+  const selectAllBox = document.getElementById("sc-add-select-all");
+  if(selectAllBox){
+    selectAllBox.onchange = () => {
+      document.querySelectorAll(".sc-add-check").forEach(cb => { cb.checked = selectAllBox.checked; });
+    };
+  }
+  const saveAllBtn = document.getElementById("sc-add-save-all-btn");
+  const saveStatusEl = document.getElementById("sc-add-save-status");
+  if(saveAllBtn){
+    saveAllBtn.onclick = async () => {
+      const checked = document.querySelectorAll(".sc-add-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      let ok = 0, fail = 0;
+      for(const cb of checked){
+        const card = cb.closest(".card");
+        if(!card || !card._doSave) continue;
+        saveStatusEl.textContent = "সেভ হচ্ছে... (" + (ok + fail + 1) + "/" + checked.length + ")";
+        try{ await card._doSave(); ok++; }catch(e){ fail++; }
+      }
+      saveStatusEl.textContent = "✅ সম্পন্ন: " + ok + "টি সেভ হয়েছে" + (fail > 0 ? ", ❌ " + fail + "টি ব্যর্থ" : "");
+    };
+  }
+  const priceApplyBtn = document.getElementById("sc-price-apply-btn");
+  const priceStatusEl = document.getElementById("sc-price-status");
+  if(priceApplyBtn){
+    priceApplyBtn.onclick = () => {
+      const raw = document.getElementById("sc-price-paste").value;
+      if(!raw.trim()){ alert("প্রাইস লিস্ট পেস্ট করুন"); return; }
+      function normalizeText(s){ return (s||"").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]/g, ""); }
+      const parsed = [];
+      raw.split("\n").map(l=>l.trim()).filter(Boolean).forEach(line => {
+        const m = line.match(/৳\s*([\d,]+)/) || line.match(/([\d,]+)\s*$/);
+        if(!m) return;
+        const price = parseInt(m[1].replace(/,/g,""));
+        const namePart = line.slice(0, m.index).replace(/[—–-]+\s*$/,"").trim();
+        if(!namePart || isNaN(price)) return;
+        parsed.push({ normalized: normalizeText(namePart), price });
+      });
+      let matched = 0;
+      document.querySelectorAll(".sc-add-title").forEach(inp => {
+        const card = inp.closest(".card");
+        const cardNorm = normalizeText(inp.value);
+        const match = parsed.find(p=>p.normalized===cardNorm) || parsed.find(p=>cardNorm.includes(p.normalized)||p.normalized.includes(cardNorm));
+        if(match && card){
+          const op = card.querySelector(".sc-add-oldprice");
+          if(op){ op.value = match.price; op.dispatchEvent(new Event("input")); matched++; }
+        }
+      });
+      priceStatusEl.textContent = "✅ " + matched + "টি প্রোডাক্টে দাম বসানো হয়েছে (মোট লিস্ট: " + parsed.length + "টি লাইন)";
+    };
+  }
+}
+
+function scFilenameToTitle(filename){
+  const base = filename.replace(/\.[^/.]+$/, "");
+  return base.split(/[_-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
+function renderScAddList(files, addListDiv){
+  addListDiv.innerHTML = "";
+  if(files.length === 0) return;
+  files.forEach((file) => {
+    const title = scFilenameToTitle(file.name);
+    const div = document.createElement("div");
+    div.className = "card";
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = div.querySelector(".sc-add-preview");
+      if(img) img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    div.innerHTML = `
+      <label style="display:inline-block;margin-right:8px"><input type="checkbox" class="sc-add-check"></label>
+      <img class="sc-add-preview" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px" src="">
+      <label>নাম <input type="text" class="sc-add-title" value="${title}"></label>
+      <label>মূল দাম / Market Price (৳) <input type="number" class="sc-add-oldprice" value="0"></label>
+      <label>Discount % <input type="number" class="sc-add-discount" value="0" min="0" max="100" style="width:80px"></label>
+      <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="sc-add-price" value="0" readonly style="background:#222;color:#8f8"></label>
+      <div class="sc-add-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
+      <label>স্টক <input type="number" class="sc-add-stock" value="20"></label>
+      <div style="clear:both"></div>
+      <button type="button" class="save-btn sc-add-save">💾 Save</button>
+      <button type="button" class="danger-btn sc-add-remove">🗑️ বাদ দিন</button>
+    `;
+    (function(){
+      const priceInput = div.querySelector(".sc-add-price");
+      const oldPriceInput = div.querySelector(".sc-add-oldprice");
+      const discountInput = div.querySelector(".sc-add-discount");
+      const previewEl = div.querySelector(".sc-add-item-preview");
+      function recalc(){
+        const op = parseFloat(oldPriceInput.value) || 0;
+        const d = parseInt(discountInput.value) || 0;
+        const newPrice = Math.round(op * (1 - d/100));
+        priceInput.value = newPrice;
+        const save = op - newPrice;
+        if(d > 0 && save > 0){
+          previewEl.innerHTML = '<span style="text-decoration:line-through;color:#888">৳' + op + '</span> → <strong style="color:#8f8">৳' + newPrice + '</strong> &nbsp; <span style="color:#fc6">(Save ৳' + save + ')</span>';
+        } else {
+          previewEl.innerHTML = '<strong>৳' + newPrice + '</strong> <span style="color:#888">(কোনো ডিসকাউন্ট নেই)</span>';
+        }
+      }
+      oldPriceInput.addEventListener("input", recalc);
+      discountInput.addEventListener("input", recalc);
+      recalc();
+    })();
+    div.querySelector(".sc-add-remove").onclick = () => div.remove();
+    async function doSaveSc(){
+      const itemTitle = div.querySelector(".sc-add-title").value.trim();
+      const itemOldPrice = parseFloat(div.querySelector(".sc-add-oldprice").value) || 0;
+      const itemDiscount = parseInt(div.querySelector(".sc-add-discount").value) || 0;
+      const itemPrice = Math.round(itemOldPrice * (1 - itemDiscount/100));
+      const itemOldSaved = itemDiscount > 0 ? itemOldPrice : null;
+      const itemStock = parseInt(div.querySelector(".sc-add-stock").value) || 0;
+      if(!itemTitle){ throw new Error("নাম দিন"); }
+      if(!scSelectedSlug){ throw new Error("ক্যাটাগরি সিলেক্ট করা নেই"); }
+      const imageUrl = await uploadToCloudinaryGlobal(file);
+      const newRef = push(ref(db, "products"));
+      await set(newRef, {
+        title: itemTitle,
+        price: itemPrice,
+        discountPrice: itemOldSaved,
+        stock: itemStock,
+        categoryId: scSelectedSlug,
+        sellerId: currentAdminUid,
+        status: "active",
+        createdAt: Date.now(),
+        images: { main: imageUrl }
+      });
+    }
+    div._doSave = doSaveSc;
+    div.querySelector(".sc-add-save").onclick = () => {
+      const btn = div.querySelector(".sc-add-save");
+      btn.disabled = true;
+      btn.textContent = "সেভ হচ্ছে...";
+      doSaveSc().then(()=>{ btn.textContent = "✅ সেভ হয়েছে"; })
+        .catch(err => { alert("❌ সমস্যা: " + err.message); btn.disabled = false; btn.textContent = "💾 Save"; });
+    };
+    addListDiv.appendChild(div);
+  });
+}
+
 (function(){
   const scNameInput = document.getElementById("sc-name");
   const scSlugInput = document.getElementById("sc-slug");
@@ -3304,6 +3729,7 @@ function loadComingSoon(){
           <label>শুরুর তারিখ <input type="text" class="sc-edit-startdate" value="${(item.startDate||'').replace(/"/g,'&quot;')}" placeholder="dd-mm-yyyy"></label>
           <label>শেষের তারিখ <input type="text" class="sc-edit-enddate" value="${(item.endDate||'').replace(/"/g,'&quot;')}" placeholder="dd-mm-yyyy"></label>
           <div style="margin-top:10px">
+            <button class="save-btn sc-products-btn">🛍️ প্রোডাক্ট</button>
             <button class="save-btn sc-save-btn">💾 Save</button>
             <button class="danger-btn sc-delete-btn">🗑️ Delete</button>
           </div>
@@ -3335,6 +3761,15 @@ function loadComingSoon(){
             alert("❌ সমস্যা: " + err.message);
           }
         };
+
+        const scProdBtn = div.querySelector(".sc-products-btn");
+        if(scProdBtn){
+          scProdBtn.onclick = ()=>{
+            const slugNow = div.querySelector(".sc-edit-slug").value.trim() || item.slug;
+            const nameNow = div.querySelector(".sc-edit-name").value.trim() || item.name;
+            selectSpecialCategory(slugNow, nameNow);
+          };
+        }
 
         scListDiv.appendChild(div);
       });
