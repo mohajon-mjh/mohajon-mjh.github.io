@@ -19,6 +19,7 @@ button{padding:8px 14px;margin:5px 5px 0 0;cursor:pointer;border:none;border-rad
 .add-commission{background:#2980b9}
 .save-btn{background:#2980b9}
 .delete-btn{background:#c0392b}
+.danger-btn{background:#c0392b}
 input, textarea{
   width:100%;
   padding:8px;
@@ -226,6 +227,13 @@ h2{margin-top:0}
           <label style="margin:0">শুরুর তারিখ <input type="text" id="fsc-bulk-startdate" style="width:130px" placeholder="dd-mm-yyyy"></label>
           <label style="margin:0">শেষের তারিখ <input type="text" id="fsc-bulk-enddate" style="width:130px" placeholder="dd-mm-yyyy"></label>
           <button id="fsc-bulk-date-apply-btn" class="save-btn">📅 সিলেক্টেডে তারিখ বসান</button>
+        </div>
+        <div style="margin-top:8px">
+          <label style="display:block;margin-bottom:6px">প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+            <textarea id="fsc-view-price-paste" rows="4" placeholder="Barbeque Masala 100GM — ৳150"></textarea>
+          </label>
+          <button id="fsc-view-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+          <span id="fsc-view-price-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
         </div>
         <span id="fsc-bulk-status" style="font-size:13px;color:#8f8"></span>
       </div>
@@ -467,7 +475,7 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
   });
 </script>
 <script type="module" src="assets/js/currency.js"></script>
-<script type="module" src="assets/js/admin.js?v=20260805a"></script>
+<script type="module" src="assets/js/admin.js?v=20260805b"></script>
 <script src="js/global-menu.js?v=2"></script>
 </body>
 </html>
