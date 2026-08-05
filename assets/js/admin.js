@@ -3265,7 +3265,7 @@ function selectSpecialCategory(slug, name){
   setupScAddSection();
   document.getElementById("sc-view-section").style.display = "block";
   document.getElementById("sc-add-section").style.display = "none";
-  renderScOwnCatView();
+  switchScSubview("owncat");
 }
 
 function setupScNav(){
