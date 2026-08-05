@@ -831,6 +831,77 @@ function setupFscAddSection(){
     const files = Array.from(e.target.files);
     renderFscAddList(files, addListDiv);
   };
+
+  const selectAllBox = document.getElementById("fsc-add-select-all");
+  if(selectAllBox){
+    selectAllBox.onchange = () => {
+      document.querySelectorAll(".fsc-add-check").forEach(cb => { cb.checked = selectAllBox.checked; });
+    };
+  }
+
+  const saveAllBtn = document.getElementById("fsc-add-save-all-btn");
+  const saveStatusEl = document.getElementById("fsc-add-save-status");
+  if(saveAllBtn){
+    saveAllBtn.onclick = async () => {
+      const checked = document.querySelectorAll(".fsc-add-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      let successCount = 0, failCount = 0;
+      for(const cb of checked){
+        const card = cb.closest(".card");
+        if(!card || !card._doSave) continue;
+        saveStatusEl.textContent = `সেভ হচ্ছে... (${successCount + failCount + 1}/${checked.length})`;
+        try{
+          await card._doSave();
+          successCount++;
+        }catch(err){
+          failCount++;
+        }
+      }
+      saveStatusEl.textContent = `✅ সম্পন্ন: ${successCount}টি সেভ হয়েছে` + (failCount > 0 ? `, ❌ ${failCount}টি ব্যর্থ` : "");
+    };
+  }
+
+  const priceApplyBtn = document.getElementById("fsc-price-apply-btn");
+  const priceStatusEl = document.getElementById("fsc-price-status");
+  if(priceApplyBtn){
+    priceApplyBtn.onclick = () => {
+      const raw = document.getElementById("fsc-price-paste").value;
+      if(!raw.trim()){ alert("প্রাইস লিস্ট পেস্ট করুন"); return; }
+
+      function normalizeText(s){
+        return (s || "").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]/g, "");
+      }
+
+      const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
+      const parsed = [];
+      lines.forEach(line => {
+        const priceMatch = line.match(/৳\s*([\d,]+)/) || line.match(/([\d,]+)\s*$/);
+        if(!priceMatch) return;
+        const price = parseInt(priceMatch[1].replace(/,/g, ""));
+        const namePart = line.slice(0, priceMatch.index).replace(/[—–-]+\s*$/, "").trim();
+        if(!namePart || isNaN(price)) return;
+        parsed.push({ normalized: normalizeText(namePart), price, original: namePart });
+      });
+
+      let matchedCount = 0;
+      document.querySelectorAll(".fsc-add-title").forEach(titleInput => {
+        const card = titleInput.closest(".card");
+        const cardNorm = normalizeText(titleInput.value);
+        const match = parsed.find(p => p.normalized === cardNorm) ||
+                      parsed.find(p => cardNorm.includes(p.normalized) || p.normalized.includes(cardNorm));
+        if(match && card){
+          const oldPriceInput = card.querySelector(".fsc-add-oldprice");
+          if(oldPriceInput){
+            oldPriceInput.value = match.price;
+            oldPriceInput.dispatchEvent(new Event("input"));
+            matchedCount++;
+          }
+        }
+      });
+
+      priceStatusEl.textContent = `✅ ${matchedCount}টি প্রোডাক্টে দাম বসানো হয়েছে (মোট লিস্ট: ${parsed.length}টি লাইন)`;
+    };
+  }
 }
 
 function fscFilenameToTitle(filename){
@@ -854,6 +925,7 @@ function renderFscAddList(files, addListDiv){
     reader.readAsDataURL(file);
 
     div.innerHTML = `
+      <label style="display:inline-block;margin-right:8px"><input type="checkbox" class="fsc-add-check"></label>
       <img class="fsc-add-preview" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px" src="">
       <label>নাম <input type="text" class="fsc-add-title" value="${title}"></label>
       <label>মূল দাম / Market Price (৳) <input type="number" class="fsc-add-oldprice" value="0"></label>
@@ -892,7 +964,7 @@ function renderFscAddList(files, addListDiv){
 
     div.querySelector(".fsc-add-remove").onclick = () => div.remove();
 
-    div.querySelector(".fsc-add-save").onclick = async () => {
+    async function doSaveFsc(){
       const saveBtn = div.querySelector(".fsc-add-save");
       const itemTitle = div.querySelector(".fsc-add-title").value.trim();
       const itemOldPriceRaw = parseFloat(div.querySelector(".fsc-add-oldprice").value) || 0;
@@ -903,7 +975,7 @@ function renderFscAddList(files, addListDiv){
       const itemEnd = div.querySelector(".fsc-add-enddate").value.trim();
       const itemStock = parseInt(div.querySelector(".fsc-add-stock").value) || 0;
 
-      if(!itemTitle){ alert("নাম দিন"); return; }
+      if(!itemTitle){ throw new Error("নাম দিন"); }
 
       saveBtn.disabled = true;
       saveBtn.textContent = "সেভ হচ্ছে...";
@@ -927,10 +999,14 @@ function renderFscAddList(files, addListDiv){
         await fscUpdateCategoryMaxDiscount(fscSelectedCatId);
         saveBtn.textContent = "✅ সেভ হয়েছে";
       }catch(err){
-        alert("❌ সমস্যা: " + err.message);
         saveBtn.disabled = false;
         saveBtn.textContent = "💾 Save";
+        throw err;
       }
+    }
+    div._doSave = doSaveFsc;
+    div.querySelector(".fsc-add-save").onclick = () => {
+      doSaveFsc().catch(err => alert("❌ সমস্যা: " + err.message));
     };
 
     addListDiv.appendChild(div);
@@ -1415,6 +1491,77 @@ function setupDotdAddSection(){
     const files = Array.from(e.target.files);
     renderDotdAddList(files, addListDiv);
   };
+
+  const selectAllBox = document.getElementById("dotd-add-select-all");
+  if(selectAllBox){
+    selectAllBox.onchange = () => {
+      document.querySelectorAll(".dotd-add-check").forEach(cb => { cb.checked = selectAllBox.checked; });
+    };
+  }
+
+  const saveAllBtn = document.getElementById("dotd-add-save-all-btn");
+  const saveStatusEl = document.getElementById("dotd-add-save-status");
+  if(saveAllBtn){
+    saveAllBtn.onclick = async () => {
+      const checked = document.querySelectorAll(".dotd-add-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      let successCount = 0, failCount = 0;
+      for(const cb of checked){
+        const card = cb.closest(".card");
+        if(!card || !card._doSave) continue;
+        saveStatusEl.textContent = `সেভ হচ্ছে... (${successCount + failCount + 1}/${checked.length})`;
+        try{
+          await card._doSave();
+          successCount++;
+        }catch(err){
+          failCount++;
+        }
+      }
+      saveStatusEl.textContent = `✅ সম্পন্ন: ${successCount}টি সেভ হয়েছে` + (failCount > 0 ? `, ❌ ${failCount}টি ব্যর্থ` : "");
+    };
+  }
+
+  const priceApplyBtn = document.getElementById("dotd-price-apply-btn");
+  const priceStatusEl = document.getElementById("dotd-price-status");
+  if(priceApplyBtn){
+    priceApplyBtn.onclick = () => {
+      const raw = document.getElementById("dotd-price-paste").value;
+      if(!raw.trim()){ alert("প্রাইস লিস্ট পেস্ট করুন"); return; }
+
+      function normalizeText(s){
+        return (s || "").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]/g, "");
+      }
+
+      const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
+      const parsed = [];
+      lines.forEach(line => {
+        const priceMatch = line.match(/৳\s*([\d,]+)/) || line.match(/([\d,]+)\s*$/);
+        if(!priceMatch) return;
+        const price = parseInt(priceMatch[1].replace(/,/g, ""));
+        const namePart = line.slice(0, priceMatch.index).replace(/[—–-]+\s*$/, "").trim();
+        if(!namePart || isNaN(price)) return;
+        parsed.push({ normalized: normalizeText(namePart), price, original: namePart });
+      });
+
+      let matchedCount = 0;
+      document.querySelectorAll(".dotd-add-title").forEach(titleInput => {
+        const card = titleInput.closest(".card");
+        const cardNorm = normalizeText(titleInput.value);
+        const match = parsed.find(p => p.normalized === cardNorm) ||
+                      parsed.find(p => cardNorm.includes(p.normalized) || p.normalized.includes(cardNorm));
+        if(match && card){
+          const oldPriceInput = card.querySelector(".dotd-add-oldprice");
+          if(oldPriceInput){
+            oldPriceInput.value = match.price;
+            oldPriceInput.dispatchEvent(new Event("input"));
+            matchedCount++;
+          }
+        }
+      });
+
+      priceStatusEl.textContent = `✅ ${matchedCount}টি প্রোডাক্টে দাম বসানো হয়েছে (মোট লিস্ট: ${parsed.length}টি লাইন)`;
+    };
+  }
 }
 
 function dotdFilenameToTitle(filename){
@@ -1438,6 +1585,7 @@ function renderDotdAddList(files, addListDiv){
     reader.readAsDataURL(file);
 
     div.innerHTML = `
+      <label style="display:inline-block;margin-right:8px"><input type="checkbox" class="dotd-add-check"></label>
       <img class="dotd-add-preview" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px" src="">
       <label>নাম <input type="text" class="dotd-add-title" value="${title}"></label>
       <label>মূল দাম / Market Price (৳) <input type="number" class="dotd-add-oldprice" value="0"></label>
@@ -1476,7 +1624,7 @@ function renderDotdAddList(files, addListDiv){
 
     div.querySelector(".dotd-add-remove").onclick = () => div.remove();
 
-    div.querySelector(".dotd-add-save").onclick = async () => {
+    async function doSaveDotd(){
       const saveBtn = div.querySelector(".dotd-add-save");
       const itemTitle = div.querySelector(".dotd-add-title").value.trim();
       const itemOldPriceRaw = parseFloat(div.querySelector(".dotd-add-oldprice").value) || 0;
@@ -1487,7 +1635,7 @@ function renderDotdAddList(files, addListDiv){
       const itemEnd = div.querySelector(".dotd-add-enddate").value.trim();
       const itemStock = parseInt(div.querySelector(".dotd-add-stock").value) || 0;
 
-      if(!itemTitle){ alert("নাম দিন"); return; }
+      if(!itemTitle){ throw new Error("নাম দিন"); }
 
       saveBtn.disabled = true;
       saveBtn.textContent = "সেভ হচ্ছে...";
@@ -1511,10 +1659,14 @@ function renderDotdAddList(files, addListDiv){
         await dotdUpdateCategoryMaxDiscount(dotdSelectedCatId);
         saveBtn.textContent = "✅ সেভ হয়েছে";
       }catch(err){
-        alert("❌ সমস্যা: " + err.message);
         saveBtn.disabled = false;
         saveBtn.textContent = "💾 Save";
+        throw err;
       }
+    }
+    div._doSave = doSaveDotd;
+    div.querySelector(".dotd-add-save").onclick = () => {
+      doSaveDotd().catch(err => alert("❌ সমস্যা: " + err.message));
     };
 
     addListDiv.appendChild(div);
