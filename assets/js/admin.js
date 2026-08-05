@@ -3722,36 +3722,49 @@ function renderScAddList(files, addListDiv){
       entries.forEach(([id, item])=>{
         const div = document.createElement("div");
         div.className = "card";
+        div.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer";
         div.innerHTML = `
-          <label>নাম <input type="text" class="sc-edit-name" value="${(item.name||'').replace(/"/g,'&quot;')}"></label>
-          <label>Category ID <input type="text" class="sc-edit-slug" value="${(item.slug||'').replace(/"/g,'&quot;')}"></label>
-          <label>Order <input type="number" class="sc-edit-order" value="${item.order||0}" style="width:80px"></label>
-          <label>শুরুর তারিখ <input type="text" class="sc-edit-startdate" value="${(item.startDate||'').replace(/"/g,'&quot;')}" placeholder="dd-mm-yyyy"></label>
-          <label>শেষের তারিখ <input type="text" class="sc-edit-enddate" value="${(item.endDate||'').replace(/"/g,'&quot;')}" placeholder="dd-mm-yyyy"></label>
-          <div style="margin-top:10px">
-            <button class="save-btn sc-products-btn">🛍️ প্রোডাক্ট</button>
-            <button class="save-btn sc-save-btn">💾 Save</button>
+          <h3 class="sc-cat-name" style="margin:0;flex:1">${(item.name||"").replace(/</g,"&lt;")}</h3>
+          <div style="display:flex;gap:8px">
+            <button class="save-btn sc-edit-btn">✏️ Edit</button>
             <button class="danger-btn sc-delete-btn">🗑️ Delete</button>
           </div>
         `;
-
-        div.querySelector(".sc-save-btn").onclick = async ()=>{
-          const newName = div.querySelector(".sc-edit-name").value.trim();
-          const newSlug = div.querySelector(".sc-edit-slug").value.trim();
-          const newOrder = parseInt(div.querySelector(".sc-edit-order").value) || 0;
-        const newStartDate = div.querySelector(".sc-edit-startdate").value.trim();
-        const newEndDate = div.querySelector(".sc-edit-enddate").value.trim();
-          try{
-            await update(ref(db, "settings/specialCategories/"+id), { name: newName, slug: newSlug, order: newOrder, startDate: newStartDate, endDate: newEndDate });
-            alert("✅ Update হয়েছে");
-            scRenderList();
-          }catch(err){
-            console.error(err);
-            alert("❌ সমস্যা: " + err.message);
-          }
+        div.querySelector(".sc-cat-name").onclick = () => selectSpecialCategory(item.slug, item.name);
+        div.querySelector(".sc-edit-btn").onclick = (e) => {
+          e.stopPropagation();
+          const h3 = div.querySelector(".sc-cat-name");
+          h3.outerHTML = `<div class="sc-cat-editbox" style="flex:1">
+            <label>নাম <input type="text" class="sc-edit-name" value="${(item.name||'').replace(/"/g,'&quot;')}"></label>
+            <label>Category ID <input type="text" class="sc-edit-slug" value="${(item.slug||'').replace(/"/g,'&quot;')}"></label>
+            <label>Order <input type="number" class="sc-edit-order" value="${item.order||0}" style="width:80px"></label>
+            <label>শুরুর তারিখ <input type="text" class="sc-edit-startdate" value="${(item.startDate||'').replace(/"/g,'&quot;')}" placeholder="dd-mm-yyyy"></label>
+            <label>শেষের তারিখ <input type="text" class="sc-edit-enddate" value="${(item.endDate||'').replace(/"/g,'&quot;')}" placeholder="dd-mm-yyyy"></label>
+            <button class="save-btn sc-cat-save-btn" style="margin-top:8px">💾 Save</button>
+          </div>`;
+          const editBox = div.querySelector(".sc-cat-editbox");
+          const saveBtn = editBox.querySelector(".sc-cat-save-btn");
+          div.querySelector(".sc-edit-btn").style.display = "none";
+          saveBtn.onclick = async (ev) => {
+            ev.stopPropagation();
+            const newName = editBox.querySelector(".sc-edit-name").value.trim();
+            const newSlug = editBox.querySelector(".sc-edit-slug").value.trim();
+            const newOrder = parseInt(editBox.querySelector(".sc-edit-order").value) || 0;
+            const newStartDate = editBox.querySelector(".sc-edit-startdate").value.trim();
+            const newEndDate = editBox.querySelector(".sc-edit-enddate").value.trim();
+            if(!newName || !newSlug){ alert("নাম ও Category ID দুটোই দিন"); return; }
+            try{
+              await update(ref(db, "settings/specialCategories/"+id), { name: newName, slug: newSlug, order: newOrder, startDate: newStartDate, endDate: newEndDate });
+              alert("✅ Update হয়েছে");
+              scRenderList();
+            }catch(err){
+              console.error(err);
+              alert("❌ সমস্যা: " + err.message);
+            }
+          };
         };
-
-        div.querySelector(".sc-delete-btn").onclick = async ()=>{
+        div.querySelector(".sc-delete-btn").onclick = async (e) => {
+          e.stopPropagation();
           if(!confirm(`"${item.name}" ডিলিট করবেন?`)) return;
           try{
             await remove(ref(db, "settings/specialCategories/"+id));
@@ -3761,16 +3774,6 @@ function renderScAddList(files, addListDiv){
             alert("❌ সমস্যা: " + err.message);
           }
         };
-
-        const scProdBtn = div.querySelector(".sc-products-btn");
-        if(scProdBtn){
-          scProdBtn.onclick = ()=>{
-            const slugNow = div.querySelector(".sc-edit-slug").value.trim() || item.slug;
-            const nameNow = div.querySelector(".sc-edit-name").value.trim() || item.name;
-            selectSpecialCategory(slugNow, nameNow);
-          };
-        }
-
         scListDiv.appendChild(div);
       });
     }catch(err){
