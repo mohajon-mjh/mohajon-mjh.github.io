@@ -3311,6 +3311,7 @@ function scBuildProductCard(pid, data, opts){
   div.className = "card";
   const title = data ? (data.title || data.name || "Unnamed") : "⚠️ প্রোডাক্ট পাওয়া যায়নি";
   const isInCategory = opts.mode === "owncat";
+  const mapInfo = opts.mapInfo || {};
   const checkboxHTML = isInCategory
     ? `<label style="display:inline-block;margin-right:8px"><input type="checkbox" class="sc-item-check" data-pid="${pid}"></label>`
     : "";
@@ -3327,8 +3328,8 @@ function scBuildProductCard(pid, data, opts){
     <label>Discount % <input type="number" class="sc-item-discount" value="${initialDiscount}" min="0" max="100" style="width:80px"></label>
     <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="sc-item-price" value="${initialPrice}" readonly style="background:#222;color:#8f8"></label>
     <div class="sc-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
-    <label>Offer শুরুর তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="sc-item-startdate" value="${data && data.startDate ? data.startDate : ''}" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
-    <label>Offer শেষের তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="sc-item-enddate" value="${data && data.endDate ? data.endDate : ''}" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
+    <label>Offer শুরুর তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="sc-item-startdate" value="${mapInfo.startDate||''}" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
+    <label>Offer শেষের তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="sc-item-enddate" value="${mapInfo.endDate||''}" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
     <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
       <button class="save-btn sc-item-save">💾 Save</button>
       ${actionBtnHTML}
@@ -3365,7 +3366,10 @@ function scBuildProductCard(pid, data, opts){
     const newStart = div.querySelector(".sc-item-startdate").value.trim();
     const newEnd = div.querySelector(".sc-item-enddate").value.trim();
     try{
-      await update(ref(db, "products/"+pid), { price: newPrice, discountPrice: savedOldPrice, startDate: newStart, endDate: newEnd, updatedAt: Date.now() });
+      await update(ref(db, "products/"+pid), { price: newPrice, discountPrice: savedOldPrice, updatedAt: Date.now() });
+      if(isInCategory){
+        await update(ref(db, `settings/specialCategoryProducts/${scSelectedSlug}/${pid}`), { startDate: newStart, endDate: newEnd, addedAt: Date.now() });
+      }
       alert("✅ সেভ হয়েছে");
     }catch(err){ alert("❌ Error: " + err.message); }
   };
@@ -3395,12 +3399,14 @@ async function renderScOwnCatView(){
   if(!scSelectedSlug){ listDiv.innerHTML = ""; return; }
   listDiv.innerHTML = "<p style='color:#888'>লোড হচ্ছে...</p>";
   try{
+    const mapSnap = await get(ref(db, "settings/specialCategoryProducts/"+scSelectedSlug));
+    const map = mapSnap.exists() ? mapSnap.val() : {};
     const snap = await get(query(ref(db, "products"), orderByChild("categoryId"), equalTo(scSelectedSlug), limitToFirst(1000)));
     listDiv.innerHTML = "";
     let count = 0;
     snap.forEach(child => {
       count++;
-      listDiv.appendChild(scBuildProductCard(child.key, child.val(), { mode: "owncat" }));
+      listDiv.appendChild(scBuildProductCard(child.key, child.val(), { mode: "owncat", mapInfo: map[child.key] || {} }));
     });
     if(count === 0){
       listDiv.innerHTML = "<p style='color:#888'>এই ক্যাটাগরিতে কোনো প্রোডাক্ট নেই। 'All Products' বা 'Search' থেকে যোগ করুন।</p>";
@@ -3487,9 +3493,9 @@ function setupScToolbar(){
       const savedOldPrice = discount > 0 ? oldPrice : null;
       updates["products/" + pid + "/price"] = price;
       updates["products/" + pid + "/discountPrice"] = savedOldPrice;
-      updates["products/" + pid + "/startDate"] = card.querySelector(".sc-item-startdate") ? card.querySelector(".sc-item-startdate").value.trim() : "";
-      updates["products/" + pid + "/endDate"] = card.querySelector(".sc-item-enddate") ? card.querySelector(".sc-item-enddate").value.trim() : "";
       updates["products/" + pid + "/updatedAt"] = Date.now();
+      updates["settings/specialCategoryProducts/" + scSelectedSlug + "/" + pid + "/startDate"] = card.querySelector(".sc-item-startdate") ? card.querySelector(".sc-item-startdate").value.trim() : "";
+      updates["settings/specialCategoryProducts/" + scSelectedSlug + "/" + pid + "/endDate"] = card.querySelector(".sc-item-enddate") ? card.querySelector(".sc-item-enddate").value.trim() : "";
     });
     try{
       await update(ref(db), updates);
@@ -3683,14 +3689,13 @@ function renderScAddList(files, addListDiv){
         price: itemPrice,
         discountPrice: itemOldSaved,
         stock: itemStock,
-        startDate: itemStart,
-        endDate: itemEnd,
         categoryId: scSelectedSlug,
         sellerId: currentAdminUid,
         status: "active",
         createdAt: Date.now(),
         images: { main: imageUrl }
       });
+      await set(ref(db, `settings/specialCategoryProducts/${scSelectedSlug}/${newRef.key}`), { startDate: itemStart, endDate: itemEnd, addedAt: Date.now() });
     }
     div._doSave = doSaveSc;
     div.querySelector(".sc-add-save").onclick = () => {
