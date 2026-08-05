@@ -298,6 +298,13 @@ h2{margin-top:0}
           <label style="margin:0">শেষের তারিখ <input type="text" id="dotd-bulk-enddate" style="width:130px" placeholder="dd-mm-yyyy"></label>
           <button id="dotd-bulk-date-apply-btn" class="save-btn">📅 সিলেক্টেডে তারিখ বসান</button>
         </div>
+        <div style="margin-top:8px">
+          <label style="display:block;margin-bottom:6px">প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+            <textarea id="dotd-view-price-paste" rows="4" placeholder="Barbeque Masala 100GM — ৳150"></textarea>
+          </label>
+          <button id="dotd-view-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+          <span id="dotd-view-price-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+        </div>
         <span id="dotd-bulk-status" style="font-size:13px;color:#8f8"></span>
       </div>
 
@@ -309,10 +316,6 @@ h2{margin-top:0}
       <input type="file" id="dotd-add-file-input" accept="image/*" multiple>
 
       <div style="margin:12px 0;padding:10px;background:#1a1a1a;border-radius:8px">
-        <label style="display:block;margin-bottom:8px"><input type="checkbox" id="dotd-add-select-all"> সব সিলেক্ট করুন</label>
-        <button id="dotd-add-save-all-btn" class="save-btn">💾 সিলেক্টেড সব Save</button>
-        <span id="dotd-add-save-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
-
         <div style="margin-top:14px">
           <label>প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — সাইজ — ৳দাম)
             <textarea id="dotd-price-paste" rows="6" placeholder="MJH Biryani Masala — 200GM — ৳220"></textarea>
@@ -320,6 +323,10 @@ h2{margin-top:0}
           <button id="dotd-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
           <span id="dotd-price-status" style="font-size:13px;color:#8f8;display:block;margin-top:6px"></span>
         </div>
+
+        <label style="display:block;margin-bottom:8px"><input type="checkbox" id="dotd-add-select-all"> সব সিলেক্ট করুন</label>
+        <button id="dotd-add-save-all-btn" class="save-btn">💾 সিলেক্টেড সব Save</button>
+        <span id="dotd-add-save-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
       </div>
 
       <div id="dotd-add-list"></div>
@@ -460,7 +467,7 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
   });
 </script>
 <script type="module" src="assets/js/currency.js"></script>
-<script type="module" src="assets/js/admin.js?v=20260804e"></script>
+<script type="module" src="assets/js/admin.js?v=20260805a"></script>
 <script src="js/global-menu.js?v=2"></script>
 </body>
 </html>

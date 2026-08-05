@@ -1200,7 +1200,7 @@ const dealsDb = getDatabase(dealsApp);
 
 let dotdAllItems = [];
 let dotdRenderedCount = 0;
-const dotdBatchSize = 10;
+const dotdBatchSize = 30;
 
 function dealsIsWished(id){
   const list = JSON.parse(localStorage.getItem("wishlist") || "[]");
@@ -1332,11 +1332,29 @@ function renderDealCard(id, data, mapInfo){
   return card;
 }
 
+function dotdRemoveArrow(){
+  const grid = document.getElementById("dealsGrid");
+  const old = grid.querySelector(".scroll-arrow-card");
+  if(old) old.remove();
+}
+function dotdAddArrow(){
+  dotdRemoveArrow();
+  const grid = document.getElementById("dealsGrid");
+  const arrowCard = document.createElement("div");
+  arrowCard.className = "scroll-arrow-card";
+  arrowCard.innerHTML = "<span>→</span>";
+  arrowCard.addEventListener("click", () => { dotdRenderNextBatch(); });
+  grid.appendChild(arrowCard);
+}
 function dotdRenderNextBatch(){
+  dotdRemoveArrow();
   const grid = document.getElementById("dealsGrid");
   const nextItems = dotdAllItems.slice(dotdRenderedCount, dotdRenderedCount + dotdBatchSize);
   nextItems.forEach(it => grid.appendChild(renderDealCard(it.id, it.data, it.mapInfo)));
   dotdRenderedCount += nextItems.length;
+  if(dotdRenderedCount < dotdAllItems.length){
+    dotdAddArrow();
+  }
 }
 
 function loadDotdCategoryProducts(catId){

@@ -560,7 +560,7 @@ function fscBuildProductCard(pid, data, opts){
   const initialOldPrice = (data && data.discountPrice) ? data.discountPrice : initialPrice;
 
   div.innerHTML = `
-    ${checkboxHTML}<h3 style="display:inline-block">${title}</h3>
+    ${checkboxHTML}<h3 class="dotd-item-title" style="display:inline-block">${title}</h3>
     <label>মূল দাম / Market Price (৳) <input type="number" class="fsc-item-oldprice" value="${initialOldPrice}"></label>
     <label>Discount % <input type="number" class="fsc-item-discount" value="${mapInfo.discountPercent||0}" min="0" max="100" style="width:80px"></label>
     <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="fsc-item-price" value="${initialPrice}" readonly style="background:#222;color:#8f8"></label>
@@ -1220,7 +1220,7 @@ function dotdBuildProductCard(pid, data, opts){
   const initialOldPrice = (data && data.discountPrice) ? data.discountPrice : initialPrice;
 
   div.innerHTML = `
-    ${checkboxHTML}<h3 style="display:inline-block">${title}</h3>
+    ${checkboxHTML}<h3 class="dotd-item-title" style="display:inline-block">${title}</h3>
     <label>মূল দাম / Market Price (৳) <input type="number" class="dotd-item-oldprice" value="${initialOldPrice}"></label>
     <label>Discount % <input type="number" class="dotd-item-discount" value="${mapInfo.discountPercent||0}" min="0" max="100" style="width:80px"></label>
     <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="dotd-item-price" value="${initialPrice}" readonly style="background:#222;color:#8f8"></label>
@@ -1413,6 +1413,48 @@ function setupDotdToolbar(getIdsAndData){
   };
 }
 
+function setupDotdViewPricePaste(){
+  const btn = document.getElementById("dotd-view-price-apply-btn");
+  const statusEl = document.getElementById("dotd-view-price-status");
+  if(!btn) return;
+  btn.onclick = () => {
+    const raw = (document.getElementById("dotd-view-price-paste")||{}).value || "";
+    if(!raw.trim()){ alert("প্রাইস লিস্ট পেস্ট করুন"); return; }
+    function normalizeText(s){
+      return (s || "").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]/g, "");
+    }
+    const parsed = [];
+    raw.split("\n").map(l => l.trim()).filter(Boolean).forEach(line => {
+      const priceMatch = line.match(/৳\s*([\d,]+)/) || line.match(/([\d,]+)\s*$/);
+      if(!priceMatch) return;
+      const price = parseInt(priceMatch[1].replace(/,/g, ""));
+      const namePart = line.slice(0, priceMatch.index).replace(/[—–-]+\s*$/, "").trim();
+      if(!namePart || isNaN(price)) return;
+      parsed.push({ normalized: normalizeText(namePart), price });
+    });
+    let matchedCount = 0;
+    document.querySelectorAll("#dotd-products-list .dotd-item-title").forEach(h3 => {
+      const card = h3.closest(".card");
+      if(!card) return;
+      const cardNorm = normalizeText(h3.textContent);
+      const match = parsed.find(p => p.normalized === cardNorm) ||
+                    parsed.find(p => cardNorm.includes(p.normalized) || p.normalized.includes(cardNorm));
+      if(match){
+        const oldPriceInput = card.querySelector(".dotd-item-oldprice");
+        if(oldPriceInput){
+          oldPriceInput.value = match.price;
+          oldPriceInput.dispatchEvent(new Event("input"));
+          matchedCount++;
+        }
+      }
+    });
+    if(statusEl){
+      statusEl.textContent = "✅ " + matchedCount + "টি প্রোডাক্টে দাম বসেছে (মোট লাইন: " + parsed.length + ") — এবার সব সিলেক্ট করে 💾 সিলেক্টেড Save চাপুন";
+      setTimeout(()=>{ statusEl.textContent=""; }, 10000);
+    }
+  };
+}
+
 async function renderDotdOwnCatView(){
   const listDiv = document.getElementById("dotd-products-list");
   if(!listDiv) return;
@@ -1433,6 +1475,7 @@ async function renderDotdOwnCatView(){
     listDiv.appendChild(dotdBuildProductCard(pid, data, { mode: "owncat", mapInfo }));
   });
   setupDotdToolbar();
+  setupDotdViewPricePaste();
 }
 
 function renderDotdAllProductsView(){
