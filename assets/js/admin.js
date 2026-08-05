@@ -3327,6 +3327,8 @@ function scBuildProductCard(pid, data, opts){
     <label>Discount % <input type="number" class="sc-item-discount" value="${initialDiscount}" min="0" max="100" style="width:80px"></label>
     <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="sc-item-price" value="${initialPrice}" readonly style="background:#222;color:#8f8"></label>
     <div class="sc-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
+    <label>Offer শুরুর তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="sc-item-startdate" value="${data && data.startDate ? data.startDate : ''}" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
+    <label>Offer শেষের তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="sc-item-enddate" value="${data && data.endDate ? data.endDate : ''}" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
     <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
       <button class="save-btn sc-item-save">💾 Save</button>
       ${actionBtnHTML}
@@ -3360,8 +3362,10 @@ function scBuildProductCard(pid, data, opts){
     const newDiscount = parseInt(div.querySelector(".sc-item-discount").value) || 0;
     const newPrice = Math.round(newOldPrice * (1 - newDiscount/100));
     const savedOldPrice = newDiscount > 0 ? newOldPrice : null;
+    const newStart = div.querySelector(".sc-item-startdate").value.trim();
+    const newEnd = div.querySelector(".sc-item-enddate").value.trim();
     try{
-      await update(ref(db, "products/"+pid), { price: newPrice, discountPrice: savedOldPrice, updatedAt: Date.now() });
+      await update(ref(db, "products/"+pid), { price: newPrice, discountPrice: savedOldPrice, startDate: newStart, endDate: newEnd, updatedAt: Date.now() });
       alert("✅ সেভ হয়েছে");
     }catch(err){ alert("❌ Error: " + err.message); }
   };
@@ -3436,7 +3440,27 @@ function setupScToolbar(){
   const bulkApplyBtn = document.getElementById("sc-bulk-apply-btn");
   const bulkSaveBtn = document.getElementById("sc-bulk-save-btn");
   const bulkActionBtn = document.getElementById("sc-bulk-action-btn");
+  const bulkDateApplyBtn = document.getElementById("sc-bulk-date-apply-btn");
   const statusEl = document.getElementById("sc-bulk-status");
+
+  if(bulkDateApplyBtn){
+    bulkDateApplyBtn.onclick = () => {
+      const checked = document.querySelectorAll(".sc-item-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      const startVal = document.getElementById("sc-bulk-startdate").value.trim();
+      const endVal = document.getElementById("sc-bulk-enddate").value.trim();
+      if(!startVal && !endVal){ alert("অন্তত একটা তারিখ দিন"); return; }
+      checked.forEach(cb => {
+        const card = cb.closest(".card");
+        const startInput = card.querySelector(".sc-item-startdate");
+        const endInput = card.querySelector(".sc-item-enddate");
+        if(startVal && startInput) startInput.value = startVal;
+        if(endVal && endInput) endInput.value = endVal;
+      });
+      statusEl.textContent = "✅ সিলেক্টেড " + checked.length + "টি প্রোডাক্টে তারিখ বসানো হয়েছে, এখন Save চাপুন";
+      setTimeout(()=>{ statusEl.textContent=""; }, 4000);
+    };
+  }
 
   if(bulkApplyBtn) bulkApplyBtn.onclick = () => {
     const val = parseInt(document.getElementById("sc-bulk-discount").value);
@@ -3463,6 +3487,8 @@ function setupScToolbar(){
       const savedOldPrice = discount > 0 ? oldPrice : null;
       updates["products/" + pid + "/price"] = price;
       updates["products/" + pid + "/discountPrice"] = savedOldPrice;
+      updates["products/" + pid + "/startDate"] = card.querySelector(".sc-item-startdate") ? card.querySelector(".sc-item-startdate").value.trim() : "";
+      updates["products/" + pid + "/endDate"] = card.querySelector(".sc-item-enddate") ? card.querySelector(".sc-item-enddate").value.trim() : "";
       updates["products/" + pid + "/updatedAt"] = Date.now();
     });
     try{
@@ -3611,6 +3637,8 @@ function renderScAddList(files, addListDiv){
       <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="sc-add-price" value="0" readonly style="background:#222;color:#8f8"></label>
       <div class="sc-add-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
       <label>স্টক <input type="number" class="sc-add-stock" value="20"></label>
+      <label>Offer শুরুর তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="sc-add-startdate" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
+      <label>Offer শেষের তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="sc-add-enddate" placeholder="খালি রাখুন যদি না দেখাতে চান"></label>
       <div style="clear:both"></div>
       <button type="button" class="save-btn sc-add-save">💾 Save</button>
       <button type="button" class="danger-btn sc-add-remove">🗑️ বাদ দিন</button>
@@ -3644,6 +3672,8 @@ function renderScAddList(files, addListDiv){
       const itemPrice = Math.round(itemOldPrice * (1 - itemDiscount/100));
       const itemOldSaved = itemDiscount > 0 ? itemOldPrice : null;
       const itemStock = parseInt(div.querySelector(".sc-add-stock").value) || 0;
+      const itemStart = div.querySelector(".sc-add-startdate").value.trim();
+      const itemEnd = div.querySelector(".sc-add-enddate").value.trim();
       if(!itemTitle){ throw new Error("নাম দিন"); }
       if(!scSelectedSlug){ throw new Error("ক্যাটাগরি সিলেক্ট করা নেই"); }
       const imageUrl = await uploadToCloudinaryGlobal(file);
@@ -3653,6 +3683,8 @@ function renderScAddList(files, addListDiv){
         price: itemPrice,
         discountPrice: itemOldSaved,
         stock: itemStock,
+        startDate: itemStart,
+        endDate: itemEnd,
         categoryId: scSelectedSlug,
         sellerId: currentAdminUid,
         status: "active",
@@ -3738,8 +3770,6 @@ function renderScAddList(files, addListDiv){
             <label>নাম <input type="text" class="sc-edit-name" value="${(item.name||'').replace(/"/g,'&quot;')}"></label>
             <label>Category ID <input type="text" class="sc-edit-slug" value="${(item.slug||'').replace(/"/g,'&quot;')}"></label>
             <label>Order <input type="number" class="sc-edit-order" value="${item.order||0}" style="width:80px"></label>
-            <label>শুরুর তারিখ <input type="text" class="sc-edit-startdate" value="${(item.startDate||'').replace(/"/g,'&quot;')}" placeholder="dd-mm-yyyy"></label>
-            <label>শেষের তারিখ <input type="text" class="sc-edit-enddate" value="${(item.endDate||'').replace(/"/g,'&quot;')}" placeholder="dd-mm-yyyy"></label>
             <button class="save-btn sc-cat-save-btn" style="margin-top:8px">💾 Save</button>
           </div>`;
           const editBox = div.querySelector(".sc-cat-editbox");
@@ -3750,11 +3780,9 @@ function renderScAddList(files, addListDiv){
             const newName = editBox.querySelector(".sc-edit-name").value.trim();
             const newSlug = editBox.querySelector(".sc-edit-slug").value.trim();
             const newOrder = parseInt(editBox.querySelector(".sc-edit-order").value) || 0;
-            const newStartDate = editBox.querySelector(".sc-edit-startdate").value.trim();
-            const newEndDate = editBox.querySelector(".sc-edit-enddate").value.trim();
             if(!newName || !newSlug){ alert("নাম ও Category ID দুটোই দিন"); return; }
             try{
-              await update(ref(db, "settings/specialCategories/"+id), { name: newName, slug: newSlug, order: newOrder, startDate: newStartDate, endDate: newEndDate });
+              await update(ref(db, "settings/specialCategories/"+id), { name: newName, slug: newSlug, order: newOrder });
               alert("✅ Update হয়েছে");
               scRenderList();
             }catch(err){

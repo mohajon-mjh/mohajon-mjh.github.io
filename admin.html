@@ -379,6 +379,11 @@ h2{margin-top:0}
           <button id="sc-bulk-save-btn" class="save-btn">💾 সিলেক্টেড Save</button>
           <button id="sc-bulk-action-btn" class="danger-btn">🗑️ সিলেক্টেড রিমুভ</button>
         </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px">
+          <label style="margin:0">শুরুর তারিখ <input type="text" id="sc-bulk-startdate" style="width:130px" placeholder="dd-mm-yyyy"></label>
+          <label style="margin:0">শেষের তারিখ <input type="text" id="sc-bulk-enddate" style="width:130px" placeholder="dd-mm-yyyy"></label>
+          <button id="sc-bulk-date-apply-btn" class="save-btn">📅 সিলেক্টেডে তারিখ বসান</button>
+        </div>
         <div style="margin-top:8px">
           <label style="display:block;margin-bottom:6px">প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
             <textarea id="sc-view-price-paste" rows="4" placeholder="Acoustic Guitar — ৳9500"></textarea>
@@ -528,7 +533,7 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
   });
 </script>
 <script type="module" src="assets/js/currency.js"></script>
-<script type="module" src="assets/js/admin.js?v=20260805e"></script>
+<script type="module" src="assets/js/admin.js?v=20260805f"></script>
 <script src="js/global-menu.js?v=2"></script>
 </body>
 </html>
