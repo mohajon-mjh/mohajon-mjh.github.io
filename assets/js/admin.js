@@ -753,6 +753,48 @@ function setupFscToolbar(getIdsAndData){
   };
 }
 
+function setupFscViewPricePaste(){
+  const btn = document.getElementById("fsc-view-price-apply-btn");
+  const statusEl = document.getElementById("fsc-view-price-status");
+  if(!btn) return;
+  btn.onclick = () => {
+    const raw = (document.getElementById("fsc-view-price-paste")||{}).value || "";
+    if(!raw.trim()){ alert("প্রাইস লিস্ট পেস্ট করুন"); return; }
+    function normalizeText(s){
+      return (s || "").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]/g, "");
+    }
+    const parsed = [];
+    raw.split("\n").map(l => l.trim()).filter(Boolean).forEach(line => {
+      const priceMatch = line.match(/৳\s*([\d,]+)/) || line.match(/([\d,]+)\s*$/);
+      if(!priceMatch) return;
+      const price = parseInt(priceMatch[1].replace(/,/g, ""));
+      const namePart = line.slice(0, priceMatch.index).replace(/[—–-]+\s*$/, "").trim();
+      if(!namePart || isNaN(price)) return;
+      parsed.push({ normalized: normalizeText(namePart), price });
+    });
+    let matchedCount = 0;
+    document.querySelectorAll("#fsc-products-list .dotd-item-title").forEach(h3 => {
+      const card = h3.closest(".card");
+      if(!card) return;
+      const cardNorm = normalizeText(h3.textContent);
+      const match = parsed.find(p => p.normalized === cardNorm) ||
+                    parsed.find(p => cardNorm.includes(p.normalized) || p.normalized.includes(cardNorm));
+      if(match){
+        const oldPriceInput = card.querySelector(".fsc-item-oldprice");
+        if(oldPriceInput){
+          oldPriceInput.value = match.price;
+          oldPriceInput.dispatchEvent(new Event("input"));
+          matchedCount++;
+        }
+      }
+    });
+    if(statusEl){
+      statusEl.textContent = "✅ " + matchedCount + "টি প্রোডাক্টে দাম বসেছে (মোট লাইন: " + parsed.length + ") — এবার সব সিলেক্ট করে 💾 সিলেক্টেড Save চাপুন";
+      setTimeout(()=>{ statusEl.textContent=""; }, 10000);
+    }
+  };
+}
+
 async function renderFscOwnCatView(){
   const listDiv = document.getElementById("fsc-products-list");
   if(!listDiv) return;
@@ -773,6 +815,7 @@ async function renderFscOwnCatView(){
     listDiv.appendChild(fscBuildProductCard(pid, data, { mode: "owncat", mapInfo }));
   });
   setupFscToolbar();
+  setupFscViewPricePaste();
 }
 
 function renderFscAllProductsView(){
