@@ -3375,7 +3375,7 @@ function loadComingSoon(){
           <div style="clear:both;margin-top:10px">
             <button class="save-btn cs-item-save">💾 Save</button>
             <button class="save-btn cs-release-btn">🚀 Release করুন</button>
-            <button class="danger-btn cs-delete-btn">🗑️ Delete</button>
+            <button class="danger-btn cs-delete-btn">🗑️ এই ক্যাটাগরি থেকে ডিলিট</button>
           </div>
         `;
         (function(){
@@ -3461,7 +3461,7 @@ function loadComingSoon(){
         };
 
         div.querySelector(".cs-delete-btn").onclick = async ()=>{
-          if(!confirm(`"${item.title}" ডিলিট করবেন?`)) return;
+          if(!confirm(`"${item.title}" শুধু Coming Soon ক্যাটাগরি থেকে সরবে — ডাটা নষ্ট হবে না। সরবেন?`)) return;
           await remove(ref(db, "futureProducts/"+id));
           await remove(ref(db, "futureNotify/"+id));
           csRenderList();
@@ -4712,4 +4712,101 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
   }
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", csFinal);
   else csFinal();
+})();
+
+/* ===== CS FIX 2 ===== */
+(function(){
+  function csFix2(){
+    const fileInput = document.getElementById("cs-multi-file-input");
+    const listDiv = document.getElementById("cs-multi-list");
+    if(!fileInput || !listDiv) return;
+    async function saveCard(card){
+      const file = card._csFile;
+      const t = card.querySelector(".cs-multi-title").value.trim();
+      const op = parseFloat(card.querySelector(".cs-multi-oldprice").value) || 0;
+      const d = parseInt(card.querySelector(".cs-multi-discount").value) || 0;
+      const np = Math.round(op * (1 - d/100));
+      const cat = card.querySelector(".cs-multi-cat").value.trim();
+      const sd = card.querySelector(".cs-multi-startdate").value.trim();
+      const ed = card.querySelector(".cs-multi-enddate").value.trim();
+      if(!t || !file) throw new Error("নাম/ছবি নেই");
+      const imageUrl = await uploadToCloudinaryGlobal(file);
+      await set(push(ref(db, "futureProducts")), {
+        title: t, categoryId: cat || "coming_soon",
+        marketPrice: d > 0 ? op : null, discountPercent: d, expectedPrice: np,
+        startDate: sd, endDate: ed,
+        images: { main: imageUrl }, createdAt: Date.now(), released: false
+      });
+    }
+    function render(files){
+      listDiv.innerHTML = "";
+      files.forEach(file => {
+        const title = file.name.replace(/\.[^/.]+$/, "").split(/[_-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+        const div = document.createElement("div");
+        div.className = "card";
+        div._csFile = file;
+        const reader = new FileReader();
+        reader.onload = e => { const img = div.querySelector(".cs-multi-preview"); if(img) img.src = e.target.result; };
+        reader.readAsDataURL(file);
+        div.innerHTML = `
+          <label style="display:inline-block;margin-right:8px"><input type="checkbox" class="cs-multi-check"></label>
+          <img class="cs-multi-preview" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px" src="">
+          <label>নাম <input type="text" class="cs-multi-title" value="${title}"></label>
+          <label>মূল দাম / Market Price (৳) <input type="number" class="cs-multi-oldprice" value="0"></label>
+          <label>Discount % <input type="number" class="cs-multi-discount" value="0" min="0" max="100" style="width:80px"></label>
+          <label>বর্তমান দাম (৳) — অটো <input type="number" class="cs-multi-price" value="0" readonly style="background:#222;color:#8f8"></label>
+          <div class="cs-multi-calc" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
+          <label>Offer শুরুর তারিখ <input type="text" class="cs-multi-startdate" placeholder="dd-mm-yyyy" style="width:120px"></label>
+          <label>Offer শেষের তারিখ <input type="text" class="cs-multi-enddate" placeholder="dd-mm-yyyy" style="width:120px"></label>
+          <label>Category ID (slug) <input type="text" class="cs-multi-cat" placeholder="যেমন: home_kitchen"></label>
+          <div style="clear:both"></div>
+          <button type="button" class="save-btn cs-multi-save">💾 Save</button>
+        `;
+        const priceInput = div.querySelector(".cs-multi-price");
+        const oldPriceInput = div.querySelector(".cs-multi-oldprice");
+        const discountInput = div.querySelector(".cs-multi-discount");
+        const previewEl = div.querySelector(".cs-multi-calc");
+        const recalc = () => {
+          const op = parseFloat(oldPriceInput.value) || 0;
+          const d = parseInt(discountInput.value) || 0;
+          const np = Math.round(op * (1 - d/100));
+          priceInput.value = np;
+          const sv = op - np;
+          previewEl.innerHTML = (d > 0 && sv > 0)
+            ? '<span style="text-decoration:line-through;color:#888">৳' + op + '</span> → <strong style="color:#8f8">৳' + np + '</strong> &nbsp; <span style="color:#fc6">(Save ৳' + sv + ')</span>'
+            : '<strong>৳' + np + '</strong> <span style="color:#888">(কোনো ডিসকাউন্ট নেই)</span>';
+        };
+        oldPriceInput.addEventListener("input", recalc);
+        discountInput.addEventListener("input", recalc);
+        recalc();
+        const saveBtn = div.querySelector(".cs-multi-save");
+        saveBtn.onclick = () => {
+          saveBtn.disabled = true; saveBtn.textContent = "সেভ হচ্ছে...";
+          saveCard(div).then(()=>{ saveBtn.textContent = "✅ সেভ হয়েছে"; })
+            .catch(err => { alert("❌ সমস্যা: " + err.message); saveBtn.disabled = false; saveBtn.textContent = "💾 Save"; });
+        };
+        listDiv.appendChild(div);
+      });
+      const saBox = document.getElementById("cs-add-select-all");
+      if(saBox && saBox.checked) document.querySelectorAll(".cs-multi-check").forEach(cb => { cb.checked = true; });
+    }
+    fileInput.onchange = e => render(Array.from(e.target.files));
+    const sa = document.getElementById("cs-add-select-all");
+    if(sa) sa.onchange = () => { document.querySelectorAll(".cs-multi-check").forEach(cb => { cb.checked = sa.checked; }); };
+    const statusEl = document.getElementById("cs-add-save-status");
+    const saveAllBtn = document.getElementById("cs-add-save-all-btn");
+    if(saveAllBtn) saveAllBtn.onclick = async () => {
+      let checked = document.querySelectorAll(".cs-multi-check:checked");
+      if(checked.length === 0 && sa && sa.checked) checked = document.querySelectorAll(".cs-multi-check");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      let ok = 0, fail = 0;
+      for(const cb of checked){
+        statusEl.textContent = "সেভ হচ্ছে... (" + (ok+fail+1) + "/" + checked.length + ")";
+        try{ await saveCard(cb.closest(".card")); ok++; }catch(e){ fail++; }
+      }
+      statusEl.textContent = "✅ সম্পন্ন: " + ok + "টি সেভ হয়েছে" + (fail>0 ? ", ❌ " + fail + "টি ব্যর্থ" : "");
+    };
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", csFix2);
+  else csFix2();
 })();
