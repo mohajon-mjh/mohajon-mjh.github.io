@@ -345,6 +345,73 @@ h2{margin-top:0}
 
     
 
+    <section id="tab-globalcats" class="tab-section">
+      <div class="card">
+        <h3>🌐 নতুন Global Category যোগ করুন</h3>
+        <label>নাম (ইমোজি সহ) <input type="text" id="gc-name" placeholder="যেমন: 🏆 Best Sellers"></label>
+        <label>Order (ক্রম নম্বর, ছোট আগে দেখাবে) <input type="number" id="gc-order" value="0"></label>
+        <button class="save-btn" id="gc-add-btn">➕ ক্যাটাগরি যোগ করুন</button>
+      </div>
+      <div id="gc-list"></div>
+      <div class="card" id="gc-products-panel" style="display:none">
+        <h3 id="gc-products-title">ক্যাটাগরি</h3>
+        <div id="gc-nav-buttons" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">
+          <button id="gc-nav-view" class="save-btn">🛍️ প্রোডাক্ট ভিউ</button>
+          <button id="gc-nav-add" class="save-btn">➕ নতুন প্রোডাক্ট এড</button>
+        </div>
+        <div id="gc-view-section" style="display:none">
+          <div id="gc-view-subnav" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <button id="gc-sub-owncat" class="save-btn">📦 এই ক্যাটাগরির প্রোডাক্ট</button>
+            <button id="gc-sub-all" class="save-btn">🗂️ All Products</button>
+            <button id="gc-sub-search" class="save-btn">🔍 Search Products</button>
+          </div>
+          <div id="gc-search-box" style="display:none;margin-bottom:12px">
+            <input type="text" id="gc-search-input" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন...">
+          </div>
+          <div id="gc-toolbar" style="display:none;margin-bottom:12px;padding:10px;background:#1a1a1a;border-radius:8px">
+            <label style="display:block;margin-bottom:8px"><input type="checkbox" id="gc-select-all"> সব সিলেক্ট করুন</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <label style="margin:0">% <input type="number" id="gc-bulk-discount" min="0" max="100" style="width:70px" placeholder="%"></label>
+              <button id="gc-bulk-apply-btn" class="save-btn">✅ সিলেক্টেডে % বসান</button>
+              <button id="gc-bulk-save-btn" class="save-btn">💾 সিলেক্টেড Save</button>
+              <button id="gc-bulk-action-btn" class="danger-btn">🗑️ সিলেক্টেড রিমুভ</button>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px">
+              <label style="margin:0">শুরুর তারিখ <input type="text" id="gc-bulk-startdate" style="width:130px" placeholder="dd-mm-yyyy"></label>
+              <label style="margin:0">শেষের তারিখ <input type="text" id="gc-bulk-enddate" style="width:130px" placeholder="dd-mm-yyyy"></label>
+              <button id="gc-bulk-date-apply-btn" class="save-btn">📅 সিলেক্টেডে তারিখ বসান</button>
+            </div>
+            <div style="margin-top:8px">
+              <label style="display:block;margin-bottom:6px">প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+                <textarea id="gc-view-price-paste" rows="4" placeholder="Barbeque Masala 100GM — ৳150"></textarea>
+              </label>
+              <button id="gc-view-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+              <span id="gc-view-price-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+            </div>
+            <span id="gc-bulk-status" style="font-size:13px;color:#8f8"></span>
+          </div>
+          <div id="gc-products-list"></div>
+        </div>
+        <div id="gc-add-section" style="display:none">
+          <p style="font-size:13px;color:#aaa">গ্যালারি/স্টোরেজ থেকে একাধিক ছবি সিলেক্ট করুন</p>
+          <input type="file" id="gc-add-file-input" accept="image/*" multiple>
+          <div style="margin:12px 0;padding:10px;background:#1a1a1a;border-radius:8px">
+            <div style="margin-top:14px">
+              <label>প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — সাইজ — ৳দাম)
+                <textarea id="gc-price-paste" rows="6" placeholder="MJH Biryani Masala — 200GM — ৳220"></textarea>
+              </label>
+              <button id="gc-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+              <span id="gc-price-status" style="font-size:13px;color:#8f8;display:block;margin-top:6px"></span>
+            </div>
+            <label style="display:block;margin-bottom:8px"><input type="checkbox" id="gc-add-select-all"> সব সিলেক্ট করুন</label>
+            <button id="gc-add-save-all-btn" class="save-btn">💾 সিলেক্টেড সব Save</button>
+            <span id="gc-add-save-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+          </div>
+          <div id="gc-add-list"></div>
+        </div>
+      </div>
+    </section>
+
 <section id="tab-specialcats" class="tab-section">
       <div class="card">
         <h3>🌟 নতুন Special Category যোগ করুন</h3>
