@@ -3156,6 +3156,17 @@ function loadComingSoon(){
     }
   });
 
+  const csNavView = document.getElementById("cs-nav-view");
+  const csNavAdd = document.getElementById("cs-nav-add");
+  if(csNavView) csNavView.onclick = () => {
+    document.getElementById("cs-view-section").style.display = "block";
+    document.getElementById("cs-add-section").style.display = "none";
+  };
+  if(csNavAdd) csNavAdd.onclick = () => {
+    document.getElementById("cs-view-section").style.display = "none";
+    document.getElementById("cs-add-section").style.display = "block";
+  };
+
   csRenderList();
 
   let csCache = {};

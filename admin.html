@@ -416,6 +416,14 @@ h2{margin-top:0}
 
     <section id="tab-comingsoon" class="tab-section">
       <div class="card">
+        <h3>🔮 Coming Soon</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">
+          <button id="cs-nav-view" class="save-btn">🛍️ প্রোডাক্ট ভিউ</button>
+          <button id="cs-nav-add" class="save-btn">➕ নতুন প্রোডাক্ট এড</button>
+        </div>
+      </div>
+      <div id="cs-add-section" style="display:none">
+      <div class="card">
         <h3>🔮 নতুন Coming Soon প্রোডাক্ট যোগ করুন</h3>
         <label>নাম <input type="text" id="cs-title"></label>
         <label>আনুমানিক দাম (৳) <input type="number" id="cs-price"></label>
@@ -489,7 +497,9 @@ h2{margin-top:0}
         </div>
         <div id="cs-multi-list"></div>
       </div>
+      </div>
 
+      <div id="cs-view-section">
       <div class="card">
         <h3>🔮 Coming Soon প্রোডাক্ট ম্যানেজ</h3>
         <div style="margin-bottom:12px;padding:10px;background:#1a1a1a;border-radius:8px">
@@ -687,7 +697,7 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
   });
 </script>
 <script type="module" src="assets/js/currency.js"></script>
-<script type="module" src="assets/js/admin.js?v=20260807c"></script>
+<script type="module" src="assets/js/admin.js?v=20260807d"></script>
 <script src="js/global-menu.js?v=2"></script>
 <script>
 if('serviceWorker' in navigator){
