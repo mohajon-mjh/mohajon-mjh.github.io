@@ -3158,6 +3158,175 @@ function loadComingSoon(){
 
   csRenderList();
 
+  let csCache = {};
+
+  async function doReleaseCs(id, item, price, stock, marketPrice, discount){
+    const newProductRef = push(ref(db, "products"));
+    await set(newProductRef, {
+      title: item.title,
+      price: price,
+      discountPrice: (discount > 0 && marketPrice > 0) ? marketPrice : null,
+      stock: stock,
+      categoryId: item.categoryId,
+      sellerId: currentAdminUid,
+      status: "active",
+      createdAt: Date.now(),
+      images: item.images || {}
+    });
+    const notifySnap = await get(ref(db, "futureNotify/"+id));
+    const notifyData = notifySnap.val() || {};
+    const uids = Object.keys(notifyData);
+    for(const uid of uids){
+      const notifRef = push(ref(db, "notifications/"+uid));
+      await set(notifRef, {
+        title: "🎉 প্রোডাক্ট এসে গেছে!",
+        message: `আপনার অপেক্ষা করা "${item.title}" এখন কেনার জন্য পাওয়া যাচ্ছে!`,
+        read: false,
+        type: "product_release",
+        createdAt: Date.now()
+      });
+    }
+    await remove(ref(db, "futureProducts/"+id));
+    await remove(ref(db, "futureNotify/"+id));
+    return uids.length;
+  }
+
+  function setupCsToolbar(){
+    const selectAllBox = document.getElementById("cs-select-all");
+    const statusEl = document.getElementById("cs-bulk-status");
+    if(!selectAllBox) return;
+    selectAllBox.checked = false;
+    selectAllBox.onchange = () => {
+      document.querySelectorAll(".cs-item-check").forEach(cb => { cb.checked = selectAllBox.checked; });
+    };
+    document.getElementById("cs-bulk-apply-btn").onclick = () => {
+      const val = parseInt(document.getElementById("cs-bulk-discount").value);
+      if(isNaN(val) || val < 0 || val > 100){ alert("সঠিক % দিন (0-100)"); return; }
+      document.querySelectorAll(".cs-item-check:checked").forEach(cb => {
+        const card = cb.closest(".card");
+        const disc = card.querySelector(".cs-item-discount");
+        if(disc){ disc.value = val; disc.dispatchEvent(new Event("input")); }
+      });
+      statusEl.textContent = "✅ % বসানো হয়েছে — 💾 সিলেক্টেড Save চাপুন";
+    };
+    document.getElementById("cs-bulk-save-btn").onclick = async () => {
+      const checked = document.querySelectorAll(".cs-item-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      for(const cb of checked){
+        const id = cb.dataset.id;
+        const card = cb.closest(".card");
+        const op = parseFloat(card.querySelector(".cs-item-oldprice").value) || 0;
+        const d = parseInt(card.querySelector(".cs-item-discount").value) || 0;
+        const np = Math.round(op * (1 - d/100));
+        await update(ref(db, "futureProducts/"+id), {
+          marketPrice: op, discountPercent: d, expectedPrice: np,
+          startDate: card.querySelector(".cs-item-startdate").value.trim(),
+          endDate: card.querySelector(".cs-item-enddate").value.trim()
+        });
+      }
+      statusEl.textContent = "✅ " + checked.length + "টি সেভ হয়েছে";
+      csRenderList();
+    };
+    document.getElementById("cs-bulk-date-apply-btn").onclick = () => {
+      const checked = document.querySelectorAll(".cs-item-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      const sv = document.getElementById("cs-bulk-startdate").value.trim();
+      const ev = document.getElementById("cs-bulk-enddate").value.trim();
+      if(!sv && !ev){ alert("অন্তত একটা তারিখ দিন"); return; }
+      checked.forEach(cb => {
+        const card = cb.closest(".card");
+        if(sv) card.querySelector(".cs-item-startdate").value = sv;
+        if(ev) card.querySelector(".cs-item-enddate").value = ev;
+      });
+      statusEl.textContent = "✅ তারিখ বসানো হয়েছে — 💾 সিলেক্টেড Save চাপুন";
+    };
+    const viewPriceBtn = document.getElementById("cs-view-price-apply-btn");
+    if(viewPriceBtn) viewPriceBtn.onclick = () => {
+      const raw = document.getElementById("cs-view-price-paste").value;
+      if(!raw.trim()){ alert("প্রাইস লিস্ট পেস্ট করুন"); return; }
+      function normalizeText(s){ return (s||"").toLowerCase().replace(/[^a-z0-9ঀ-৿]/g, ""); }
+      const parsed = [];
+      raw.split("\n").map(l=>l.trim()).filter(Boolean).forEach(line => {
+        const mm = line.match(/৳\s*([\d,]+)/) || line.match(/([\d,]+)\s*$/);
+        if(!mm) return;
+        const price = parseInt(mm[1].replace(/,/g,""));
+        const namePart = line.slice(0, mm.index).replace(/[—–-]+\s*$/,"").trim();
+        if(!namePart || isNaN(price)) return;
+        parsed.push({ normalized: normalizeText(namePart), price });
+      });
+      let matched = 0;
+      document.querySelectorAll("#coming-soon-list .cs-item-title").forEach(h4 => {
+        const card = h4.closest(".card");
+        if(!card) return;
+        const cardNorm = normalizeText(h4.textContent);
+        const match = parsed.find(q=>q.normalized===cardNorm) || parsed.find(q=>cardNorm.includes(q.normalized)||q.normalized.includes(cardNorm));
+        if(match){
+          const op = card.querySelector(".cs-item-oldprice");
+          if(op){ op.value = match.price; op.dispatchEvent(new Event("input")); matched++; }
+        }
+      });
+      const st = document.getElementById("cs-view-price-status");
+      if(st) st.textContent = "✅ " + matched + "টি দাম বসেছে — 💾 সিলেক্টেড Save চাপুন";
+    };
+    document.getElementById("cs-bulk-release-btn").onclick = async () => {
+      const checked = document.querySelectorAll(".cs-item-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      if(!confirm(checked.length + "টি Release করবেন?")) return;
+      let ok = 0;
+      for(const cb of checked){
+        const id = cb.dataset.id;
+        const item = csCache[id];
+        if(!item) continue;
+        const card = cb.closest(".card");
+        const op = parseFloat(card.querySelector(".cs-item-oldprice").value) || 0;
+        const d = parseInt(card.querySelector(".cs-item-discount").value) || 0;
+        const np = Math.round(op * (1 - d/100));
+        const stock = parseInt(card.querySelector(".cs-item-stock").value) || 0;
+        try{ await doReleaseCs(id, item, np, stock, op, d); ok++; }catch(e){ console.error(e); }
+      }
+      statusEl.textContent = "✅ " + ok + "টি Release হয়েছে";
+      csRenderList();
+    };
+    document.getElementById("cs-release-all-btn").onclick = async () => {
+      const ids = Object.keys(csCache);
+      if(ids.length === 0){ alert("কোনো Coming Soon নেই"); return; }
+      if(!confirm("সব (" + ids.length + "টি) Release করবেন?")) return;
+      let ok = 0;
+      for(const id of ids){
+        const item = csCache[id];
+        const mp = parseFloat(item.marketPrice) || 0;
+        const ep = parseFloat(item.expectedPrice) || 0;
+        const d = parseInt(item.discountPercent) || 0;
+        try{ await doReleaseCs(id, item, ep, 20, mp, d); ok++; }catch(e){ console.error(e); }
+      }
+      statusEl.textContent = "✅ " + ok + "টি Release হয়েছে";
+      csRenderList();
+    };
+    document.getElementById("cs-bulk-delete-btn").onclick = async () => {
+      const checked = document.querySelectorAll(".cs-item-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      if(!confirm(checked.length + "টি ডিলিট করবেন?")) return;
+      for(const cb of checked){
+        const id = cb.dataset.id;
+        await remove(ref(db, "futureProducts/"+id));
+        await remove(ref(db, "futureNotify/"+id));
+      }
+      statusEl.textContent = "✅ ডিলিট হয়েছে";
+      csRenderList();
+    };
+    document.getElementById("cs-delete-all-btn").onclick = async () => {
+      const ids = Object.keys(csCache);
+      if(ids.length === 0){ alert("কোনো Coming Soon নেই"); return; }
+      if(!confirm("সব (" + ids.length + "টি) ডিলিট করবেন?")) return;
+      for(const id of ids){
+        await remove(ref(db, "futureProducts/"+id));
+        await remove(ref(db, "futureNotify/"+id));
+      }
+      statusEl.textContent = "✅ সব ডিলিট হয়েছে";
+      csRenderList();
+    };
+  }
+
   async function csRenderList(){
     listDiv.innerHTML = '<p style="color:#888">লোড হচ্ছে...</p>';
     try{
@@ -3171,33 +3340,82 @@ function loadComingSoon(){
       }
 
       listDiv.innerHTML = "";
+      csCache = {};
       entries.forEach(([id, item])=>{
+        csCache[id] = item;
         const div = document.createElement("div");
         div.className = "card";
         const img = (item.images && item.images.main) ? item.images.main : "";
+        const mp = parseFloat(item.marketPrice) || 0;
+        const ep = parseFloat(item.expectedPrice) || 0;
+        const d0 = parseInt(item.discountPercent) || 0;
         div.innerHTML = `
+          <label style="display:inline-block;margin-right:8px"><input type="checkbox" class="cs-item-check" data-id="${id}"></label>
           <img src="${img}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px">
-          <h4>${item.title}</h4>
-          <p>আনুমানিক দাম: ৳${item.expectedPrice}</p>
+          <h4 class="cs-item-title">${item.title}</h4>
           <p>ক্যাটাগরি: ${item.categoryId}</p>
+          <label>মূল দাম / Market Price (৳) <input type="number" class="cs-item-oldprice" value="${mp || ep}" style="width:120px"></label>
+          <label>Discount % <input type="number" class="cs-item-discount" value="${d0}" min="0" max="100" style="width:80px"></label>
+          <label>বর্তমান দাম (৳) — অটো <input type="number" class="cs-item-price" value="${ep}" readonly style="width:120px;background:#222;color:#8f8"></label>
+          <div class="cs-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
+          <label>Offer শুরুর তারিখ <input type="text" class="cs-item-startdate" value="${item.startDate||''}" placeholder="dd-mm-yyyy" style="width:120px"></label>
+          <label>Offer শেষের তারিখ <input type="text" class="cs-item-enddate" value="${item.endDate||''}" placeholder="dd-mm-yyyy" style="width:120px"></label>
+          <label>স্টক <input type="number" class="cs-item-stock" value="20" style="width:80px"></label>
           <div style="clear:both;margin-top:10px">
-            <label>বাস্তব দাম (৳) <input type="number" class="cs-release-price" value="${item.expectedPrice}" style="width:100px"></label>
-            <label>স্টক <input type="number" class="cs-release-stock" value="20" style="width:80px"></label>
+            <button class="save-btn cs-item-save">💾 Save</button>
             <button class="save-btn cs-release-btn">🚀 Release করুন</button>
             <button class="danger-btn cs-delete-btn">🗑️ Delete</button>
           </div>
         `;
+        (function(){
+          const priceInput = div.querySelector(".cs-item-price");
+          const oldPriceInput = div.querySelector(".cs-item-oldprice");
+          const discountInput = div.querySelector(".cs-item-discount");
+          const previewEl = div.querySelector(".cs-item-preview");
+          function recalc(){
+            const op = parseFloat(oldPriceInput.value) || 0;
+            const d = parseInt(discountInput.value) || 0;
+            const np = Math.round(op * (1 - d/100));
+            priceInput.value = np;
+            const sv = op - np;
+            if(d > 0 && sv > 0){
+              previewEl.innerHTML = '<span style="text-decoration:line-through;color:#888">৳' + op + '</span> → <strong style="color:#8f8">৳' + np + '</strong> &nbsp; <span style="color:#fc6">(Save ৳' + sv + ')</span>';
+            } else {
+              previewEl.innerHTML = '<strong>৳' + np + '</strong> <span style="color:#888">(কোনো ডিসকাউন্ট নেই)</span>';
+            }
+          }
+          oldPriceInput.addEventListener("input", recalc);
+          discountInput.addEventListener("input", recalc);
+          recalc();
+        })();
+        div.querySelector(".cs-item-save").onclick = async ()=>{
+          const op = parseFloat(div.querySelector(".cs-item-oldprice").value) || 0;
+          const d = parseInt(div.querySelector(".cs-item-discount").value) || 0;
+          const np = Math.round(op * (1 - d/100));
+          try{
+            await update(ref(db, "futureProducts/"+id), {
+              marketPrice: op, discountPercent: d, expectedPrice: np,
+              startDate: div.querySelector(".cs-item-startdate").value.trim(),
+              endDate: div.querySelector(".cs-item-enddate").value.trim()
+            });
+            alert("✅ সেভ হয়েছে");
+            csRenderList();
+          }catch(err){ alert("❌ সমস্যা: " + err.message); }
+        };
 
         div.querySelector(".cs-release-btn").onclick = async ()=>{
           if(!confirm(`"${item.title}" এখন Release করবেন?`)) return;
-          const realPrice = parseFloat(div.querySelector(".cs-release-price").value) || item.expectedPrice;
-          const realStock = parseInt(div.querySelector(".cs-release-stock").value) || 0;
+          const op2 = parseFloat(div.querySelector(".cs-item-oldprice").value) || 0;
+          const d2 = parseInt(div.querySelector(".cs-item-discount").value) || 0;
+          const realPrice = Math.round(op2 * (1 - d2/100));
+          const realStock = parseInt(div.querySelector(".cs-item-stock").value) || 0;
 
           try{
             const newProductRef = push(ref(db, "products"));
             await set(newProductRef, {
               title: item.title,
               price: realPrice,
+              discountPrice: (d2 > 0 && op2 > 0) ? op2 : null,
               stock: realStock,
               categoryId: item.categoryId,
               sellerId: currentAdminUid,
@@ -3240,8 +3458,8 @@ function loadComingSoon(){
 
         listDiv.appendChild(div);
       });
+      setupCsToolbar();
     }catch(err){
-  setupCsToolbar();
       console.error(err);
       listDiv.innerHTML = '<p style="color:red">লোড করতে সমস্যা হয়েছে</p>';
     }
@@ -4101,11 +4319,37 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
         <label style="display:inline-block;margin-right:8px"><input type="checkbox" class="cs-multi-check"></label>
         <img class="cs-multi-preview" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px" src="">
         <label>নাম <input type="text" class="cs-multi-title" value="${title}"></label>
-        <label>আনুমানিক দাম (৳) <input type="number" class="cs-multi-price" value="0"></label>
+        <label>মূল দাম / Market Price (৳) <input type="number" class="cs-multi-oldprice" value="0"></label>
+        <label>Discount % <input type="number" class="cs-multi-discount" value="0" min="0" max="100" style="width:80px"></label>
+        <label>বর্তমান দাম (৳) — অটো <input type="number" class="cs-multi-price" value="0" readonly style="background:#222;color:#8f8"></label>
+        <div class="cs-multi-calc" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
+        <label>Offer শুরুর তারিখ <input type="text" class="cs-multi-startdate" placeholder="dd-mm-yyyy" style="width:120px"></label>
+        <label>Offer শেষের তারিখ <input type="text" class="cs-multi-enddate" placeholder="dd-mm-yyyy" style="width:120px"></label>
         <label>Category ID (slug) <input type="text" class="cs-multi-cat" placeholder="যেমন: home_kitchen"></label>
         <div style="clear:both"></div>
         <button type="button" class="danger-btn cs-multi-remove">🗑️ বাদ দিন</button>
       `;
+      (function(){
+        const priceInput = div.querySelector(".cs-multi-price");
+        const oldPriceInput = div.querySelector(".cs-multi-oldprice");
+        const discountInput = div.querySelector(".cs-multi-discount");
+        const previewEl = div.querySelector(".cs-multi-calc");
+        function recalc(){
+          const op = parseFloat(oldPriceInput.value) || 0;
+          const d = parseInt(discountInput.value) || 0;
+          const np = Math.round(op * (1 - d/100));
+          priceInput.value = np;
+          const sv = op - np;
+          if(d > 0 && sv > 0){
+            previewEl.innerHTML = '<span style="text-decoration:line-through;color:#888">৳' + op + '</span> → <strong style="color:#8f8">৳' + np + '</strong> &nbsp; <span style="color:#fc6">(Save ৳' + sv + ')</span>';
+          } else {
+            previewEl.innerHTML = '<strong>৳' + np + '</strong> <span style="color:#888">(কোনো ডিসকাউন্ট নেই)</span>';
+          }
+        }
+        oldPriceInput.addEventListener("input", recalc);
+        discountInput.addEventListener("input", recalc);
+        recalc();
+      })();
       div.querySelector(".cs-multi-remove").onclick = () => div.remove();
       div._csFile = file;
       listDiv.appendChild(div);
@@ -4132,8 +4376,8 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
       const cardNorm = normalizeText(inp.value);
       const match = parsed.find(q=>q.normalized===cardNorm) || parsed.find(q=>cardNorm.includes(q.normalized)||q.normalized.includes(cardNorm));
       if(match){
-        const pr = card.querySelector(".cs-multi-price");
-        if(pr){ pr.value = match.price; matched++; }
+        const pr = card.querySelector(".cs-multi-oldprice");
+        if(pr){ pr.value = match.price; pr.dispatchEvent(new Event("input")); matched++; }
       }
     });
     statusEl.textContent = "✅ " + matched + "টি প্রোডাক্টে দাম বসানো হয়েছে (মোট লিস্ট: " + parsed.length + "টি লাইন)";
@@ -4146,22 +4390,39 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
     let ok = 0, fail = 0;
     for(const cb of checked){
       const card = cb.closest(".card");
-      const file = card._csFile;
-      const t = card.querySelector(".cs-multi-title").value.trim();
-      const price = parseFloat(card.querySelector(".cs-multi-price").value) || 0;
-      const cat = card.querySelector(".cs-multi-cat").value.trim();
-      if(!t || !file){ fail++; continue; }
       saveStatusEl.textContent = "সেভ হচ্ছে... (" + (ok+fail+1) + "/" + checked.length + ")";
-      try{
-        const imageUrl = await uploadToCloudinaryGlobal(file);
-        await set(push(ref(db, "futureProducts")), {
-          title: t, categoryId: cat || "coming_soon", expectedPrice: price,
-          images: { main: imageUrl }, createdAt: Date.now(), released: false
-        });
-        ok++;
-      }catch(e){ fail++; }
+      try{ await saveCsMultiCard(card); ok++; }catch(e){ fail++; }
     }
     saveStatusEl.textContent = "✅ সম্পন্ন: " + ok + "টি সেভ হয়েছে" + (fail>0 ? ", ❌ " + fail + "টি ব্যর্থ" : "");
+  };
+  async function saveCsMultiCard(card){
+    const file = card._csFile;
+    const t = card.querySelector(".cs-multi-title").value.trim();
+    const op = parseFloat(card.querySelector(".cs-multi-oldprice").value) || 0;
+    const d = parseInt(card.querySelector(".cs-multi-discount").value) || 0;
+    const np = Math.round(op * (1 - d/100));
+    const cat = card.querySelector(".cs-multi-cat").value.trim();
+    const sd = card.querySelector(".cs-multi-startdate") ? card.querySelector(".cs-multi-startdate").value.trim() : "";
+    const ed = card.querySelector(".cs-multi-enddate") ? card.querySelector(".cs-multi-enddate").value.trim() : "";
+    if(!t || !file) throw new Error("নাম/ছবি নেই");
+    const imageUrl = await uploadToCloudinaryGlobal(file);
+    await set(push(ref(db, "futureProducts")), {
+      title: t, categoryId: cat || "coming_soon",
+      marketPrice: d > 0 ? op : null, discountPercent: d, expectedPrice: np,
+      startDate: sd, endDate: ed,
+      images: { main: imageUrl }, createdAt: Date.now(), released: false
+    });
+  }
+  const saveEverythingBtn = document.getElementById("cs-save-everything-btn");
+  if(saveEverythingBtn) saveEverythingBtn.onclick = async () => {
+    const cards = document.querySelectorAll("#cs-multi-list .card");
+    if(cards.length === 0){ alert("কোনো প্রোডাক্ট নেই"); return; }
+    let ok = 0, fail = 0;
+    for(const card of cards){
+      saveStatusEl.textContent = "সব সেভ হচ্ছে... (" + (ok+fail+1) + "/" + cards.length + ")";
+      try{ await saveCsMultiCard(card); ok++; }catch(e){ fail++; }
+    }
+    saveStatusEl.textContent = "✅ সব সম্পন্ন: " + ok + "টি সেভ হয়েছে" + (fail>0 ? ", ❌ " + fail + "টি ব্যর্থ" : "");
   };
 })();
 

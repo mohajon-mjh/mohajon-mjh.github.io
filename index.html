@@ -1761,6 +1761,22 @@ onAuthStateChanged(csAuth, (user)=>{
 const csSection = document.getElementById("comingSoonSection");
 const csGrid = document.getElementById("comingSoonGrid");
 
+function csParseDate(str, endOfDay){
+  if(!str) return null;
+  const parts = String(str).split("-");
+  if(parts.length !== 3) return null;
+  const d = parseInt(parts[0]), m = parseInt(parts[1]), y = parseInt(parts[2]);
+  if(!d || !m || !y) return null;
+  return endOfDay ? new Date(y, m-1, d, 23, 59, 59) : new Date(y, m-1, d, 0, 0, 0);
+}
+function csIsOfferActive(item){
+  const start = csParseDate(item.startDate, false);
+  const end = csParseDate(item.endDate, true);
+  const now = new Date();
+  if(start && now < start) return false;
+  if(end && now > end) return false;
+  return true;
+}
 function csFmtPrice(bdtPrice){
   if(window.MJHCurrency && typeof window.MJHCurrency.formatPrice === 'function'){
     return window.MJHCurrency.formatPrice(bdtPrice);
@@ -1791,7 +1807,7 @@ window.csNotifyMe = csNotifyMe;
 
 onValue(ref(csDb, "futureProducts"), (snapshot)=>{
   const data = snapshot.val() || {};
-  const entries = Object.entries(data).filter(([id, item]) => !item.released);
+  const entries = Object.entries(data).filter(([id, item]) => !item.released && csIsOfferActive(item));
 
   if(entries.length === 0){
     csSection.style.display = "none";
