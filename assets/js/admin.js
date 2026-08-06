@@ -3709,6 +3709,461 @@ function renderScAddList(files, addListDiv){
   });
 }
 
+/* ===================== FLAG SECTION MANAGER (Trending / Featured) ===================== */
+function flagManager(cfg){
+  const P = cfg.p;
+  const FLAG = cfg.flag;
+  function el(id){ return document.getElementById(P + "-" + id); }
+
+  function buildCard(pid, data, opts){
+    const div = document.createElement("div");
+    div.className = "card";
+    const title = data ? (data.title || data.name || "Unnamed") : "⚠️ প্রোডাক্ট পাওয়া যায়নি";
+    const isIn = opts.mode === "own";
+    const checkboxHTML = isIn ? `<label style="display:inline-block;margin-right:8px"><input type="checkbox" class="${P}-item-check" data-pid="${pid}"></label>` : "";
+    const actionBtnHTML = isIn
+      ? `<button class="danger-btn ${P}-item-remove">🗑️ Remove</button>`
+      : `<button class="save-btn ${P}-item-addcat">➕ এই সেকশনে যোগ করুন</button>`;
+    const initialPrice = data ? (data.price||0) : 0;
+    const initialOldPrice = (data && data.discountPrice) ? data.discountPrice : initialPrice;
+    const initialDiscount = (initialOldPrice > initialPrice && initialOldPrice > 0) ? Math.round((1 - initialPrice/initialOldPrice)*100) : 0;
+    div.innerHTML = `
+      ${checkboxHTML}<h3 class="${P}-item-title" style="display:inline-block">${title}</h3>
+      <label>মূল দাম / Market Price (৳) <input type="number" class="${P}-item-oldprice" value="${initialOldPrice}"></label>
+      <label>Discount % <input type="number" class="${P}-item-discount" value="${initialDiscount}" min="0" max="100" style="width:80px"></label>
+      <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="${P}-item-price" value="${initialPrice}" readonly style="background:#222;color:#8f8"></label>
+      <div class="${P}-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="save-btn ${P}-item-save">💾 Save</button>
+        ${actionBtnHTML}
+      </div>
+    `;
+    (function(){
+      const priceInput = div.querySelector("." + P + "-item-price");
+      const oldPriceInput = div.querySelector("." + P + "-item-oldprice");
+      const discountInput = div.querySelector("." + P + "-item-discount");
+      const previewEl = div.querySelector("." + P + "-item-preview");
+      function recalc(){
+        const op = parseFloat(oldPriceInput.value) || 0;
+        const d = parseInt(discountInput.value) || 0;
+        const np = Math.round(op * (1 - d/100));
+        priceInput.value = np;
+        const sv = op - np;
+        if(d > 0 && sv > 0){
+          previewEl.innerHTML = '<span style="text-decoration:line-through;color:#888">৳' + op + '</span> → <strong style="color:#8f8">৳' + np + '</strong> &nbsp; <span style="color:#fc6">(Save ৳' + sv + ')</span>';
+        } else {
+          previewEl.innerHTML = '<strong>৳' + np + '</strong> <span style="color:#888">(কোনো ডিসকাউন্ট নেই)</span>';
+        }
+      }
+      oldPriceInput.addEventListener("input", recalc);
+      discountInput.addEventListener("input", recalc);
+      recalc();
+    })();
+    div.querySelector("." + P + "-item-save").onclick = async () => {
+      const op = parseFloat(div.querySelector("." + P + "-item-oldprice").value) || 0;
+      const d = parseInt(div.querySelector("." + P + "-item-discount").value) || 0;
+      const np = Math.round(op * (1 - d/100));
+      const sop = d > 0 ? op : null;
+      try{
+        await update(ref(db, "products/"+pid), { price: np, discountPrice: sop, updatedAt: Date.now() });
+        alert("✅ সেভ হয়েছে");
+      }catch(err){ alert("❌ Error: " + err.message); }
+    };
+    if(isIn){
+      div.querySelector("." + P + "-item-remove").onclick = async () => {
+        if(!confirm("এই প্রোডাক্টটি এই সেকশন থেকে সরবে (প্রোডাক্ট ডিলিট হবে না)। চালিয়ে যাবেন?")) return;
+        try{
+          await update(ref(db, "products/"+pid), { [FLAG]: false });
+          renderOwn();
+        }catch(err){ alert("❌ Error: " + err.message); }
+      };
+    } else {
+      div.querySelector("." + P + "-item-addcat").onclick = async () => {
+        try{
+          await update(ref(db, "products/"+pid), { [FLAG]: true });
+          alert("✅ যোগ হয়েছে — এখন 'এই সেকশনের প্রোডাক্ট' এ দেখা যাবে");
+        }catch(err){ alert("❌ Error: " + err.message); }
+      };
+    }
+    return div;
+  }
+
+  async function renderOwn(){
+    const listDiv = el("products-list");
+    if(!listDiv) return;
+    listDiv.innerHTML = "<p style='color:#888'>লোড হচ্ছে...</p>";
+    try{
+      const snap = await get(query(ref(db, "products"), orderByChild(FLAG), equalTo(true), limitToFirst(1000)));
+      listDiv.innerHTML = "";
+      let count = 0;
+      snap.forEach(child => { count++; listDiv.appendChild(buildCard(child.key, child.val(), { mode: "own" })); });
+      if(count === 0) listDiv.innerHTML = "<p style='color:#888'>এই সেকশনে কোনো প্রোডাক্ট নেই। 'All Products' বা 'Search' থেকে যোগ করুন।</p>";
+    }catch(err){ listDiv.innerHTML = "<p style='color:#888'>লোড করতে সমস্যা হয়েছে।</p>"; }
+    setupToolbar();
+    setupPricePaste();
+  }
+
+  function renderAll(filter){
+    const listDiv = el("products-list");
+    if(!listDiv) return;
+    const search = (filter || "").trim().toLowerCase();
+    listDiv.innerHTML = "";
+    let count = 0;
+    Object.entries(allProductsCache).forEach(([pid, data]) => {
+      const name = (data.title || data.name || "").toLowerCase();
+      if(search && !name.includes(search)) return;
+      if(count >= 100) return;
+      count++;
+      listDiv.appendChild(buildCard(pid, data, { mode: "all" }));
+    });
+    if(count === 0) listDiv.innerHTML = "<p style='color:#888'>কোনো প্রোডাক্ট পাওয়া যায়নি।</p>";
+  }
+
+  let currentSubview = "own";
+  function switchSubview(mode){
+    currentSubview = mode;
+    el("search-box").style.display = (mode === "search") ? "block" : "none";
+    el("toolbar").style.display = (mode === "search") ? "none" : "block";
+    if(mode === "own") renderOwn();
+    else if(mode === "all") renderAll("");
+    else renderAll(el("search-input").value || "");
+  }
+
+  function setupToolbar(){
+    const selectAllBox = el("select-all");
+    if(!selectAllBox) return;
+    selectAllBox.checked = false;
+    selectAllBox.onchange = () => {
+      document.querySelectorAll("." + P + "-item-check").forEach(cb => { cb.checked = selectAllBox.checked; });
+    };
+    const bulkApplyBtn = el("bulk-apply-btn");
+    const bulkSaveBtn = el("bulk-save-btn");
+    const bulkActionBtn = el("bulk-action-btn");
+    const statusEl = el("bulk-status");
+    if(bulkApplyBtn) bulkApplyBtn.onclick = () => {
+      const val = parseInt(el("bulk-discount").value);
+      if(isNaN(val) || val < 0 || val > 100){ alert("সঠিক % দিন (0-100)"); return; }
+      document.querySelectorAll("." + P + "-item-check:checked").forEach(cb => {
+        const card = cb.closest(".card");
+        const disc = card.querySelector("." + P + "-item-discount");
+        if(disc){ disc.value = val; disc.dispatchEvent(new Event("input")); }
+      });
+      statusEl.textContent = "✅ সিলেক্টেড প্রোডাক্টে % বসানো হয়েছে, এখন Save চাপুন";
+      setTimeout(()=>{ statusEl.textContent=""; }, 4000);
+    };
+    if(bulkSaveBtn) bulkSaveBtn.onclick = async () => {
+      const checked = document.querySelectorAll("." + P + "-item-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      const updates = {};
+      checked.forEach(cb => {
+        const pid = cb.dataset.pid;
+        const card = cb.closest(".card");
+        const op = parseFloat(card.querySelector("." + P + "-item-oldprice").value) || 0;
+        const d = parseInt(card.querySelector("." + P + "-item-discount").value) || 0;
+        updates["products/" + pid + "/price"] = Math.round(op * (1 - d/100));
+        updates["products/" + pid + "/discountPrice"] = d > 0 ? op : null;
+        updates["products/" + pid + "/updatedAt"] = Date.now();
+      });
+      try{
+        await update(ref(db), updates);
+        statusEl.textContent = "✅ " + checked.length + "টি প্রোডাক্ট সেভ হয়েছে";
+        setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+      }catch(err){ statusEl.textContent = "❌ Error: " + err.message; }
+    };
+    if(bulkActionBtn) bulkActionBtn.onclick = async () => {
+      const checked = document.querySelectorAll("." + P + "-item-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      if(!confirm(checked.length + "টি প্রোডাক্ট এই সেকশন থেকে সরবে (প্রোডাক্ট ডিলিট হবে না)। চালিয়ে যাবেন?")) return;
+      try{
+        const updates = {};
+        checked.forEach(cb => { updates["products/" + cb.dataset.pid + "/" + FLAG] = false; });
+        await update(ref(db), updates);
+        statusEl.textContent = "✅ সরানো হয়েছে";
+        setTimeout(()=>{ statusEl.textContent=""; }, 3000);
+        renderOwn();
+      }catch(err){ statusEl.textContent = "❌ Error: " + err.message; }
+    };
+  }
+
+  function setupPricePaste(){
+    const btn = el("view-price-apply-btn");
+    const statusEl = el("view-price-status");
+    if(!btn) return;
+    btn.onclick = () => {
+      const raw = (el("view-price-paste")||{}).value || "";
+      if(!raw.trim()){ alert("প্রাইস লিস্ট পেস্ট করুন"); return; }
+      function normalizeText(s){ return (s||"").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]/g, ""); }
+      const parsed = [];
+      raw.split("\n").map(l=>l.trim()).filter(Boolean).forEach(line => {
+        const mm = line.match(/৳\s*([\d,]+)/) || line.match(/([\d,]+)\s*$/);
+        if(!mm) return;
+        const price = parseInt(mm[1].replace(/,/g,""));
+        const namePart = line.slice(0, mm.index).replace(/[—–-]+\s*$/,"").trim();
+        if(!namePart || isNaN(price)) return;
+        parsed.push({ normalized: normalizeText(namePart), price });
+      });
+      let matched = 0;
+      document.querySelectorAll("#" + P + "-products-list ." + P + "-item-title").forEach(h3 => {
+        const card = h3.closest(".card");
+        if(!card) return;
+        const cardNorm = normalizeText(h3.textContent);
+        const match = parsed.find(q=>q.normalized===cardNorm) || parsed.find(q=>cardNorm.includes(q.normalized)||q.normalized.includes(cardNorm));
+        if(match){
+          const op = card.querySelector("." + P + "-item-oldprice");
+          if(op){ op.value = match.price; op.dispatchEvent(new Event("input")); matched++; }
+        }
+      });
+      if(statusEl){
+        statusEl.textContent = "✅ " + matched + "টি প্রোডাক্টে দাম বসেছে (মোট লাইন: " + parsed.length + ") — এবার সব সিলেক্ট করে 💾 সিলেক্টেড Save চাপুন";
+        setTimeout(()=>{ statusEl.textContent=""; }, 10000);
+      }
+    };
+  }
+
+  function setupNav(){
+    el("nav-view").onclick = () => {
+      el("view-section").style.display = "block";
+      el("add-section").style.display = "none";
+      switchSubview("own");
+    };
+    el("nav-add").onclick = () => {
+      el("view-section").style.display = "none";
+      el("add-section").style.display = "block";
+    };
+    el("sub-own").onclick = () => switchSubview("own");
+    el("sub-all").onclick = () => switchSubview("all");
+    el("sub-search").onclick = () => switchSubview("search");
+    const sb = el("search-input");
+    if(sb) sb.oninput = () => { if(currentSubview === "search") renderAll(sb.value); };
+  }
+
+  function setupAddSection(){
+    const fileInput = el("add-file-input");
+    const addListDiv = el("add-list");
+    if(!fileInput || !addListDiv) return;
+    fileInput.onchange = (e) => renderAddList(Array.from(e.target.files));
+    const selectAllBox = el("add-select-all");
+    if(selectAllBox) selectAllBox.onchange = () => {
+      document.querySelectorAll("." + P + "-add-check").forEach(cb => { cb.checked = selectAllBox.checked; });
+    };
+    const saveAllBtn = el("add-save-all-btn");
+    const saveStatusEl = el("add-save-status");
+    if(saveAllBtn) saveAllBtn.onclick = async () => {
+      const checked = document.querySelectorAll("." + P + "-add-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      let ok = 0, fail = 0;
+      for(const cb of checked){
+        const card = cb.closest(".card");
+        if(!card || !card._doSave) continue;
+        saveStatusEl.textContent = "সেভ হচ্ছে... (" + (ok+fail+1) + "/" + checked.length + ")";
+        try{ await card._doSave(); ok++; }catch(e){ fail++; }
+      }
+      saveStatusEl.textContent = "✅ সম্পন্ন: " + ok + "টি সেভ হয়েছে" + (fail>0 ? ", ❌ " + fail + "টি ব্যর্থ" : "");
+    };
+    const priceApplyBtn = el("price-apply-btn");
+    const priceStatusEl = el("price-status");
+    if(priceApplyBtn) priceApplyBtn.onclick = () => {
+      const raw = el("price-paste").value;
+      if(!raw.trim()){ alert("প্রাইস লিস্ট পেস্ট করুন"); return; }
+      function normalizeText(s){ return (s||"").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]/g, ""); }
+      const parsed = [];
+      raw.split("\n").map(l=>l.trim()).filter(Boolean).forEach(line => {
+        const mm = line.match(/৳\s*([\d,]+)/) || line.match(/([\d,]+)\s*$/);
+        if(!mm) return;
+        const price = parseInt(mm[1].replace(/,/g,""));
+        const namePart = line.slice(0, mm.index).replace(/[—–-]+\s*$/,"").trim();
+        if(!namePart || isNaN(price)) return;
+        parsed.push({ normalized: normalizeText(namePart), price });
+      });
+      let matched = 0;
+      document.querySelectorAll("." + P + "-add-title").forEach(inp => {
+        const card = inp.closest(".card");
+        const cardNorm = normalizeText(inp.value);
+        const match = parsed.find(q=>q.normalized===cardNorm) || parsed.find(q=>cardNorm.includes(q.normalized)||q.normalized.includes(cardNorm));
+        if(match && card){
+          const op = card.querySelector("." + P + "-add-oldprice");
+          if(op){ op.value = match.price; op.dispatchEvent(new Event("input")); matched++; }
+        }
+      });
+      priceStatusEl.textContent = "✅ " + matched + "টি প্রোডাক্টে দাম বসানো হয়েছে (মোট লিস্ট: " + parsed.length + "টি লাইন)";
+    };
+
+    function renderAddList(files){
+      addListDiv.innerHTML = "";
+      if(files.length === 0) return;
+      files.forEach((file) => {
+        const title = file.name.replace(/\.[^/.]+$/, "").split(/[_-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+        const div = document.createElement("div");
+        div.className = "card";
+        const reader = new FileReader();
+        reader.onload = (e) => { const img = div.querySelector("." + P + "-add-preview"); if(img) img.src = e.target.result; };
+        reader.readAsDataURL(file);
+        div.innerHTML = `
+          <label style="display:inline-block;margin-right:8px"><input type="checkbox" class="${P}-add-check"></label>
+          <img class="${P}-add-preview" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px" src="">
+          <label>নাম <input type="text" class="${P}-add-title" value="${title}"></label>
+          <label>মূল দাম / Market Price (৳) <input type="number" class="${P}-add-oldprice" value="0"></label>
+          <label>Discount % <input type="number" class="${P}-add-discount" value="0" min="0" max="100" style="width:80px"></label>
+          <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="${P}-add-price" value="0" readonly style="background:#222;color:#8f8"></label>
+          <div class="${P}-add-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
+          <label>স্টক <input type="number" class="${P}-add-stock" value="20"></label>
+          <div style="clear:both"></div>
+          <button type="button" class="save-btn ${P}-add-save">💾 Save</button>
+          <button type="button" class="danger-btn ${P}-add-remove">🗑️ বাদ দিন</button>
+        `;
+        (function(){
+          const priceInput = div.querySelector("." + P + "-add-price");
+          const oldPriceInput = div.querySelector("." + P + "-add-oldprice");
+          const discountInput = div.querySelector("." + P + "-add-discount");
+          const previewEl = div.querySelector("." + P + "-add-item-preview");
+          function recalc(){
+            const op = parseFloat(oldPriceInput.value) || 0;
+            const d = parseInt(discountInput.value) || 0;
+            const np = Math.round(op * (1 - d/100));
+            priceInput.value = np;
+            const sv = op - np;
+            if(d > 0 && sv > 0){
+              previewEl.innerHTML = '<span style="text-decoration:line-through;color:#888">৳' + op + '</span> → <strong style="color:#8f8">৳' + np + '</strong> &nbsp; <span style="color:#fc6">(Save ৳' + sv + ')</span>';
+            } else {
+              previewEl.innerHTML = '<strong>৳' + np + '</strong> <span style="color:#888">(কোনো ডিসকাউন্ট নেই)</span>';
+            }
+          }
+          oldPriceInput.addEventListener("input", recalc);
+          discountInput.addEventListener("input", recalc);
+          recalc();
+        })();
+        div.querySelector("." + P + "-add-remove").onclick = () => div.remove();
+        async function doSave(){
+          const t = div.querySelector("." + P + "-add-title").value.trim();
+          const op = parseFloat(div.querySelector("." + P + "-add-oldprice").value) || 0;
+          const d = parseInt(div.querySelector("." + P + "-add-discount").value) || 0;
+          const np = Math.round(op * (1 - d/100));
+          const sop = d > 0 ? op : null;
+          const stock = parseInt(div.querySelector("." + P + "-add-stock").value) || 0;
+          if(!t) throw new Error("নাম দিন");
+          const imageUrl = await uploadToCloudinaryGlobal(file);
+          const newRef = push(ref(db, "products"));
+          await set(newRef, {
+            title: t, price: np, discountPrice: sop, stock: stock,
+            [FLAG]: true,
+            categoryId: "",
+            sellerId: currentAdminUid,
+            status: "active",
+            createdAt: Date.now(),
+            images: { main: imageUrl }
+          });
+        }
+        div._doSave = doSave;
+        div.querySelector("." + P + "-add-save").onclick = () => {
+          const btn = div.querySelector("." + P + "-add-save");
+          btn.disabled = true; btn.textContent = "সেভ হচ্ছে...";
+          doSave().then(()=>{ btn.textContent = "✅ সেভ হয়েছে"; })
+            .catch(err => { alert("❌ সমস্যা: " + err.message); btn.disabled = false; btn.textContent = "💾 Save"; });
+        };
+        addListDiv.appendChild(div);
+      });
+    }
+  }
+
+  let inited = false;
+  function initOnce(){
+    if(inited) return;
+    inited = true;
+    setupNav();
+    setupAddSection();
+    el("view-section").style.display = "block";
+    el("add-section").style.display = "none";
+    switchSubview("own");
+  }
+  document.querySelectorAll(".tab-btn").forEach(b => {
+    if(b.dataset.tab === cfg.tab){ b.addEventListener("click", initOnce); }
+  });
+}
+flagManager({ p: "tr", flag: "isTrending", tab: "trending" });
+flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
+
+/* ===================== COMING SOON MULTI ADD ===================== */
+(function(){
+  const fileInput = document.getElementById("cs-multi-file-input");
+  const listDiv = document.getElementById("cs-multi-list");
+  if(!fileInput || !listDiv) return;
+  fileInput.onchange = (e) => {
+    listDiv.innerHTML = "";
+    Array.from(e.target.files).forEach(file => {
+      const title = file.name.replace(/\.[^/.]+$/, "").split(/[_-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+      const div = document.createElement("div");
+      div.className = "card";
+      const reader = new FileReader();
+      reader.onload = (ev) => { const img = div.querySelector(".cs-multi-preview"); if(img) img.src = ev.target.result; };
+      reader.readAsDataURL(file);
+      div.innerHTML = `
+        <label style="display:inline-block;margin-right:8px"><input type="checkbox" class="cs-multi-check"></label>
+        <img class="cs-multi-preview" style="width:80px;height:80px;object-fit:cover;border-radius:6px;float:left;margin-right:10px" src="">
+        <label>নাম <input type="text" class="cs-multi-title" value="${title}"></label>
+        <label>আনুমানিক দাম (৳) <input type="number" class="cs-multi-price" value="0"></label>
+        <label>Category ID (slug) <input type="text" class="cs-multi-cat" placeholder="যেমন: home_kitchen"></label>
+        <div style="clear:both"></div>
+        <button type="button" class="danger-btn cs-multi-remove">🗑️ বাদ দিন</button>
+      `;
+      div.querySelector(".cs-multi-remove").onclick = () => div.remove();
+      div._csFile = file;
+      listDiv.appendChild(div);
+    });
+  };
+  const applyBtn = document.getElementById("cs-price-apply-btn");
+  const statusEl = document.getElementById("cs-price-status");
+  if(applyBtn) applyBtn.onclick = () => {
+    const raw = document.getElementById("cs-price-paste").value;
+    if(!raw.trim()){ alert("প্রাইস লিস্ট পেস্ট করুন"); return; }
+    function normalizeText(s){ return (s||"").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]/g, ""); }
+    const parsed = [];
+    raw.split("\n").map(l=>l.trim()).filter(Boolean).forEach(line => {
+      const mm = line.match(/৳\s*([\d,]+)/) || line.match(/([\d,]+)\s*$/);
+      if(!mm) return;
+      const price = parseInt(mm[1].replace(/,/g,""));
+      const namePart = line.slice(0, mm.index).replace(/[—–-]+\s*$/,"").trim();
+      if(!namePart || isNaN(price)) return;
+      parsed.push({ normalized: normalizeText(namePart), price });
+    });
+    let matched = 0;
+    document.querySelectorAll(".cs-multi-title").forEach(inp => {
+      const card = inp.closest(".card");
+      const cardNorm = normalizeText(inp.value);
+      const match = parsed.find(q=>q.normalized===cardNorm) || parsed.find(q=>cardNorm.includes(q.normalized)||q.normalized.includes(cardNorm));
+      if(match){
+        const pr = card.querySelector(".cs-multi-price");
+        if(pr){ pr.value = match.price; matched++; }
+      }
+    });
+    statusEl.textContent = "✅ " + matched + "টি প্রোডাক্টে দাম বসানো হয়েছে (মোট লিস্ট: " + parsed.length + "টি লাইন)";
+  };
+  const saveAllBtn = document.getElementById("cs-add-save-all-btn");
+  const saveStatusEl = document.getElementById("cs-add-save-status");
+  if(saveAllBtn) saveAllBtn.onclick = async () => {
+    const checked = document.querySelectorAll(".cs-multi-check:checked");
+    if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+    let ok = 0, fail = 0;
+    for(const cb of checked){
+      const card = cb.closest(".card");
+      const file = card._csFile;
+      const t = card.querySelector(".cs-multi-title").value.trim();
+      const price = parseFloat(card.querySelector(".cs-multi-price").value) || 0;
+      const cat = card.querySelector(".cs-multi-cat").value.trim();
+      if(!t || !file){ fail++; continue; }
+      saveStatusEl.textContent = "সেভ হচ্ছে... (" + (ok+fail+1) + "/" + checked.length + ")";
+      try{
+        const imageUrl = await uploadToCloudinaryGlobal(file);
+        await set(push(ref(db, "futureProducts")), {
+          title: t, categoryId: cat || "coming_soon", expectedPrice: price,
+          images: { main: imageUrl }, createdAt: Date.now(), released: false
+        });
+        ok++;
+      }catch(e){ fail++; }
+    }
+    saveStatusEl.textContent = "✅ সম্পন্ন: " + ok + "টি সেভ হয়েছে" + (fail>0 ? ", ❌ " + fail + "টি ব্যর্থ" : "");
+  };
+})();
+
 (function(){
   const scNameInput = document.getElementById("sc-name");
   const scSlugInput = document.getElementById("sc-slug");

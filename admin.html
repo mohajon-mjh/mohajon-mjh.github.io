@@ -136,6 +136,7 @@ h2{margin-top:0}
     <button class="tab-btn" data-tab="orders">📦 Delivered Orders কমিশন</button>
     <button class="tab-btn" data-tab="flashsale">⚡ Flash Sale</button>
     <button class="tab-btn" data-tab="trending">🔥 Trending Products</button>
+    <button class="tab-btn" data-tab="featured">🌟 Featured Products</button>
     <button class="tab-btn" data-tab="dotd">⭐ Deals of the Day</button>
     <button class="tab-btn" data-tab="finance">💰 Finance</button>
     <button class="tab-btn" data-tab="allorders">📦 All Orders</button>
@@ -471,6 +472,22 @@ h2{margin-top:0}
         <label>ছবি <input type="file" id="cs-image" accept="image/*"></label>
         <button id="cs-add-btn" class="save-btn">➕ যোগ করুন</button>
       </div>
+
+      <div class="card">
+        <h3>🔮 একসাথে অনেক Coming Soon প্রোডাক্ট যোগ করুন</h3>
+        <input type="file" id="cs-multi-file-input" accept="image/*" multiple>
+        <div style="margin:12px 0;padding:10px;background:#1a1a1a;border-radius:8px">
+          <label>প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+            <textarea id="cs-price-paste" rows="5" placeholder="Split Air Conditioner — ৳32000"></textarea>
+          </label>
+          <button id="cs-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+          <span id="cs-price-status" style="font-size:13px;color:#8f8;display:block;margin-top:6px"></span>
+          <label style="display:block;margin-bottom:8px;margin-top:8px"><input type="checkbox" id="cs-add-select-all"> সব সিলেক্ট করুন</label>
+          <button id="cs-add-save-all-btn" class="save-btn">💾 সিলেক্টেড সব Save</button>
+          <span id="cs-add-save-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+        </div>
+        <div id="cs-multi-list"></div>
+      </div>
       <div id="coming-soon-list"></div>
     </section>
 
@@ -497,8 +514,115 @@ h2{margin-top:0}
     </section>
 
     <section id="tab-trending" class="tab-section">
-      <input type="text" id="trending-search" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন...">
-      <div id="trending-manager"></div>
+      <input type="text" id="trending-search" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন..." style="display:none">
+      <div id="trending-manager" style="display:none"></div>
+  <div class="card" id="tr-products-panel">
+    <h3 id="tr-products-title">🛍️ Trending Products</h3>
+    <div id="tr-nav-buttons" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">
+      <button id="tr-nav-view" class="save-btn">🛍️ প্রোডাক্ট ভিউ</button>
+      <button id="tr-nav-add" class="save-btn">➕ নতুন প্রোডাক্ট এড</button>
+    </div>
+    <div id="tr-view-section" style="display:none">
+      <div id="tr-view-subnav" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <button id="tr-sub-own" class="save-btn">📦 এই সেকশনের প্রোডাক্ট</button>
+        <button id="tr-sub-all" class="save-btn">🗂️ All Products</button>
+        <button id="tr-sub-search" class="save-btn">🔍 Search Products</button>
+      </div>
+      <div id="tr-search-box" style="display:none;margin-bottom:12px">
+        <input type="text" id="tr-search-input" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন...">
+      </div>
+      <div id="tr-toolbar" style="display:none;margin-bottom:12px;padding:10px;background:#1a1a1a;border-radius:8px">
+        <label style="display:block;margin-bottom:8px"><input type="checkbox" id="tr-select-all"> সব সিলেক্ট করুন</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <label style="margin:0">% <input type="number" id="tr-bulk-discount" min="0" max="100" style="width:70px" placeholder="%"></label>
+          <button id="tr-bulk-apply-btn" class="save-btn">✅ সিলেক্টেডে % বসান</button>
+          <button id="tr-bulk-save-btn" class="save-btn">💾 সিলেক্টেড Save</button>
+          <button id="tr-bulk-action-btn" class="danger-btn">🗑️ সিলেক্টেড রিমুভ</button>
+        </div>
+        <div style="margin-top:8px">
+          <label style="display:block;margin-bottom:6px">প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+            <textarea id="tr-view-price-paste" rows="4" placeholder="Product Name — ৳150"></textarea>
+          </label>
+          <button id="tr-view-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+          <span id="tr-view-price-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+        </div>
+        <span id="tr-bulk-status" style="font-size:13px;color:#8f8"></span>
+      </div>
+      <div id="tr-products-list"></div>
+    </div>
+    <div id="tr-add-section" style="display:none">
+      <p style="font-size:13px;color:#aaa">গ্যালারি/স্টোরেজ থেকে একাধিক ছবি সিলেক্ট করুন (.png ফাইলনাম অনুযায়ী নাম অটো বসবে)</p>
+      <input type="file" id="tr-add-file-input" accept="image/*" multiple>
+      <div style="margin:12px 0;padding:10px;background:#1a1a1a;border-radius:8px">
+        <div style="margin-top:14px">
+          <label>প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+            <textarea id="tr-price-paste" rows="6" placeholder="Product Name — ৳150"></textarea>
+          </label>
+          <button id="tr-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+          <span id="tr-price-status" style="font-size:13px;color:#8f8;display:block;margin-top:6px"></span>
+        </div>
+        <label style="display:block;margin-bottom:8px"><input type="checkbox" id="tr-add-select-all"> সব সিলেক্ট করুন</label>
+        <button id="tr-add-save-all-btn" class="save-btn">💾 সিলেক্টেড সব Save</button>
+        <span id="tr-add-save-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+      </div>
+      <div id="tr-add-list"></div>
+    </div>
+  </div>
+    </section>
+
+    <section id="tab-featured" class="tab-section">
+  <div class="card" id="feat-products-panel">
+    <h3 id="feat-products-title">🛍️ Featured Products</h3>
+    <div id="feat-nav-buttons" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">
+      <button id="feat-nav-view" class="save-btn">🛍️ প্রোডাক্ট ভিউ</button>
+      <button id="feat-nav-add" class="save-btn">➕ নতুন প্রোডাক্ট এড</button>
+    </div>
+    <div id="feat-view-section" style="display:none">
+      <div id="feat-view-subnav" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <button id="feat-sub-own" class="save-btn">📦 এই সেকশনের প্রোডাক্ট</button>
+        <button id="feat-sub-all" class="save-btn">🗂️ All Products</button>
+        <button id="feat-sub-search" class="save-btn">🔍 Search Products</button>
+      </div>
+      <div id="feat-search-box" style="display:none;margin-bottom:12px">
+        <input type="text" id="feat-search-input" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন...">
+      </div>
+      <div id="feat-toolbar" style="display:none;margin-bottom:12px;padding:10px;background:#1a1a1a;border-radius:8px">
+        <label style="display:block;margin-bottom:8px"><input type="checkbox" id="feat-select-all"> সব সিলেক্ট করুন</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <label style="margin:0">% <input type="number" id="feat-bulk-discount" min="0" max="100" style="width:70px" placeholder="%"></label>
+          <button id="feat-bulk-apply-btn" class="save-btn">✅ সিলেক্টেডে % বসান</button>
+          <button id="feat-bulk-save-btn" class="save-btn">💾 সিলেক্টেড Save</button>
+          <button id="feat-bulk-action-btn" class="danger-btn">🗑️ সিলেক্টেড রিমুভ</button>
+        </div>
+        <div style="margin-top:8px">
+          <label style="display:block;margin-bottom:6px">প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+            <textarea id="feat-view-price-paste" rows="4" placeholder="Product Name — ৳150"></textarea>
+          </label>
+          <button id="feat-view-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+          <span id="feat-view-price-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+        </div>
+        <span id="feat-bulk-status" style="font-size:13px;color:#8f8"></span>
+      </div>
+      <div id="feat-products-list"></div>
+    </div>
+    <div id="feat-add-section" style="display:none">
+      <p style="font-size:13px;color:#aaa">গ্যালারি/স্টোরেজ থেকে একাধিক ছবি সিলেক্ট করুন (.png ফাইলনাম অনুযায়ী নাম অটো বসবে)</p>
+      <input type="file" id="feat-add-file-input" accept="image/*" multiple>
+      <div style="margin:12px 0;padding:10px;background:#1a1a1a;border-radius:8px">
+        <div style="margin-top:14px">
+          <label>প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+            <textarea id="feat-price-paste" rows="6" placeholder="Product Name — ৳150"></textarea>
+          </label>
+          <button id="feat-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+          <span id="feat-price-status" style="font-size:13px;color:#8f8;display:block;margin-top:6px"></span>
+        </div>
+        <label style="display:block;margin-bottom:8px"><input type="checkbox" id="feat-add-select-all"> সব সিলেক্ট করুন</label>
+        <button id="feat-add-save-all-btn" class="save-btn">💾 সিলেক্টেড সব Save</button>
+        <span id="feat-add-save-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+      </div>
+      <div id="feat-add-list"></div>
+    </div>
+  </div>
     </section>
 
   </div>
@@ -531,7 +655,7 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
   });
 </script>
 <script type="module" src="assets/js/currency.js"></script>
-<script type="module" src="assets/js/admin.js?v=20260806b"></script>
+<script type="module" src="assets/js/admin.js?v=20260807a"></script>
 <script src="js/global-menu.js?v=2"></script>
 <script>
 if('serviceWorker' in navigator){
