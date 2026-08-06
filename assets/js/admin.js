@@ -108,7 +108,31 @@ function loadGlobalCategories(){
 function renderGcList(){
   const listDiv = document.getElementById("gc-list");
   if(!listDiv) return;
-  const entries = Object.entries(gcCategoriesCache).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+  const GC_CATS = [
+    {id:"electronics", name:"📱 Electronics"},
+    {id:"computers", name:"💻 Computers"},
+    {id:"tv_appliances", name:"📺 TV & Appliances"},
+    {id:"watches", name:"⌚ Watches"},
+    {id:"men_fashion", name:"👕 Men Fashion"},
+    {id:"women_fashion", name:"👗 Women Fashion"},
+    {id:"mother_baby", name:"👶 Mother & Baby"},
+    {id:"toys_games", name:"🧸 Toys & Games"},
+    {id:"grocery", name:"🛒 Grocery"},
+    {id:"spices", name:"🌶️ Spices"},
+    {id:"food_beverages", name:"🍔 Food & Beverages"},
+    {id:"beauty", name:"💄 Beauty"},
+    {id:"health", name:"💊 Health"},
+    {id:"home_kitchen", name:"🏠 Home & Kitchen"},
+    {id:"automotive", name:"🚗 Automotive"},
+    {id:"sports", name:"⚽ Sports"},
+    {id:"pet_supplies", name:"🐶 Pet Supplies"},
+    {id:"books", name:"📚 Books"},
+    {id:"travel", name:"✈️ Travel"},
+    {id:"gift_items", name:"🎁 Gift Items"}
+  ];
+  const base = GC_CATS.map((c,i)=>[c.id, { name: c.name, order: i }]);
+  const custom = Object.entries(gcCategoriesCache).filter(([k]) => !GC_CATS.some(c=>c.id===k)).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([k,v],i)=>[k, { name: v.name, order: 100+i }]);
+  const entries = base.concat(custom);
   if(entries.length === 0){
     listDiv.innerHTML = "<p style='color:#888'>কোনো Global Category নেই</p>";
     return;
