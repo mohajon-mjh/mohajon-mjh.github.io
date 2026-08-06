@@ -1464,11 +1464,13 @@ const scSection = document.getElementById("specialCatProductSection");
 const scTitle = document.getElementById("specialCatProductTitle");
 const scCarousel = document.getElementById("specialCatCarousel");
 
-function loadSpecialCategoryProducts(slug, scroll = true){
+async function loadSpecialCategoryProducts(slug, scroll = true){
   scSection.style.display = "block";
   scCarousel.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
   if (scroll) scSection.scrollIntoView({ behavior: "smooth", block: "start" });
 
+  const scMapSnap = await get(ref(scDb, "settings/specialCategoryProducts/"+slug)).catch(()=>null);
+  const scMap = (scMapSnap && scMapSnap.exists()) ? scMapSnap.val() : {};
   const scQuery = query(ref(scDb, "products"), orderByChild("categoryId"), equalTo(slug), limitToFirst(500));
       onValue(scQuery, (snapshot) => {
         const data = snapshot.val() || {};
@@ -1502,7 +1504,7 @@ function loadSpecialCategoryProducts(slug, scroll = true){
           return list.some(i => i.id === id);
         }
 
-        function scRenderCard(id, p){
+        function scRenderCard(id, p, mapInfo){
           const price = parseFloat(p.price) || 0;
           const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
           const priceDisplay = fmtP(price);
@@ -1511,6 +1513,19 @@ function loadSpecialCategoryProducts(slug, scroll = true){
           const discount = (hasOldPrice && price > 0) ? Math.round((1 - price/oldPrice) * 100) : 0;
           const saveAmount = hasOldPrice ? (oldPrice - price) : 0;
           const oldPriceDisplay = hasOldPrice ? fmtP(oldPrice) : "";
+          const mi = mapInfo || {};
+          let dateRangeHTML = "";
+          if(mi.startDate || mi.endDate){
+            let dateText = "";
+            if(mi.startDate && mi.endDate){
+              dateText = "⏰ অফার: " + mi.startDate + " থেকে " + mi.endDate + " পর্যন্ত";
+            } else if(mi.endDate){
+              dateText = "⏰ অফার শেষ: " + mi.endDate;
+            } else {
+              dateText = "⏰ অফার শুরু: " + mi.startDate;
+            }
+            dateRangeHTML = '<div class="offer-date-badge" style="font-size:11px;color:#e67e22;margin:4px 0;font-weight:600">' + dateText + '</div>';
+          }
           const stock = parseInt(p.stock) || 0;
           const imageUrl = (p.images && p.images.main && p.images.main.trim() !== "") ? p.images.main : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
           const wished = scIsWished(id);
@@ -1540,6 +1555,7 @@ function loadSpecialCategoryProducts(slug, scroll = true){
                 <span class="current-price">${priceDisplay}</span>
                 ${hasOldPrice ? `<span class="old-price">${oldPriceDisplay}</span>` : ""}
               </div>
+              ${dateRangeHTML}
               <div class="product-card-actions" style="flex-direction:column">
                 <button class="btn-add-to-cart" ${stock<=0 ? "disabled" : ""} style="width:100%">${stock<=0 ? "Out of Stock" : "🛒 Add to Cart"}</button>
                 <button class="btn-buy-now" ${stock<=0 ? "disabled" : ""} style="width:100%;background:#f59e0b;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer">⚡ Buy Now</button>
@@ -1596,7 +1612,7 @@ function loadSpecialCategoryProducts(slug, scroll = true){
         function scRenderNextBatch(){
           scRemoveArrow();
           const nextItems = matched.slice(scRenderedCount, scRenderedCount + SC_STRIP_LIMIT);
-          nextItems.forEach(([id, p]) => scCarousel.appendChild(scRenderCard(id, p)));
+          nextItems.forEach(([id, p]) => scCarousel.appendChild(scRenderCard(id, p, scMap[id])));
           scRenderedCount += nextItems.length;
           if(scRenderedCount < matched.length){
             scAddArrow();
