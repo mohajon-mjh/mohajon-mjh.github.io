@@ -1817,26 +1817,65 @@ onValue(ref(csDb, "futureProducts"), (snapshot)=>{
   csSection.style.display = "block";
   csGrid.innerHTML = "";
 
-  entries.forEach(([id, item])=>{
+  entries.sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0));
+
+  const CS_LIMIT = 30;
+  let csRendered = 0;
+
+  function csRemoveArrow(){
+    const oldArrow = csGrid.querySelector(".scroll-arrow-card");
+    if(oldArrow) oldArrow.remove();
+  }
+  function csAddArrow(){
+    csRemoveArrow();
+    const arrowCard = document.createElement("div");
+    arrowCard.className = "scroll-arrow-card";
+    arrowCard.innerHTML = "<span>→</span>";
+    arrowCard.addEventListener("click", () => { csRenderNext(); });
+    csGrid.appendChild(arrowCard);
+  }
+  function csBuildCard(id, item){
     const imgUrl = (item.images && item.images.main) ? item.images.main : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
-    const priceDisplay = csFmtPrice(item.expectedPrice || 0);
+    const price = parseFloat(item.expectedPrice) || 0;
+    const priceDisplay = csFmtPrice(price);
+    const hasOldPrice = item.marketPrice !== null && item.marketPrice !== undefined && item.marketPrice !== "" && parseFloat(item.marketPrice) > 0;
+    const oldPrice = hasOldPrice ? parseFloat(item.marketPrice) : 0;
+    const discount = (hasOldPrice && oldPrice > price && price > 0) ? Math.round((1 - price/oldPrice) * 100) : (parseInt(item.discountPercent) || 0);
+    const saveAmount = hasOldPrice ? (oldPrice - price) : 0;
+    const oldPriceDisplay = hasOldPrice ? csFmtPrice(oldPrice) : "";
+    let csDateHTML = "";
+    if(item.startDate || item.endDate){
+      const dateText = (item.startDate && item.endDate) ? ("⏰ অফার: " + item.startDate + " থেকে " + item.endDate + " পর্যন্ত") : (item.endDate ? ("⏰ অফার শেষ: " + item.endDate) : ("⏰ অফার শুরু: " + item.startDate));
+      csDateHTML = '<div style="font-size:11px;color:#e67e22;margin:4px 0;font-weight:600">' + dateText + '</div>';
+    }
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
       <div style="position:relative">
         <img src="${imgUrl}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${item.title || 'Product'}">
         <span style="position:absolute;top:6px;left:6px;background:#8b5cf6;color:#fff;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px">🔜 Next Coming</span>
+        ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
+        ${saveAmount > 0 ? `<span class="save-badge">Save ${csFmtPrice(saveAmount)}</span>` : ""}
       </div>
       <h3>${item.title || "Unnamed Product"}</h3>
-      <p><b>${priceDisplay}</b></p>
+      <p><b>${priceDisplay}</b> ${hasOldPrice ? `<span style="text-decoration:line-through;color:#888;font-size:0.85em;margin-left:6px">${oldPriceDisplay}</span>` : ""}</p>
+      ${csDateHTML}
       <button class="btn-add-to-cart" disabled style="width:100%;background:#94a3b8;cursor:not-allowed">Add to Cart</button>
       <button class="btn-buy-now" disabled style="width:100%;background:#fbbf24;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:not-allowed;opacity:0.7">⚡ Buy Now</button>
       <button class="cs-notify-btn" style="width:100%;background:#2563eb;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer">🔔 Notify Me</button>
     `;
     const notifyBtn = card.querySelector(".cs-notify-btn");
     notifyBtn.addEventListener("click", ()=> csNotifyMe(id, notifyBtn));
-    csGrid.appendChild(card);
-  });
+    return card;
+  }
+  function csRenderNext(){
+    csRemoveArrow();
+    const next = entries.slice(csRendered, csRendered + CS_LIMIT);
+    next.forEach(([id, item]) => csGrid.appendChild(csBuildCard(id, item)));
+    csRendered += next.length;
+    if(csRendered < entries.length){ csAddArrow(); }
+  }
+  csRenderNext();
 }, { onlyOnce: true });
 </script>
 
