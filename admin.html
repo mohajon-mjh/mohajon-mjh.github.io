@@ -349,8 +349,6 @@ h2{margin-top:0}
         <h3>🌟 নতুন Special Category যোগ করুন</h3>
         <label>নাম (আইকন সহ) <input type="text" id="sc-name" placeholder="যেমন: ♻️ Second-Hand & Refurbished Goods"></label>
         <label>Category ID / Slug <input type="text" id="sc-slug" placeholder="যেমন: secondhand_refurbished_goods"></label>
-        <label>শুরুর তারিখ (dd-mm-yyyy) <input type="text" id="sc-startdate" placeholder="যেমন: 08-08-2026"></label>
-        <label>শেষের তারিখ (dd-mm-yyyy) <input type="text" id="sc-enddate" placeholder="যেমন: 15-08-2026"></label>
         <label>Order (ক্রম নম্বর, ছোট আগে দেখাবে) <input type="number" id="sc-order" value="0"></label>
         <button class="save-btn" id="sc-add-btn">➕ যোগ করুন</button>
       </div>
@@ -535,5 +533,29 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
 <script type="module" src="assets/js/currency.js"></script>
 <script type="module" src="assets/js/admin.js?v=20260806b"></script>
 <script src="js/global-menu.js?v=2"></script>
+<script>
+if('serviceWorker' in navigator){
+window.addEventListener('load',()=>{
+navigator.serviceWorker.register('/sw.js').then(reg=>{
+let refreshing = false;
+navigator.serviceWorker.addEventListener('controllerchange',()=>{
+if(refreshing) return;
+refreshing = true;
+window.location.reload();
+});
+reg.addEventListener('updatefound',()=>{
+const newWorker = reg.installing;
+if(!newWorker) return;
+newWorker.addEventListener('statechange',()=>{
+if(newWorker.state==='installed' && navigator.serviceWorker.controller){
+newWorker.postMessage({type:'SKIP_WAITING'});
+}
+});
+});
+setInterval(()=>{ reg.update(); }, 60000);
+});
+});
+}
+</script>
 </body>
 </html>

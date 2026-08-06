@@ -1,4 +1,4 @@
-const CACHE = 'mjh-v83';
+const CACHE = 'mjh-v84';
 const ASSETS = [
   '/assets/images/logo.png',
   '/assets/icons-app/icon-192.png',
@@ -45,15 +45,14 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // বাকি সব static asset (css/js/images) => cache-first, background এ আপডেট
+  // বাকি সব static asset (css/js/images) => network-first, অফলাইনে ক্যাশ
   e.respondWith(
-    caches.match(req).then(cached => {
-      const fetchPromise = fetch(req).then(res => {
+    fetch(req, { cache: 'no-store' })
+      .then(res => {
         const resClone = res.clone();
         caches.open(CACHE).then(c => c.put(req, resClone));
         return res;
-      }).catch(() => cached);
-      return cached || fetchPromise;
-    })
+      })
+      .catch(() => caches.match(req))
   );
 });
