@@ -3816,4 +3816,9 @@ function renderScAddList(files, addListDiv){
   }
 
   scRenderList();
+  onValue(ref(db, "settings/specialCategories"), () => { scRenderList(); });
+  document.addEventListener("click", (e) => { // scTabRefresh
+    const btn = e.target.closest ? e.target.closest(".tab-btn") : null;
+    if(btn && btn.dataset.tab === "specialcats"){ scRenderList(); }
+  });
 })();
