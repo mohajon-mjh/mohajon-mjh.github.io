@@ -4338,6 +4338,7 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
         <label>Offer শেষের তারিখ <input type="text" class="cs-multi-enddate" placeholder="dd-mm-yyyy" style="width:120px"></label>
         <label>Category ID (slug) <input type="text" class="cs-multi-cat" placeholder="যেমন: home_kitchen"></label>
         <div style="clear:both"></div>
+        <button type="button" class="save-btn cs-multi-save">💾 Save</button>
         <button type="button" class="danger-btn cs-multi-remove">🗑️ বাদ দিন</button>
       `;
       (function(){
@@ -4363,6 +4364,12 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
       })();
       div.querySelector(".cs-multi-remove").onclick = () => div.remove();
       div._csFile = file;
+      const csMultiSaveBtn = div.querySelector(".cs-multi-save");
+      if(csMultiSaveBtn) csMultiSaveBtn.onclick = () => {
+        csMultiSaveBtn.disabled = true; csMultiSaveBtn.textContent = "সেভ হচ্ছে...";
+        saveCsMultiCard(div).then(()=>{ csMultiSaveBtn.textContent = "✅ সেভ হয়েছে"; })
+          .catch(err => { alert("❌ সমস্যা: " + err.message); csMultiSaveBtn.disabled = false; csMultiSaveBtn.textContent = "💾 Save"; });
+      };
       listDiv.appendChild(div);
     });
   };
@@ -4549,4 +4556,33 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
     const btn = e.target.closest ? e.target.closest(".tab-btn") : null;
     if(btn && btn.dataset.tab === "specialcats"){ scRenderList(); }
   });
+})();
+
+/* ===== CS layout auto-fix ===== */
+(function(){
+  function csLayoutFix(){
+    const sec = document.getElementById("tab-comingsoon");
+    if(!sec) return;
+    const singleBtn = sec.querySelector("#cs-add-btn");
+    if(singleBtn) singleBtn.closest(".card").style.display = "none";
+    if(document.getElementById("cs-nav-view")) return;
+    const multiInput = sec.querySelector("#cs-multi-file-input");
+    const listDiv = sec.querySelector("#coming-soon-list");
+    if(!multiInput || !listDiv) return;
+    const navCard = document.createElement("div");
+    navCard.className = "card";
+    navCard.innerHTML = '<h3>🔮 Coming Soon</h3><div style="display:flex;gap:10px;flex-wrap:wrap"><button id="cs-nav-view" class="save-btn">🛍️ প্রোডাক্ট ভিউ</button><button id="cs-nav-add" class="save-btn">➕ নতুন প্রোডাক্ট এড</button></div>';
+    sec.prepend(navCard);
+    const addWrap = document.createElement("div");
+    addWrap.style.display = "none";
+    const viewWrap = document.createElement("div");
+    addWrap.appendChild(multiInput.closest(".card"));
+    viewWrap.appendChild(listDiv.closest(".card"));
+    sec.appendChild(addWrap);
+    sec.appendChild(viewWrap);
+    navCard.querySelector("#cs-nav-view").onclick = () => { viewWrap.style.display = "block"; addWrap.style.display = "none"; };
+    navCard.querySelector("#cs-nav-add").onclick = () => { addWrap.style.display = "block"; viewWrap.style.display = "none"; };
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", csLayoutFix);
+  else csLayoutFix();
 })();
