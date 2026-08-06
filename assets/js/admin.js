@@ -3241,6 +3241,7 @@ function loadComingSoon(){
         listDiv.appendChild(div);
       });
     }catch(err){
+  setupCsToolbar();
       console.error(err);
       listDiv.innerHTML = '<p style="color:red">লোড করতে সমস্যা হয়েছে</p>';
     }

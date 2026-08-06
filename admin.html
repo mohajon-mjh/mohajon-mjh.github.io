@@ -484,11 +484,43 @@ h2{margin-top:0}
           <span id="cs-price-status" style="font-size:13px;color:#8f8;display:block;margin-top:6px"></span>
           <label style="display:block;margin-bottom:8px;margin-top:8px"><input type="checkbox" id="cs-add-select-all"> সব সিলেক্ট করুন</label>
           <button id="cs-add-save-all-btn" class="save-btn">💾 সিলেক্টেড সব Save</button>
+          <button id="cs-save-everything-btn" class="save-btn">💾 সব Save</button>
           <span id="cs-add-save-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
         </div>
         <div id="cs-multi-list"></div>
       </div>
-      <div id="coming-soon-list"></div>
+
+      <div class="card">
+        <h3>🔮 Coming Soon প্রোডাক্ট ম্যানেজ</h3>
+        <div style="margin-bottom:12px;padding:10px;background:#1a1a1a;border-radius:8px">
+          <label style="display:block;margin-bottom:8px"><input type="checkbox" id="cs-select-all"> সব সিলেক্ট করুন</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <label style="margin:0">% <input type="number" id="cs-bulk-discount" min="0" max="100" style="width:70px" placeholder="%"></label>
+            <button id="cs-bulk-apply-btn" class="save-btn">✅ সিলেক্টেডে % বসান</button>
+            <button id="cs-bulk-save-btn" class="save-btn">💾 সিলেক্টেড Save</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px">
+            <label style="margin:0">শুরুর তারিখ <input type="text" id="cs-bulk-startdate" style="width:130px" placeholder="dd-mm-yyyy"></label>
+            <label style="margin:0">শেষের তারিখ <input type="text" id="cs-bulk-enddate" style="width:130px" placeholder="dd-mm-yyyy"></label>
+            <button id="cs-bulk-date-apply-btn" class="save-btn">📅 সিলেক্টেডে তারিখ বসান</button>
+          </div>
+          <div style="margin-top:8px">
+            <label style="display:block;margin-bottom:6px">প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)
+              <textarea id="cs-view-price-paste" rows="4" placeholder="Air Conditioner — ৳25000"></textarea>
+            </label>
+            <button id="cs-view-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
+            <span id="cs-view-price-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px">
+            <button id="cs-bulk-release-btn" class="save-btn">🚀 সিলেক্টেড Release</button>
+            <button id="cs-release-all-btn" class="save-btn">🚀 সব Release</button>
+            <button id="cs-bulk-delete-btn" class="danger-btn">🗑️ সিলেক্টেড Delete</button>
+            <button id="cs-delete-all-btn" class="danger-btn">🗑️ সব Delete</button>
+          </div>
+          <span id="cs-bulk-status" style="font-size:13px;color:#8f8;display:block;margin-top:8px"></span>
+        </div>
+        <div id="coming-soon-list"></div>
+      </div>
     </section>
 
     <section id="tab-bulkupload" class="tab-section">
@@ -655,7 +687,7 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
   });
 </script>
 <script type="module" src="assets/js/currency.js"></script>
-<script type="module" src="assets/js/admin.js?v=20260807a"></script>
+<script type="module" src="assets/js/admin.js?v=20260807b"></script>
 <script src="js/global-menu.js?v=2"></script>
 <script>
 if('serviceWorker' in navigator){
