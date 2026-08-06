@@ -966,7 +966,14 @@ fsInitCategories();
 <div class="section" id="globalCatSection">
 <h2>🌍 Global Categories</h2>
 <br>
-<div class="categories" id="globalCatsContainer"></div>
+<style>
+.gc-row{display:flex;overflow-x:auto;gap:12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+.gc-row::-webkit-scrollbar{display:none}
+.gc-row .cat{flex:0 0 auto;min-width:150px;cursor:pointer}
+.gc-row .cat.active{background:#2563eb;color:#fff}
+</style>
+<div id="globalCatsRow1" class="gc-row"></div>
+<div id="globalCatsRow2" class="gc-row" style="margin-top:12px"></div>
 <br>
 <div id="globalCatCarousel" class="trending-scroll-wrapper">
   <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
@@ -2057,7 +2064,7 @@ function loadGlobalCatProducts(catId){
   }, { onlyOnce: true });
 }
 
-(async () => {
+(function(){
   const GC_CATS = [
     {id:"electronics", name:"📱 Electronics"},
     {id:"computers", name:"💻 Computers"},
@@ -2080,29 +2087,31 @@ function loadGlobalCatProducts(catId){
     {id:"travel", name:"✈️ Travel"},
     {id:"gift_items", name:"🎁 Gift Items"}
   ];
-  const merged = GC_CATS.map((c,i)=>[c.id, { name: c.name, order: i }]);
-  try{
-    const snap = await get(ref(gcDb, "settings/globalCategories"));
-    const dbData = snap.val() || {};
-    Object.entries(dbData).forEach(([k,v],i)=>{
-      if(!GC_CATS.some(c=>c.id===k)) merged.push([k, { name: v.name, order: 100+i }]);
+  const row1 = document.getElementById("globalCatsRow1");
+  const row2 = document.getElementById("globalCatsRow2");
+  async function buildGcRows(){
+    const merged = GC_CATS.map((c,i)=>[c.id, c.name, i]);
+    try{
+      const snap = await get(ref(gcDb, "settings/globalCategories"));
+      const dbData = snap.val() || {};
+      Object.entries(dbData).forEach(([k,v],i)=>{ if(!GC_CATS.some(c=>c.id===k)) merged.push([k, v.name, 100+i]); });
+    }catch(e){}
+    row1.innerHTML = ""; row2.innerHTML = "";
+    merged.forEach(([id, name], index) => {
+      const div = document.createElement("div");
+      div.className = "cat";
+      div.textContent = name || id;
+      div.onclick = () => {
+        document.querySelectorAll("#globalCatsRow1 .cat, #globalCatsRow2 .cat").forEach(b => b.classList.remove("active"));
+        div.classList.add("active");
+        loadGlobalCatProducts(id);
+      };
+      (index < 10 ? row1 : row2).appendChild(div);
     });
-  }catch(e){}
-  gcContainer.innerHTML = "";
-  merged.forEach(([id, item], index) => {
-    const div = document.createElement("div");
-    div.className = "cat";
-    div.style.cursor = "pointer";
-    div.textContent = item.name || id;
-    if(index === 0){ div.style.background = "#2563eb"; div.style.color = "#fff"; }
-    div.onclick = () => {
-      gcContainer.querySelectorAll(".cat").forEach(b => { b.style.background = "white"; b.style.color = ""; });
-      div.style.background = "#2563eb"; div.style.color = "#fff";
-      loadGlobalCatProducts(id);
-    };
-    gcContainer.appendChild(div);
-  });
-  if(merged.length) loadGlobalCatProducts(merged[0][0]);
+    const first = row1.querySelector(".cat");
+    if(first && merged.length){ first.classList.add("active"); loadGlobalCatProducts(merged[0][0]); }
+  }
+  buildGcRows();
 })();
 </script>
 </body>
