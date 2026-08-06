@@ -1,4 +1,4 @@
-const CACHE = 'mjh-v84';
+const CACHE = 'mjh-v85';
 const ASSETS = [
   '/assets/images/logo.png',
   '/assets/icons-app/icon-192.png',
