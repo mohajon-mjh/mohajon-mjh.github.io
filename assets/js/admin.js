@@ -4938,6 +4938,8 @@ function flagManager(cfg){
           <label>বর্তমান দাম (৳) — অটো ক্যালকুলেট হয় <input type="number" class="${P}-add-price" value="0" readonly style="background:#222;color:#8f8"></label>
           <div class="${P}-add-item-preview" style="margin:8px 0;padding:8px;background:#1a1a1a;border-radius:6px;font-size:14px"></div>
           <label>স্টক <input type="number" class="${P}-add-stock" value="20"></label>
+          <label>Offer শুরুর তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="${P}-add-startdate" placeholder="খালি রাখুন"></label>
+          <label>Offer শেষের তারিখ (dd-mm-yyyy, ঐচ্ছিক) <input type="text" class="${P}-add-enddate" placeholder="খালি রাখুন"></label>
           <div style="clear:both"></div>
           <button type="button" class="save-btn ${P}-add-save">💾 Save</button>
           <button type="button" class="danger-btn ${P}-add-remove">🗑️ বাদ দিন</button>
@@ -4971,6 +4973,8 @@ function flagManager(cfg){
           const np = Math.round(op * (1 - d/100));
           const sop = d > 0 ? op : null;
           const stock = parseInt(div.querySelector("." + P + "-add-stock").value) || 0;
+          const sd = div.querySelector("." + P + "-add-startdate") ? div.querySelector("." + P + "-add-startdate").value.trim() : "";
+          const ed = div.querySelector("." + P + "-add-enddate") ? div.querySelector("." + P + "-add-enddate").value.trim() : "";
           if(!t) throw new Error("নাম দিন");
           const imageUrl = await uploadToCloudinaryGlobal(file);
           const newRef = push(ref(db, "products"));
@@ -4978,6 +4982,7 @@ function flagManager(cfg){
             title: t, price: np, discountPrice: sop, stock: stock,
             [FLAG]: true,
             categoryId: FLAG === "isTrending" ? "trending_only" : "featured_only",
+            startDate: sd, endDate: ed,
             sellerId: currentAdminUid,
             status: "active",
             createdAt: Date.now(),
@@ -5510,4 +5515,88 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
   }
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", csFix2);
   else csFix2();
+})();
+
+/* ===== flagDateEnhance: tr/feat view cards-এ তারিখ + bulk ===== */
+(function(){
+  function injectDates(card, P, pid){
+    if(!card || card.querySelector("." + P + "-item-startdate")) return;
+    const preview = card.querySelector("." + P + "-item-preview");
+    if(!preview) return;
+    const wrap = document.createElement("div");
+    wrap.innerHTML = '<label>Offer শুরুর তারিখ <input type="text" class="' + P + '-item-startdate" placeholder="dd-mm-yyyy" style="width:130px"></label><label>Offer শেষের তারিখ <input type="text" class="' + P + '-item-enddate" placeholder="dd-mm-yyyy" style="width:130px"></label>';
+    preview.insertAdjacentElement("afterend", wrap);
+    get(ref(db, "products/"+pid)).then(snap => {
+      const d = snap.val() || {};
+      const si = wrap.querySelector("." + P + "-item-startdate");
+      const ei = wrap.querySelector("." + P + "-item-enddate");
+      if(si) si.value = d.startDate || "";
+      if(ei) ei.value = d.endDate || "";
+    }).catch(()=>{});
+  }
+  function scan(){
+    ["tr","feat"].forEach(P => {
+      document.querySelectorAll("." + P + "-item-check").forEach(cb => {
+        injectDates(cb.closest(".card"), P, cb.dataset.pid);
+      });
+    });
+  }
+  new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+
+  function wireDateApply(P){
+    const btn = document.getElementById(P + "-bulk-date-apply-btn");
+    if(!btn || btn._wired) return;
+    btn._wired = true;
+    btn.onclick = () => {
+      const checked = document.querySelectorAll("." + P + "-item-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      const sv = document.getElementById(P + "-bulk-startdate").value.trim();
+      const ev = document.getElementById(P + "-bulk-enddate").value.trim();
+      if(!sv && !ev){ alert("অন্তত একটা তারিখ দিন"); return; }
+      checked.forEach(cb => {
+        const card = cb.closest(".card");
+        const si = card.querySelector("." + P + "-item-startdate");
+        const ei = card.querySelector("." + P + "-item-enddate");
+        if(sv && si) si.value = sv;
+        if(ev && ei) ei.value = ev;
+      });
+      const st = document.getElementById(P + "-bulk-status");
+      if(st){ st.textContent = "✅ তারিখ বসানো হয়েছে — এখন 💾 সিলেক্টেড Save চাপুন"; setTimeout(()=>{ st.textContent=""; }, 4000); }
+    };
+  }
+  function wireBulkSave(P){
+    const btn = document.getElementById(P + "-bulk-save-btn");
+    if(!btn || btn._wired2) return;
+    btn._wired2 = true;
+    btn.onclick = async () => {
+      const checked = document.querySelectorAll("." + P + "-item-check:checked");
+      if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+      const updates = {};
+      checked.forEach(cb => {
+        const pid = cb.dataset.pid;
+        const card = cb.closest(".card");
+        const op = parseFloat(card.querySelector("." + P + "-item-oldprice").value) || 0;
+        const d = parseInt(card.querySelector("." + P + "-item-discount").value) || 0;
+        updates["products/" + pid + "/price"] = Math.round(op * (1 - d/100));
+        updates["products/" + pid + "/discountPrice"] = d > 0 ? op : null;
+        const si = card.querySelector("." + P + "-item-startdate");
+        const ei = card.querySelector("." + P + "-item-enddate");
+        updates["products/" + pid + "/startDate"] = si ? si.value.trim() : "";
+        updates["products/" + pid + "/endDate"] = ei ? ei.value.trim() : "";
+        updates["products/" + pid + "/updatedAt"] = Date.now();
+      });
+      try{
+        await update(ref(db), updates);
+        const st = document.getElementById(P + "-bulk-status");
+        if(st){ st.textContent = "✅ " + checked.length + "টি সেভ হয়েছে (তারিখ সহ)"; setTimeout(()=>{ st.textContent=""; }, 3000); }
+      }catch(err){ alert("❌ " + err.message); }
+    };
+  }
+  function init(){ ["tr","feat"].forEach(P => { wireDateApply(P); wireBulkSave(P); }); }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest ? e.target.closest(".tab-btn") : null;
+    if(b && (b.dataset.tab === "trending" || b.dataset.tab === "featured")) setTimeout(init, 400);
+  });
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(init, 600));
+  else setTimeout(init, 600);
 })();

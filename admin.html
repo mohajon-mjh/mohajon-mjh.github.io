@@ -656,7 +656,12 @@ h2{margin-top:0}
           <button id="tr-view-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
           <span id="tr-view-price-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
         </div>
-        <span id="tr-bulk-status" style="font-size:13px;color:#8f8"></span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px">
+              <label style="margin:0">শুরুর তারিখ <input type="text" id="tr-bulk-startdate" style="width:130px" placeholder="dd-mm-yyyy"></label>
+              <label style="margin:0">শেষের তারিখ <input type="text" id="tr-bulk-enddate" style="width:130px" placeholder="dd-mm-yyyy"></label>
+              <button id="tr-bulk-date-apply-btn" class="save-btn">📅 সিলেক্টেডে তারিখ বসান</button>
+            </div>
+            <span id="tr-bulk-status" style="font-size:13px;color:#8f8"></span>
       </div>
       <div id="tr-products-list"></div>
     </div>
@@ -711,7 +716,12 @@ h2{margin-top:0}
           <button id="feat-view-price-apply-btn" class="save-btn">✅ প্রাইস বসান (নাম মিলিয়ে)</button>
           <span id="feat-view-price-status" style="font-size:13px;color:#8f8;margin-left:8px"></span>
         </div>
-        <span id="feat-bulk-status" style="font-size:13px;color:#8f8"></span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px">
+              <label style="margin:0">শুরুর তারিখ <input type="text" id="feat-bulk-startdate" style="width:130px" placeholder="dd-mm-yyyy"></label>
+              <label style="margin:0">শেষের তারিখ <input type="text" id="feat-bulk-enddate" style="width:130px" placeholder="dd-mm-yyyy"></label>
+              <button id="feat-bulk-date-apply-btn" class="save-btn">📅 সিলেক্টেডে তারিখ বসান</button>
+            </div>
+            <span id="feat-bulk-status" style="font-size:13px;color:#8f8"></span>
       </div>
       <div id="feat-products-list"></div>
     </div>
@@ -765,7 +775,7 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
   });
 </script>
 <script type="module" src="assets/js/currency.js"></script>
-<script type="module" src="assets/js/admin.js?v=20260808a"></script>
+<script type="module" src="assets/js/admin.js?v=20260808b"></script>
 <script src="js/global-menu.js?v=2"></script>
 <script>
 if('serviceWorker' in navigator){
