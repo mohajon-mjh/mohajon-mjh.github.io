@@ -1016,6 +1016,11 @@ function renderTrendingCard(id, data){
   const price = parseFloat(data.price) || 0;
   const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
   const priceDisplay = fmtP(price);
+  const hasOldPrice = data.discountPrice !== null && data.discountPrice !== undefined && data.discountPrice !== "" && parseFloat(data.discountPrice) > 0;
+  const oldPrice = hasOldPrice ? parseFloat(data.discountPrice) : 0;
+  const discount = (hasOldPrice && price > 0) ? Math.round((1 - price/oldPrice) * 100) : 0;
+  const saveAmount = hasOldPrice ? (oldPrice - price) : 0;
+  const oldPriceDisplay = hasOldPrice ? fmtP(oldPrice) : "";
   const stock = parseInt(data.stock) || 0;
 
   const imageUrl =
@@ -1038,6 +1043,8 @@ function renderTrendingCard(id, data){
   card.innerHTML = `
     <div class="product-card-image">
       ${stockBadge}
+      ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
+      ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
       <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
       <img src="${imageUrl}" alt="${data.title || data.name || 'Product'}"
            loading="lazy"
@@ -1047,6 +1054,7 @@ function renderTrendingCard(id, data){
       <h3 class="product-card-title">${data.title || data.name || "Unnamed Product"}</h3>
       <div class="product-card-price">
         <span class="current-price">${priceDisplay}</span>
+        ${hasOldPrice ? `<span class="old-price">${oldPriceDisplay}</span>` : ""}
       </div>
       <div class="product-card-actions" style="flex-direction:column">
         <button class="btn-add-to-cart" ${stock<=0 ? "disabled" : ""} style="width:100%">${stock<=0 ? "Out of Stock" : "🛒 Add to Cart"}</button>
@@ -1686,26 +1694,81 @@ window.addCart = function(id){
 
 const box=document.getElementById("featuredProducts");
 
-const featuredQuery = query(ref(db,"products"), orderByChild("isFeatured"), equalTo(true), limitToFirst(30));
+function ftIsWished(id){
+  const list = JSON.parse(localStorage.getItem("wishlist") || "[]");
+  return list.some(i => i.id === id);
+}
+function renderFeatCard(id, p){
+  const price = parseFloat(p.price) || 0;
+  const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
+  const hasOldPrice = p.discountPrice !== null && p.discountPrice !== undefined && p.discountPrice !== "" && parseFloat(p.discountPrice) > 0;
+  const oldPrice = hasOldPrice ? parseFloat(p.discountPrice) : 0;
+  const discount = (hasOldPrice && price > 0) ? Math.round((1 - price/oldPrice) * 100) : 0;
+  const saveAmount = hasOldPrice ? (oldPrice - price) : 0;
+  const stock = parseInt(p.stock) || 0;
+  const imageUrl = (p.images && p.images.main && p.images.main.trim() !== "") ? p.images.main : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+  const wished = ftIsWished(id);
+  const stockBadge = stock <= 0 ? '<span class="stock-badge out-of-stock">Out of Stock</span>' : (stock <= 5 ? '<span class="stock-badge low-stock">Low Stock</span>' : '<span class="stock-badge in-stock">In Stock</span>');
+  const card = document.createElement("div");
+  card.className = "product-card";
+  card.style.cursor = "pointer";
+  card.innerHTML = `
+    <div class="product-card-image">
+      ${stockBadge}
+      ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
+      ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
+      <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
+      <img src="${imageUrl}" alt="${p.title || 'Product'}" loading="lazy" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
+    </div>
+    <div class="product-card-content">
+      <h3 class="product-card-title">${p.title || "Unnamed Product"}</h3>
+      <div class="product-card-price">
+        <span class="current-price">${fmtP(price)}</span>
+        ${hasOldPrice ? `<span class="old-price">${fmtP(oldPrice)}</span>` : ""}
+      </div>
+      <div class="product-card-actions" style="flex-direction:column">
+        <button class="btn-add-to-cart" ${stock<=0 ? "disabled" : ""} style="width:100%">${stock<=0 ? "Out of Stock" : "🛒 Add to Cart"}</button>
+        <button class="btn-buy-now" ${stock<=0 ? "disabled" : ""} style="width:100%;background:#f59e0b;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer">⚡ Buy Now</button>
+      </div>
+    </div>`;
+  const cartBtn = card.querySelector(".btn-add-to-cart");
+  if(cartBtn && stock > 0) cartBtn.addEventListener("click", (e) => { e.stopPropagation(); if(typeof addCart === "function"){ addCart(id, p.title, price); cartBtn.textContent = "Added ✓"; setTimeout(()=>{ cartBtn.textContent = "🛒 Add to Cart"; }, 1200); } });
+  const buyBtn = card.querySelector(".btn-buy-now");
+  if(buyBtn && stock > 0) buyBtn.addEventListener("click", (e) => { e.stopPropagation(); if(typeof addCart === "function") addCart(id, p.title, price); window.location.href = "cart.html"; });
+  const wishBtn = card.querySelector(".btn-wishlist-overlay");
+  if(wishBtn) wishBtn.addEventListener("click", (e) => { e.stopPropagation(); if(typeof toggleWishlist === "function") toggleWishlist(id, p.title); wishBtn.classList.toggle("active"); });
+  card.addEventListener("click", () => { window.location.href = `product-details.html?id=${id}`; });
+  return card;
+}
 
+const featuredQuery = query(ref(db,"products"), orderByChild("isFeatured"), equalTo(true), limitToFirst(500));
 onValue(featuredQuery,(snapshot)=>{
-  const data=snapshot.val()||{};
-  box.innerHTML="";
-
-  Object.entries(data)
-    .filter(([id, p]) => p.status === "active")
-    .forEach(([id, p])=>{
-      const imgUrl = (p.images && p.images.main && p.images.main.trim() !== "") ? p.images.main : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
-      const priceDisplay = window.MJHCurrency ? window.MJHCurrency.formatPrice(p.price||0) : "৳"+(p.price||0);
-      box.innerHTML += `
-      <div class="card" style="cursor:pointer" onclick="window.location.href='product-details.html?id=${id}'">
-        <img src="${imgUrl}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${p.title || 'Product'}">
-        <h3>${p.title || "Unnamed Product"}</h3>
-        <p>${p.netWeight || ""}</p>
-        <p><b>${priceDisplay}</b></p>
-        <button class="buy" onclick="event.stopPropagation(); addCart('${id}')">Add Cart</button>
-      </div>`;
-    });
+  const data = snapshot.val() || {};
+  const items = Object.entries(data).filter(([id, p]) => p.status === "active");
+  box.innerHTML = "";
+  if(items.length === 0){
+    box.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Featured প্রোডাক্ট যোগ করা হয়নি।</p>";
+    return;
+  }
+  let ftRendered = 0;
+  const FT_LIMIT = 30;
+  function ftRemoveArrow(){ const a = box.querySelector(".scroll-arrow-card"); if(a) a.remove(); }
+  function ftAddArrow(){
+    ftRemoveArrow();
+    const ar = document.createElement("div");
+    ar.className = "scroll-arrow-card";
+    ar.innerHTML = "<span>→</span>";
+    ar.addEventListener("click", () => ftRenderNext());
+    box.appendChild(ar);
+  }
+  function ftRenderNext(){
+    ftRemoveArrow();
+    const next = items.slice(ftRendered, ftRendered + FT_LIMIT);
+    next.forEach(([id, p]) => box.appendChild(renderFeatCard(id, p)));
+    ftRendered += next.length;
+    if(ftRendered < items.length) ftAddArrow();
+  }
+  ftRenderNext();
 }, { onlyOnce: true });
 </script>
 
