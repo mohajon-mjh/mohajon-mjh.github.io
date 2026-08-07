@@ -4977,7 +4977,7 @@ function flagManager(cfg){
           await set(newRef, {
             title: t, price: np, discountPrice: sop, stock: stock,
             [FLAG]: true,
-            categoryId: "",
+            categoryId: FLAG === "isTrending" ? "trending_only" : "featured_only",
             sellerId: currentAdminUid,
             status: "active",
             createdAt: Date.now(),
