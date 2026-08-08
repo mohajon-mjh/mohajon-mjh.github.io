@@ -5619,3 +5619,72 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(init, 600));
   else setTimeout(init, 600);
 })();
+
+/* ===== FINAL date save override (delegated, capture) ===== */
+(function(){
+  function saveDates(P){
+    const checked = document.querySelectorAll("." + P + "-item-check:checked");
+    if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+    const sv = ((document.getElementById(P + "-bulk-startdate")||{}).value || "").trim();
+    const ev = ((document.getElementById(P + "-bulk-enddate")||{}).value || "").trim();
+    if(!sv && !ev){ alert("অন্তত একটা তারিখ দিন"); return; }
+    const updates = {};
+    checked.forEach(cb => {
+      const card = cb.closest(".card");
+      const pid = (card && card.dataset.pid) || cb.dataset.pid;
+      if(!pid) return;
+      if(sv) updates["products/" + pid + "/startDate"] = sv;
+      if(ev) updates["products/" + pid + "/endDate"] = ev;
+    });
+    const st = document.getElementById(P + "-bulk-status");
+    update(ref(db), updates).then(() => {
+      checked.forEach(cb => {
+        const card = cb.closest(".card");
+        const si = card.querySelector("." + P + "-item-startdate");
+        const ei = card.querySelector("." + P + "-item-enddate");
+        if(si) si.value = sv;
+        if(ei) ei.value = ev;
+      });
+      if(st){ st.textContent = "✅ তারিখ সেভ হয়েছে (" + checked.length + "টি)"; setTimeout(()=>{ st.textContent=""; }, 4000); }
+    }).catch(err => { alert("❌ " + err.message); });
+  }
+  function saveAll(P){
+    const checked = document.querySelectorAll("." + P + "-item-check:checked");
+    if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
+    const updates = {};
+    checked.forEach(cb => {
+      const card = cb.closest(".card");
+      const pid = (card && card.dataset.pid) || cb.dataset.pid;
+      if(!pid) return;
+      const op = parseFloat((card.querySelector("." + P + "-item-oldprice")||{}).value) || 0;
+      const d = parseInt((card.querySelector("." + P + "-item-discount")||{}).value) || 0;
+      updates["products/" + pid + "/price"] = Math.round(op * (1 - d/100));
+      updates["products/" + pid + "/discountPrice"] = d > 0 ? op : null;
+      const si = card.querySelector("." + P + "-item-startdate");
+      const ei = card.querySelector("." + P + "-item-enddate");
+      if(si) updates["products/" + pid + "/startDate"] = si.value.trim();
+      if(ei) updates["products/" + pid + "/endDate"] = ei.value.trim();
+      updates["products/" + pid + "/updatedAt"] = Date.now();
+    });
+    const st = document.getElementById(P + "-bulk-status");
+    update(ref(db), updates).then(() => {
+      if(st){ st.textContent = "✅ " + checked.length + "টি সেভ হয়েছে (তারিখ সহ)"; setTimeout(()=>{ st.textContent=""; }, 4000); }
+    }).catch(err => { alert("❌ " + err.message); });
+  }
+  document.addEventListener("click", (e) => {
+    const t = e.target;
+    if(!t || !t.closest) return;
+    const dbtn = t.closest("#tr-bulk-date-apply-btn, #feat-bulk-date-apply-btn");
+    if(dbtn){
+      e.stopImmediatePropagation(); e.preventDefault();
+      saveDates(dbtn.id.indexOf("tr-") === 0 ? "tr" : "feat");
+      return;
+    }
+    const sbtn = t.closest("#tr-bulk-save-btn, #feat-bulk-save-btn");
+    if(sbtn){
+      e.stopImmediatePropagation(); e.preventDefault();
+      saveAll(sbtn.id.indexOf("tr-") === 0 ? "tr" : "feat");
+      return;
+    }
+  }, true);
+})();
