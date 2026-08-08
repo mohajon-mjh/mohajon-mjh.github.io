@@ -90,13 +90,21 @@ window.step1=()=>{
  else if(/^[^@]+@[^@]+\.[^@]+$/.test(ident)){document.getElementById("pIdent").textContent=ident;document.getElementById("cIdent").textContent=ident;show(4);}
  else alert("সঠিক মোবাইল (01XXXXXXXXX বা +966...) বা email দিন");
 };
-function rc(){return new RecaptchaVerifier(auth,"recaptcha",{size:"invisible"});}
+let rcV=null;
+function rc(){if(!rcV){rcV=new RecaptchaVerifier(auth,"recaptcha",{size:"invisible"});}return rcV;}
 async function sendOtp(phone){
  try{
   conf=await signInWithPhoneNumber(auth,phone,rc());
   document.getElementById("otpPhone").textContent=phone;
   show(5);
- }catch(e){alert("❌ OTP পাঠানো যায়নি: "+e.message+"\n\nFirebase Console → Authentication → Sign-in method → Phone → Enable করুন");}
+ }catch(e){
+  if(rcV){try{rcV.clear();}catch(x){}rcV=null;}
+  try{
+   conf=await signInWithPhoneNumber(auth,phone,rc());
+   document.getElementById("otpPhone").textContent=phone;
+   show(5);
+  }catch(e2){alert("❌ OTP পাঠানো যায়নি: "+e2.message);}
+ }
 }
 window.resendOtp=()=>sendOtp();
 window.verifyOtp=async()=>{
