@@ -20,7 +20,7 @@ a.lnk{color:#007185;text-decoration:none}
 <header style="background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px">
  <a href="index.html" style="color:#fff;font-weight:700;font-size:17px;text-decoration:none">🛍️ Mohajon-MJH</a>
  <a href="my-orders.html" style="color:#fff;font-size:13px;text-decoration:none">📦 My Orders</a>
- <a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">🛒 Cart <span id="cartCount"></span></a>
+ <a href="login.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">👤 <span class="hiName">Sign in</span></a><a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none">🛒 Cart <span id="cartCount"></span></a>
 </header>
 <div class="wrap">
  <div class="gal"><img class="main" id="mainImg" src=""><div class="thumbs" id="thumbs"></div></div>
@@ -126,4 +126,5 @@ function showPopup(msg,showButtons){
 }
 </script>
 
+<script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
 </body></html>

@@ -15,7 +15,7 @@ a.lnk{color:#007185;text-decoration:none;font-size:12px}
 <header style="background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px">
  <a href="index.html" style="color:#fff;font-weight:700;font-size:17px;text-decoration:none">🛍️ Mohajon-MJH</a>
  <a href="my-orders.html" style="color:#fff;font-size:13px;text-decoration:none">📦 My Orders</a>
- <a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">🛒 Cart <span id="cartCount"></span></a>
+ <a href="login.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">👤 <span class="hiName">Sign in</span></a><a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none">🛒 Cart <span id="cartCount"></span></a>
 </header>
 <div class="wrap">
  <div class="items"><h2 style="margin:0 0 6px;border-bottom:1px solid #eee;padding-bottom:8px">Shopping Cart</h2><div id="list">লোড হচ্ছে...</div></div>
@@ -49,4 +49,5 @@ async function render(){
 function chg(idx,d){const c=getCart();c[idx].qty=Math.max(1,(c[idx].qty||1)+d);saveCart(c)}
 function del(idx){const c=getCart();c.splice(idx,1);saveCart(c)}
 render();
-</script></body></html>
+</script><script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
+</body></html>

@@ -16,7 +16,7 @@
 <body>
 <header style="background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px">
  <a href="index.html" style="color:#fff;font-weight:700;font-size:17px;text-decoration:none">🛍️ Mohajon-MJH</a>
- <a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">🛒 Cart</a>
+ <a href="login.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">👤 <span class="hiName">Sign in</span></a><a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none">🛒 Cart</a>
 </header>
 <div class="wrap"><h2 style="font-size:19px">📦 My Orders</h2><div id="list">লোড হচ্ছে...</div></div>
 <script>
@@ -54,4 +54,5 @@ function buyAgain(items){
  localStorage.setItem("cart",JSON.stringify(c));
  location.href="cart.html";
 }
-</script></body></html>
+</script><script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
+</body></html>

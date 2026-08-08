@@ -1,232 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Login - Mohajon MJH</title>
-
-<style>
-*{box-sizing:border-box}
-body{
-margin:0;
-background:#f4f4f4;
-font-family:Arial,sans-serif;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh
-}
-.box{
-background:#fff;
-width:360px;
-padding:25px;
-border-radius:12px;
-box-shadow:0 5px 20px rgba(0,0,0,.15)
-}
-h2{
-text-align:center;
-margin-top:0
-}
-input{
-width:100%;
-padding:12px;
-margin:10px 0;
-border:1px solid #ccc;
-border-radius:8px;
-font-size:15px
-}
-.pass-wrap{
-position:relative;
-margin:10px 0;
-}
-.pass-wrap input{
-margin:0;
-padding-right:45px;
-width:100%;
-}
-.pass-toggle{
-position:absolute;
-right:12px;
-top:50%;
-transform:translateY(-50%);
-cursor:pointer;
-font-size:18px;
-user-select:none;
-color:#666;
-}
-button{
-width:100%;
-padding:12px;
-background:#0f7a2d;
-color:#fff;
-border:0;
-border-radius:8px;
-cursor:pointer;
-font-size:16px
-}
-button:hover{
-background:#0c6123
-}
-#msg{
-margin-top:12px;
-text-align:center;
-color:#d00
-}
-a{
-text-decoration:none
-}
-</style>
-<link rel="stylesheet" href="css/global-menu.css"></head>
-
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in or create account - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial;background:#fff}
+.logo{text-align:center;padding:14px;font-size:24px;font-weight:700}
+.card{max-width:340px;margin:10px auto;border:1px solid #ddd;border-radius:8px;padding:20px 24px}
+h1{font-size:17px;font-weight:400;margin:0 0 12px}
+label{font-size:13px;font-weight:700;display:block;margin-bottom:4px}
+input{width:100%;padding:8px;border:1px solid #999;border-radius:6px;font-size:14px;box-sizing:border-box;margin-bottom:12px}
+input:focus{outline:2px solid #e77600}
+.ybtn{width:100%;background:#FFD814;border:1px solid #FCD200;border-radius:18px;padding:9px;font-size:13px;cursor:pointer;font-weight:600}
+.link{color:#0066c0;font-size:12px;text-decoration:none;cursor:pointer}
+.small{font-size:11px;color:#555}
+.info{font-size:12px;background:#f7f7f7;border-radius:6px;padding:8px;margin-bottom:10px}
+footer{text-align:center;font-size:11px;color:#555;margin:26px 0}
+</style></head>
 <body>
-<div id="menuBtn" class="hamburger">☰</div>
-<nav id="sideMenu" class="side-menu">
-<h3>Categories</h3>
-<ul id="categoryList"></ul>
-</nav>
+<div class="logo">🛍️ Mohajon-MJH</div>
 
-<div class="box">
-
-<h2 id="login-title">Buyer Login</h2>
-
-<input
-id="email"
-type="email"
-placeholder="Email Address">
-
-<div class="pass-wrap">
-  <input
-  id="password"
-  type="password"
-  placeholder="Password">
-  <span class="pass-toggle" id="togglePass">👁️</span>
+<div class="card" id="s1">
+ <h1>Sign in or create account</h1>
+ <label>Enter mobile number or email</label>
+ <input id="ident" placeholder="01XXXXXXXXX or email">
+ <button class="ybtn" onclick="step1()">Continue</button>
+ <p class="small">By continuing, you agree to Mohajon-MJH's <a class="link">Conditions of Use</a> and <a class="link">Privacy Notice</a>.</p>
+ <a class="link">Need help?</a>
 </div>
 
-<button id="loginBtn">
-Login
-</button>
-
-<button id="googleLoginBtn" type="button" style="margin-top:10px;background:#fff;color:#444;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;gap:8px;">
-  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width:18px;height:18px;">
-  Continue with Google
-</button>
-
-<p style="text-align:center">
-<a href="signup.html">
-Create New Account
-</a>
-</p>
-
-<div id="msg"></div>
-
+<div class="card" id="sNew" style="display:none">
+ <h1>Looks like you're new to Mohajon-MJH</h1>
+ <p class="small" id="newIdent"></p>
+ <p class="small">Let's create an account using your email</p>
+ <button class="ybtn" onclick="show(3)">Proceed to create an account</button>
+ <hr><p class="small"><b>Already a customer?</b><br><a class="link" onclick="show(1)">Sign in with another email or mobile</a></p>
 </div>
 
-<script>
-(function(){
-  const params = new URLSearchParams(window.location.search);
-  const role = params.get("role");
-  const titleEl = document.getElementById("login-title");
+<div class="card" id="sCreate" style="display:none">
+ <h1>Create account</h1>
+ <p class="small" id="cIdent"></p>
+ <label>Your name</label><input id="cName" placeholder="First and last name">
+ <label>Password (at least 6 characters)</label><input id="cPass" type="password">
+ <p class="info">ℹ️ Passwords must be at least 6 characters.</p>
+ <label>Re-enter password</label><input id="cPass2" type="password">
+ <button class="ybtn" onclick="createEmail()">Continue</button>
+ <hr><p class="small"><b>Already a customer?</b><br><a class="link" onclick="show(4)">Sign in instead</a></p>
+</div>
 
-  if(role === "admin"){
-    titleEl.textContent = "Admin Login";
-    document.title = "Admin Login - Mohajon MJH";
-  }else if(role === "seller"){
-    titleEl.textContent = "Seller Login";
-    document.title = "Seller Login - Mohajon MJH";
-  }else{
-    titleEl.textContent = "Buyer Login";
-    document.title = "Buyer Login - Mohajon MJH";
-  }
+<div class="card" id="sPass" style="display:none">
+ <h1>Sign in</h1>
+ <p class="small" id="pIdent"></p>
+ <label>Your password</label><input id="pPass" type="password">
+ <button class="ybtn" onclick="signinEmail()">Continue</button>
+ <p class="small"><a class="link" onclick="show(3)">New? Create account</a></p>
+</div>
 
-  const toggle = document.getElementById("togglePass");
-  const passInput = document.getElementById("password");
-  toggle.addEventListener("click", () => {
-    if(passInput.type === "password"){
-      passInput.type = "text";
-      toggle.textContent = "🙈";
-    }else{
-      passInput.type = "password";
-      toggle.textContent = "👁️";
-    }
-  });
-})();
-</script>
+<div class="card" id="sOtp" style="display:none">
+ <h1>Verify mobile number</h1>
+ <p class="small">To verify, we've sent a One Time Password (OTP) to <b id="otpPhone"></b> <a class="link" onclick="show(1)">(Change)</a></p>
+ <label>Enter security code</label>
+ <input id="otpCode" placeholder="6-digit code" maxlength="6" inputmode="numeric">
+ <button class="ybtn" onclick="verifyOtp()">Create your Mohajon-MJH account</button>
+ <p class="small">By creating an account, you agree to our <a class="link">Conditions of Use</a>.</p>
+ <a class="link" onclick="resendOtp()">Resend code</a>
+</div>
+
+<div class="card" id="sName" style="display:none">
+ <h1>Welcome! What's your name?</h1>
+ <label>Your name</label><input id="nName" placeholder="First and last name">
+ <button class="ybtn" onclick="saveName()">Continue</button>
+</div>
+
+<div id="recaptcha"></div>
+<footer>Conditions of Use • Privacy Notice • Help<br>© 2026 Mohajon-MJH Marketplace</footer>
 
 <script type="module">
-
-import "./assets/js/auth.js";
-
-document
-.getElementById("loginBtn")
-.onclick=async()=>{
-
-const email=
-document
-.getElementById("email")
-.value
-.trim();
-
-const password=
-document
-.getElementById("password")
-.value;
-
-const msg=
-document
-.getElementById("msg");
-
-msg.textContent="";
-
-if(!email||!password){
-
-msg.textContent="Enter email and password";
-return;
-}
-
-try{
-
-await window.login(
-email,
-password
-);
-
-}catch(err){
-
-msg.textContent=
-err.message;
-
-}
-
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,RecaptchaVerifier,signInWithPhoneNumber,signInWithEmailAndPassword,createUserWithEmailAndPassword,updateProfile,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getDatabase,ref,set} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const app=initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",authDomain:"mohajon-mjh.firebaseapp.com",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",storageBucket:"mohajon-mjh.firebasestorage.app",messagingSenderId:"526105903976",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+const next=new URLSearchParams(location.search).get("next")||"index.html";
+if(new URLSearchParams(location.search).get("out")){signOut(auth);localStorage.removeItem("mjhUser");}
+window.show=n=>{["s1","sNew","sCreate","sPass","sOtp","sName"].forEach((id,i)=>{document.getElementById(id).style.display=(i+1)===n?"block":"none";});};
+let ident="",conf=null;
+window.step1=()=>{
+ ident=document.getElementById("ident").value.trim();
+ if(/^01[0-9]{9}$/.test(ident)){sendOtp();}
+ else if(/^[^@]+@[^@]+\.[^@]+$/.test(ident)){document.getElementById("pIdent").textContent=ident;document.getElementById("cIdent").textContent=ident;show(4);}
+ else alert("সঠিক মোবাইল (01XXXXXXXXX) বা email দিন");
 };
-
-document.getElementById("googleLoginBtn").onclick = async () => {
-  try{
-    await window.loginWithGoogle();
-  }catch(err){
-    document.getElementById("msg").textContent = err.message;
+function rc(){return new RecaptchaVerifier(auth,"recaptcha",{size:"invisible"});}
+async function sendOtp(){
+ try{
+  const phone="+88"+ident;
+  conf=await signInWithPhoneNumber(auth,phone,rc());
+  document.getElementById("otpPhone").textContent=phone;
+  show(5);
+ }catch(e){alert("❌ OTP পাঠানো যায়নি: "+e.message+"\n\nFirebase Console → Authentication → Sign-in method → Phone → Enable করুন");}
+}
+window.resendOtp=()=>sendOtp();
+window.verifyOtp=async()=>{
+ try{
+  const cred=await conf.confirm(document.getElementById("otpCode").value.trim());
+  const u=cred.user;
+  const isNew=u.metadata.creationTime===u.metadata.lastSignInTime;
+  if(isNew){show(6);}else{
+   localStorage.setItem("mjhUser",JSON.stringify({uid:u.uid,name:u.displayName||"Buyer",phone:u.phoneNumber}));
+   location.href=next;
   }
+ }catch(e){alert("❌ ভুল code: "+e.message);}
 };
-
-window.currentUser(user=>{
-
-if(user){
-
-console.log(
-"Already logged in",
-user.email
-);
-
-}
-
-});
-
-</script>
-
-<script src="assets/navbar.js"></script>
-<script type="module" src="auth-role.js"></script>
-<script src="cart.js"></script>
-<script src="wishlist.js"></script>
-<script src="js/global-menu.js?v=2"></script>
-</body>
-</html>
+window.saveName=async()=>{
+ const n=document.getElementById("nName").value.trim();
+ if(!n){alert("নাম দিন");return;}
+ const u=auth.currentUser;
+ try{await updateProfile(u,{displayName:n});}catch(e){}
+ try{await set(ref(db,"users/"+u.uid),{name:n,phone:u.phoneNumber||null,createdAt:Date.now()});}catch(e){}
+ localStorage.setItem("mjhUser",JSON.stringify({uid:u.uid,name:n,phone:u.phoneNumber}));
+ location.href=next;
+};
+window.signinEmail=async()=>{
+ try{
+  const c=await signInWithEmailAndPassword(auth,ident,document.getElementById("pPass").value);
+  localStorage.setItem("mjhUser",JSON.stringify({uid:c.user.uid,name:c.user.displayName||"Buyer",email:c.user.email}));
+  location.href=next;
+ }catch(e){
+  if(e.code==="auth/user-not-found"||e.code==="auth/invalid-credential"||e.code==="auth/wrong-password"){show(3);}
+  else alert("❌ "+e.message);
+ }
+};
+window.createEmail=async()=>{
+ const n=document.getElementById("cName").value.trim(),p=document.getElementById("cPass").value,p2=document.getElementById("cPass2").value;
+ if(!n){alert("নাম দিন");return;}
+ if(p.length<6){alert("Password কমপক্ষে 6 characters");return;}
+ if(p!==p2){alert("Password মিলছে না");return;}
+ try{
+  const c=await createUserWithEmailAndPassword(auth,ident,p);
+  await updateProfile(c.user,{displayName:n});
+  await set(ref(db,"users/"+c.user.uid),{name:n,email:ident,createdAt:Date.now()});
+  localStorage.setItem("mjhUser",JSON.stringify({uid:c.user.uid,name:n,email:ident}));
+  location.href=next;
+ }catch(e){alert("❌ "+e.message);}
+};
+</script></body></html>
