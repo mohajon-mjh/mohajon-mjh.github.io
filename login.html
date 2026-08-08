@@ -83,15 +83,16 @@ if(new URLSearchParams(location.search).get("out")){signOut(auth);localStorage.r
 window.show=n=>{["s1","sNew","sCreate","sPass","sOtp","sName"].forEach((id,i)=>{document.getElementById(id).style.display=(i+1)===n?"block":"none";});};
 let ident="",conf=null;
 window.step1=()=>{
- ident=document.getElementById("ident").value.trim();
- if(/^01[0-9]{9}$/.test(ident)){sendOtp();}
+ ident=document.getElementById("ident").value.trim().replace(/[\s-]/g,"");
+ if(/^01[0-9]{9}$/.test(ident)){sendOtp("+88"+ident);}
+ else if(/^\+[0-9]{10,15}$/.test(ident)){sendOtp(ident);}
+ else if(/^[0-9]{10,15}$/.test(ident)){sendOtp("+"+ident);}
  else if(/^[^@]+@[^@]+\.[^@]+$/.test(ident)){document.getElementById("pIdent").textContent=ident;document.getElementById("cIdent").textContent=ident;show(4);}
- else alert("সঠিক মোবাইল (01XXXXXXXXX) বা email দিন");
+ else alert("সঠিক মোবাইল (01XXXXXXXXX বা +966...) বা email দিন");
 };
 function rc(){return new RecaptchaVerifier(auth,"recaptcha",{size:"invisible"});}
-async function sendOtp(){
+async function sendOtp(phone){
  try{
-  const phone="+88"+ident;
   conf=await signInWithPhoneNumber(auth,phone,rc());
   document.getElementById("otpPhone").textContent=phone;
   show(5);
