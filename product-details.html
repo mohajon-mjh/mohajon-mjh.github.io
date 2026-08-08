@@ -84,8 +84,18 @@ function addCart(id,name,price,qty){
  const about=(P.description||"").split(/\n|\||\|/).map(s=>s.trim()).filter(Boolean).slice(0,6);
  document.getElementById("about").innerHTML=(about.length?about:["MJH Marketplace-এর অরিজিনাল প্রোডাক্ট","দ্রুত ডেলিভারি ও সহজ রিটার্ন"]).map(s=>`<li>${s}</li>`).join("");
  const q=document.getElementById("qty");for(let i=1;i<=10;i++)q.innerHTML+=`<option>${i}</option>`;
- document.getElementById("addBtn").onclick=()=>{addCart(id,P.title,price,+q.value);const b=document.getElementById("addBtn");b.textContent="Added ✓";setTimeout(()=>b.textContent="🛒 Add to Cart",1200);};
- document.getElementById("buyBtn").onclick=()=>{addCart(id,P.title,price,+q.value);location.href="checkout.html";};
+ document.getElementById("addBtn").onclick=()=>{
+  addCart(id,P.title,price,+q.value);
+  const cart=JSON.parse(localStorage.getItem("cart")||"[]");
+  const item=cart.find(i=>i.id===id);
+  const qty=item?(item.qty||1):1;
+  showPopup(`✅ Added to Cart!<br><b>${P.title}</b><br>Quantity: <b>${qty}</b>`,true);
+};
+ document.getElementById("buyBtn").onclick=()=>{
+  // Buy Now = সরাসরি checkout (cart আলাদা থাকবে)
+  localStorage.setItem("buyNowItem",JSON.stringify({id,name:P.title,price,qty:+q.value,sellerId:P.sellerId||"unknown"}));
+  location.href="checkout.html?mode=buynow";
+};
  // Frequently bought together (cart items + this)
  const cart=JSON.parse(localStorage.getItem("cart")||"[]").filter(i=>i.id!==id).slice(0,2);
  if(cart.length){const tot=price+cart.reduce((a,i)=>a+i.price*(i.qty||1),0);
@@ -95,4 +105,25 @@ function addCart(id,name,price,qty){
    `<div style="margin-top:8px;font-weight:700">Total: ${fmt(tot)}</div>`;}
 })();
 function setImg(el,u){document.getElementById("mainImg").src=u;document.querySelectorAll(".thumbs img").forEach(t=>t.classList.remove("on"));el.classList.add("on");}
-</script></body></html>
+</script>
+<div id="popup" style="display:none;position:fixed;top:20px;right:20px;background:#131921;color:#fff;padding:16px;border-radius:8px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.3);min-width:240px">
+  <div id="popupMsg" style="font-size:14px;margin-bottom:10px"></div>
+  <div style="display:flex;gap:8px">
+    <button id="popupViewCart" style="flex:1;background:#FFD814;border:1px solid #FCD200;border-radius:16px;padding:7px;cursor:pointer;font-weight:600">🛒 View Cart</button>
+    <button id="popupCancel" style="flex:1;background:#fff;border:1px solid #ddd;border-radius:16px;padding:7px;cursor:pointer;font-weight:600">Continue Shopping</button>
+  </div>
+</div>
+<script>
+function showPopup(msg,showButtons){
+ const popup=document.getElementById("popup");
+ document.getElementById("popupMsg").innerHTML=msg;
+ popup.style.display="block";
+ if(showButtons){
+  document.getElementById("popupViewCart").onclick=()=>{location.href="cart.html";};
+  document.getElementById("popupCancel").onclick=()=>{popup.style.display="none";};
+ }
+ setTimeout(()=>{popup.style.display="none";},5000);
+}
+</script>
+
+</body></html>

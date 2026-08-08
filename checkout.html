@@ -40,7 +40,12 @@
 <script>
 const DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
 const fmt=v=>"৳"+Number(v||0).toFixed(2);
-const cart=JSON.parse(localStorage.getItem("cart")||"[]");
+let cart=JSON.parse(localStorage.getItem("cart")||"[]");
+const mode=new URLSearchParams(location.search).get("mode");
+if(mode==="buynow"){
+ const buyItem=JSON.parse(localStorage.getItem("buyNowItem")||"null");
+ if(buyItem){cart=[buyItem];}else{cart=[];}
+}
 if(cart.length===0){document.querySelector(".wrap").innerHTML='<div style="background:#fff;border-radius:8px;padding:30px;width:100%;text-align:center"><h2>Cart খালি 🛒</h2><a href="index.html" style="color:#007185">← Continue shopping</a></div>';}
 let subtotal=cart.reduce((a,i)=>a+i.price*(i.qty||1),0);
 let delivery=subtotal>=2000?0:100;
@@ -67,7 +72,7 @@ document.getElementById("placeBtn").onclick=async()=>{
   const r=await fetch(DB+"/orders/"+orderId+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(order)});
   if(!r.ok)throw new Error("network");
   const my=JSON.parse(localStorage.getItem("myOrders")||"[]");my.push(orderId);localStorage.setItem("myOrders",JSON.stringify(my));
-  localStorage.setItem("cart","[]");
+  if(mode!=="buynow"){localStorage.setItem("cart","[]");}
   location.href="order-success.html?id="+orderId;
  }catch(e){alert("❌ অর্ডার ব্যর্থ: "+e.message);btn.disabled=false;btn.textContent="Place your order ✅";}
 };
