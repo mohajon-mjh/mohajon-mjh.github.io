@@ -4696,7 +4696,12 @@ function flagManager(cfg){
       const np = Math.round(op * (1 - d/100));
       const sop = d > 0 ? op : null;
       try{
-        await update(ref(db, "products/"+pid), { price: np, discountPrice: sop, updatedAt: Date.now() });
+        const sdI = div.querySelector("." + P + "-item-startdate");
+        const edI = div.querySelector("." + P + "-item-enddate");
+        const upd = { price: np, discountPrice: sop, updatedAt: Date.now() };
+        if(sdI) upd.startDate = sdI.value.trim();
+        if(edI) upd.endDate = edI.value.trim();
+        await update(ref(db, "products/"+pid), upd);
         alert("✅ সেভ হয়েছে");
       }catch(err){ alert("❌ Error: " + err.message); }
     };
