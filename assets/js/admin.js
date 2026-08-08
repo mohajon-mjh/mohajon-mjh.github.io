@@ -4799,6 +4799,10 @@ function flagManager(cfg){
         updates["products/" + pid + "/price"] = Math.round(op * (1 - d/100));
         updates["products/" + pid + "/discountPrice"] = d > 0 ? op : null;
         updates["products/" + pid + "/updatedAt"] = Date.now();
+        const startDateInput = card.querySelector("." + P + "-item-startdate");
+        const endDateInput = card.querySelector("." + P + "-item-enddate");
+        if(startDateInput && startDateInput.value.trim()) updates["products/" + pid + "/startDate"] = startDateInput.value.trim();
+        if(endDateInput && endDateInput.value.trim()) updates["products/" + pid + "/endDate"] = endDateInput.value.trim();
       });
       try{
         await update(ref(db), updates);
@@ -5526,6 +5530,7 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
 (function(){
   function injectDates(card, P, pid){
     if(!card || card.querySelector("." + P + "-item-startdate")) return;
+    card.dataset.pid = pid;
     const preview = card.querySelector("." + P + "-item-preview");
     if(!preview) return;
     const wrap = document.createElement("div");
@@ -5552,21 +5557,30 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
     const btn = document.getElementById(P + "-bulk-date-apply-btn");
     if(!btn || btn._wired) return;
     btn._wired = true;
-    btn.onclick = () => {
+    btn.onclick = async () => {
       const checked = document.querySelectorAll("." + P + "-item-check:checked");
       if(checked.length === 0){ alert("কিছু সিলেক্ট করুন"); return; }
       const sv = document.getElementById(P + "-bulk-startdate").value.trim();
       const ev = document.getElementById(P + "-bulk-enddate").value.trim();
       if(!sv && !ev){ alert("অন্তত একটা তারিখ দিন"); return; }
+      const updates = {};
       checked.forEach(cb => {
         const card = cb.closest(".card");
+        const pid = card.dataset.pid || cb.dataset.pid;
         const si = card.querySelector("." + P + "-item-startdate");
         const ei = card.querySelector("." + P + "-item-enddate");
         if(sv && si) si.value = sv;
         if(ev && ei) ei.value = ev;
+        if(pid){
+          if(sv) updates["products/" + pid + "/startDate"] = sv;
+          if(ev) updates["products/" + pid + "/endDate"] = ev;
+        }
       });
       const st = document.getElementById(P + "-bulk-status");
-      if(st){ st.textContent = "✅ তারিখ বসানো হয়েছে — এখন 💾 সিলেক্টেড Save চাপুন"; setTimeout(()=>{ st.textContent=""; }, 4000); }
+      try{
+        await update(ref(db), updates);
+        if(st){ st.textContent = "✅ তারিখ বসানো ও সেভ হয়েছে (" + checked.length + "টি)"; setTimeout(()=>{ st.textContent=""; }, 4000); }
+      }catch(err){ if(st){ st.textContent = "❌ " + err.message; } }
     };
   }
   function wireBulkSave(P){
