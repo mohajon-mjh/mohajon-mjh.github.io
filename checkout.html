@@ -1,34 +1,74 @@
 <!DOCTYPE html>
-<html lang="bn">
-<head>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Checkout | Mohajon MJH</title>
-<link rel="stylesheet" href="css/global-menu.css">
-<link rel="stylesheet" href="shared-header.css">
-<link rel="stylesheet" href="checkout.css">
-</head>
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checkout - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial,sans-serif;background:#EAEDED}
+.wrap{max-width:1000px;margin:14px auto;padding:0 10px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.form{flex:1;min-width:300px;background:#fff;border-radius:8px;padding:16px}
+.form input,.form select,.form textarea{width:100%;padding:9px;margin:5px 0 12px;border:1px solid #ccc;border-radius:6px;font-size:14px;box-sizing:border-box}
+.box{width:280px;background:#fff;border-radius:8px;padding:16px}
+.btn-yellow{width:100%;background:#FFD814;border:1px solid #FCD200;border-radius:20px;padding:11px;font-size:15px;cursor:pointer;font-weight:600}
+.green{color:#007600}.red{color:#B12704}</style></head>
 <body>
-
-<div id="menuBtn" class="hamburger">☰</div>
-<nav id="sideMenu" class="side-menu">
-  <h3>Categories</h3>
-  <ul id="categoryList"></ul>
-</nav>
-
-<div id="navbar-placeholder"></div>
-
-<div class="co-wrap">
-  <h2>🧾 Checkout</h2>
-  <div id="coRoot">Loading...</div>
+<header style="background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px">
+ <a href="index.html" style="color:#fff;font-weight:700;font-size:17px;text-decoration:none">🛍️ Mohajon-MJH</a>
+ <span style="font-size:14px">🔒 Secure Checkout</span>
+ <a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">🛒 Cart</a>
+</header>
+<div class="wrap">
+ <div class="form">
+  <h2 style="font-size:17px;margin:0 0 4px">1️⃣ Delivery Address</h2>
+  <input id="name" placeholder="আপনার নাম *">
+  <input id="phone" placeholder="মোবাইল নাম্বার * (01XXXXXXXXX)">
+  <textarea id="address" rows="2" placeholder="সম্পূর্ণ ঠিকানা * (বাসা, রোড, এলাকা)"></textarea>
+  <select id="area"><option value="">জেলা সিলেক্ট করুন *</option><option>ঢাকা</option><option>চট্টগ্রাম</option><option>সিলেট</option><option>রাজশাহী</option><option>খুলনা</option><option>বরিশাল</option><option>রংপুর</option><option>ময়মনসিংহ</option><option>কুমিল্লা</option><option>অন্যান্য</option></select>
+  <h2 style="font-size:17px;margin:16px 0 4px">2️⃣ Payment Method</h2>
+  <label style="display:block;background:#f7f7f7;border:1px solid #ddd;border-radius:6px;padding:10px;font-size:14px"><input type="radio" name="pay" value="cash_on_delivery" checked> 💵 Cash on Delivery (পণ্য হাতে পেয়ে টাকা দিন)</label>
+  <label style="display:block;color:#999;font-size:13px;margin-top:8px"><input type="radio" disabled> 📱 bKash (শীঘ্রই আসছে)</label>
+  <label style="display:block;color:#999;font-size:13px;margin-top:4px"><input type="radio" disabled> 📱 Nagad (শীঘ্রই আসছে)</label>
+ </div>
+ <div class="box">
+  <h3 style="margin:0 0 8px;font-size:15px">Order Summary</h3>
+  <div id="items" style="font-size:13px;max-height:200px;overflow:auto"></div>
+  <hr>
+  <div style="font-size:13px">Items: <span id="sub" style="float:right"></span></div>
+  <div style="font-size:13px">Delivery: <span id="del" style="float:right"></span></div>
+  <div style="font-size:16px;font-weight:700;margin:8px 0">Total: <span id="tot" class="red" style="float:right"></span></div>
+  <button class="btn-yellow" id="placeBtn">Place your order ✅</button>
+  <p style="font-size:11px;color:#565959">অর্ডার দিয়ে আপনি আমাদের conditions মানছেন</p>
+ </div>
 </div>
-
-<script src="shared-header.js"></script>
-<script src="assets/navbar.js"></script>
-<script src="cart.js"></script>
-<script src="wishlist.js"></script>
-<script type="module" src="checkout.js"></script>
-<script src="js/global-menu.js?v=2"></script>
-</body>
-</html>
+<script>
+const DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+const fmt=v=>"৳"+Number(v||0).toFixed(2);
+const cart=JSON.parse(localStorage.getItem("cart")||"[]");
+if(cart.length===0){document.querySelector(".wrap").innerHTML='<div style="background:#fff;border-radius:8px;padding:30px;width:100%;text-align:center"><h2>Cart খালি 🛒</h2><a href="index.html" style="color:#007185">← Continue shopping</a></div>';}
+let subtotal=cart.reduce((a,i)=>a+i.price*(i.qty||1),0);
+let delivery=subtotal>=2000?0:100;
+document.getElementById("items").innerHTML=cart.map(i=>`<div style="margin:4px 0">${i.name} × ${i.qty||1} = ${fmt(i.price*(i.qty||1))}</div>`).join("");
+document.getElementById("sub").textContent=fmt(subtotal);
+document.getElementById("del").textContent=delivery===0?"FREE":fmt(delivery);
+document.getElementById("tot").textContent=fmt(subtotal+delivery);
+document.getElementById("placeBtn").onclick=async()=>{
+ const name=document.getElementById("name").value.trim();
+ const phone=document.getElementById("phone").value.trim();
+ const address=document.getElementById("address").value.trim();
+ const area=document.getElementById("area").value;
+ if(!name||!phone||!address||!area){alert("সব তথ্য পূরণ করুন (নাম, ফোন, ঠিকানা, জেলা)");return;}
+ if(!/^01[0-9]{9}$/.test(phone)){alert("সঠিক মোবাইল নাম্বার দিন (01XXXXXXXXX)");return;}
+ const orderId="MJH"+Date.now();
+ const d=new Date(Date.now()+4*864e5);
+ const order={createdAt:Date.now(),updatedAt:Date.now(),status:"pending",paymentId:"COD",paymentMethod:"cash_on_delivery",
+  subtotal,deliveryCharge:delivery,total:subtotal+delivery,
+  shippingAddress:{name,phone,address,area},
+  items:cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty||1})),
+  expectedDelivery:d.getDate()+"-"+(d.getMonth()+1)+"-"+d.getFullYear()};
+ const btn=document.getElementById("placeBtn");btn.disabled=true;btn.textContent="অর্ডার হচ্ছে...";
+ try{
+  const r=await fetch(DB+"/orders/"+orderId+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(order)});
+  if(!r.ok)throw new Error("network");
+  const my=JSON.parse(localStorage.getItem("myOrders")||"[]");my.push(orderId);localStorage.setItem("myOrders",JSON.stringify(my));
+  localStorage.setItem("cart","[]");
+  location.href="order-success.html?id="+orderId;
+ }catch(e){alert("❌ অর্ডার ব্যর্থ: "+e.message);btn.disabled=false;btn.textContent="Place your order ✅";}
+};
+</script></body></html>

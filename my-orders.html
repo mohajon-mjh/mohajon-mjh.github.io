@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Orders - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial,sans-serif;background:#EAEDED}
+.wrap{max-width:800px;margin:14px auto;padding:0 10px}
+.order{background:#fff;border-radius:8px;margin-bottom:14px;overflow:hidden}
+.ohead{display:flex;gap:16px;flex-wrap:wrap;padding:10px 16px;background:#f7f7f7;border-bottom:1px solid #eee;font-size:12px;color:#565959}
+.ohead b{display:block;color:#111;font-size:13px}
+.obody{padding:14px 16px}
+.steps{display:flex;margin:14px 0;align-items:center}
+.step{flex:1;text-align:center;font-size:11px;color:#999;position:relative}
+.step .dot{width:14px;height:14px;border-radius:50%;background:#ddd;margin:0 auto 5px}
+.step.on{color:#007600}.step.on .dot{background:#007600}
+.status{font-size:15px;font-weight:700}
+.btn{background:#FFD814;border:1px solid #FCD200;border-radius:16px;padding:7px 14px;cursor:pointer;font-size:13px;font-weight:600}</style></head>
+<body>
+<header style="background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px">
+ <a href="index.html" style="color:#fff;font-weight:700;font-size:17px;text-decoration:none">🛍️ Mohajon-MJH</a>
+ <a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">🛒 Cart</a>
+</header>
+<div class="wrap"><h2 style="font-size:19px">📦 My Orders</h2><div id="list">লোড হচ্ছে...</div></div>
+<script>
+const DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+const fmt=v=>"৳"+Number(v||0).toFixed(2);
+const IDS=JSON.parse(localStorage.getItem("myOrders")||"[]").reverse();
+const LABELS=["অর্ডার প্লেসড","প্রসেসিং","শিপড","ডেলিভারড"];
+const IDX={pending:0,processing:1,shipped:2,delivered:3};
+(async()=>{
+ if(IDS.length===0){document.getElementById("list").innerHTML='<div style="background:#fff;border-radius:8px;padding:26px;text-align:center">এখনো কোনো অর্ডার নেই<br><br><button class="btn" onclick="location.href='index.html'">Shop Now →</button></div>';return;}
+ const orders=await Promise.all(IDS.map(async id=>{try{return {id,o:await (await fetch(DB+"/orders/"+id+".json")).json()};}catch(e){return null;}}));
+ document.getElementById("list").innerHTML=orders.filter(x=>x&&x.o).map(({id,o})=>{
+  const dt=new Date(o.createdAt);
+  const cancelled=(o.status==="cancelled"||o.status==="refunded");
+  const idx=cancelled?0:(IDX[o.status]??0);
+  const statusText=cancelled?"❌ অর্ডার বাতিল হয়েছে":(o.status==="delivered"?"✅ Delivered — ধন্যবাদ!":"🚚 Arriving by "+(o.expectedDelivery||""));
+  return `<div class="order">
+   <div class="ohead">
+     <div>ORDER PLACED<b>${dt.getDate()}-${dt.getMonth()+1}-${dt.getFullYear()}</b></div>
+     <div>TOTAL<b>${fmt(o.total)}</b></div>
+     <div>SHIP TO<b>${(o.shippingAddress&&o.shippingAddress.name)||"-"}</b></div>
+     <div style="margin-left:auto">ORDER #<b>${id.slice(-8)}</b></div>
+   </div>
+   <div class="obody">
+     <div class="status" style="color:${cancelled?'#c0392b':'#007600'}">${statusText}</div>
+     ${cancelled?"":`<div class="steps">${LABELS.map((l,i)=>`<div class="step ${i<=idx?'on':''}"><div class="dot"></div>${l}</div>`).join("")}</div>`}
+     <div style="font-size:13px;border-top:1px solid #eee;padding-top:10px">${(o.items||[]).map(i=>`<div style="margin:3px 0">🔸 ${i.name} × ${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join("")}</div>
+     <div style="margin-top:10px"><button class="btn" onclick="buyAgain(${JSON.stringify(o.items||[]).replace(/"/g,"&quot;")})">🔄 Buy Again</button></div>
+   </div></div>`;
+ }).join("");
+})();
+function buyAgain(items){
+ let c=JSON.parse(localStorage.getItem("cart")||"[]");
+ items.forEach(i=>{const it=c.find(x=>x.id===i.id);if(it){it.qty=(it.qty||1)+(i.qty||1);}else{c.push({id:i.id,name:i.name,price:i.price,qty:i.qty||1})}});
+ localStorage.setItem("cart",JSON.stringify(c));
+ location.href="cart.html";
+}
+</script></body></html>

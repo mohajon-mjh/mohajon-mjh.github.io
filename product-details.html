@@ -1,34 +1,98 @@
 <!DOCTYPE html>
-<html lang="bn">
-<head>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Product Details | Mohajon MJH</title>
-<link rel="stylesheet" href="css/global-menu.css">
-<link rel="stylesheet" href="shared-header.css">
-<link rel="stylesheet" href="product-details.css">
-</head>
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Product - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial,sans-serif;background:#EAEDED}
+.wrap{max-width:1100px;margin:14px auto;padding:0 10px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.gal{flex:1;min-width:260px;background:#fff;border-radius:8px;padding:14px;text-align:center}
+.gal img.main{width:100%;max-width:380px;border-radius:8px}
+.thumbs{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.thumbs img{width:52px;height:52px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #fff}
+.thumbs img.on{border-color:#e77600}
+.mid{flex:1.3;min-width:260px;background:#fff;border-radius:8px;padding:16px}
+.buybox{width:270px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px}
+a.lnk{color:#007185;text-decoration:none}
+.btn-yellow{width:100%;background:#FFD814;border:1px solid #FCD200;border-radius:20px;padding:10px;font-size:14px;cursor:pointer;font-weight:600;margin-bottom:8px}
+.btn-orange{width:100%;background:#FFA41C;border:1px solid #FF8F00;border-radius:20px;padding:10px;font-size:14px;cursor:pointer;font-weight:600}
+.green{color:#007600}.price{color:#B12704;font-weight:700}
+.strike{text-decoration:line-through;color:#565959;font-size:13px}
+.red{color:#CC0C39;font-size:13px}</style></head>
 <body>
-
-<div id="menuBtn" class="hamburger">☰</div>
-<nav id="sideMenu" class="side-menu">
-  <h3>Categories</h3>
-  <ul id="categoryList"></ul>
-</nav>
-
-<div id="navbar-placeholder"></div>
-
-<div id="pdRoot" class="pd-wrap">
-  <div class="pd-notfound">Loading...</div>
+<header style="background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px">
+ <a href="index.html" style="color:#fff;font-weight:700;font-size:17px;text-decoration:none">🛍️ Mohajon-MJH</a>
+ <a href="my-orders.html" style="color:#fff;font-size:13px;text-decoration:none">📦 My Orders</a>
+ <a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">🛒 Cart <span id="cartCount"></span></a>
+</header>
+<div class="wrap">
+ <div class="gal"><img class="main" id="mainImg" src=""><div class="thumbs" id="thumbs"></div></div>
+ <div class="mid">
+   <a class="lnk" href="index.html" style="font-size:12px">Home</a> <span style="font-size:12px;color:#565959">› <span id="crumbCat">Products</span></span>
+   <h1 id="title" style="font-size:20px;margin:8px 0">লোড হচ্ছে...</h1>
+   <div style="font-size:13px;color:#e77600">★★★★☆ <span class="lnk">4.5 out of 5</span></div>
+   <hr style="border:none;border-top:1px solid #eee;margin:10px 0">
+   <div id="priceBlock"></div>
+   <h3 style="font-size:14px;margin:14px 0 6px">About this item</h3>
+   <ul id="about" style="font-size:13px;line-height:1.6;color:#333;padding-left:18px"></ul>
+ </div>
+ <div class="buybox">
+   <div id="bbPrice" style="font-size:20px;font-weight:700;color:#B12704"></div>
+   <div id="bbDelivery" style="font-size:13px;margin:6px 0"></div>
+   <div class="green" id="bbStock" style="font-size:15px;font-weight:600"></div>
+   <div id="bbOffer" style="font-size:12px;color:#CC0C39;margin:6px 0"></div>
+   <label style="font-size:13px">Qty: <select id="qty" style="padding:4px;border:1px solid #ddd;border-radius:6px"></select></label>
+   <div style="margin-top:10px">
+     <button class="btn-yellow" id="addBtn">🛒 Add to Cart</button>
+     <button class="btn-orange" id="buyBtn">⚡ Buy Now</button>
+   </div>
+   <p style="font-size:11px;color:#565959;margin-top:10px">🔒 Secure transaction • 💵 Cash on Delivery available</p>
+ </div>
 </div>
-
-<script src="shared-header.js"></script>
-<script src="assets/navbar.js"></script>
-<script src="cart.js"></script>
-<script src="wishlist.js"></script>
-<script type="module" src="assets/js/currency.js"></script>
-<script type="module" src="product-details.js"></script>
-<script src="js/global-menu.js?v=2"></script>
-</body>
-</html>
+<div style="max-width:1100px;margin:0 auto 20px;padding:0 10px"><div id="fbt" style="background:#fff;border-radius:8px;padding:14px;display:none"></div></div>
+<script>
+const DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+const fmt=v=>"৳"+Number(v||0).toFixed(2);
+function hdr(){const c=JSON.parse(localStorage.getItem("cart")||"[]");document.getElementById("cartCount").textContent="("+c.reduce((a,i)=>a+(i.qty||1),0)+")";}
+hdr();
+const id=new URLSearchParams(location.search).get("id");
+let P=null;
+function addCart(id,name,price,qty){
+ let c=JSON.parse(localStorage.getItem("cart")||"[]");
+ let it=c.find(i=>i.id===id);
+ if(it){it.qty=(it.qty||1)+qty;}else{c.push({id,name,price,qty,sellerId:(P&&P.sellerId)||"unknown"})}
+ localStorage.setItem("cart",JSON.stringify(c));hdr();
+}
+(async()=>{
+ try{P=await (await fetch(DB+"/products/"+id+".json")).json();}catch(e){}
+ if(!P){document.getElementById("title").textContent="প্রোডাক্ট পাওয়া যায়নি";return;}
+ document.title=(P.title||"Product")+" - Mohajon-MJH";
+ document.getElementById("title").textContent=P.title||"Unnamed";
+ const imgs=P.images?Object.values(P.images).filter(u=>typeof u==="string"&&u.startsWith("http")):[];
+ document.getElementById("mainImg").src=imgs[0]||"https://dummyimage.com/380x380/eeeeee/555&text=MJH";
+ document.getElementById("thumbs").innerHTML=imgs.map((u,i)=>`<img src="${u}" class="${i===0?'on':''}" onclick="setImg(this,'${u}')">`).join("");
+ const price=+P.price||0, old=+P.discountPrice||0;
+ const hasOld=old>0, disc=hasOld?Math.round((1-price/old)*100):0;
+ document.getElementById("priceBlock").innerHTML=
+  (disc>0?`<span class="red">-${disc}%</span> `:"")+`<span style="font-size:24px" class="price">${fmt(price)}</span> `+
+  (hasOld?`<span class="strike">${fmt(old)}</span> <span class="green" style="font-size:12px">Save ${fmt(old-price)}</span>`:"");
+ document.getElementById("bbPrice").textContent=fmt(price);
+ const del=new Date(Date.now()+4*864e5);
+ document.getElementById("bbDelivery").innerHTML= price>=2000
+   ? `<span class="green">✅ FREE delivery</span> ${del.getDate()}-${del.getMonth()+1}-${del.getFullYear()}`
+   : `🚚 Delivery ৳100 — ${del.getDate()}-${del.getMonth()+1}-${del.getFullYear()}`;
+ const stock=+P.stock||0;
+ document.getElementById("bbStock").textContent= stock>0 ? (stock<=5?"Only "+stock+" left - order soon":"In Stock") : "Out of Stock";
+ if(P.startDate||P.endDate) document.getElementById("bbOffer").textContent="⏰ অফার: "+(P.startDate||"")+" থেকে "+(P.endDate||"")+" পর্যন্ত";
+ const about=(P.description||"").split(/\n|\||\|/).map(s=>s.trim()).filter(Boolean).slice(0,6);
+ document.getElementById("about").innerHTML=(about.length?about:["MJH Marketplace-এর অরিজিনাল প্রোডাক্ট","দ্রুত ডেলিভারি ও সহজ রিটার্ন"]).map(s=>`<li>${s}</li>`).join("");
+ const q=document.getElementById("qty");for(let i=1;i<=10;i++)q.innerHTML+=`<option>${i}</option>`;
+ document.getElementById("addBtn").onclick=()=>{addCart(id,P.title,price,+q.value);const b=document.getElementById("addBtn");b.textContent="Added ✓";setTimeout(()=>b.textContent="🛒 Add to Cart",1200);};
+ document.getElementById("buyBtn").onclick=()=>{addCart(id,P.title,price,+q.value);location.href="checkout.html";};
+ // Frequently bought together (cart items + this)
+ const cart=JSON.parse(localStorage.getItem("cart")||"[]").filter(i=>i.id!==id).slice(0,2);
+ if(cart.length){const tot=price+cart.reduce((a,i)=>a+i.price*(i.qty||1),0);
+  document.getElementById("fbt").style.display="block";
+  document.getElementById("fbt").innerHTML=`<h3 style="font-size:15px;margin:0 0 8px">Frequently bought together</h3>
+   <div style="font-size:13px">🔸 ${P.title} — ${fmt(price)}</div>`+cart.map(i=>`<div style="font-size:13px">🔸 ${i.name} — ${fmt(i.price)}</div>`).join("")+
+   `<div style="margin-top:8px;font-weight:700">Total: ${fmt(tot)}</div>`;}
+})();
+function setImg(el,u){document.getElementById("mainImg").src=u;document.querySelectorAll(".thumbs img").forEach(t=>t.classList.remove("on"));el.classList.add("on");}
+</script></body></html>
