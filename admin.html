@@ -140,6 +140,7 @@ h2{margin-top:0}
     <button class="tab-btn" data-tab="dotd">⭐ Deals of the Day</button>
     <button class="tab-btn" data-tab="finance">💰 Finance</button>
     <button class="tab-btn" data-tab="allorders">📦 All Orders</button>
+    <button class="tab-btn" data-tab="payments">💳 Payment Settings</button>
     <button class="tab-btn" data-tab="currency">🌍 Currency</button>
     <button class="tab-btn" data-tab="bulkupload">📤 Bulk Upload</button>
     <button class="tab-btn" data-tab="comingsoon">🔮 Coming Soon</button>
@@ -617,7 +618,7 @@ h2{margin-top:0}
     <section id="tab-allorders" class="tab-section">
       <div id="order-filter-bar" style="margin-bottom:15px"></div>
       <div id="all-orders"></div>
- <div id="payments" style="display:none;margin-top:20px;padding:18px;background:#fff;border-radius:8px">
+ <div id="payments" class="tab-section" data-tab="payments" style="display:none;margin-top:20px;padding:18px;background:#fff;border-radius:8px">
   <h2 style="font-size:18px;margin:0 0 12px">💳 Payment Methods Setup</h2>
   <p style="font-size:12px;color:#888;margin:0 0 14px">যে নম্বরগুলো পূরণ করবেন, শুধু সেই payment methods ক্রেতারা দেখতে পাবে। খালি রাখলে সেটা লুকানো থাকবে।</p>
   <label style="font-size:13px;font-weight:600">📱 bKash Number</label>
@@ -632,31 +633,24 @@ h2{margin-top:0}
   <input id="payPaypal" placeholder="your@email.com" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:6px;margin:4px 0 12px;box-sizing:border-box">
   <button onclick="savePayments()" style="padding:10px 22px;background:#8e44ad;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600">💾 Save Payment Settings</button>
   <div id="payStatus" style="margin-top:12px;font-size:13px">
- <button onclick="showPayPanel()" style="padding:10px 16px;background:#8e44ad;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:8px">💳 Payment Settings</button>
 </div>
- 
- <button onclick="showPayPanel()" style="padding:10px 16px;background:#8e44ad;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:8px">💳 Payment Settings</button>
 </div>
     </section>
 
     <section id="tab-finance" class="tab-section">
       <div id="finance-panel">
- <button onclick="showPayPanel()" style="padding:10px 16px;background:#8e44ad;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:8px">💳 Payment Settings</button>
 </div>
     </section>
 
     <section id="tab-trending" class="tab-section">
       <input type="text" id="trending-search" placeholder="🔍 প্রোডাক্ট নাম দিয়ে সার্চ করুন..." style="display:none">
       <div id="trending-manager" style="display:none">
- <button onclick="showPayPanel()" style="padding:10px 16px;background:#8e44ad;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:8px">💳 Payment Settings</button>
 </div>
   <div class="card" id="tr-products-panel">
     <h3 id="tr-products-title">🛍️ Trending Products</h3>
     <div id="tr-nav-buttons" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">
       <button id="tr-nav-view" class="save-btn">🛍️ প্রোডাক্ট ভিউ</button>
       <button id="tr-nav-add" class="save-btn">➕ নতুন প্রোডাক্ট এড</button>
-    
- <button onclick="showPayPanel()" style="padding:10px 16px;background:#8e44ad;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-left:8px">💳 Payment Settings</button>
 </div>
     <div id="tr-view-section" style="display:none">
       <div id="tr-view-subnav" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
