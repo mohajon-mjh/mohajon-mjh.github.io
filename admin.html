@@ -824,36 +824,48 @@ setInterval(()=>{ reg.update(); }, 60000);
 </script>
 
 <script>
-/* ===== INDEPENDENT PAYMENT SAVER (admin.js এর উপর নির্ভর নয়) ===== */
+/* ===== INDEPENDENT PAYMENT SAVER v2 (authenticated SDK) ===== */
 (function(){
-  var DBURL="https://mohajon-mjh-default-rtdb.firebaseio.com";
+  var CFG={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",authDomain:"mohajon-mjh.firebaseapp.com",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",storageBucket:"mohajon-mjh.firebasestorage.app",messagingSenderId:"526105903976",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd",measurementId:"G-RX6CCQZHSH"};
   function g(id){var el=document.getElementById(id);return el?el.value.trim():"";}
   function s(id,v){var el=document.getElementById(id);if(el)el.value=v||"";}
+  var DB=null,AUTH=null,D=null;
+  function sdk(){
+    if(DB)return Promise.resolve({db:DB,auth:AUTH});
+    return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js").then(function(A){
+      return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(Dm){
+        return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js").then(function(U){
+          var app=A.getApps().length?A.getApp():A.initializeApp(CFG);
+          DB=Dm.getDatabase(app);AUTH=U.getAuth(app);D=Dm;
+          return {db:DB,auth:AUTH};
+        });
+      });
+    });
+  }
   function loadPay(){
-    fetch(DBURL+"/settings/payments.json").then(function(r){return r.json();}).then(function(p){
-      p=p||{};
+    sdk().then(function(o){return D.get(D.ref(o.db,"settings/payments"));}).then(function(snap){
+      var p=snap.val()||{};
       s("payBkash",p.bkash);s("payNagad",p.nagad);s("payRocket",p.rocket);
       s("payBankHolder",p.bankHolder);s("payBankName",p.bankName);
       s("payBankNumber",p.bankNumber);s("payBankBranch",p.bankBranch);s("payPaypal",p.paypal);
-    }).catch(function(){});
+    }).catch(function(e){console.log("load",e);});
   }
   function wire(){
     document.querySelectorAll("button").forEach(function(b){
-      if(b.textContent.indexOf("Save Payment Settings")!==-1 && !b.dataset.paywired){
-        b.dataset.paywired="1";
+      if(b.textContent.indexOf("Save Payment Settings")!==-1){
         b.onclick=function(ev){
           ev.preventDefault();
-          var bank=[g("payBankName")+" - Account: "+g("payBankNumber"),"Name: "+g("payBankHolder"),g("payBankBranch")].filter(function(x){return x.length>3;}).join(", ");
-          var data={bkash:g("payBkash"),nagad:g("payNagad"),rocket:g("payRocket"),paypal:g("payPaypal"),bankHolder:g("payBankHolder"),bankName:g("payBankName"),bankNumber:g("payBankNumber"),bankBranch:g("payBankBranch"),bank:bank};
           var st=document.getElementById("payStatus");
           if(st)st.innerHTML='<span style="color:#f39c12">⏳ Saving...</span>';
-          fetch(DBURL+"/settings/payments.json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})
-          .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
-          .then(function(){
+          sdk().then(function(o){
+            if(!o.auth.currentUser)throw new Error("Login নেই! আগে admin এ login করুন।");
+            var bank=[g("payBankName")+" - Account: "+g("payBankNumber"),"Name: "+g("payBankHolder"),g("payBankBranch")].filter(function(x){return x.length>3;}).join(", ");
+            var data={bkash:g("payBkash"),nagad:g("payNagad"),rocket:g("payRocket"),paypal:g("payPaypal"),bankHolder:g("payBankHolder"),bankName:g("payBankName"),bankNumber:g("payBankNumber"),bankBranch:g("payBankBranch"),bank:bank};
+            return D.set(D.ref(o.db,"settings/payments"),data);
+          }).then(function(){
             if(st)st.innerHTML='<span style="color:#2ecc71;font-weight:700">✅ Saved!</span>';
             alert("✅ Payment settings saved হয়েছে!");
-          })
-          .catch(function(err){
+          }).catch(function(err){
             if(st)st.innerHTML='<span style="color:#e74c3c">❌ '+err.message+'</span>';
             alert("❌ সেভ হয়নি: "+err.message);
           });
