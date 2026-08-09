@@ -1,170 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
-  <meta charset="UTF-8">
-  <title>Seller Panel - Secure V1.2B</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body{
-      font-family: Arial;
-      background:#f4f4f4;
-      padding:20px;
-    }
-
-    .box{
-      max-width:500px;
-      margin:auto;
-      background:#fff;
-      padding:20px;
-      border-radius:10px;
-      box-shadow:0 0 10px rgba(0,0,0,0.1);
-    }
-
-    h2{
-      text-align:center;
-    }
-
-    input, textarea, select, button{
-      width:100%;
-      padding:10px;
-      margin-top:10px;
-    }
-
-    button{
-      background:#28a745;
-      color:white;
-      border:none;
-      cursor:pointer;
-    }
-
-    button:disabled{
-      background:gray;
-      cursor:not-allowed;
-    }
-
-    .warning{
-      color:red;
-      text-align:center;
-      margin-top:10px;
-      font-weight:bold;
-    }
-
-    .hidden{
-      display:none;
-    }
-  </style>
-<link rel="stylesheet" href="css/global-menu.css">
-</head>
-
-<body>
-<div id="menuBtn" class="hamburger">☰</div>
-<nav id="sideMenu" class="side-menu">
-<h3>Categories</h3>
-<ul id="categoryList"></ul>
-</nav>
-
-<div class="box">
-
-  <h2>Seller Upload (Secure V1.2B)</h2>
-
-  <div id="status" class="warning">Checking seller verification...</div>
-
-  <form id="product-form" class="hidden">
-
-    <input type="text" id="product-name" placeholder="Product Name" required>
-
-    <input type="number" id="product-price" placeholder="Price" required>
-
-    <textarea id="product-desc" placeholder="Description"></textarea>
-
-    <input type="number" id="product-stock" placeholder="Stock">
-
-    <select id="product-category">
-      <option value="">ক্যাটাগরি নির্বাচন করুন</option>
-      <option value="agriculture_food_beverage">Agriculture, Food & Beverage</option>
-      <option value="air_conditioners_refrigerators_washing_machines">Air Conditioners, Refrigerators, Washing Machines</option>
-      <option value="appliances_home_appliances_large_small">Appliances (Home Appliances)</option>
-      <option value="art_collectibles_crafts">Art, Collectibles & Crafts</option>
-      <option value="automotive_vehicle_parts_accessories">Automotive, Vehicle Parts & Accessories</option>
-      <option value="baby_products_baby_essentials">Baby Products, Baby Essentials</option>
-      <option value="beauty_personal_care">Beauty & Personal Care</option>
-      <option value="bicycles_scooters_electric_vehicles">Bicycles, Scooters & Electric Vehicles</option>
-      <option value="books_media_music">Books, Media & Music</option>
-      <option value="business_industrial_machinery">Business & Industrial, Machinery</option>
-      <option value="cameras_photo">Cameras & Photo</option>
-      <option value="clothing_fashion_apparel_men_women_kids">Clothing, Fashion & Apparel</option>
-      <option value="computers_tablets_networking">Computers, Tablets & Networking</option>
-      <option value="construction_building_materials">Construction & Building Materials</option>
-      <option value="consumer_electronics">Consumer Electronics</option>
-      <option value="drones_action_cameras">Drones & Action Cameras</option>
-      <option value="electrical_equipment_supplies">Electrical Equipment & Supplies</option>
-      <option value="electronics_tv_audio_gaming_etc">Electronics (TV, Audio, Gaming)</option>
-      <option value="food_grocery">Food & Grocery</option>
-      <option value="furniture_home_decor">Furniture & Home Decor</option>
-      <option value="furniture_sofas_beds_etc">Furniture (Sofas, Beds, etc.)</option>
-      <option value="gardening_outdoor_living">Gardening & Outdoor Living</option>
-      <option value="gifts_crafts">Gifts & Crafts</option>
-      <option value="headphones_speakers_audio">Headphones, Speakers & Audio</option>
-      <option value="health_medical_supplies">Health & Medical Supplies</option>
-      <option value="health_wellness">Health & Wellness</option>
-      <option value="home_kitchen">Home & Kitchen</option>
-      <option value="home_improvement_tools_hardware">Home Improvement, Tools & Hardware</option>
-      <option value="industrial_machinery_equipment">Industrial Machinery & Equipment</option>
-      <option value="jewelry_eyewear_watches">Jewelry, Eyewear & Watches</option>
-      <option value="laptops_pcs">Laptops & PCs</option>
-      <option value="lighting_lamps">Lighting & Lamps</option>
-      <option value="luggage_bags_cases">Luggage, Bags & Cases</option>
-      <option value="makeup_skincare_fragrance">Makeup, Skincare & Fragrance</option>
-      <option value="mobile_phones_accessories">Mobile Phones & Accessories</option>
-      <option value="office_school_supplies">Office & School Supplies</option>
-      <option value="pet_supplies">Pet Supplies</option>
-      <option value="power_tools_hand_tools">Power Tools & Hand Tools</option>
-      <option value="renewable_energy">Renewable Energy</option>
-      <option value="safety_security">Safety & Security</option>
-      <option value="shoes_accessories">Shoes & Accessories</option>
-      <option value="smart_home_surveillance">Smart Home & Surveillance</option>
-      <option value="sports_outdoors_fitness">Sports & Outdoors, Fitness</option>
-      <option value="toys_games_hobbies">Toys, Games & Hobbies</option>
-      <option value="vehicles_transportation">Vehicles & Transportation</option>
-      <option value="video_games_consoles">Video Games & Consoles</option>
-    </select>
-
-    <input type="file" id="product-image">
-
-    <button type="submit">Upload Product</button>
-
-  </form>
-
-  <div id="blocked" class="warning hidden">
-    ❌ You are not verified seller. Upload disabled.
-  </div>
-
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seller Portal - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial;background:#131921;color:#fff}.top{background:#232f3e;padding:12px 16px;display:flex;align-items:center;gap:12px}.tabs{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px;background:#1a242f}.tab{background:#37475a;border:none;color:#fff;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px}.tab.on{background:#FF9900;color:#111;font-weight:700}.wrap{max-width:900px;margin:14px auto;padding:0 12px}.card{background:#232f3e;border-radius:8px;padding:16px;margin-bottom:14px}.stat{display:flex;gap:12px;flex-wrap:wrap}.sbox{flex:1;min-width:120px;background:#37475a;border-radius:8px;padding:12px;text-align:center}.sbox b{display:block;font-size:20px;color:#FF9900}.row{border-top:1px solid #37475a;padding:10px 0;font-size:13px}.btn{background:#FF9900;border:none;color:#111;padding:8px 14px;border-radius:6px;font-weight:700;cursor:pointer}.inp{width:100%;padding:8px;margin:4px 0;border:1px solid #555;border-radius:6px;background:#1a242f;color:#fff;box-sizing:border-box}select.btn{background:#37475a;color:#fff}</style></head><body>
+<div class="top"><b style="color:#FF9900">🏪 Seller Portal</b><span id="storeName"></span><a href="index.html" style="color:#fff;margin-left:auto;font-size:13px">🛍️ Shop</a></div>
+<div class="tabs">
+ <button class="tab on" data-t="dash">📊 Dashboard</button>
+ <button class="tab" data-t="inv">📦 Inventory</button>
+ <button class="tab" data-t="ord">🧾 Orders</button>
+ <button class="tab" data-t="pay">💰 Earnings</button>
+ <button class="tab" data-t="rev">⭐ Reviews</button>
+ <button class="tab" data-t="set">⚙️ Settings</button>
 </div>
-
-<script type="module" src="assets/js/upload.js?v=2"></script>
-
-<script>
-  // UI lock handler (upload.js থেকে control হবে)
-  window.lockSellerUI = function(isVerified){
-
-    const form = document.getElementById("product-form");
-    const status = document.getElementById("status");
-    const blocked = document.getElementById("blocked");
-
-    if(isVerified){
-      status.style.display="none";
-      form.classList.remove("hidden");
-      blocked.classList.add("hidden");
-    }else{
-      status.style.display="none";
-      form.classList.add("hidden");
-      blocked.classList.remove("hidden");
-    }
-  };
-</script>
-
-<script src="js/global-menu.js?v=2"></script>
-</body>
-</html>
+<div class="wrap" id="content">লোড হচ্ছে...</div>
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get,query,orderByChild,equalTo,update,set,push}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+let uid=null,seller=null,myProducts={},myOrders={},wallet=null,txns={};
+const $=id=>document.getElementById(id);
+const fmt=v=>"৳"+Number(v||0).toFixed(2);
+onAuthStateChanged(auth,async u=>{
+ if(!u){location.href="login.html";return;}
+ uid=u.uid;
+ await loadAll();
+ render("dash");
+});
+async function loadAll(){
+ try{const s=await get(ref(db,"sellers/"+uid));seller=s.val();}catch(e){}
+ $("storeName").textContent=seller?("— "+seller.storeName):"";
+ try{const p=await get(query(ref(db,"products"),orderByChild("sellerId"),equalTo(uid)));myProducts=p.val()||{};}catch(e){}
+ try{const o=await get(query(ref(db,"orders"),orderByChild("sellerId"),equalTo(uid)));myOrders=o.val()||{};}catch(e){}
+ try{const w=await get(ref(db,"wallets/"+uid));wallet=w.val();}catch(e){}
+ try{const t=await get(query(ref(db,"transactions"),orderByChild("userId"),equalTo(uid)));txns=t.val()||{};}catch(e){}
+}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");render(b.dataset.t);});
+function render(t){
+ const c=$("content");
+ if(t==="dash"){
+  const orders=Object.values(myOrders);
+  const sales=orders.filter(o=>o.status==="delivered").reduce((a,o)=>a+(o.total||0),0);
+  const prods=Object.keys(myProducts).length;
+  c.innerHTML=`<div class="card"><h3>📊 Seller Dashboard</h3><div class="stat">
+   <div class="sbox"><b>${orders.length}</b>Orders</div>
+   <div class="sbox"><b>${fmt(sales)}</b>Total Sales</div>
+   <div class="sbox"><b>${prods}</b>Products</div>
+   <div class="sbox"><b>${fmt(wallet?wallet.balance:0)}</b>Balance</div>
+   <div class="sbox"><b>${seller?seller.rating||"-":"-"}</b>Rating</div>
+  </div></div>
+  <div class="card"><h3>🏪 Store Info</h3><div class="row">Name: <b>${seller?seller.storeName:"-"}</b></div><div class="row">Status: <b>${seller?seller.status:"-"}</b></div><div class="row">Commission: <b>${seller?seller.commissionRate||0:0}%</b></div></div>`;
+ }
+ if(t==="inv"){
+  let rows=Object.entries(myProducts).map(([id,p])=>`<div class="row"><b>${p.title||p.name}</b> — ${fmt(p.price)} — Stock: ${p.stock||0} — ${p.status}<br><button class="btn" onclick="window.__stock('${id}',10)">+10 Stock</button> <button class="btn" onclick="window.__stock('${id}',-10)">-10 Stock</button></div>`).join("");
+  c.innerHTML=`<div class="card"><h3>📦 Inventory (${Object.keys(myProducts).length})</h3>${rows||"কোনো product নেই"}</div>
+  <div class="card"><h3>➕ Add Product</h3><input class="inp" id="pTitle" placeholder="Product name"><input class="inp" id="pPrice" type="number" placeholder="Price (৳)"><input class="inp" id="pStock" type="number" placeholder="Stock"><input class="inp" id="pImg" placeholder="Image URL"><button class="btn" onclick="window.__addProd()">Add</button></div>`;
+ }
+ if(t==="ord"){
+  let rows=Object.entries(myOrders).map(([id,o])=>`<div class="row"><b>#${id.slice(-6)}</b> — ${fmt(o.total)} — ${o.status}<br><select class="btn" id="st_${id}"><option>processing</option><option>shipped</option><option>delivered</option></select> <button class="btn" onclick="window.__ship('${id}')">Update</button></div>`).join("");
+  c.innerHTML=`<div class="card"><h3>🧾 My Orders (${Object.keys(myOrders).length})</h3>${rows||"কোনো order নেই"}</div>`;
+ }
+ if(t==="pay"){
+  let rows=Object.values(txns).map(x=>`<div class="row">${x.type==="credit"?"🟢":"🔴"} ${fmt(x.amount)} — ${x.type}</div>`).join("");
+  c.innerHTML=`<div class="card"><h3>💰 Earnings</h3><div class="stat"><div class="sbox"><b>${fmt(wallet?wallet.balance:0)}</b>Balance</div></div></div>
+  <div class="card"><h3>💸 Withdraw</h3><input class="inp" id="wAmt" type="number" placeholder="Amount"><input class="inp" id="wBank" placeholder="Bank details"><button class="btn" onclick="window.__wd()">Request Withdraw</button></div>
+  <div class="card"><h3>📜 Transactions</h3>${rows||"কোনো transaction নেই"}</div>`;
+ }
+ if(t==="rev"){c.innerHTML=`<div class="card"><h3>⭐ Reviews</h3><div class="row">Customer reviews এখানে দেখাবে</div></div>`;}
+ if(t==="set"){c.innerHTML=`<div class="card"><h3>⚙️ Store Settings</h3><div class="row">Store: <b>${seller?seller.storeName:"-"}</b></div><div class="row">Owner UID: ${uid}</div></div>`;}
+}
+window.__stock=async(id,d)=>{const p=myProducts[id];await update(ref(db,"products/"+id),{stock:Math.max(0,(p.stock||0)+d)});myProducts[id].stock=Math.max(0,(p.stock||0)+d);render("inv");};
+window.__addProd=async()=>{const t=$("pTitle").value,pr=+$("pPrice").value,st=+$("pStock").value,img=$("pImg").value;if(!t||!pr)return alert("নাম ও দাম দিন");await set(push(ref(db,"products")),{sellerId:uid,title:t,price:pr,stock:st||0,categoryId:"general",status:"pending",createdAt:Date.now(),images:img?{main:img}:null});alert("✅ Product submitted (pending approval)");loadAll().then(()=>render("inv"));};
+window.__ship=async(id)=>{const st=$("st_"+id).value;await update(ref(db,"orders/"+id),{status:st,updatedAt:Date.now()});alert("✅ Status: "+st);loadAll().then(()=>render("ord"));};
+window.__wd=async()=>{const a=+$("wAmt").value,b=$("wBank").value;if(!a)return alert("Amount দিন");await set(push(ref(db,"withdrawRequests")),{userId:uid,amount:a,bankDetails:b,status:"pending",createdAt:Date.now()});alert("✅ Withdraw request sent");};
+</script></body></html>
