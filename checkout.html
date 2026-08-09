@@ -230,7 +230,7 @@ document.getElementById("placeBtn").onclick=async()=>{
     payId=sel.toUpperCase()+"-"+trx;payMethod=sel;
   }
   const orderId="MJH"+Date.now();
- const order={createdAt:Date.now(),updatedAt:Date.now(),status:"pending",paymentId:payId,paymentMethod:payMethod,paymentStatus:paid?"paid":"unpaid",
+ const order={createdAt:Date.now(),updatedAt:Date.now(),status:"pending",paymentId:payId,paymentMethod:payMethod,paymentStatus:paid?"paid":"unpaid",buyerId:(window.__uid||"guest"),sellerId:"admin",
   subtotal,deliveryCharge:ship,total:subtotal+ship,deliveryType:state.deliveryType,
   pickupName:state.pickup?state.pickup.name:null,
   shippingAddress:{name:state.contact.name,phone:state.contact.phone,
@@ -264,5 +264,16 @@ render();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",load);else load();
 })();
+</script>
+
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const cfg={"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","authDomain":"mohajon-mjh.firebaseapp.com","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","storageBucket":"mohajon-mjh.firebasestorage.app","messagingSenderId":"526105903976","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
+const app=getApps().length?getApp():initializeApp(cfg);
+const auth=getAuth(app);const db=getDatabase(app);
+onAuthStateChanged(auth,u=>{window.__uid=u?u.uid:null;});
+window.__placeOrder=async(id,order)=>{await set(ref(db,"orders/"+id),order);};
 </script>
 </body></html>
