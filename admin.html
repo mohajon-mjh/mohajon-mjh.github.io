@@ -98,7 +98,7 @@ h2{margin-top:0}
 }
 </style>
 <link rel="stylesheet" href="css/global-menu.css">
-</head>
+<style>.save-btn:disabled,.danger-btn:disabled{color:#333!important;background:#bbb!important;opacity:1!important}</style></head>
 
 <body>
 <div id="menuBtn" class="hamburger">☰</div>
@@ -881,5 +881,20 @@ setInterval(()=>{ reg.update(); }, 60000);
 })();
 </script>
 
+
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,onValue}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","authDomain":"mohajon-mjh.firebaseapp.com","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","storageBucket":"mohajon-mjh.firebasestorage.app","messagingSenderId":"526105903976","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+let first=true,last=0;
+onValue(ref(db,"orders"),snap=>{
+ let n=0;snap.forEach(ch=>{if(ch.val().status==="pending")n++;});
+ if(first){first=false;last=n;return;}
+ if(n>last){toast("📦 নতুন অর্ডার এসেছে! Total pending: "+n);}
+ last=n;
+});
+function toast(m){const t=document.createElement("div");t.textContent=m;t.style.cssText="position:fixed;top:60px;right:12px;background:#27ae60;color:#fff;padding:12px 18px;border-radius:8px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.4);font-weight:700;font-size:14px";document.body.appendChild(t);setTimeout(()=>t.remove(),5000);}
+</script>
 </body>
 </html>
