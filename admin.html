@@ -146,6 +146,10 @@ h2{margin-top:0}
     <button class="tab-btn" data-tab="comingsoon">🔮 Coming Soon</button>
     <button class="tab-btn" data-tab="globalcats">🌐 Global Category</button>
     <button class="tab-btn" data-tab="specialcats">🌟 Special Categories</button>
+    <button class="tab-btn" data-tab="sellers">🏪 Sellers</button>
+    <button class="tab-btn" data-tab="sellerprods">📦 Seller Products</button>
+    <button class="tab-btn" data-tab="affiliates">🤝 Affiliates</button>
+    <button class="tab-btn" data-tab="withdrawals">💸 Withdrawals</button>
     <button id="admin-logout-btn" style="background:#c0392b;color:#fff;width:100%;text-align:left;padding:12px 15px;border:none;margin-top:20px;border-radius:0;cursor:pointer;font-weight:bold">🚪 Logout</button>
   </nav>
 
@@ -764,7 +768,7 @@ h2{margin-top:0}
       <div id="feat-add-list"></div>
     </div>
   </div>
-    </section>
+    </section><section id="tab-sellers" class="tab-section"><div class="card"><h3>🏪 Registered Sellers</h3><div id="sellersList">লোড হচ্ছে...</div></div></section><section id="tab-sellerprods" class="tab-section"><div class="card"><h3>📦 Seller Product Approvals</h3><div id="sellerProdsList">লোড হচ্ছে...</div></div></section><section id="tab-affiliates" class="tab-section"><div class="card"><h3>🤝 Affiliates & Commissions</h3><div id="affList">লোড হচ্ছে...</div><h3 style="margin-top:15px">📊 Commission Rate (%)</h3><input id="commRate" type="number" value="5" style="padding:8px;border-radius:6px;border:1px solid #555;background:#1a242f;color:#fff;width:80px"> <button onclick="saveCommRate()" style="background:#FF9900;color:#111;padding:8px 14px;border-radius:6px;font-weight:700;border:none">Save</button></div></section><section id="tab-withdrawals" class="tab-section"><div class="card"><h3>💸 Withdrawal Requests</h3><div id="wdList">লোড হচ্ছে...</div></div></section>
 
   </div>
 </div>
@@ -960,48 +964,36 @@ window.loadAffiliates=async()=>{
  const orders=ordersSnap.val()||{};
  const rateSnap=await get(ref(db,"settings/commissionRate"));
  const rate=rateSnap.val()||5;
- // refCode অনুযায়ী group
  const groups={};
  Object.entries(orders).forEach(([id,o])=>{
   const ref=o.shippingAddress&&o.shippingAddress.refCode;
-  if(ref){
-   if(!groups[ref])groups[ref]={count:0,total:0,commission:0,orders:[]};
-   groups[ref].count++;
-   groups[ref].total+=o.total||0;
-   const c=(o.total||0)*rate/100;
-   groups[ref].commission+=c;
-   groups[ref].orders.push(id);
-  }
+  if(ref){if(!groups[ref])groups[ref]={count:0,total:0,commission:0,orders:[]};
+   groups[ref].count++;groups[ref].total+=o.total||0;groups[ref].commission+=(o.total||0)*rate/100;groups[ref].orders.push(id);}
  });
- // auto-pay delivered orders (commission wallet-এ)
  for(const [ref,data] of Object.entries(groups)){
-  const pendingSnap=await get(query(ref(db,"orders"),orderByChild("status"),equalTo("delivered")));
-  // সরাসরি wallet-এ যোগ করো (একবারই)
-  const paidSnap=await get(ref(db,"affiliatePaid/"+ref));
-  const paid=paidSnap.val()||{};
-  let newPay=false;
+  const tSnap=await get(query(ref(db,"transactions"),orderByChild("userId"),equalTo(ref)));
+  const tx=tSnap.val()||{};
+  const paidIds=new Set(Object.values(tx).filter(x=>x.reference&&x.reference.indexOf("AFF-")===0).map(x=>x.reference.slice(4)));
   for(const oid of data.orders){
+   if(paidIds.has(oid))continue;
    const oSnap=await get(ref(db,"orders/"+oid));
    const o=oSnap.val();
-   if(o&&o.status==="delivered"&&!paid[oid]){
+   if(o&&o.status==="delivered"){
     const c=(o.total||0)*rate/100;
-    await set(ref(db,"affiliatePaid/"+ref+"/"+oid),{amount:c,paidAt:Date.now(),orderId:oid});
-    // wallet-এ যোগ করো
+    await set(push(ref(db,"transactions")),{userId:ref,type:"credit",amount:c,reference:"AFF-"+oid,reason:"Affiliate commission",createdAt:Date.now()});
     const wSnap=await get(ref(db,"wallets/"+ref));
     const cur=(wSnap.val()&&wSnap.val().balance)||0;
     await update(ref(db,"wallets/"+ref),{balance:cur+c,currency:"BDT",updatedAt:Date.now()});
-    await set(push(ref(db,"transactions")),{userId:ref,type:"credit",amount:c,reason:"Affiliate commission",orderId:oid,createdAt:Date.now()});
-    newPay=true;
    }
   }
  }
  const list=document.getElementById("affList");
  list.innerHTML=Object.entries(groups).map(([ref,data])=>`
   <div style="background:#232f3e;padding:12px;border-radius:8px;margin:6px 0">
-   <b>Affiliate: ${ref}</b><br>
+   <b>Affiliate: ${ref.slice(0,8)}...</b><br>
    Orders: ${data.count} | Total Sales: ${fmt(data.total)}<br>
    Commission (${rate}%): <b style="color:#7CFC00">${fmt(data.commission)}</b><br>
-   <small>Auto-paid to wallet when orders delivered ✅</small>
+   <small>✅ Delivered orders-এর commission auto wallet-এ যোগ হয়</small>
   </div>`).join("")||"কোনো affiliate order নেই";
 };
 window.saveCommRate=async()=>{const r=+document.getElementById("commRate").value;await set(ref(db,"settings/commissionRate"),r);alert("✅ Rate saved: "+r+"%");loadAffiliates();};
@@ -1033,14 +1025,12 @@ window.approveWd=async(id,userId,amt)=>{
 };
 window.rejectWd=async(id)=>{await update(ref(db,"withdrawRequests/"+id),{status:"rejected"});alert("❌ Rejected");loadWithdrawals();};
 
-// show() function-এ auto-load
-const origShow=window.show;
-window.show=function(id){origShow(id);
- if(id==="sellers")loadSellers();
- if(id==="sellerProducts")loadSellerProducts();
- if(id==="affiliates")loadAffiliates();
- if(id==="withdrawals")loadWithdrawals();
-};
+document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{const t=b.dataset.tab;
+ if(t==="sellers")loadSellers();
+ if(t==="sellerprods")loadSellerProducts();
+ if(t==="affiliates")loadAffiliates();
+ if(t==="withdrawals")loadWithdrawals();
+});});
 </script>
 </body>
 </html>

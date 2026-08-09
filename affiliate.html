@@ -13,7 +13,7 @@ const RATE=5; // 5% commission
 let code=null,prods={};
 onAuthStateChanged(auth,async u=>{
  if(!u){try{await signInAnonymously(auth);}catch(e){document.getElementById("content").innerHTML="লোড ব্যর্থ";return;}return;}
- code=u.uid.slice(0,10).toUpperCase();
+ code=u.uid;
  try{const p=await get(query(ref(db,"products"),orderByChild("status"),equalTo("active")));prods=p.val()||{};}catch(e){}
  render();
 });
