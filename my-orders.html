@@ -27,12 +27,18 @@ const LABELS=["অর্ডার প্লেসড","প্রসেসিং"
 const IDX={pending:0,processing:1,shipped:2,delivered:3};
 (async()=>{
  if(IDS.length===0){document.getElementById("list").innerHTML='<div style="background:#fff;border-radius:8px;padding:26px;text-align:center">এখনো কোনো অর্ডার নেই<br><br><button class="btn" onclick="location.href='index.html'">Shop Now →</button></div>';return;}
- const orders=await Promise.all(IDS.map(async id=>{try{return {id,o:await (await fetch(DB+"/orders/"+id+".json")).json()};}catch(e){return null;}}));
+ const A=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
+ const D=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
+ const U=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js");
+ const app=A.getApps().length?A.getApp():A.initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","authDomain":"mohajon-mjh.firebaseapp.com","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","storageBucket":"mohajon-mjh.firebasestorage.app","messagingSenderId":"526105903976","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+ const db=D.getDatabase(app);const auth=U.getAuth(app);
+ if(!auth.currentUser){try{await U.signInAnonymously(auth);}catch(e){}}
+ const orders=await Promise.all(IDS.map(async id=>{try{const s=await D.get(D.ref(db,"orders/"+id));return {id,o:s.val()};}catch(e){return null;}}));
  document.getElementById("list").innerHTML=orders.filter(x=>x&&x.o).map(({id,o})=>{
   const dt=new Date(o.createdAt);
   const cancelled=(o.status==="cancelled"||o.status==="refunded");
   const idx=cancelled?0:(IDX[o.status]??0);
-  const statusText=cancelled?"❌ অর্ডার বাতিল হয়েছে":(o.status==="delivered"?"✅ Delivered — ধন্যবাদ!":"🚚 Arriving by "+(o.expectedDelivery||""));
+  const statusText=cancelled?"❌ অর্ডার বাতিল হয়েছে":(o.status==="delivered"?"✅ Delivered — ধন্যবাদ!":"🚚 Arriving by "+((o.shippingAddress&&o.shippingAddress.expectedDelivery)||""));
   return `<div class="order">
    <div class="ohead">
      <div>ORDER PLACED<b>${dt.getDate()}-${dt.getMonth()+1}-${dt.getFullYear()}</b></div>
