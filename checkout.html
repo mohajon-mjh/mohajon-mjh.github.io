@@ -250,4 +250,19 @@ document.getElementById("placeBtn").onclick=async()=>{
 };
 render();
 </script><script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
+
+<script>
+/* payment settings loader (cache-safe) */
+(function(){
+  function load(){
+    fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/payments.json")
+    .then(function(r){return r.ok?r.json():{};})
+    .then(function(p){
+      localStorage.setItem("paySettings",JSON.stringify(p||{}));
+      if(typeof render==="function"){try{render();}catch(e){}}
+    }).catch(function(){});
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",load);else load();
+})();
+</script>
 </body></html>
