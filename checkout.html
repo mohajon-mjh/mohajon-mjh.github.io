@@ -140,6 +140,7 @@ function cardValid(){
 }
 
 function render(){
+ const paySettings=JSON.parse(localStorage.getItem("paySettings")||"{}");
  const c=state.contact;
  document.getElementById("deliverBtn").textContent = (c&&c.name) ? "📍 Deliver to: "+c.name+", "+(c.area||c.city||"") : "Deliver to this address";
  document.getElementById("sItems").textContent=fmt(subtotal);
@@ -207,6 +208,7 @@ function closePickup(){document.getElementById("pickupModal").style.display="non
 function pickHere(i){state.pickup=PICKUPS[i];state.deliveryType="pickup";closePickup();
  if(!state.contact||!state.contact.name){openAddr();}
  render();}
+function fbToken(){try{for(const k of Object.keys(localStorage)){if(k.indexOf("firebase:authUser")===0){const u=JSON.parse(localStorage.getItem(k));if(u&&u.stsTokenManager&&u.stsTokenManager.accessToken)return u.stsTokenManager.accessToken;}}}catch(e){}return null;}
 document.getElementById("placeBtn").onclick=async()=>{
  if(cart.length===0){alert("Cart খালি!");return;}
  if(!state.contact||!state.contact.name){openAddr();alert("নাম ও ফোন নাম্বার দিন");return;}
@@ -238,8 +240,9 @@ document.getElementById("placeBtn").onclick=async()=>{
   expectedDelivery:state.deliveryType==="pickup"?fdate(d3):fdate(d4)};
  const btn=document.getElementById("placeBtn");btn.disabled=true;btn.textContent="অর্ডার হচ্ছে...";
  try{
-  const r=await fetch(DB+"/orders/"+orderId+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(order)});
-  if(!r.ok)throw new Error("network");
+  let r=await fetch(DB+"/orders/"+orderId+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(order)});
+  if(!r.ok){const tok=fbToken();if(tok){r=await fetch(DB+"/orders/"+orderId+".json",{method:"PUT",headers:{"Content-Type":"application/json",Authorization:"Bearer "+tok},body:JSON.stringify(order)});}}
+  if(!r.ok)throw new Error("network (HTTP "+r.status+") — আবার চেষ্টা করুন");
   const my=JSON.parse(localStorage.getItem("myOrders")||"[]");my.push(orderId);localStorage.setItem("myOrders",JSON.stringify(my));
   if(mode!=="buynow")localStorage.setItem("cart","[]");
   location.href="order-success.html?id="+orderId;
