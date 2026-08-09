@@ -230,14 +230,7 @@ document.getElementById("placeBtn").onclick=async()=>{
     payId=sel.toUpperCase()+"-"+trx;payMethod=sel;
   }
   const orderId="MJH"+Date.now();
- const order={createdAt:Date.now(),updatedAt:Date.now(),status:"pending",paymentId:payId,paymentMethod:payMethod,paymentStatus:paid?"paid":"unpaid",buyerId:(window.__uid||"guest"),sellerId:"admin",
-  subtotal,deliveryCharge:ship,total:subtotal+ship,deliveryType:state.deliveryType,
-  pickupName:state.pickup?state.pickup.name:null,
-  shippingAddress:{name:state.contact.name,phone:state.contact.phone,
-   address:state.deliveryType==="home"?(state.contact.street+(state.contact.unit?", "+state.contact.unit:"")+(state.contact.city?", "+state.contact.city:"")):("Pickup: "+state.pickup.name+", "+state.pickup.addr),
-   area:state.deliveryType==="home"?state.contact.area:(state.pickup.area||""),note:state.contact.note||""},
-  items:cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty||1})),
-  expectedDelivery:state.deliveryType==="pickup"?fdate(d3):fdate(d4)};
+ const order={createdAt:Date.now(),updatedAt:Date.now(),buyerId:(window.__uid||"guest"),sellerId:"admin",status:"pending",paymentId:payId,deliveryCharge:ship,total:subtotal+ship,itemsTotal:subtotal,shippingAddress:{name:state.contact.name,phone:state.contact.phone,address:state.deliveryType==="home"?(state.contact.street+(state.contact.unit?", "+state.contact.unit:"")+(state.contact.city?", "+state.contact.city:"")):("Pickup: "+state.pickup.name+", "+state.pickup.addr),area:state.deliveryType==="home"?state.contact.area:(state.pickup.area||""),note:state.contact.note||"",payMethod:payMethod,payStatus:paid?"paid":"unpaid",subtotal:subtotal,deliveryType:state.deliveryType,pickupName:state.pickup?state.pickup.name:null,expectedDelivery:state.deliveryType==="pickup"?fdate(d3):fdate(d4)},items:cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty||1}))};
  const btn=document.getElementById("placeBtn");btn.disabled=true;btn.textContent="অর্ডার হচ্ছে...";
  try{
   if(!window.__uid){alert("অর্ডার করতে login করুন");location.href="login.html";return;}
