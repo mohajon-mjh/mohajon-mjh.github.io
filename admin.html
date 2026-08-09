@@ -625,10 +625,14 @@ h2{margin-top:0}
   <div class="card" style="max-width:560px">
     <h3>💳 Payment Methods Setup</h3>
     <p style="font-size:12px;color:#888;margin:0 0 14px">যে নম্বরগুলো পূরণ করবেন, শুধু সেই payment methods ক্রেতারা দেখবে। খালি রাখলে লুকানো থাকবে।</p>
-    <label>📱 bKash Number <input type="text" id="payBkash" placeholder="01712345678"></label>
-    <label>📱 Nagad Number <input type="text" id="payNagad" placeholder="01812345678"></label>
-    <label>📱 Rocket Number <input type="text" id="payRocket" placeholder="01912345678"></label>
-    <label>🏦 Bank Account <input type="text" id="payBank" placeholder="Bank Name - Account Number - Branch"></label>
+    <label>📱 bKash Number <input type="text" id="payBkash" placeholder="+8801XXXXXXXXX"></label>
+    <label>📱 Nagad Number <input type="text" id="payNagad" placeholder="+8801XXXXXXXXX"></label>
+    <label>📱 Rocket Number <input type="text" id="payRocket" placeholder="+8801XXXXXXXXX"></label>
+    <h3 style="margin:14px 0 8px;font-size:15px">🏦 Bank Account Details</h3>
+    <label>Account Holder Name <input type="text" id="payBankHolder" placeholder="আপনার নাম"></label>
+    <label>Bank Name <input type="text" id="payBankName" placeholder="যেমন: Sonali Bank"></label>
+    <label>Account Number <input type="text" id="payBankNumber" placeholder="যেমন: 15315700055534"></label>
+    <label>Branch <input type="text" id="payBankBranch" placeholder="যেমন: Sonagazi Branch, Feni"></label>
     <label>🌐 PayPal Email <input type="text" id="payPaypal" placeholder="your@email.com"></label>
     <button class="save-btn" onclick="savePayments()">💾 Save Payment Settings</button>
     <div id="payStatus" style="margin-top:12px;font-size:13px"></div>

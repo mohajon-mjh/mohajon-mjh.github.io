@@ -5723,3 +5723,28 @@ async function savePayments(){
     document.getElementById("payStatus").innerHTML='<span style="color:#c0392b">❌ '+e.message+'</span>';
   }
 }
+
+async function showPayPanel(){
+  try{
+    const snap=await get(ref(db,"settings/payments"));
+    const p=snap.val()||{};
+    const g=id=>document.getElementById(id);
+    g("payBkash").value=p.bkash||"";g("payNagad").value=p.nagad||"";
+    g("payRocket").value=p.rocket||"";g("payBankHolder").value=p.bankHolder||"";
+    g("payBankName").value=p.bankName||"";g("payBankNumber").value=p.bankNumber||"";
+    g("payBankBranch").value=p.bankBranch||"";g("payPaypal").value=p.paypal||"";
+  }catch(e){console.log("load error",e);}
+}
+async function savePayments(){
+  const g=id=>document.getElementById(id).value.trim();
+  const bank=[g("payBankName")+" - Account: "+g("payBankNumber"), "Name: "+g("payBankHolder"), g("payBankBranch")].filter(x=>x.length>3).join(", ");
+  const data={bkash:g("payBkash"),nagad:g("payNagad"),rocket:g("payRocket"),paypal:g("payPaypal"),bankHolder:g("payBankHolder"),bankName:g("payBankName"),bankNumber:g("payBankNumber"),bankBranch:g("payBankBranch"),bank:bank};
+  const st=document.getElementById("payStatus");
+  st.innerHTML='<span style="color:#f39c12">⏳ Saving...</span>';
+  try{
+    await set(ref(db,"settings/payments"),data);
+    st.innerHTML='<span style="color:#2ecc71;font-weight:700">✅ Saved! ক্রেতারা এখন payment methods দেখবে।</span>';
+  }catch(e){
+    st.innerHTML='<span style="color:#e74c3c">❌ সেভ হয়নি: '+e.message+'</span>';
+  }
+}
