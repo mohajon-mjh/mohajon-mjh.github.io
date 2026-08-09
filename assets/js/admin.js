@@ -5707,50 +5707,7 @@ async function showPanel(name){
 }
 async function savePayments(){
  const data={
-  bkash:document.getElementById("payBkash").value.trim(),
-  nagad:document.getElementById("payNagad").value.trim(),
-  rocket:document.getElementById("payRocket").value.trim(),
-  bank:document.getElementById("payBank").value.trim(),
-  paypal:document.getElementById("payPaypal").value.trim()
- };
- try{
-  await set(ref(db,"settings/payments"),data);
-  document.getElementById("payStatus").innerHTML='<span style="color:#27ae60">✅ Payment settings saved!</span>';
- }catch(e){
-  document.getElementById("payStatus").innerHTML='<span style="color:#c0392b">❌ '+e.message+'</span>';
- }
-}
-
-/* ===================== PAYMENT SETTINGS ===================== */
-async function showPayPanel(){
-  // সব tab-sections লুকাও
-  document.querySelectorAll('.tab-section').forEach(s=>s.style.display='none');
-  // সব tab-btn থেকে active class সরাও
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  // শুধু payments দেখাও
-  const payDiv=document.getElementById('payments');
-  if(payDiv){payDiv.style.display='block';}
-  // Payment Settings button-এ active class দাও
-  const payBtn=document.querySelector('[data-tab="payments"]');
-  if(payBtn){payBtn.classList.add('active');}
-  // Firebase থেকে payment settings load করো
-  try{
-    const snap=await get(ref(db,"settings/payments"));
-    const p=snap.val()||{};
-    document.getElementById("payBkash").value=p.bkash||"";
-    document.getElementById("payNagad").value=p.nagad||"";
-    document.getElementById("payRocket").value=p.rocket||"";
-    document.getElementById("payBank").value=p.bank||"";
-    document.getElementById("payPaypal").value=p.paypal||"";
-  }catch(e){console.log("Load error:",e);}
-};
-    document.getElementById("payBkash").value=p.bkash||"";
-    document.getElementById("payNagad").value=p.nagad||"";
-    document.getElementById("payRocket").value=p.rocket||"";
-    document.getElementById("payBank").value=p.bank||"";
-    document.getElementById("payPaypal").value=p.paypal||"";
-  }catch(e){console.log(e);}
-}
+  bkash:
 async function savePayments(){
   const data={
     bkash:document.getElementById("payBkash").value.trim(),

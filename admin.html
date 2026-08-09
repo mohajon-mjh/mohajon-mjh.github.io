@@ -140,7 +140,7 @@ h2{margin-top:0}
     <button class="tab-btn" data-tab="dotd">⭐ Deals of the Day</button>
     <button class="tab-btn" data-tab="finance">💰 Finance</button>
     <button class="tab-btn" data-tab="allorders">📦 All Orders</button>
-    <button class="tab-btn" data-tab="payments">💳 Payment Settings</button>
+    <button class="tab-btn" data-tab="payments" onclick="showPayPanel()">💳 Payment Settings</button>
     <button class="tab-btn" data-tab="currency">🌍 Currency</button>
     <button class="tab-btn" data-tab="bulkupload">📤 Bulk Upload</button>
     <button class="tab-btn" data-tab="comingsoon">🔮 Coming Soon</button>
@@ -621,23 +621,19 @@ h2{margin-top:0}
  
     </section>
 
-    <section id="tab-payments" class="tab-section" data-tab="payments" style="display:none;margin-top:20px;padding:18px;background:#fff;border-radius:8px">
-  <h2 style="font-size:18px;margin:0 0 12px">💳 Payment Methods Setup</h2>
-  <p style="font-size:12px;color:#888;margin:0 0 14px">যে নম্বরগুলো পূরণ করবেন, শুধু সেই payment methods ক্রেতারা দেখতে পাবে। খালি রাখলে সেটা লুকানো থাকবে।</p>
-  <label style="font-size:13px;font-weight:600">📱 bKash Number</label>
-  <input id="payBkash" placeholder="01712345678" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:6px;margin:4px 0 12px;box-sizing:border-box">
-  <label style="font-size:13px;font-weight:600">📱 Nagad Number</label>
-  <input id="payNagad" placeholder="01812345678" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:6px;margin:4px 0 12px;box-sizing:border-box">
-  <label style="font-size:13px;font-weight:600">📱 Rocket Number</label>
-  <input id="payRocket" placeholder="01912345678" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:6px;margin:4px 0 12px;box-sizing:border-box">
-  <label style="font-size:13px;font-weight:600">🏦 Bank Account</label>
-  <input id="payBank" placeholder="Bank Name - Account Number - Branch" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:6px;margin:4px 0 12px;box-sizing:border-box">
-  <label style="font-size:13px;font-weight:600">🌐 PayPal Email</label>
-  <input id="payPaypal" placeholder="your@email.com" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:6px;margin:4px 0 12px;box-sizing:border-box">
-  <button onclick="savePayments()" style="padding:10px 22px;background:#8e44ad;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600">💾 Save Payment Settings</button>
-  <div id="payStatus" style="margin-top:12px;font-size:13px">
+    <section id="tab-payments" class="tab-section">
+  <div class="card" style="max-width:560px">
+    <h3>💳 Payment Methods Setup</h3>
+    <p style="font-size:12px;color:#888;margin:0 0 14px">যে নম্বরগুলো পূরণ করবেন, শুধু সেই payment methods ক্রেতারা দেখবে। খালি রাখলে লুকানো থাকবে।</p>
+    <label>📱 bKash Number <input type="text" id="payBkash" placeholder="01712345678"></label>
+    <label>📱 Nagad Number <input type="text" id="payNagad" placeholder="01812345678"></label>
+    <label>📱 Rocket Number <input type="text" id="payRocket" placeholder="01912345678"></label>
+    <label>🏦 Bank Account <input type="text" id="payBank" placeholder="Bank Name - Account Number - Branch"></label>
+    <label>🌐 PayPal Email <input type="text" id="payPaypal" placeholder="your@email.com"></label>
+    <button class="save-btn" onclick="savePayments()">💾 Save Payment Settings</button>
+    <div id="payStatus" style="margin-top:12px;font-size:13px"></div>
+  </div>
 </section>
-</div>
     <section id="tab-finance" class="tab-section">
       <div id="finance-panel">
 </div>
