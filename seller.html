@@ -22,6 +22,7 @@ const $=id=>document.getElementById(id);
 const fmt=v=>"৳"+Number(v||0).toFixed(2);
 onAuthStateChanged(auth,async u=>{
  if(!u){location.href="login.html";return;}
+ if(u.isAnonymous){document.getElementById("content").innerHTML='<div class="card"><h3>🔐 Seller login দরকার</h3><p style="font-size:13px">Seller Portal ব্যবহার করতে seller/admin account দিয়ে login করুন।</p><button class="btn" onclick="location.href=\'login.html\'">👤 Login</button></div>';return;}
  uid=u.uid;
  await loadAll();
  render("dash");
@@ -69,7 +70,7 @@ function render(t){
  if(t==="set"){c.innerHTML=`<div class="card"><h3>⚙️ Store Settings</h3><div class="row">Store: <b>${seller?seller.storeName:"-"}</b></div><div class="row">Owner UID: ${uid}</div></div>`;}
 }
 window.__stock=async(id,d)=>{const p=myProducts[id];await update(ref(db,"products/"+id),{stock:Math.max(0,(p.stock||0)+d)});myProducts[id].stock=Math.max(0,(p.stock||0)+d);render("inv");};
-window.__addProd=async()=>{const t=$("pTitle").value,pr=+$("pPrice").value,st=+$("pStock").value,img=$("pImg").value,sup=$("pSup").value;if(!t||!pr)return alert("নাম ও দাম দিন");await set(push(ref(db,"products")),{sellerId:uid,title:t,price:pr,stock:st||0,categoryId:"general",status:"pending",createdAt:Date.now(),supplier:sup||null,images:img?{main:img}:null});alert("✅ Product submitted (pending approval)");loadAll().then(()=>render("inv"));};
+window.__addProd=async()=>{try{const t=$("pTitle").value,pr=+$("pPrice").value,st=+$("pStock").value,img=$("pImg").value,sup=$("pSup").value;if(!t||!pr)return alert("নাম ও দাম দিন");await set(push(ref(db,"products")),{sellerId:uid,title:t,price:pr,stock:st||0,categoryId:"general",status:"pending",createdAt:Date.now(),supplier:sup||null,images:img?{main:img}:null});alert("✅ Product submitted (pending approval)");await loadAll();render("inv");}catch(e){alert("❌ "+e.message);}};
 window.__ship=async(id)=>{const st=$("st_"+id).value;await update(ref(db,"orders/"+id),{status:st,updatedAt:Date.now()});alert("✅ Status: "+st);loadAll().then(()=>render("ord"));};
 window.__wd=async()=>{const a=+$("wAmt").value,b=$("wBank").value;if(!a)return alert("Amount দিন");await set(push(ref(db,"withdrawRequests")),{userId:uid,amount:a,bankDetails:b,status:"pending",createdAt:Date.now()});alert("✅ Withdraw request sent");};
 </script></body></html>
