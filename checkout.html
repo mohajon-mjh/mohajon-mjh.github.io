@@ -101,6 +101,35 @@ const PICKUPS=[
  {name:"MJH Counter – GEC Circle",addr:"GEC Tower, Chittagong 4000",area:"চট্টগ্রাম"}
 ];
 function shipCharge(){return state.deliveryType==="pickup"?0:(subtotal>=2000?0:100);}
+
+function paySel(v){
+  const cf=document.getElementById("cardForm");if(cf)cf.style.display=(v==="card")?"block":"none";
+  const mp=document.getElementById("mobilePay");
+  if(["bkash","nagad","rocket","bank","paypal"].includes(v)&&mp){
+    mp.style.display="block";
+    const ps=JSON.parse(localStorage.getItem("paySettings")||"{}");
+    const titles={bkash:"bKash",nagad:"Nagad",rocket:"Rocket",bank:"Bank Transfer",paypal:"PayPal"};
+    document.getElementById("mpTitle").textContent=titles[v];
+    const num=v==="bank"?(ps.bank||"Account details"):(v==="paypal"?(ps.paypal||"email"):(ps[v]||""));
+    document.getElementById("mpNum").textContent=num;
+  }else if(mp){mp.style.display="none";}
+}
+function fmtCard(el){let d=el.value.replace(/\D/g,"").slice(0,16);el.value=d.replace(/(.{4})/g,"$1 ").trim();
+  const b=document.getElementById("ccBrand");if(b)b.textContent=d[0]==="4"?"VISA":(d[0]==="5"?"Mastercard":(d.slice(0,2)==="34"||d.slice(0,2)==="37"?"AMEX":(d[0]==="6"?"Discover":"")));}
+function fmtExp(el){let d=el.value.replace(/\D/g,"").slice(0,4);if(d.length>2)d=d.slice(0,2)+"/"+d.slice(2);el.value=d;}
+function luhn(n){let s=0,a=false;for(let i=n.length-1;i>=0;i--){let x=+n[i];if(a){x*=2;if(x>9)x-=9;}s+=x;a=!a;}return s%10===0;}
+function cardValid(){
+  const num=(document.getElementById("ccNum").value||"").replace(/\s/g,"");
+  const exp=document.getElementById("ccExp").value,cvv=document.getElementById("ccCvv").value,name=document.getElementById("ccName").value.trim();
+  if(!name)return"কার্ডে নাম লিখুন";
+  if(num.length<13||!luhn(num))return"সঠিক কার্ড নম্বর দিন";
+  const m=exp.match(/^(0[1-9]|1[0-2])\/(\d{2})$/);if(!m)return"সঠিক expiry (MM/YY)";
+  const ey=+m[2],em=+m[1],now=new Date(),cy=now.getFullYear()%100,cm=now.getMonth()+1;
+  if(ey<cy||(ey===cy&&em<cm))return"কার্ডের মেয়াদ শেষ";
+  if(cvv.length<3)return"সঠিক CVV দিন";
+  return null;
+}
+
 function render(){
  const c=state.contact;
  document.getElementById("deliverBtn").textContent = (c&&c.name) ? "📍 Deliver to: "+c.name+", "+(c.area||c.city||"") : "Deliver to this address";
@@ -114,10 +143,27 @@ function render(){
  <button class="white-pill" style="width:auto;padding:9px 20px" onclick="openPickup()">📍 Find a pickup location nearby</button>`;}
  document.getElementById("addrContent").innerHTML=ac;
  // payment
- document.getElementById("payContent").innerHTML=`
-  <label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="cod" checked> 💵 Cash on Delivery</label>
-  <label style="display:block;font-size:13px;color:#999;margin:6px 0"><input type="radio" disabled> 📱 bKash (শীঘ্রই আসছে)</label>
-  <label style="display:block;font-size:13px;color:#999;margin:6px 0"><input type="radio" disabled> 📱 Nagad (শীঘ্রই আসছে)</label>`;
+ let payHtml=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="cod" checked onchange="paySel('cod')"> 💵 Cash on Delivery</label>
+  <label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="card" onchange="paySel('card')"> 💳 Debit / Credit Card <span style="color:#565959;font-size:11px">(Visa • Mastercard)</span></label>
+  <div id="cardForm" style="display:none;background:#f7f7f7;border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0">
+   <label style="font-size:12px;font-weight:700">Cardholder name</label>
+   <input id="ccName" style="width:100%;padding:8px;margin:4px 0 10px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="Name on card">
+   <label style="font-size:12px;font-weight:700">Card number</label>
+   <input id="ccNum" inputmode="numeric" style="width:100%;padding:8px;margin-bottom:2px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="1234 5678 9012 3456" oninput="fmtCard(this)">
+   <span id="ccBrand" style="font-size:12px;font-weight:700;color:#1a1f71"></span>
+   <div style="display:flex;gap:10px;margin-top:8px">
+    <div style="flex:1"><label style="font-size:12px;font-weight:700">Expiry</label><input id="ccExp" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="MM/YY" oninput="fmtExp(this)"></div>
+    <div style="flex:1"><label style="font-size:12px;font-weight:700">CVV</label><input id="ccCvv" type="password" inputmode="numeric" maxlength="4" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="•••"></div>
+   </div>
+   <p class="small" style="margin:8px 0 0">🔒 Your card info is secure — we only store last 4 digits.</p>
+  </div>`;
+  if(paySettings.bkash)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="bkash" onchange="paySel('bkash')"> 📱 bKash <span style="color:#007185;font-size:11px">(${paySettings.bkash})</span></label>`;
+  if(paySettings.nagad)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="nagad" onchange="paySel('nagad')"> 📱 Nagad <span style="color:#007185;font-size:11px">(${paySettings.nagad})</span></label>`;
+  if(paySettings.rocket)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="rocket" onchange="paySel('rocket')"> 📱 Rocket <span style="color:#007185;font-size:11px">(${paySettings.rocket})</span></label>`;
+  if(paySettings.bank)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="bank" onchange="paySel('bank')"> 🏦 Bank Transfer <span style="color:#007185;font-size:11px">(Account details)</span></label>`;
+  if(paySettings.paypal)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="paypal" onchange="paySel('paypal')"> 🌐 PayPal <span style="color:#007185;font-size:11px">(${paySettings.paypal})</span></label>`;
+  payHtml+=`<div id="mobilePay" style="display:none;background:#fff9e6;border:1px solid #f0d060;border-radius:8px;padding:12px;margin:8px 0"><p style="font-size:13px;margin:0 0 6px"><b id="mpTitle"></b></p><p style="font-size:13px;margin:0 0 6px">📱 Send Money to: <b id="mpNum" style="color:#B12704"></b></p><p style="font-size:12px;color:#565959;margin:0 0 8px">Write your name in reference. Enter Transaction ID below:</p><input id="mpTrx" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="trxID (e.g. 8A7B9C2D1E3F)"></div>`;
+  document.getElementById("payContent").innerHTML=payHtml;
  // review
  let del = state.deliveryType==="pickup" ? "🏪 Pickup: <b>"+state.pickup.name+"</b> — FREE pickup "+fdate(d3) : "🚚 Standard delivery: <b>"+fdate(d4)+"</b>"+(shipCharge()===0?" (FREE)":" — ৳100");
  document.getElementById("revContent").innerHTML = cart.length? cart.map(i=>`<div style="font-size:13px;margin:6px 0">${i.name} × ${i.qty||1} — <b>${fmt(i.price*(i.qty||1))}</b></div>`).join("")+`<hr style="border:none;border-top:1px solid #eee"><div style="font-size:13px">${state.deliveryType?del:"ঠিকানা/pickup সিলেক্ট করুন"}</div>` : "<p>Cart খালি</p>";
@@ -151,8 +197,22 @@ document.getElementById("placeBtn").onclick=async()=>{
  if(state.deliveryType==="home"&&(!state.contact.street||!state.contact.area)){openAddr();alert("সম্পূর্ণ ঠিকানা ও জেলা দিন");return;}
  if(!state.deliveryType){alert("Delivery address বা Pickup location সিলেক্ট করুন");return;}
  const ship=shipCharge();
- const orderId="MJH"+Date.now();
- const order={createdAt:Date.now(),updatedAt:Date.now(),status:"pending",paymentId:"COD",paymentMethod:"cash_on_delivery",
+ let payId="COD",payMethod="cash_on_delivery",paid=false;
+  const sel=(document.querySelector('input[name="pay"]:checked')||{}).value||"cod";
+  if(sel==="card"){
+    const err=cardValid();if(err){alert("💳 "+err);return;}
+    const b0=document.getElementById("placeBtn");b0.disabled=true;b0.textContent="💳 Processing payment...";
+    await new Promise(r=>setTimeout(r,2200));
+    payId="CARD-"+(document.getElementById("ccNum").value.replace(/\s/g,"").slice(-4));
+    payMethod="card";paid=true;
+  }
+  if(["bkash","nagad","rocket","bank","paypal"].includes(sel)){
+    const trx=(document.getElementById("mpTrx").value||"").trim();
+    if(!trx){alert("📱 Please enter Transaction ID");return;}
+    payId=sel.toUpperCase()+"-"+trx;payMethod=sel;
+  }
+  const orderId="MJH"+Date.now();
+ const order={createdAt:Date.now(),updatedAt:Date.now(),status:paid?"processing":"pending",paymentId:payId,paymentMethod:payMethod,paymentStatus:paid?"paid":"unpaid",
   subtotal,deliveryCharge:ship,total:subtotal+ship,deliveryType:state.deliveryType,
   pickupName:state.pickup?state.pickup.name:null,
   shippingAddress:{name:state.contact.name,phone:state.contact.phone,

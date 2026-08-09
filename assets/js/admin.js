@@ -5690,49 +5690,19 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
 })();
 
 /* ===================== PAYMENT SETTINGS ===================== */
-async function showPanel(name){
- ["all-orders","payments"].forEach(id=>{document.getElementById(id).style.display="none";});
- if(name==="payments"){
-  document.getElementById("payments").style.display="block";
-  try{
-   const snap=await get(ref(db,"settings/payments"));
-   const p=snap.val()||{};
-   document.getElementById("payBkash").value=p.bkash||"";
-   document.getElementById("payNagad").value=p.nagad||"";
-   document.getElementById("payRocket").value=p.rocket||"";
-   document.getElementById("payBank").value=p.bank||"";
-   document.getElementById("payPaypal").value=p.paypal||"";
-  }catch(e){}
- }
-}
-async function savePayments(){
- const data={
-  bkash:
-async function savePayments(){
-  const data={
-    bkash:document.getElementById("payBkash").value.trim(),
-    nagad:document.getElementById("payNagad").value.trim(),
-    rocket:document.getElementById("payRocket").value.trim(),
-    bank:document.getElementById("payBank").value.trim(),
-    paypal:document.getElementById("payPaypal").value.trim()
-  };
-  try{
-    await set(ref(db,"settings/payments"),data);
-    document.getElementById("payStatus").innerHTML='<span style="color:#27ae60;font-weight:600">✅ Payment settings saved!</span>';
-  }catch(e){
-    document.getElementById("payStatus").innerHTML='<span style="color:#c0392b">❌ '+e.message+'</span>';
-  }
-}
-
 async function showPayPanel(){
   try{
     const snap=await get(ref(db,"settings/payments"));
     const p=snap.val()||{};
     const g=id=>document.getElementById(id);
-    g("payBkash").value=p.bkash||"";g("payNagad").value=p.nagad||"";
-    g("payRocket").value=p.rocket||"";g("payBankHolder").value=p.bankHolder||"";
-    g("payBankName").value=p.bankName||"";g("payBankNumber").value=p.bankNumber||"";
-    g("payBankBranch").value=p.bankBranch||"";g("payPaypal").value=p.paypal||"";
+    if(g("payBkash"))g("payBkash").value=p.bkash||"";
+    if(g("payNagad"))g("payNagad").value=p.nagad||"";
+    if(g("payRocket"))g("payRocket").value=p.rocket||"";
+    if(g("payBankHolder"))g("payBankHolder").value=p.bankHolder||"";
+    if(g("payBankName"))g("payBankName").value=p.bankName||"";
+    if(g("payBankNumber"))g("payBankNumber").value=p.bankNumber||"";
+    if(g("payBankBranch"))g("payBankBranch").value=p.bankBranch||"";
+    if(g("payPaypal"))g("payPaypal").value=p.paypal||"";
   }catch(e){console.log("load error",e);}
 }
 async function savePayments(){
@@ -5748,3 +5718,4 @@ async function savePayments(){
     st.innerHTML='<span style="color:#e74c3c">❌ সেভ হয়নি: '+e.message+'</span>';
   }
 }
+
