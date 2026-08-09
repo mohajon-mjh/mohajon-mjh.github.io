@@ -5719,3 +5719,5 @@ async function savePayments(){
   }
 }
 
+window.savePayments = savePayments;
+window.showPayPanel = showPayPanel;
