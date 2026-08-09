@@ -49,11 +49,20 @@ label.f{font-size:13px;font-weight:700}
  <div class="mbody">
   <h2 style="font-size:18px">Enter a new shipping address</h2>
   <label class="f">Country/Region</label>
-  <select id="aCountry"><option>বাংলাদেশ</option></select>
+  <select id="aCountry" onchange="applyCountry(this)">
+   <option value="+880" selected>বাংলাদেশ</option><option value="+966">সৌদি আরব</option>
+   <option value="+971">সংযুক্ত আরব আমিরাত</option><option value="+974">কাতার</option>
+   <option value="+965">কুয়েত</option><option value="+968">ওমান</option>
+   <option value="+973">বাহরাইন</option><option value="+60">মালয়েশিয়া</option>
+   <option value="+91">ভারত</option><option value="+92">পাকিস্তান</option>
+   <option value="+90">তুরস্ক</option><option value="+44">যুক্তরাজ্য</option>
+   <option value="+1">যুক্তরাষ্ট্র</option><option value="+61">অস্ট্রেলিয়া</option>
+   <option value="+63">ফিলিপাইন</option><option value="+62">ইন্দোনেশিয়া</option>
+  </select>
   <label class="f">Full name (First and Last name)</label>
   <input id="aName" placeholder="আপনার নাম">
   <label class="f">Phone number</label>
-  <input id="aPhone" placeholder="01XXXXXXXXX">
+  <input id="aPhone" placeholder="+8801XXXXXXXXX বা 01XXXXXXXXX">
   <p class="small" style="margin-top:-8px">May be used to assist delivery</p>
   <label class="f">Street address</label>
   <input id="aStreet" placeholder="বাসা, রোড, এলাকা">
@@ -62,7 +71,7 @@ label.f{font-size:13px;font-weight:700}
   <div style="display:flex;gap:8px">
    <div style="flex:1"><label class="f">City</label><input id="aCity" placeholder="শহর"></div>
    <div style="flex:1"><label class="f">State/জেলা</label>
-    <select id="aArea"><option value="">Select</option><option>ঢাকা</option><option>চট্টগ্রাম</option><option>সিলেট</option><option>রাজশাহী</option><option>খুলনা</option><option>বরিশাল</option><option>রংপুর</option><option>ময়মনসিংহ</option><option>কুমিল্লা</option><option>অন্যান্য</option></select></div>
+    <input id="aArea" list="bdDistricts" placeholder="জেলা লিখো (যেমন: ফেনী)"><datalist id="bdDistricts"><option>ঢাকা</option><option>চট্টগ্রাম</option><option>রাজশাহী</option><option>খুলনা</option><option>বরিশাল</option><option>সিলেট</option><option>রংপুর</option><option>ময়মনসিংহ</option><option>ফেনী</option><option>কুমিল্লা</option><option>ব্রাহ্মণবাড়িয়া</option><option>চাঁদপুর</option><option>লক্ষ্মীপুর</option><option>নোয়াখালী</option><option>কক্সবাজার</option><option>খাগড়াছড়ি</option><option>রাঙামাটি</option><option>বান্দরবান</option><option>যশোর</option><option>ঝিনাইদহ</option><option>মাগুরা</option><option>নড়াইল</option><option>কুষ্টিয়া</option><option>চুয়াডাঙ্গা</option><option>মেহেরপুর</option><option>ঝালকাঠি</option><option>পিরোজপুর</option><option>ভোলা</option><option>পটুয়াখালী</option><option>বরগুনা</option><option>চাঁপাইনবাবগঞ্জ</option><option>নাটোর</option><option>নওগাঁ</option><option>পাবনা</option><option>সিরাজগঞ্জ</option><option>বগুড়া</option><option>জয়পুরহাট</option><option>দিনাজপুর</option><option>ঠাকুরগাঁও</option><option>পঞ্চগড়</option><option>নীলফামারী</option><option>লালমনিরহাট</option><option>কুড়িগ্রাম</option><option>গাইবান্ধা</option><option>শেরপুর</option><option>জামালপুর</option><option>নেত্রকোনা</option><option>কিশোরগঞ্জ</option><option>হবিগঞ্জ</option><option>মৌলভীবাজার</option><option>সুনামগঞ্জ</option><option>গোপালগঞ্জ</option><option>শরীয়তপুর</option><option>মাদারীপুর</option><option>রাজবাড়ী</option><option>ফরিদপুর</option><option>মানিকগঞ্জ</option><option>মুন্সিগঞ্জ</option><option>নরসিংদী</option><option>টাঙ্গাইল</option><option>গাজীপুর</option><option>নারায়ণগঞ্জ</option><option>সাতক্ষীরা</option><option>বাগেরহাট</option></datalist></div>
    <div style="flex:0.7"><label class="f">ZIP</label><input id="aZip" placeholder="1207"></div>
   </div>
   <label style="font-size:13px"><input type="checkbox" id="aDefault" checked style="width:auto"> Make this my default address</label>
@@ -171,9 +180,16 @@ function render(){
 function openAddr(){document.getElementById("addrModal").style.display="block";
  if(state.contact){const c=state.contact;aName.value=c.name||"";aPhone.value=c.phone||"";aStreet.value=c.street||"";aUnit.value=c.unit||"";aCity.value=c.city||"";aArea.value=c.area||"";aZip.value=c.zip||"";aNote.value=c.note||"";}}
 function closeAddr(){document.getElementById("addrModal").style.display="none";}
+window.applyCountry=function(sel){
+ const code=sel.value,ph=document.getElementById("aPhone");
+ let v=ph.value.trim();
+ if(!v){ph.value=code;}
+ else if(/^\+/.test(v)){ph.value=code+v.replace(/^\+\d{1,3}/,"");}
+};
 function saveAddr(){
  const name=aName.value.trim(),phone=aPhone.value.trim();
- if(!name||!/^01[0-9]{9}$/.test(phone)){alert("সঠিক নাম ও মোবাইল নাম্বার দিন (01XXXXXXXXX)");return;}
+ const phOK=/^01[3-9][0-9]{8}$/.test(phone)||/^\+[0-9]{7,15}$/.test(phone);
+ if(!name||!phOK){alert("সঠিক নাম ও মোবাইল নাম্বার দিন (যেমন: 01712345678 বা +8801712345678)");return;}
  const c={name,phone,street:aStreet.value.trim(),unit:aUnit.value.trim(),city:aCity.value.trim(),area:aArea.value,zip:aZip.value.trim(),note:aNote.value.trim()};
  state.contact=c;
  if(aDefault.checked)localStorage.setItem("defaultAddress",JSON.stringify(c));
