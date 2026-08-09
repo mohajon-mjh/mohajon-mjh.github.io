@@ -53,7 +53,7 @@ function render(t){
  if(t==="inv"){
   let rows=Object.entries(myProducts).map(([id,p])=>`<div class="row"><b>${p.title||p.name}</b> — ${fmt(p.price)} — Stock: ${p.stock||0} — ${p.status}<br><button class="btn" onclick="window.__stock('${id}',10)">+10 Stock</button> <button class="btn" onclick="window.__stock('${id}',-10)">-10 Stock</button></div>`).join("");
   c.innerHTML=`<div class="card"><h3>📦 Inventory (${Object.keys(myProducts).length})</h3>${rows||"কোনো product নেই"}</div>
-  <div class="card"><h3>➕ Add Product</h3><input class="inp" id="pTitle" placeholder="Product name"><input class="inp" id="pPrice" type="number" placeholder="Price (৳)"><input class="inp" id="pStock" type="number" placeholder="Stock"><input class="inp" id="pImg" placeholder="Image URL"><button class="btn" onclick="window.__addProd()">Add</button></div>`;
+  <div class="card"><h3>➕ Add Product</h3><input class="inp" id="pTitle" placeholder="Product name"><input class="inp" id="pPrice" type="number" placeholder="Price (৳)"><input class="inp" id="pStock" type="number" placeholder="Stock"><input class="inp" id="pImg" placeholder="Image URL"><input class="inp" id="pSup" placeholder="Supplier name/contact (dropship — শুধু admin দেখবে)"><button class="btn" onclick="window.__addProd()">Add</button></div>`;
  }
  if(t==="ord"){
   let rows=Object.entries(myOrders).map(([id,o])=>`<div class="row"><b>#${id.slice(-6)}</b> — ${fmt(o.total)} — ${o.status}<br><select class="btn" id="st_${id}"><option>processing</option><option>shipped</option><option>delivered</option></select> <button class="btn" onclick="window.__ship('${id}')">Update</button></div>`).join("");
@@ -69,7 +69,7 @@ function render(t){
  if(t==="set"){c.innerHTML=`<div class="card"><h3>⚙️ Store Settings</h3><div class="row">Store: <b>${seller?seller.storeName:"-"}</b></div><div class="row">Owner UID: ${uid}</div></div>`;}
 }
 window.__stock=async(id,d)=>{const p=myProducts[id];await update(ref(db,"products/"+id),{stock:Math.max(0,(p.stock||0)+d)});myProducts[id].stock=Math.max(0,(p.stock||0)+d);render("inv");};
-window.__addProd=async()=>{const t=$("pTitle").value,pr=+$("pPrice").value,st=+$("pStock").value,img=$("pImg").value;if(!t||!pr)return alert("নাম ও দাম দিন");await set(push(ref(db,"products")),{sellerId:uid,title:t,price:pr,stock:st||0,categoryId:"general",status:"pending",createdAt:Date.now(),images:img?{main:img}:null});alert("✅ Product submitted (pending approval)");loadAll().then(()=>render("inv"));};
+window.__addProd=async()=>{const t=$("pTitle").value,pr=+$("pPrice").value,st=+$("pStock").value,img=$("pImg").value,sup=$("pSup").value;if(!t||!pr)return alert("নাম ও দাম দিন");await set(push(ref(db,"products")),{sellerId:uid,title:t,price:pr,stock:st||0,categoryId:"general",status:"pending",createdAt:Date.now(),supplier:sup||null,images:img?{main:img}:null});alert("✅ Product submitted (pending approval)");loadAll().then(()=>render("inv"));};
 window.__ship=async(id)=>{const st=$("st_"+id).value;await update(ref(db,"orders/"+id),{status:st,updatedAt:Date.now()});alert("✅ Status: "+st);loadAll().then(()=>render("ord"));};
 window.__wd=async()=>{const a=+$("wAmt").value,b=$("wBank").value;if(!a)return alert("Amount দিন");await set(push(ref(db,"withdrawRequests")),{userId:uid,amount:a,bankDetails:b,status:"pending",createdAt:Date.now()});alert("✅ Withdraw request sent");};
 </script></body></html>
