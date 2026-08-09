@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Business Account - Earn Commission - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial;background:#131921;color:#fff}.top{background:#232f3e;padding:12px 16px;display:flex;align-items:center}.wrap{max-width:800px;margin:14px auto;padding:0 12px}.card{background:#232f3e;border-radius:10px;padding:16px;margin-bottom:14px}.big{font-size:22px;font-weight:900;color:#FFD814}.btn{background:#FF9900;border:none;color:#111;padding:9px 16px;border-radius:8px;font-weight:700;cursor:pointer;margin:3px}.row{border-top:1px solid #37475a;padding:10px 0;font-size:13px}.link{background:#1a242f;border:1px dashed #FF9900;border-radius:8px;padding:10px;font-size:12px;word-break:break-all;color:#7CFC00}.step{background:#37475a;border-radius:8px;padding:10px;margin:6px 0;font-size:13px}</style></head><body>
+<div class="top"><b style="color:#FF9900">🤝 Business Account</b><a href="index.html" style="color:#fff;margin-left:auto;font-size:13px">🛍️ Shop</a></div>
+<div class="wrap" id="content">লোড হচ্ছে...</div>
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signInAnonymously}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get,query,orderByChild,equalTo,push,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+const RATE=5; // 5% commission
+let code=null,prods={};
+onAuthStateChanged(auth,async u=>{
+ if(!u){try{await signInAnonymously(auth);}catch(e){document.getElementById("content").innerHTML="লোড ব্যর্থ";return;}return;}
+ code=u.uid.slice(0,10).toUpperCase();
+ try{const p=await get(query(ref(db,"products"),orderByChild("status"),equalTo("active")));prods=p.val()||{};}catch(e){}
+ render();
+});
+const base="https://mohajon-mjh.github.io/index.html?ref="+code;
+function wa(u){return "https://wa.me/?text="+encodeURIComponent("🛍️ দারুণ সব পণ্য! দেখুন: "+u);}
+function fb(u){return "https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(u);}
+function render(){
+ let rows=Object.entries(prods).slice(0,12).map(([id,p])=>{const u="https://mohajon-mjh.github.io/product.html?id="+id+"&ref="+code;
+  return `<div class="row"><b>${p.title||p.name}</b><br><a class="btn" target="_blank" href="${wa(u)}">📲 WhatsApp</a><a class="btn" target="_blank" href="${fb(u)}">📘 Facebook</a><button class="btn" onclick="navigator.clipboard.writeText('${u}');this.textContent='✅ Copied'">🔗 Copy Link</button></div>`;}).join("");
+ document.getElementById("content").innerHTML=`
+ <div class="card"><div class="big">💰 পণ্য ছাড়াই ইনকাম করুন!</div>
+ <p style="font-size:13px">আপনার লিংকে কেউ ক্লিক করে কিনলে প্রতি অর্ডারে <b style="color:#7CFC00">${RATE}% কমিশন</b> পাবেন।</p></div>
+ <div class="card"><h3>🔗 আপনার রেফারেল লিংক</h3><div class="link">${base}</div>
+ <button class="btn" onclick="navigator.clipboard.writeText('${base}');this.textContent='✅ Copied'">📋 Copy</button>
+ <a class="btn" target="_blank" href="${wa(base)}">📲 WhatsApp</a><a class="btn" target="_blank" href="${fb(base)}">📘 Facebook</a></div>
+ <div class="card"><h3>📖 যেভাবে কাজ করে</h3>
+  <div class="step">1️⃣ আপনার লিংক copy করে friend / social media-এ share করুন</div>
+  <div class="step">2️⃣ কেউ লিংকে ক্লিক করে site-এ এসে পণ্য কিনবে</div>
+  <div class="step">3️⃣ অর্ডার complete হলে আপনি ${RATE}% কমিশন পাবেন</div>
+  <div class="step">4️⃣ কমিশন admin verify করে আপনার bKash/bank-এ পাঠাবেন</div></div>
+ <div class="card"><h3>🛍️ পণ্যের লিংক share করুন</h3>${rows||"কোনো product নেই"}</div>
+ <div class="card"><h3>💸 কমিশন Withdraw</h3><input id="wAmt" type="number" placeholder="Amount (৳)" style="padding:8px;border-radius:6px;border:1px solid #555;background:#1a242f;color:#fff"><input id="wBk" placeholder="bKash/Bank number" style="padding:8px;border-radius:6px;border:1px solid #555;background:#1a242f;color:#fff"><br><button class="btn" onclick="window.__wd()">Request</button></div>`;
+}
+window.__wd=async()=>{try{const a=+document.getElementById("wAmt").value,b=document.getElementById("wBk").value;if(!a)return alert("Amount দিন");await set(push(ref(db,"withdrawRequests")),{userId:auth.currentUser.uid,amount:a,bankDetails:b,status:"pending",createdAt:Date.now()});alert("✅ Request sent — admin approve করলে পাবেন");}catch(e){alert("❌ "+e.message);}};
+</script></body></html>

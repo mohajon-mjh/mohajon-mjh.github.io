@@ -9,6 +9,7 @@
  <button class="tab" data-t="pay">💰 Earnings</button>
  <button class="tab" data-t="rev">⭐ Reviews</button>
  <button class="tab" data-t="set">⚙️ Settings</button>
+ <button class="tab" data-t="guide">📖 Guide</button>
 </div>
 <div class="wrap" id="content">লোড হচ্ছে...</div>
 <script type="module">
@@ -37,6 +38,15 @@ async function loadAll(){
 }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");render(b.dataset.t);});
 function render(t){
+ if(t==="guide"){c.innerHTML=`<div class="card"><h3>📖 Seller Guide (Amazon/Daraz-এর মতো)</h3>
+ <div class="row">1️⃣ Admin approval-এর পর product add করুন (ছবি, বিস্তারিত, সঠিক দাম)</div>
+ <div class="row">2️⃣ Admin approve করলে product live হবে</div>
+ <div class="row">3️⃣ Order এলে দ্রুত pack করে ২৪-৪৮ ঘণ্টায় ship করুন</div>
+ <div class="row">4️⃣ Orders tab-এ status update করুন (processing→shipped→delivered)</div>
+ <div class="row">5️⃣ Delivered হলে টাকা আপনার wallet-এ আসবে</div>
+ <div class="row">6️⃣ Earnings tab থেকে withdraw request দিন</div>
+ <div class="row">7️⃣ ভালো rating রাখুন (দ্রুত delivery + মানসম্মত পণ্য) → বেশি বিক্রি</div></div>`;return;}
+ 
  const c=$("content");
  if(t==="dash"){
   const orders=Object.values(myOrders);
