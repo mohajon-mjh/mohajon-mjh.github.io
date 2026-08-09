@@ -235,6 +235,10 @@ document.getElementById("placeBtn").onclick=async()=>{
  try{
   if(!window.__uid){alert("অর্ডার করতে login করুন");location.href="login.html";return;}
   await window.__placeOrder(orderId,order);
+  // A) Owner-এর email-এ order notification
+  try{fetch("https://formsubmit.co/ajax/mohajonmjh@gmail.com",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({_subject:"🛒 New Order "+orderId,Order:orderId,Total:order.total,Customer:order.shippingAddress.name,Phone:order.shippingAddress.phone,Payment:order.paymentId,Address:order.shippingAddress.address+", "+order.shippingAddress.area})}).catch(()=>{});}catch(e){}
+  // B) Real PayPal payment (নতুন tab-এ খুলবে)
+  if(sel==="paypal"){try{const ps=JSON.parse(localStorage.getItem("paySettings")||"{}");const usd=(order.total/117).toFixed(2);const f=document.createElement("form");f.method="POST";f.action="https://www.paypal.com/cgi-bin/webscr";f.target="_blank";const add=(n,v)=>{const i=document.createElement("input");i.type="hidden";i.name=n;i.value=v;f.appendChild(i);};add("cmd","_xclick");add("business",ps.paypal||"jenisaniaini@gmail.com");add("item_name","Order "+orderId);add("amount",usd);add("currency_code","USD");add("custom",orderId);document.body.appendChild(f);f.submit();}catch(e){}}
   const my=JSON.parse(localStorage.getItem("myOrders")||"[]");my.push(orderId);localStorage.setItem("myOrders",JSON.stringify(my));
   if(mode!=="buynow")localStorage.setItem("cart","[]");
   location.href="order-success.html?id="+orderId;
