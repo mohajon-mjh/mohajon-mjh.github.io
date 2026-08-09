@@ -911,5 +911,136 @@ setInterval(function(){
   });
 },1000);
 </script>
+
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,get,update,set,push,query,orderByChild,equalTo,onValue}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+const fmt=v=>"৳"+Number(v||0).toFixed(2);
+
+// ========== SELLERS TAB ==========
+window.loadSellers=async()=>{
+ const snap=await get(ref(db,"sellers"));
+ const s=snap.val()||{};
+ const list=document.getElementById("sellersList");
+ list.innerHTML=Object.entries(s).map(([id,v])=>`
+  <div style="background:#232f3e;padding:12px;border-radius:8px;margin:6px 0">
+   <b>${v.storeName||"-"}</b> (${id.slice(0,8)})<br>
+   Status: <b style="color:${v.status==='approved'?'#7CFC00':'#FF9900'}">${v.status}</b> | Commission: ${v.commissionRate||0}%<br>
+   Rating: ${v.rating||0} | Sales: ${v.totalSales||0}<br>
+   <button onclick="approveSeller('${id}')" style="background:#7CFC00;color:#111;padding:6px 12px;border-radius:6px;border:none;margin:3px">✅ Approve</button>
+   <button onclick="rejectSeller('${id}')" style="background:#c0392b;color:#fff;padding:6px 12px;border-radius:6px;border:none;margin:3px">❌ Reject</button>
+  </div>`).join("")||"কোনো seller নেই";
+};
+window.approveSeller=async(id)=>{await update(ref(db,"sellers/"+id),{status:"approved",updatedAt:Date.now()});alert("✅ Approved");loadSellers();};
+window.rejectSeller=async(id)=>{await update(ref(db,"sellers/"+id),{status:"rejected",updatedAt:Date.now()});alert("❌ Rejected");loadSellers();};
+
+// ========== SELLER PRODUCTS TAB ==========
+window.loadSellerProducts=async()=>{
+ const snap=await get(query(ref(db,"products"),orderByChild("status"),equalTo("pending")));
+ const p=snap.val()||{};
+ const list=document.getElementById("sellerProdsList");
+ list.innerHTML=Object.entries(p).map(([id,v])=>`
+  <div style="background:#232f3e;padding:12px;border-radius:8px;margin:6px 0">
+   <b>${v.title||v.name}</b><br>
+   Price: ${fmt(v.price)} | Stock: ${v.stock||0}<br>
+   Seller: ${v.sellerId?v.sellerId.slice(0,8):"-"}<br>
+   Supplier: <b style="color:#7CFC00">${v.supplier||"-"}</b> (admin-only)<br>
+   <button onclick="approveProd('${id}')" style="background:#7CFC00;color:#111;padding:6px 12px;border-radius:6px;border:none;margin:3px">✅ Approve</button>
+   <button onclick="rejectProd('${id}')" style="background:#c0392b;color:#fff;padding:6px 12px;border-radius:6px;border:none;margin:3px">❌ Reject</button>
+  </div>`).join("")||"কোনো pending product নেই";
+};
+window.approveProd=async(id)=>{await update(ref(db,"products/"+id),{status:"active",updatedAt:Date.now()});alert("✅ Live");loadSellerProducts();};
+window.rejectProd=async(id)=>{await update(ref(db,"products/"+id),{status:"rejected",updatedAt:Date.now()});alert("❌ Rejected");loadSellerProducts();};
+
+// ========== AFFILIATES TAB ==========
+window.loadAffiliates=async()=>{
+ const ordersSnap=await get(ref(db,"orders"));
+ const orders=ordersSnap.val()||{};
+ const rateSnap=await get(ref(db,"settings/commissionRate"));
+ const rate=rateSnap.val()||5;
+ // refCode অনুযায়ী group
+ const groups={};
+ Object.entries(orders).forEach(([id,o])=>{
+  const ref=o.shippingAddress&&o.shippingAddress.refCode;
+  if(ref){
+   if(!groups[ref])groups[ref]={count:0,total:0,commission:0,orders:[]};
+   groups[ref].count++;
+   groups[ref].total+=o.total||0;
+   const c=(o.total||0)*rate/100;
+   groups[ref].commission+=c;
+   groups[ref].orders.push(id);
+  }
+ });
+ // auto-pay delivered orders (commission wallet-এ)
+ for(const [ref,data] of Object.entries(groups)){
+  const pendingSnap=await get(query(ref(db,"orders"),orderByChild("status"),equalTo("delivered")));
+  // সরাসরি wallet-এ যোগ করো (একবারই)
+  const paidSnap=await get(ref(db,"affiliatePaid/"+ref));
+  const paid=paidSnap.val()||{};
+  let newPay=false;
+  for(const oid of data.orders){
+   const oSnap=await get(ref(db,"orders/"+oid));
+   const o=oSnap.val();
+   if(o&&o.status==="delivered"&&!paid[oid]){
+    const c=(o.total||0)*rate/100;
+    await set(ref(db,"affiliatePaid/"+ref+"/"+oid),{amount:c,paidAt:Date.now(),orderId:oid});
+    // wallet-এ যোগ করো
+    const wSnap=await get(ref(db,"wallets/"+ref));
+    const cur=(wSnap.val()&&wSnap.val().balance)||0;
+    await update(ref(db,"wallets/"+ref),{balance:cur+c,currency:"BDT",updatedAt:Date.now()});
+    await set(push(ref(db,"transactions")),{userId:ref,type:"credit",amount:c,reason:"Affiliate commission",orderId:oid,createdAt:Date.now()});
+    newPay=true;
+   }
+  }
+ }
+ const list=document.getElementById("affList");
+ list.innerHTML=Object.entries(groups).map(([ref,data])=>`
+  <div style="background:#232f3e;padding:12px;border-radius:8px;margin:6px 0">
+   <b>Affiliate: ${ref}</b><br>
+   Orders: ${data.count} | Total Sales: ${fmt(data.total)}<br>
+   Commission (${rate}%): <b style="color:#7CFC00">${fmt(data.commission)}</b><br>
+   <small>Auto-paid to wallet when orders delivered ✅</small>
+  </div>`).join("")||"কোনো affiliate order নেই";
+};
+window.saveCommRate=async()=>{const r=+document.getElementById("commRate").value;await set(ref(db,"settings/commissionRate"),r);alert("✅ Rate saved: "+r+"%");loadAffiliates();};
+
+// ========== WITHDRAWALS TAB ==========
+window.loadWithdrawals=async()=>{
+ const snap=await get(ref(db,"withdrawRequests"));
+ const w=snap.val()||{};
+ const list=document.getElementById("wdList");
+ list.innerHTML=Object.entries(w).map(([id,v])=>`
+  <div style="background:#232f3e;padding:12px;border-radius:8px;margin:6px 0">
+   User: <b>${v.userId?v.userId.slice(0,8):"-"}</b><br>
+   Amount: <b style="color:#7CFC00">${fmt(v.amount)}</b><br>
+   Account: ${v.bankDetails}<br>
+   Status: <b>${v.status}</b><br>
+   ${v.status==='pending'?`<button onclick="approveWd('${id}','${v.userId}',${v.amount})" style="background:#7CFC00;color:#111;padding:6px 12px;border-radius:6px;border:none;margin:3px">✅ Approve & Pay</button>
+   <button onclick="rejectWd('${id}')" style="background:#c0392b;color:#fff;padding:6px 12px;border-radius:6px;border:none;margin:3px">❌ Reject</button>`:""}
+  </div>`).join("")||"কোনো withdrawal নেই";
+};
+window.approveWd=async(id,userId,amt)=>{
+ await update(ref(db,"withdrawRequests/"+id),{status:"approved",paidAt:Date.now()});
+ // wallet থেকে minus করো
+ const wSnap=await get(ref(db,"wallets/"+userId));
+ const cur=(wSnap.val()&&wSnap.val().balance)||0;
+ await update(ref(db,"wallets/"+userId),{balance:Math.max(0,cur-amt),updatedAt:Date.now()});
+ await set(push(ref(db,"transactions")),{userId:userId,type:"debit",amount:amt,reason:"Withdrawal paid",createdAt:Date.now()});
+ alert("✅ Paid & recorded");
+ loadWithdrawals();
+};
+window.rejectWd=async(id)=>{await update(ref(db,"withdrawRequests/"+id),{status:"rejected"});alert("❌ Rejected");loadWithdrawals();};
+
+// show() function-এ auto-load
+const origShow=window.show;
+window.show=function(id){origShow(id);
+ if(id==="sellers")loadSellers();
+ if(id==="sellerProducts")loadSellerProducts();
+ if(id==="affiliates")loadAffiliates();
+ if(id==="withdrawals")loadWithdrawals();
+};
+</script>
 </body>
 </html>
