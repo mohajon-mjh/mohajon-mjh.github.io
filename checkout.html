@@ -212,7 +212,7 @@ document.getElementById("placeBtn").onclick=async()=>{
     payId=sel.toUpperCase()+"-"+trx;payMethod=sel;
   }
   const orderId="MJH"+Date.now();
- const order={createdAt:Date.now(),updatedAt:Date.now(),status:paid?"processing":"pending",paymentId:payId,paymentMethod:payMethod,paymentStatus:paid?"paid":"unpaid",
+ const order={createdAt:Date.now(),updatedAt:Date.now(),status:"pending",paymentId:payId,paymentMethod:payMethod,paymentStatus:paid?"paid":"unpaid",
   subtotal,deliveryCharge:ship,total:subtotal+ship,deliveryType:state.deliveryType,
   pickupName:state.pickup?state.pickup.name:null,
   shippingAddress:{name:state.contact.name,phone:state.contact.phone,
