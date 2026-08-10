@@ -50,7 +50,7 @@ const st=prof.status==="approved"?'<span class="st a">✅ Approved</span>':'<spa
  c.innerHTML=`<div class="card"><div class="big">🤝 আমার Business Account</div><p>আপনার 🆔 পরিচিতি কোড:</p><div class="code">${prof.code}</div> <button class="btn" onclick="navigator.clipboard.writeText('${prof.code}')">📋 Copy</button><br><br>Status: ${st}</div>
  ${detailHtml}
  ${GUIDE}
- <div class="card"><h3>🛍️ পণ্য Select করুন</h3><p style="font-size:13px">Homepage থেকে যেকোনো পণ্যে click করে আপনার account-এ যোগ করুন।</p><button class="btn" style="width:100%" onclick="location.href='index.html?pick=1'">🛍️ পণ্য Select করুন →</button></div>
+ <div class="card"><h3>🛍️ পণ্য Select করুন</h3><p style="font-size:13px">Homepage থেকে যেকোনো পণ্যে click করে আপনার account-এ যোগ করুন।</p><button class="btn" style="width:100%" onclick="localStorage.setItem('pickMode','1');location.href='index.html'">🛍️ পণ্য Select করুন →</button></div>
  <div class="card"><h3>📦 আমার পণ্য ও Share</h3>${myProds||"এখনো পণ্য যোগ করেননি"}</div>
  <div class="card"><h3>💰 আমার আয়</h3><div id="earn">লোড হচ্ছে...</div></div>
  <div class="card"><h3>💬 Admin-এর সাথে Message</h3>${msgs}<div style="display:flex;gap:6px;margin-top:8px"><input class="inp" id="msgTxt" placeholder="Message লিখুন"><button class="btn" onclick="window.sendMsg()">📨</button></div></div>`;

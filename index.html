@@ -2208,7 +2208,22 @@ function loadGlobalCatProducts(catId){
   if(id){e.preventDefault();e.stopPropagation();location.href="affiliate.html?product="+id;}
  },true);
 })();
-</script></body>
+</script>
+<script>
+(function(){
+ if(localStorage.getItem("pickMode")!=="1")return;
+ var q=new URLSearchParams(location.search);
+ var id=q.get("id")||q.get("pid")||q.get("p")||q.get("product")||q.get("slug")||"";
+ var bar=document.createElement("div");bar.textContent="🛍️ Business Select mode চালু — পছন্দের পণ্য খুলে নিচের button চাপুন";bar.style.cssText="position:fixed;top:0;left:0;right:0;background:#FF9900;color:#111;text-align:center;font-size:12px;font-weight:700;padding:7px;z-index:99999";document.body.appendChild(bar);
+ if(!id)return;
+ var b=document.createElement("button");
+ b.textContent="✅ এই পণ্যটি আমার Business Account-এ যোগ করুন";
+ b.style.cssText="position:fixed;bottom:16px;left:12px;right:12px;background:#FFD814;border:2px solid #B12704;color:#111;font-weight:800;font-size:15px;padding:14px;border-radius:30px;z-index:99999;box-shadow:0 4px 14px rgba(0,0,0,.3)";
+ b.onclick=function(){localStorage.removeItem("pickMode");location.href="affiliate.html?product="+encodeURIComponent(id);};
+ document.body.appendChild(b);
+})();
+</script>
+</body>
 </html>
 
 <script>
