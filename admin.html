@@ -1117,5 +1117,30 @@ window.rejectSellApp=async(uid)=>{try{await update(ref(db,"sellerApps/"+uid),{st
 
 document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{const t=b.dataset.tab;if(t==="sellerprods")loadSellerProducts();if(t==="sellapps")loadSellApps();});});
 </script>
+
+<script type="module">
+import{getDatabase,ref,get,set,update,push}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+window.approveSellApp=async(uid)=>{
+ const s=(await get(ref(db,"sellerApps/"+uid))).val();if(!s)return alert("Application নেই");
+ const rate=+(document.getElementById("rate_"+uid).value)||10;
+ const code="SLR-"+uid.slice(-6).toUpperCase();
+ const errs=[];
+ try{await set(ref(db,"sellers/"+uid),{ownerUid:uid,storeName:s.storeName,storeDescription:s.storeDesc||"",status:"approved",commissionRate:rate,createdAt:Date.now(),updatedAt:Date.now()});}catch(e){errs.push("sellers → "+e.message);}
+ try{const u=await get(ref(db,"users/"+uid));
+  if(u.exists()){await update(ref(db,"users/"+uid),{role:"seller",updatedAt:Date.now()});}
+  else{await set(ref(db,"users/"+uid),{uid:uid,name:s.ownerName||"Seller",email:((s.email&&s.email.indexOf("@")>0)?s.email:uid.slice(-8)+"@mjh-seller.com"),role:"seller",createdAt:Date.now(),updatedAt:Date.now()});}
+ }catch(e){errs.push("users → "+e.message);}
+ try{const fp=s.firstProduct||{};
+  if(fp.title){await set(push(ref(db,"products")),{sellerId:uid,title:fp.title,description:fp.desc||"",price:+fp.price||0,stock:+fp.stock||0,categoryId:fp.cat||"general",status:"active",createdAt:Date.now(),updatedAt:Date.now(),discountPercent:+fp.discount||0,startDate:fp.start||"",endDate:fp.end||"",images:fp.image?{main:fp.image}:null});}
+ }catch(e){errs.push("products → "+e.message);}
+ try{await update(ref(db,"sellerApps/"+uid),{status:"approved",code:code,updatedAt:Date.now()});}catch(e){errs.push("apps → "+e.message);}
+ if(errs.length){alert("⚠️ কিছু step fail হয়েছে:\n"+errs.join("\n"));}
+ else{alert("✅ Approved! Seller ID: "+code+" — পণ্য live!");}
+ loadSellApps();
+};
+</script>
 </body>
 </html>
