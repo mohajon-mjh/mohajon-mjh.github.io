@@ -230,7 +230,7 @@ document.getElementById("placeBtn").onclick=async()=>{
     payId=sel.toUpperCase()+"-"+trx;payMethod=sel;
   }
   const orderId="MJH"+Date.now();
- const order={createdAt:Date.now(),updatedAt:Date.now(),buyerId:(window.__uid||"guest"),sellerId:"admin",status:"pending",paymentId:payId,deliveryCharge:ship,total:subtotal+ship,itemsTotal:subtotal,shippingAddress:{name:state.contact.name,phone:state.contact.phone,address:state.deliveryType==="home"?(state.contact.street+(state.contact.unit?", "+state.contact.unit:"")+(state.contact.city?", "+state.contact.city:"")):("Pickup: "+state.pickup.name+", "+state.pickup.addr),area:state.deliveryType==="home"?state.contact.area:(state.pickup.area||""),note:state.contact.note||"",refCode:localStorage.getItem("affRef")||null,payMethod:payMethod,payStatus:paid?"paid":"unpaid",subtotal:subtotal,deliveryType:state.deliveryType,pickupName:state.pickup?state.pickup.name:null,expectedDelivery:state.deliveryType==="pickup"?fdate(d3):fdate(d4)},items:cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty||1}))};
+ const order={createdAt:Date.now(),updatedAt:Date.now(),buyerId:(window.__uid||"guest"),sellerId:"admin",status:"pending",paymentId:payId,deliveryCharge:ship,total:subtotal+ship,itemsTotal:subtotal,shippingAddress:{name:state.contact.name,phone:state.contact.phone,address:state.deliveryType==="home"?(state.contact.street+(state.contact.unit?", "+state.contact.unit:"")+(state.contact.city?", "+state.contact.city:"")):("Pickup: "+state.pickup.name+", "+state.pickup.addr),area:state.deliveryType==="home"?state.contact.area:(state.pickup.area||""),note:state.contact.note||"",advTrx:window.__advTrx||null,advAmt:window.__advAmt||0,refCode:localStorage.getItem("affRef")||null,payMethod:payMethod,payStatus:paid?"paid":"unpaid",subtotal:subtotal,deliveryType:state.deliveryType,pickupName:state.pickup?state.pickup.name:null,expectedDelivery:state.deliveryType==="pickup"?fdate(d3):fdate(d4)},items:cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty||1}))};
  const btn=document.getElementById("placeBtn");btn.disabled=true;btn.textContent="অর্ডার হচ্ছে...";
  try{
   if(!window.__uid){alert("অর্ডার করতে login করুন");location.href="login.html";return;}
@@ -276,4 +276,7 @@ window.__placeOrder=async(id,order)=>{
   await set(ref(db,"orders/"+id),order);
 };
 </script>
-</body></html>
+
+<script>/*advance-v1*/
+(function(){var w=function(){var els=document.querySelectorAll("label,input,div");for(var i=0;i<els.length;i++){if((els[i].textContent||"").indexOf("Cash on Delivery")>-1&&els[i].children.length<6){var box=document.createElement("div");box.innerHTML='<div style="background:#fff9e6;border:1px solid #FF9900;border-radius:8px;padding:10px;margin:8px 0;font-size:12px">💳 <b>Advance (optional but recommended):</b> order total-এর 10% advance bKash করুন: <b>0171317668288</b> → trxID দিন: <input id="advTrxInp" placeholder="trxID" style="padding:6px;border:1px solid #999;border-radius:6px;width:140px"></div>';els[i].parentNode.insertBefore(box,els[i].nextSibling);var inp=box.querySelector("#advTrxInp");inp.oninput=function(){window.__advTrx=inp.value.trim();window.__advAmt=1;};return;}}};setTimeout(w,800);setTimeout(w,2000);})();
+</script></html>

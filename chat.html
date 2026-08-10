@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chat - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial;background:#f4f6f8}.wrap{max-width:640px;margin:14px auto;padding:0 10px}.card{background:#fff;border-radius:10px;padding:14px}.m{border-radius:8px;padding:8px;margin:5px 0;font-size:13px;max-width:85%}.me{background:#d4f4d4;margin-left:auto}.oth{background:#e8f4fd}</style></head><body>
+<header style="background:#131921;color:#fff;padding:12px 16px"><a href="my-orders.html" style="color:#fff;text-decoration:none">← My Orders</a> | 💬 Chat</header>
+<div class="wrap"><div class="card" id="box">লোড হচ্ছে...</div></div>
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get,set,update,push}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+const oid=new URLSearchParams(location.search).get("o");
+onAuthStateChanged(auth,async u=>{
+ if(!u){box.innerHTML="Login দরকার";return;}
+ const o=(await get(ref(db,"orders/"+oid))).val();if(!o){box.innerHTML="Order পাওয়া যায়নি";return;}
+ const chatId="c_"+o.buyerId+"_"+oid;
+ async function draw(){
+  let rows="";try{const m=await get(ref(db,"messages/"+chatId));rows=Object.values(m.val()||{}).sort((a,b)=>a.createdAt-b.createdAt).map(x=>'<div class="m '+(x.senderId===u.uid?"me":"oth")+'"><b>'+(x.senderId===u.uid?"আপনি":"🏪 Seller")+':</b> '+x.text+'</div>').join("");}catch(e){}
+  box.innerHTML='<h3>🏪 Order #'+oid.slice(-6)+' — Seller-এর সাথে chat</h3><p style="font-size:11px;color:#888">⚠️ ফোন নম্বর share নিষিদ্ধ — সব কথা এখানে রাখুন</p>'+rows+'<div style="display:flex;gap:6px;margin-top:8px"><input id="t" style="flex:1;padding:8px;border:1px solid #999;border-radius:8px" placeholder="Message..."><button id="s" style="background:#FFD814;border:none;border-radius:8px;padding:8px 14px;font-weight:700">📨</button></div>';
+  document.getElementById("s").onclick=async()=>{const t=document.getElementById("t").value.trim();if(!t)return;
+   await set(ref(db,"chat/"+chatId),{participants:{},updatedAt:Date.now()}).catch(()=>{});
+   await update(ref(db,"chat/"+chatId),{["participants."+o.buyerId]:true,["participants."+o.sellerId]:true,updatedAt:Date.now()});
+   await set(push(ref(db,"messages/"+chatId)),{senderId:u.uid,text:t,createdAt:Date.now()});draw();};
+ }
+ draw();
+});
+</script></body></html>

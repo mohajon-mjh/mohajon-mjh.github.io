@@ -107,10 +107,39 @@ function render(t){
 }
 window.__stock=async(id,d)=>{const p=myProducts[id];await update(ref(db,"products/"+id),{stock:Math.max(0,(p.stock||0)+d)});myProducts[id].stock=Math.max(0,(p.stock||0)+d);render("inv");};
 window.__pImg=function(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const cv=document.createElement("canvas");const sc=Math.min(1,600/Math.max(img.width,img.height));cv.width=img.width*sc;cv.height=img.height*sc;cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);window.pImgData=cv.toDataURL("image/jpeg",0.7);document.getElementById("pPrev").src=window.pImgData;document.getElementById("pPrev").style.display="block";if(window.__ai)window.__ai(document.getElementById("pPrev"),"p");};img.src=e.target.result;};r.readAsDataURL(f);};
-window.__addProd=async()=>{try{const t=$("pTitle").value,pr=+$("pPrice").value,st=+$("pStock").value,img=$("pImg").value,sup=$("pSup").value;if(!t||!pr)return alert("নাম ও দাম দিন");
+window.__addProd=async()=>{if(window.__dueAmt>0)return alert("⚠️ Commission due আছে! আগে পরিশোধ করুন।");try{const t=$("pTitle").value,pr=+$("pPrice").value,st=+$("pStock").value,img=$("pImg").value,sup=$("pSup").value;if(!t||!pr)return alert("নাম ও দাম দিন");
  const im=window.pImgData||img;
  await set(push(ref(db,"products")),{sellerId:uid,title:t,description:$("pDesc").value||"",price:pr,stock:st||0,categoryId:(window.autoCat?window.autoCat(t):"general"),status:"pending",createdAt:Date.now(),updatedAt:Date.now(),discountPercent:+$("pDisc").value||0,startDate:$("pStart").value||"",endDate:$("pEnd").value||"",supplier:sup||null,images:im?{main:im}:null});
  window.pImgData=null;alert("✅ Product submitted — admin approve করলে live হবে");await loadAll();render("inv");}catch(e){alert("❌ "+e.message);}};
 window.__ship=async(id)=>{const st=$("st_"+id).value;await update(ref(db,"orders/"+id),{status:st,updatedAt:Date.now()});alert("✅ Status: "+st);loadAll().then(()=>render("ord"));};
 window.__wd=async()=>{const a=+$("wAmt").value,b=$("wBank").value;if(!a)return alert("Amount দিন");await set(push(ref(db,"withdrawRequests")),{userId:uid,amount:a,bankDetails:b,status:"pending",createdAt:Date.now()});alert("✅ Withdraw request sent");};
-</script><script>/*auto-ai-v1*/window.autoCat=function(t){t=(t||"").toLowerCase();var M=[["electronics",["router","wifi","phone","laptop","tv","charger","headphone","camera","speaker","tablet","monitor"]],["groceries",["rice","wheat","potato","onion","garlic","ginger","oil","sugar","salt","tea","fish","meat","egg","milk","fruit","vegetable"]],["fashion",["shirt","pant","dress","saree","shoe","sandal","jacket","cap"]],["home-kitchen",["chair","table","pan","pot","knife","plate","stove","blender","fan","light"]],["health-beauty",["soap","shampoo","cream","perfume","toothpaste"]]];for(var i=0;i<M.length;i++){for(var j=0;j<M[i][1].length;j++){if(t.indexOf(M[i][1][j])>-1)return M[i][0];}}return "general";};</script></body></html>
+</script><script>/*auto-ai-v1*/window.autoCat=function(t){t=(t||"").toLowerCase();var M=[["electronics",["router","wifi","phone","laptop","tv","charger","headphone","camera","speaker","tablet","monitor"]],["groceries",["rice","wheat","potato","onion","garlic","ginger","oil","sugar","salt","tea","fish","meat","egg","milk","fruit","vegetable"]],["fashion",["shirt","pant","dress","saree","shoe","sandal","jacket","cap"]],["home-kitchen",["chair","table","pan","pot","knife","plate","stove","blender","fan","light"]],["health-beauty",["soap","shampoo","cream","perfume","toothpaste"]]];for(var i=0;i<M.length;i++){for(var j=0;j<M[i][1].length;j++){if(t.indexOf(M[i][1][j])>-1)return M[i][0];}}return "general";};</script>
+<script>/*dueLock-v1*/
+import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(async m=>{
+ const {getDatabase,ref,get,query,orderByChild,equalTo}=m;
+ const apps=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
+ const db=getDatabase(apps.getApps().length?apps.getApp():apps.initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"}));
+ window.__dueCheck=async(uid)=>{
+  try{const t=await get(query(ref(db,"commissions"),orderByChild("sellerId"),equalTo(uid)));
+   let due=0;Object.values(t.val()||{}).forEach(x=>due+=x.amount||0);window.__dueAmt=due;
+   const el=document.getElementById("dueBox");if(el)el.innerHTML=due>0?'<div style="background:#5a1a1a;color:#ffb3b3;border-radius:8px;padding:10px;margin:8px 0;font-size:13px">⚠️ <b>Commission due: ৳'+due.toFixed(0)+'</b> — bKash 0171317668288-এ পরিশোধ করে admin-কে জানান। Due থাকলে নতুন product যোগ করা যাবে না।</div>':'';}catch(e){}
+ };
+ window.__orderChats=async(uid)=>{
+  try{const o=await get(query(ref(db,"orders"),orderByChild("sellerId"),equalTo(uid)));
+   const ords=Object.entries(o.val()||{});const out=[];
+   for(const [oid,o] of ords){const chatId="c_"+o.buyerId+"_"+oid;
+    const ch=await get(ref(db,"chat/"+chatId)).catch(()=>null);
+    if(ch&&ch.exists()){const msgs=await get(ref(db,"messages/"+chatId));
+     out.push({oid,o,rows:Object.values(msgs.val()||{}).sort((a,b)=>a.createdAt-b.createdAt)});}
+   }
+   const el=document.getElementById("chatBox");if(el)el.innerHTML=out.length?out.map(x=>'<div style="background:#1a242f;border-radius:8px;padding:10px;margin:6px 0"><b>Order #'+x.oid.slice(-6)+'</b>'+x.rows.map(mm=>'<div style="font-size:12px;margin:3px 0"><b>'+(mm.senderId===uid?"আপনি":"👤")+':</b> '+mm.text+'</div>').join("")+'<div style="display:flex;gap:6px;margin-top:6px"><input id="cr_'+x.oid+'" placeholder="Reply..." style="flex:1;padding:6px;background:#232f3e;color:#fff;border:1px solid #555;border-radius:6px"><button onclick="window.__creply(\''+x.oid+'\',\''+x.o.buyerId+'\')" style="background:#FF9900;border:none;border-radius:6px;padding:6px 10px;font-weight:700">📨</button></div></div>').join(""):'<p style="font-size:12px">কোনো customer message নেই</p>';}catch(e){}
+ };
+ window.__creply=async(oid,buyerId)=>{
+  const apps2=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
+  const inp=document.getElementById("cr_"+oid);const t=inp.value.trim();if(!t)return;
+  const auth2=(await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js")).getAuth();
+  await apps2.set(apps2.push(ref(db,"messages/"+("c_"+buyerId+"_"+oid))),{senderId:auth2.currentUser.uid,text:t,createdAt:Date.now()});
+  window.__orderChats(auth2.currentUser.uid);
+ };
+});
+</script></html>

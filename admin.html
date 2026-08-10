@@ -1267,5 +1267,36 @@ window.rejectAff=async(c)=>{try{await update(ref(db,"affiliates/"+c),{status:"re
 window.delAff=async(c)=>{if(!confirm("Affiliate মুছবেন?"))return;try{await remove(ref(db,"affiliates/"+c));alert("🗑️ Deleted");loadAffiliates();}catch(e){alert("❌ "+e.message);}};
 document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{const t=b.dataset.tab;if(t==="sellers")loadSellers();if(t==="sellapps")loadSellApps();if(t==="affiliates")loadAffiliates();});});
 </script>
-</body>
+
+<script type="module">/*sweep-v1*/
+import{getDatabase,ref,get,set,update,remove,query,orderByChild,equalTo}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+window.__adminSweep=async()=>{
+ const ords=(await get(ref(db,"orders"))).val()||{};
+ const sellers=(await get(ref(db,"sellers"))).val()||{};
+ const canc={};
+ for(const [oid,o] of Object.entries(ords)){
+  if(o.status==="cancelled")canc[o.sellerId]=(canc[o.sellerId]||0)+1;
+  const pm=o.shippingAddress&&o.shippingAddress.payMethod;
+  if(o.status==="delivered"&&(pm||"").toLowerCase().indexOf("cash")>-1){
+   const ex=await get(query(ref(db,"commissions"),orderByChild("orderId"),equalTo(oid)));
+   if(!Object.keys(ex.val()||{}).length){
+    const rate=(sellers[o.sellerId]&&sellers[o.sellerId].commissionRate)||10;
+    await set(ref(db,"commissions/"+oid),{sellerId:o.sellerId,orderId:oid,amount:(o.total||0)*rate/100,rate:rate,createdAt:Date.now()}).catch(()=>{});
+   }
+  }
+ }
+ for(const [sid,n] of Object.entries(canc)){
+  if(n>=3&&sellers[sid]&&sellers[sid].status!=="suspended"){await update(ref(db,"sellers/"+sid),{status:"suspended"}).catch(()=>{});}
+ }
+};
+window.__markPaid=async(sid)=>{
+ const t=await get(query(ref(db,"commissions"),orderByChild("sellerId"),equalTo(sid)));
+ for(const id of Object.keys(t.val()||{})){await remove(ref(db,"commissions/"+id));}
+ alert("✅ Commission paid marked");loadSellers();
+};
+document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{if(b.dataset.tab==="sellers"){window.__adminSweep&&__adminSweep();}})});
+</script>
 </html>
