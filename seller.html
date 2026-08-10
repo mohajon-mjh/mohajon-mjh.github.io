@@ -10,6 +10,7 @@
  <button class="tab" data-t="rev">⭐ Reviews</button>
  <button class="tab" data-t="set">⚙️ Settings</button>
  <button class="tab" data-t="guide">📖 Guide</button>
+ <button class="tab" data-t="msg">💬 Messages</button>
 </div>
 <div class="wrap" id="content">লোড হচ্ছে...</div>
 <script type="module">
@@ -38,6 +39,17 @@ async function loadAll(){
 }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");render(b.dataset.t);});
 function render(t){
+ if(t==="msg"){(async()=>{const c=document.getElementById("content");
+  if(!seller||seller.status!=="approved"){c.innerHTML='<div class="card">❌ শুধুমাত্র approved seller-রা message করতে পারবে</div>';return;}
+  const chatId="admin_"+uid;let rows="";
+  try{const m=await get(ref(db,"messages/"+chatId));rows=Object.values(m.val()||{}).sort((x,y)=>x.createdAt-y.createdAt).map(x=>'<div class="row"><b>'+(x.senderId===uid?"আপনি":"🛠️ Admin")+':</b> '+x.text+'</div>').join("");}catch(e){}
+  c.innerHTML='<div class="card"><h3>💬 Admin-এর সাথে Messages</h3>'+rows+'<div style="display:flex;gap:6px;margin-top:8px"><input class="inp" id="smTxt" placeholder="Message লিখুন"><button class="btn" onclick="window.__sm()">📨</button></div></div>';
+  window.__sm=async()=>{const t=document.getElementById("smTxt").value.trim();if(!t)return;
+   await set(ref(db,"chat/"+chatId),{participants:{},updatedAt:Date.now()}).catch(()=>{});
+   await update(ref(db,"chat/"+chatId),{["participants."+uid]:true,updatedAt:Date.now()}).catch(()=>{});
+   await set(push(ref(db,"messages/"+chatId)),{senderId:uid,text:t,createdAt:Date.now()});render("msg");};
+ })();return;}
+
  if(t==="guide"){c.innerHTML=`<div class="card"><h3>📖 Seller Guide (Amazon/Daraz-এর মতো)</h3>
  <div class="row">1️⃣ Admin approval-এর পর product add করুন (ছবি, বিস্তারিত, সঠিক দাম)</div>
  <div class="row">2️⃣ Admin approve করলে product live হবে</div>

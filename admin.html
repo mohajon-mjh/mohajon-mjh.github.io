@@ -1195,5 +1195,77 @@ window.loadSellApps=async()=>{
 };
 document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{if(b.dataset.tab==="sellapps")loadSellApps();});});
 </script>
+
+<script type="module">/*admin-control-v3*/
+import{getDatabase,ref,get,set,update,push,remove,query,orderByChild,equalTo}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app),auth=getAuth(app);
+let ADMIN=null;onAuthStateChanged(auth,u=>{ADMIN=u?u.uid:null;});
+const fmt=v=>"৳"+Number(v||0).toFixed(2);
+
+// ===== SELLERS: approve/reject/delete/message =====
+window.loadSellers=async()=>{
+ const snap=await get(ref(db,"sellers"));const s=snap.val()||{};
+ document.getElementById("sellersList").innerHTML=Object.entries(s).map(([id,v])=>`
+ <div style="background:#232f3e;padding:12px;border-radius:8px;margin:6px 0">
+ <b>${v.storeName||"-"}</b> (${id.slice(0,8)})<br>
+ Status: <b style="color:${v.status==="approved"?"#7CFC00":"#FF9900"}">${v.status}</b> | Commission: ${v.commissionRate||0}%<br>
+ <button onclick="approveSeller('${id}')" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:6px 12px;font-weight:700;margin:3px">✅ Approve</button>
+ <button onclick="rejectSeller('${id}')" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;margin:3px">❌ Reject</button>
+ <button onclick="delSeller('${id}')" style="background:#111;color:#FF9900;border:1px solid #FF9900;border-radius:6px;padding:6px 12px;margin:3px">🗑️ Delete</button>
+ <button onclick="openThread('${id}','sth_${id}')" style="background:#37475a;color:#fff;border:none;border-radius:6px;padding:6px 12px;margin:3px">💬 Message</button>
+ <div id="sth_${id}" style="display:none;margin-top:8px"></div>
+ </div>`).join("")||"কোনো seller নেই";
+};
+window.delSeller=async(id)=>{if(!confirm("Seller মুছে ফেলবেন?"))return;try{await remove(ref(db,"sellers/"+id));alert("🗑️ Deleted");loadSellers();}catch(e){alert("❌ "+e.message);}};
+
+// ===== MESSAGE THREAD (chat node) =====
+window.openThread=async(uid,boxId)=>{
+ const box=document.getElementById(boxId);box.style.display="block";
+ const chatId="admin_"+uid;
+ let rows="";
+ try{const m=await get(ref(db,"messages/"+chatId));
+  rows=Object.values(m.val()||{}).sort((x,y)=>x.createdAt-y.createdAt).map(x=>`<div style="background:#1a242f;border-radius:6px;padding:6px;margin:3px 0;font-size:12px"><b>${x.senderId===ADMIN?"🛠️ Admin":"👤"}:</b> ${x.text}</div>`).join("");}catch(e){}
+ box.innerHTML=rows+`<div style="display:flex;gap:6px"><input id="mi_${boxId}" placeholder="Message লিখুন" style="flex:1;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:6px"><button onclick="sendMsgTo('${uid}','${boxId}')" style="background:#FF9900;color:#111;border:none;border-radius:6px;padding:6px 12px;font-weight:700">📨 পাঠান</button></div>`;
+};
+window.sendMsgTo=async(uid,boxId)=>{
+ const t=document.getElementById("mi_"+boxId).value.trim();if(!t)return;
+ const chatId="admin_"+uid;
+ try{
+  await set(ref(db,"chat/"+chatId),{participants:{},updatedAt:Date.now()}).catch(()=>{});
+  await update(ref(db,"chat/"+chatId),{["participants."+ADMIN]:true,["participants."+uid]:true,updatedAt:Date.now()});
+  await set(push(ref(db,"messages/"+chatId)),{senderId:ADMIN,text:t,createdAt:Date.now()});
+  openThread(uid,boxId);
+ }catch(e){alert("❌ "+e.message);}
+};
+
+// ===== SELLER APPS: + delete =====
+window.loadSellApps=async()=>{
+ try{
+ const snap=await get(ref(db,"sellerApps"));const all=snap.val()||{};
+ const phones={};Object.values(all).forEach(x=>{if(x.phone)phones[x.phone]=(phones[x.phone]||0)+1;});
+ document.getElementById("sellAppsList").innerHTML=Object.entries(all).map(([uid,s])=>{
+  const fp=s.firstProduct||{};
+  return '<div style="background:#232f3e;padding:14px;border-radius:8px;margin:8px 0">'+
+  '<b style="color:#FF9900">🏪 '+s.storeName+'</b> '+(s.status==="approved"?"✅":s.status==="rejected"?"❌":"")+((phones[s.phone]||0)>1?' <span style="color:#FF9900;font-weight:700">⚠️ Duplicate!</span>':'')+'<br>'+
+  '👤 '+s.ownerName+' | 📞 '+s.phone+' | 📍 '+s.address+'<br>'+
+  '💳 bKash: '+(s.bkash||"-")+' | '+(s.bank||"-")+'<br>'+
+  '📦 '+(fp.title||"-")+' — ৳'+(fp.price||0)+'<br>'+
+  (fp.image?'<img src="'+fp.image+'" style="max-width:110px;border-radius:8px;margin:6px 0"><br>':'')+
+  (s.status==="pending"?'Rate: <input id="rate_'+uid+'" type="number" value="10" style="width:55px;padding:4px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"> <button onclick="approveSellApp(\''+uid+'\')" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:6px 12px;font-weight:700;margin:3px">✅ Approve</button> <button onclick="rejectSellApp(\''+uid+'\')" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;margin:3px">❌ Reject</button>':'<b style="color:#7CFC00">🆔 '+(s.code||"")+'</b>')+
+  ' <button onclick="delSellApp(\''+uid+'\')" style="background:#111;color:#FF9900;border:1px solid #FF9900;border-radius:6px;padding:6px 12px;margin:3px">🗑️ Delete</button>'+
+  '</div>';
+ }).join("")||"কোনো আবেদন নেই";
+ }catch(e){document.getElementById("sellAppsList").innerHTML="❌ "+e.message;}
+};
+window.delSellApp=async(uid)=>{if(!confirm("আবেদন মুছবেন?"))return;try{await remove(ref(db,"sellerApps/"+uid));alert("🗑️ Deleted");loadSellApps();}catch(e){alert("❌ "+e.message);}};
+
+// ===== AFFILIATES: + reject/delete =====
+window.rejectAff=async(c)=>{try{await update(ref(db,"affiliates/"+c),{status:"rejected"});alert("❌ Rejected");loadAffiliates();}catch(e){alert("❌ "+e.message);}};
+window.delAff=async(c)=>{if(!confirm("Affiliate মুছবেন?"))return;try{await remove(ref(db,"affiliates/"+c));alert("🗑️ Deleted");loadAffiliates();}catch(e){alert("❌ "+e.message);}};
+document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{const t=b.dataset.tab;if(t==="sellers")loadSellers();if(t==="sellapps")loadSellApps();if(t==="affiliates")loadAffiliates();});});
+</script>
 </body>
 </html>

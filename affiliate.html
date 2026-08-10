@@ -53,7 +53,7 @@ const st=prof.status==="approved"?'<span class="st a">✅ Approved</span>':'<spa
  <div class="card"><h3>🛍️ পণ্য Select করুন</h3><p style="font-size:13px">Homepage থেকে যেকোনো পণ্যে click করে আপনার account-এ যোগ করুন।</p><button class="btn" style="width:100%" onclick="localStorage.setItem('pickMode','1');location.href='index.html'">🛍️ পণ্য Select করুন →</button></div>
  <div class="card"><h3>📦 আমার পণ্য ও Share</h3>${myProds||"এখনো পণ্য যোগ করেননি"}</div>
  <div class="card"><h3>💰 আমার আয়</h3><div id="earn">লোড হচ্ছে...</div></div>
- <div class="card"><h3>💬 Admin-এর সাথে Message</h3>${msgs}<div style="display:flex;gap:6px;margin-top:8px"><input class="inp" id="msgTxt" placeholder="Message লিখুন"><button class="btn" onclick="window.sendMsg()">📨</button></div></div>`;
+ ${prof.status==="approved"?`<div class="card"><h3>💬 Admin-এর সাথে Message</h3>${msgs}<div style="display:flex;gap:6px;margin-top:8px"><input class="inp" id="msgTxt" placeholder="Message লিখুন"><button class="btn" onclick="window.sendMsg()">📨</button></div></div>`:`<div class="card">❌ শুধুমাত্র approved member-রা message করতে পারবে</div>`}`;
  loadEarn();
 }
 window.sendOtp=async()=>{const ph=document.getElementById("bPhone").value.trim();if(!/^\+?[0-9]{11,15}$/.test(ph))return alert("সঠিক নম্বর দিন");
