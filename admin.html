@@ -960,42 +960,47 @@ window.rejectProd=async(id)=>{await update(ref(db,"products/"+id),{status:"rejec
 
 // ========== AFFILIATES TAB ==========
 window.loadAffiliates=async()=>{
+ const snap=await get(ref(db,"affiliates"));
+ const all=snap.val()||{};
+ const rateSnap=await get(ref(db,"settings/commissionRate"));
+ const gRate=rateSnap.val()||5;
+ // auto-commission (delivered orders, per-product rate)
  const ordersSnap=await get(ref(db,"orders"));
  const orders=ordersSnap.val()||{};
- const rateSnap=await get(ref(db,"settings/commissionRate"));
- const rate=rateSnap.val()||5;
- const groups={};
- Object.entries(orders).forEach(([id,o])=>{
-  const ref=o.shippingAddress&&o.shippingAddress.refCode;
-  if(ref){if(!groups[ref])groups[ref]={count:0,total:0,commission:0,orders:[]};
-   groups[ref].count++;groups[ref].total+=o.total||0;groups[ref].commission+=(o.total||0)*rate/100;groups[ref].orders.push(id);}
- });
- for(const [ref,data] of Object.entries(groups)){
-  const tSnap=await get(query(ref(db,"transactions"),orderByChild("userId"),equalTo(ref)));
-  const tx=tSnap.val()||{};
-  const paidIds=new Set(Object.values(tx).filter(x=>x.reference&&x.reference.indexOf("AFF-")===0).map(x=>x.reference.slice(4)));
-  for(const oid of data.orders){
-   if(paidIds.has(oid))continue;
-   const oSnap=await get(ref(db,"orders/"+oid));
-   const o=oSnap.val();
-   if(o&&o.status==="delivered"){
-    const c=(o.total||0)*rate/100;
-    await set(push(ref(db,"transactions")),{userId:ref,type:"credit",amount:c,reference:"AFF-"+oid,reason:"Affiliate commission",createdAt:Date.now()});
-    const wSnap=await get(ref(db,"wallets/"+ref));
-    const cur=(wSnap.val()&&wSnap.val().balance)||0;
-    await update(ref(db,"wallets/"+ref),{balance:cur+c,currency:"BDT",updatedAt:Date.now()});
+ for(const [code,af] of Object.entries(all)){
+  const tSnap=await get(query(ref(db,"transactions"),orderByChild("userId"),equalTo(code)));
+  const paidIds=new Set(Object.values(tSnap.val()||{}).filter(x=>x.reference&&x.reference.indexOf("AFF-")===0).map(x=>x.reference.slice(4)));
+  for(const [oid,o] of Object.entries(orders)){
+   if((o.shippingAddress&&o.shippingAddress.refCode)===code&&o.status==="delivered"&&!paidIds.has(oid)){
+    let comm=0;(o.items||[]).forEach(it=>{const r=(af.products&&af.products[it.id]&&af.products[it.id].rate)||gRate;comm+=it.price*(it.qty||1)*r/100;});
+    if(comm>0){await set(push(ref(db,"transactions")),{userId:code,type:"credit",amount:comm,reference:"AFF-"+oid,reason:"Affiliate commission",createdAt:Date.now()});
+     const w=await get(ref(db,"wallets/"+code));const cur=(w.val()&&w.val().balance)||0;
+     await update(ref(db,"wallets/"+code),{balance:cur+comm,currency:"BDT",updatedAt:Date.now()});}
    }
   }
  }
  const list=document.getElementById("affList");
- list.innerHTML=Object.entries(groups).map(([ref,data])=>`
-  <div style="background:#232f3e;padding:12px;border-radius:8px;margin:6px 0">
-   <b>Affiliate: ${ref.slice(0,8)}...</b><br>
-   Orders: ${data.count} | Total Sales: ${fmt(data.total)}<br>
-   Commission (${rate}%): <b style="color:#7CFC00">${fmt(data.commission)}</b><br>
-   <small>✅ Delivered orders-এর commission auto wallet-এ যোগ হয়</small>
-  </div>`).join("")||"কোনো affiliate order নেই";
+ list.innerHTML=Object.entries(all).map(([code,af])=>{
+  const prods=Object.entries(af.products||{}).map(([pid,p])=>`<div class="row" style="border-top:1px solid #37475a;padding:8px 0">🆔 ${p.code} — <b>${p.title}</b> ${p.status==="approved"?"✅":"⏳"}<br>Commission %: <input type="number" value="${p.rate||gRate}" style="width:60px;padding:4px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px" onchange="setAffRate('${code}','${pid}',this.value)"> <button onclick="approveAffProd('${code}','${pid}')" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:5px 10px;font-weight:700">✅ Approve</button></div>`).join("");
+  const msgs=Object.values(af.messages||{}).sort((x,y)=>x.time-y.time).map(m=>`<div style="background:#1a242f;border-radius:6px;padding:6px;margin:3px 0;font-size:12px"><b>${m.from}:</b> ${m.text}</div>`).join("");
+  return `<div style="background:#232f3e;padding:14px;border-radius:8px;margin:8px 0">
+   <b style="color:#FF9900;font-size:16px">🆔 ${af.code}</b> ${af.status==="approved"?"✅":"⏳"} <button class="btn" onclick="this.nextElementSibling.style.display='block'" style="background:#37475a;color:#fff;border:none;border-radius:6px;padding:5px 10px">👁️ সব দেখুন</button>
+   <div style="display:none;margin-top:10px">
+    <div class="row">👤 ${af.name} | 📞 ${af.phone} ${af.phoneVerified?"✅":"❌"} | ️ ${af.email||"-"}</div>
+    <div class="row">📍 ${af.address||"-"}</div>
+    <div class="row">📱 bKash: ${af.bkash||"-"} | Nagad: ${af.nagad||"-"} | Rocket: ${af.rocket||"-"}</div>
+    <div class="row">🏦 ${af.bank||"-"}</div>
+    <div class="row">🔗 ${af.fb||"-"}</div>
+    <h4>📦 পণ্য ও Commission %</h4>${prods||"কোনো পণ্য নেই"}
+    <h4>💬 Messages</h4>${msgs}<div style="display:flex;gap:6px;margin-top:6px"><input id="am_${code}" placeholder="Message লিখুন" style="flex:1;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:6px"><button onclick="sendAffMsg('${code}')" style="background:#FF9900;color:#111;border:none;border-radius:6px;padding:6px 12px;font-weight:700">📨 পাঠান</button></div>
+   </div><br>
+   ${af.status!=="approved"?`<button onclick="setAffStatus('${code}','approved')" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:6px 12px;font-weight:700;margin:3px">✅ Approve</button><button onclick="setAffStatus('${code}','rejected')" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;margin:3px">❌ Reject</button>`:""}
+  </div>`;}).join("")||"কোনো affiliate নেই";
 };
+window.setAffStatus=async(c,s)=>{await update(ref(db,"affiliates/"+c),{status:s});alert("✅ "+s);loadAffiliates();};
+window.approveAffProd=async(c,p)=>{await update(ref(db,"affiliates/"+c+"/products/"+p),{status:"approved"});alert("✅ Product live");loadAffiliates();};
+window.setAffRate=async(c,p,r)=>{await update(ref(db,"affiliates/"+c+"/products/"+p),{rate:+r});alert("✅ Rate: "+r+"%");};
+window.sendAffMsg=async(c)=>{const t=document.getElementById("am_"+c).value.trim();if(!t)return;await push(ref(db,"affiliates/"+c+"/messages"),{from:"admin",text:t,time:Date.now()});alert("📨 পাঠানো হয়েছে");loadAffiliates();};
 window.saveCommRate=async()=>{const r=+document.getElementById("commRate").value;await set(ref(db,"settings/commissionRate"),r);alert("✅ Rate saved: "+r+"%");loadAffiliates();};
 
 // ========== WITHDRAWALS TAB ==========

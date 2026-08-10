@@ -1,0 +1,17 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Product - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial;background:#EAEDED}.wrap{max-width:640px;margin:14px auto;padding:0 10px}.card{background:#fff;border-radius:10px;padding:16px}.btn{background:#FFD814;border:1px solid #FCD200;border-radius:20px;padding:11px 20px;font-weight:700;cursor:pointer;width:100%;margin:5px 0}img{width:100%;border-radius:8px}</style></head><body>
+<header style="background:#131921;color:#fff;padding:12px 16px"><a href="index.html" style="color:#fff;font-weight:700;text-decoration:none">🛍️ Mohajon-MJH</a></header>
+<div class="wrap"><div class="card" id="box">লোড হচ্ছে...</div></div>
+<script>(function(){var r=new URLSearchParams(location.search).get("ref");if(r)localStorage.setItem("affRef",r);})();</script>
+<script type="module">
+import{getDatabase,ref,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const id=new URLSearchParams(location.search).get("id");
+const s=await get(ref(getDatabase(app),"products/"+id));const p=s.val();
+if(!p){box.innerHTML="পণ্য পাওয়া যায়নি";throw 0;}
+box.innerHTML=`<img src="${(p.images&&p.images.main)||""}"><h2>${p.title}</h2><div style="font-size:22px;color:#B12704;font-weight:900">৳${p.price}</div><p style="font-size:13px">${p.description||""}</p>
+<button class="btn" onclick="localStorage.setItem('buyNowItem',JSON.stringify({id:'${id}',name:'${p.title.replace(/'/g,"")}',price:${p.price},qty:1}));location.href='checkout.html?mode=buynow'">⚡ Buy Now</button>
+<button class="btn" style="background:#fff" onclick="history.back()">← Back</button>`;
+</script></body></html>
