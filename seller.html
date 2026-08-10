@@ -76,7 +76,20 @@ function render(t){
  if(t==="inv"){
   let rows=Object.entries(myProducts).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).map(([id,p])=>`<div class="row"><b>${p.title||p.name}</b> — ${fmt(p.price)} — Stock: ${p.stock||0} — ${p.status}<br><button class="btn" onclick="window.__stock('${id}',10)">+10 Stock</button> <button class="btn" onclick="window.__stock('${id}',-10)">-10 Stock</button></div>`).join("");
   c.innerHTML=`<div class="card"><h3>📦 Inventory (${Object.keys(myProducts).length})</h3>${Object.keys(myProducts).length>50?'<p style="font-size:12px;color:#FF9900">⚠️ Admin account-এ login — তাই সব পণ্য দেখাচ্ছে। আলাদা seller account-এ শুধু নিজেরগুলো দেখাবে।</p>':''}<input class="inp" placeholder="🔍 পণ্য খুঁজুন..." oninput="document.querySelectorAll('#invRows .row').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(this.value.toLowerCase())?'block':'none')"><div id="invRows">${rows||"কোনো product নেই"}</div></div>
-  <div class="card"><h3>➕ Add Product</h3><input class="inp" id="pTitle" placeholder="Product name"><input class="inp" id="pPrice" type="number" placeholder="Price (৳)"><input class="inp" id="pStock" type="number" placeholder="Stock"><input class="inp" id="pImg" placeholder="Image URL"><input class="inp" id="pSup" placeholder="Supplier name/contact (dropship — শুধু admin দেখবে)"><button class="btn" onclick="window.__addProd()">Add</button></div>`;
+  <div class="card"><h3>➕ Add Product</h3>
+<input class="inp" id="pTitle" placeholder="পণ্যের নাম *" oninput="document.getElementById('pCatHint').textContent='📂 '+(window.autoCat?window.autoCat(this.value):'')">
+<span id="pCatHint" style="font-size:11px;color:#7CFC00"></span>
+<input class="inp" id="pDesc" placeholder="বিবরণ">
+<input class="inp" id="pPrice" type="number" placeholder="দাম (৳) *">
+<input class="inp" id="pDisc" type="number" placeholder="Discount %">
+<input class="inp" id="pStart" placeholder="Offer start (8-8-2026)">
+<input class="inp" id="pEnd" placeholder="Offer end">
+<input class="inp" id="pStock" type="number" placeholder="Stock" value="10">
+<input class="inp" id="pImg" placeholder="Image URL (অথবা নিচে ছবি দিন)">
+<input type="file" accept="image/*" onchange="window.__pImg(this)"><img id="pPrev" style="display:none;max-width:120px;border-radius:8px;margin:4px 0">
+<input class="inp" id="pSup" placeholder="Supplier (ঐচ্ছিক, শুধু admin দেখবে)">
+<button class="btn" style="width:100%" onclick="window.__addProd()">➕ Product Add করুন</button></div>
+<div class="card"><h3>🤖 AI Bulk Add — একসাথে অনেক পণ্য</h3><p style="font-size:12px">কয়েকটা ছবি একসাথে select করুন — AI প্রতিটার নাম, দাম, ক্যাটাগরি auto দিয়ে product বানাবে!</p><input type="file" accept="image/*" multiple onchange="window.__bulkAI(this)"><div id="bulkLog" style="font-size:12px;margin-top:6px"></div></div>`;
  }
  if(t==="ord"){
   let rows=Object.entries(myOrders).map(([id,o])=>`<div class="row"><b>#${id.slice(-6)}</b> — ${fmt(o.total)} — ${o.status}<br><select class="btn" id="st_${id}"><option>processing</option><option>shipped</option><option>delivered</option></select> <button class="btn" onclick="window.__ship('${id}')">Update</button></div>`).join("");
@@ -92,7 +105,11 @@ function render(t){
  if(t==="set"){c.innerHTML=`<div class="card"><h3>⚙️ Store Settings</h3><div class="row">Store: <b>${seller?seller.storeName:"-"}</b></div><div class="row">Owner UID: ${uid}</div></div>`;}
 }
 window.__stock=async(id,d)=>{const p=myProducts[id];await update(ref(db,"products/"+id),{stock:Math.max(0,(p.stock||0)+d)});myProducts[id].stock=Math.max(0,(p.stock||0)+d);render("inv");};
-window.__addProd=async()=>{try{const t=$("pTitle").value,pr=+$("pPrice").value,st=+$("pStock").value,img=$("pImg").value,sup=$("pSup").value;if(!t||!pr)return alert("নাম ও দাম দিন");await set(push(ref(db,"products")),{sellerId:uid,title:t,price:pr,stock:st||0,categoryId:(window.autoCat?window.autoCat(t):"general"),status:"pending",createdAt:Date.now(),supplier:sup||null,images:img?{main:img}:null});alert("✅ Product submitted (pending approval)");await loadAll();render("inv");}catch(e){alert("❌ "+e.message);}};
+window.__pImg=function(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const cv=document.createElement("canvas");const sc=Math.min(1,600/Math.max(img.width,img.height));cv.width=img.width*sc;cv.height=img.height*sc;cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);window.pImgData=cv.toDataURL("image/jpeg",0.7);document.getElementById("pPrev").src=window.pImgData;document.getElementById("pPrev").style.display="block";if(window.__ai)window.__ai(document.getElementById("pPrev"),"p");};img.src=e.target.result;};r.readAsDataURL(f);};
+window.__addProd=async()=>{try{const t=$("pTitle").value,pr=+$("pPrice").value,st=+$("pStock").value,img=$("pImg").value,sup=$("pSup").value;if(!t||!pr)return alert("নাম ও দাম দিন");
+ const im=window.pImgData||img;
+ await set(push(ref(db,"products")),{sellerId:uid,title:t,description:$("pDesc").value||"",price:pr,stock:st||0,categoryId:(window.autoCat?window.autoCat(t):"general"),status:"pending",createdAt:Date.now(),updatedAt:Date.now(),discountPercent:+$("pDisc").value||0,startDate:$("pStart").value||"",endDate:$("pEnd").value||"",supplier:sup||null,images:im?{main:im}:null});
+ window.pImgData=null;alert("✅ Product submitted — admin approve করলে live হবে");await loadAll();render("inv");}catch(e){alert("❌ "+e.message);}};
 window.__ship=async(id)=>{const st=$("st_"+id).value;await update(ref(db,"orders/"+id),{status:st,updatedAt:Date.now()});alert("✅ Status: "+st);loadAll().then(()=>render("ord"));};
 window.__wd=async()=>{const a=+$("wAmt").value,b=$("wBank").value;if(!a)return alert("Amount দিন");await set(push(ref(db,"withdrawRequests")),{userId:uid,amount:a,bankDetails:b,status:"pending",createdAt:Date.now()});alert("✅ Withdraw request sent");};
 </script><script>/*auto-ai-v1*/window.autoCat=function(t){t=(t||"").toLowerCase();var M=[["electronics",["router","wifi","phone","laptop","tv","charger","headphone","camera","speaker","tablet","monitor"]],["groceries",["rice","wheat","potato","onion","garlic","ginger","oil","sugar","salt","tea","fish","meat","egg","milk","fruit","vegetable"]],["fashion",["shirt","pant","dress","saree","shoe","sandal","jacket","cap"]],["home-kitchen",["chair","table","pan","pot","knife","plate","stove","blender","fan","light"]],["health-beauty",["soap","shampoo","cream","perfume","toothpaste"]]];for(var i=0;i<M.length;i++){for(var j=0;j<M[i][1].length;j++){if(t.indexOf(M[i][1][j])>-1)return M[i][0];}}return "general";};</script></body></html>
