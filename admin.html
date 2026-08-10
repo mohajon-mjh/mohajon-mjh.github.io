@@ -1072,5 +1072,50 @@ window.approveSellApp=async(uid)=>{
 };
 window.rejectSellApp=async(uid)=>{await update(ref(db,"sellerApps/"+uid),{status:"rejected"});alert("❌ Rejected");loadSellApps();};
 document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{if(b.dataset.tab==="sellapps")loadSellApps();});});
-</script></body>
+</script>
+<script type="module">
+import{getDatabase,ref,get,set,update,push,remove,query,orderByChild,equalTo}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+const fmt=v=>"৳"+Number(v||0).toFixed(2);
+
+// ===== Seller Products: Approve/Reject/DELETE =====
+window.loadSellerProducts=async()=>{
+ const snap=await get(query(ref(db,"products"),orderByChild("status"),equalTo("pending")));
+ const p=snap.val()||{};
+ document.getElementById("sellerProdsList").innerHTML=Object.entries(p).map(([id,v])=>`
+  <div style="background:#232f3e;padding:12px;border-radius:8px;margin:6px 0">
+   <b>${v.title||v.name}</b> — ${fmt(v.price)} | Stock: ${v.stock||0}<br>
+   Seller: ${v.sellerId?v.sellerId.slice(0,8):"-"} | Supplier: ${v.supplier||"-"}<br>
+   <button onclick="approveProd('${id}')" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:6px 12px;font-weight:700;margin:3px">✅ Approve</button>
+   <button onclick="rejectProd('${id}')" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;margin:3px">❌ Reject</button>
+   <button onclick="deleteProd('${id}')" style="background:#111;color:#FF9900;border:1px solid #FF9900;border-radius:6px;padding:6px 12px;margin:3px">🗑️ Delete</button>
+  </div>`).join("")||"কোনো pending product নেই";
+};
+window.approveProd=async(id)=>{try{await update(ref(db,"products/"+id),{status:"active",updatedAt:Date.now()});alert("✅ Live হয়েছে");loadSellerProducts();}catch(e){alert("❌ "+e.message);}};
+window.rejectProd=async(id)=>{try{await update(ref(db,"products/"+id),{status:"rejected",updatedAt:Date.now()});alert("❌ Rejected");loadSellerProducts();}catch(e){alert("❌ "+e.message);}};
+window.deleteProd=async(id)=>{if(!confirm("পণ্যটি সম্পূর্ণ মুছে ফেলবেন?"))return;try{await remove(ref(db,"products/"+id));alert("🗑️ Deleted");loadSellerProducts();}catch(e){alert("❌ "+e.message);}};
+
+// ===== Seller Application Approve (fixed) =====
+window.approveSellApp=async(uid)=>{try{
+ const s=(await get(ref(db,"sellerApps/"+uid))).val();if(!s)return alert("Application পাওয়া যায়নি");
+ const rate=+(document.getElementById("rate_"+uid).value)||10;
+ const code="SLR-"+uid.slice(-6).toUpperCase();
+ await set(ref(db,"sellers/"+uid),{ownerUid:uid,storeName:s.storeName,storeDescription:s.storeDesc||"",status:"approved",commissionRate:rate,createdAt:Date.now(),updatedAt:Date.now()});
+ const uSnap=await get(ref(db,"users/"+uid));
+ const email=(s.email&&s.email.indexOf("@")>0)?s.email:(uid.slice(-8)+"@mjh-seller.com");
+ if(uSnap.exists()){await update(ref(db,"users/"+uid),{role:"seller",updatedAt:Date.now()});}
+ else{await set(ref(db,"users/"+uid),{uid:uid,name:s.ownerName||"Seller",email:email,role:"seller",createdAt:Date.now(),updatedAt:Date.now()});}
+ const fp=s.firstProduct||{};
+ if(fp.title){await set(push(ref(db,"products")),{sellerId:uid,title:fp.title,description:fp.desc||"",price:+fp.price||0,stock:+fp.stock||0,categoryId:fp.cat||"general",status:"active",createdAt:Date.now(),updatedAt:Date.now(),discountPercent:+fp.discount||0,startDate:fp.start||"",endDate:fp.end||"",images:fp.image?{main:fp.image}:null});}
+ await update(ref(db,"sellerApps/"+uid),{status:"approved",code:code,updatedAt:Date.now()});
+ alert("✅ Approved! Seller ID: "+code+" — পণ্য live হয়েছে");
+ loadSellApps();
+}catch(e){alert("❌ "+e.message);}};
+window.rejectSellApp=async(uid)=>{try{await update(ref(db,"sellerApps/"+uid),{status:"rejected"});alert("❌ Rejected");loadSellApps();}catch(e){alert("❌ "+e.message);}};
+
+document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{const t=b.dataset.tab;if(t==="sellerprods")loadSellerProducts();if(t==="sellapps")loadSellApps();});});
+</script>
+</body>
 </html>
