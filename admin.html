@@ -147,6 +147,7 @@ h2{margin-top:0}
     <button class="tab-btn" data-tab="globalcats">🌐 Global Category</button>
     <button class="tab-btn" data-tab="specialcats">🌟 Special Categories</button>
     <button class="tab-btn" data-tab="sellers">🏪 Sellers</button>
+    <button class="tab-btn" data-tab="sellapps">📥 Seller Applications</button>
     <button class="tab-btn" data-tab="sellerprods">📦 Seller Products</button>
     <button class="tab-btn" data-tab="affiliates">🤝 Affiliates</button>
     <button class="tab-btn" data-tab="withdrawals">💸 Withdrawals</button>
@@ -768,7 +769,7 @@ h2{margin-top:0}
       <div id="feat-add-list"></div>
     </div>
   </div>
-    </section><section id="tab-sellers" class="tab-section"><div class="card"><h3>🏪 Registered Sellers</h3><div id="sellersList">লোড হচ্ছে...</div></div></section><section id="tab-sellerprods" class="tab-section"><div class="card"><h3>📦 Seller Product Approvals</h3><div id="sellerProdsList">লোড হচ্ছে...</div></div></section><section id="tab-affiliates" class="tab-section"><div class="card"><h3>🤝 Affiliates & Commissions</h3><div id="affList">লোড হচ্ছে...</div><h3 style="margin-top:15px">📊 Commission Rate (%)</h3><input id="commRate" type="number" value="5" style="padding:8px;border-radius:6px;border:1px solid #555;background:#1a242f;color:#fff;width:80px"> <button onclick="saveCommRate()" style="background:#FF9900;color:#111;padding:8px 14px;border-radius:6px;font-weight:700;border:none">Save</button></div></section><section id="tab-withdrawals" class="tab-section"><div class="card"><h3>💸 Withdrawal Requests</h3><div id="wdList">লোড হচ্ছে...</div></div></section>
+    </section><section id="tab-sellapps" class="tab-section"><div class="card"><h3>📥 Seller Applications (নতুন আবেদন)</h3><div id="sellAppsList">লোড হচ্ছে...</div></div></section><section id="tab-sellers" class="tab-section"><div class="card"><h3>🏪 Registered Sellers</h3><div id="sellersList">লোড হচ্ছে...</div></div></section><section id="tab-sellerprods" class="tab-section"><div class="card"><h3>📦 Seller Product Approvals</h3><div id="sellerProdsList">লোড হচ্ছে...</div></div></section><section id="tab-affiliates" class="tab-section"><div class="card"><h3>🤝 Affiliates & Commissions</h3><div id="affList">লোড হচ্ছে...</div><h3 style="margin-top:15px">📊 Commission Rate (%)</h3><input id="commRate" type="number" value="5" style="padding:8px;border-radius:6px;border:1px solid #555;background:#1a242f;color:#fff;width:80px"> <button onclick="saveCommRate()" style="background:#FF9900;color:#111;padding:8px 14px;border-radius:6px;font-weight:700;border:none">Save</button></div></section><section id="tab-withdrawals" class="tab-section"><div class="card"><h3>💸 Withdrawal Requests</h3><div id="wdList">লোড হচ্ছে...</div></div></section>
 
   </div>
 </div>
@@ -1037,5 +1038,39 @@ document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=
  if(t==="withdrawals")loadWithdrawals();
 });});
 </script>
-</body>
+<script type="module">
+import{getDatabase,ref,get,set,update,push}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+window.loadSellApps=async()=>{
+ const snap=await get(ref(db,"sellerApps"));
+ const all=snap.val()||{};
+ document.getElementById("sellAppsList").innerHTML=Object.entries(all).map(([uid,s])=>`
+ <div style="background:#232f3e;padding:14px;border-radius:8px;margin:8px 0">
+  <b style="color:#FF9900">🏪 ${s.storeName}</b> ${s.status==="approved"?"✅":s.status==="rejected"?"❌":""}<br>
+  👤 ${s.ownerName} | 📞 ${s.phone} | 📍 ${s.address}<br>
+  💳 bKash: ${s.bkash||"-"} | ${s.bank||"-"}<br>
+  <b>📦 প্রথম পণ্য:</b> ${(s.firstProduct||{}).title||"-"} — ৳${(s.firstProduct||{}).price||0} ${ (s.firstProduct||{}).discount?`(-${(s.firstProduct||{}).discount}%)`:""}<br>
+  ${(s.firstProduct||{}).image?`<img src="${(s.firstProduct||{}).image}" style="max-width:110px;border-radius:8px;margin:6px 0"><br>`:""}
+  ${s.status==="pending"?`Commission %: <input id="rate_${uid}" type="number" value="10" style="width:60px;padding:4px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">
+  <button onclick="approveSellApp('${uid}')" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:6px 12px;font-weight:700;margin:3px">✅ Approve + ID দিন</button>
+  <button onclick="rejectSellApp('${uid}')" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;margin:3px">❌ Reject</button>`:`<div class="code" style="background:#111;color:#7CFC00;padding:4px 10px;border-radius:6px">${s.code||""}</div>`}
+ </div>`).join("")||"কোনো আবেদন নেই";
+};
+window.approveSellApp=async(uid)=>{
+ const s=(await get(ref(db,"sellerApps/"+uid))).val();if(!s)return;
+ const rate=+(document.getElementById("rate_"+uid).value)||10;
+ const code="SLR-"+uid.slice(-6).toUpperCase();
+ await set(ref(db,"sellers/"+uid),{ownerUid:uid,storeName:s.storeName,storeDescription:s.storeDesc||"",status:"approved",commissionRate:rate,createdAt:Date.now(),updatedAt:Date.now()});
+ await update(ref(db,"users/"+uid),{role:"seller"});
+ const fp=s.firstProduct||{};
+ if(fp.title){await set(push(ref(db,"products")),{sellerId:uid,title:fp.title,description:fp.desc||"",price:+fp.price||0,stock:+fp.stock||0,categoryId:fp.cat||"general",status:"active",createdAt:Date.now(),updatedAt:Date.now(),discountPercent:+fp.discount||0,startDate:fp.start||"",endDate:fp.end||"",images:fp.image?{main:fp.image}:null});}
+ await update(ref(db,"sellerApps/"+uid),{status:"approved",code:code,updatedAt:Date.now()});
+ alert("✅ Approved! Seller ID: "+code+" — পণ্য live হয়েছে");
+ loadSellApps();
+};
+window.rejectSellApp=async(uid)=>{await update(ref(db,"sellerApps/"+uid),{status:"rejected"});alert("❌ Rejected");loadSellApps();};
+document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{if(b.dataset.tab==="sellapps")loadSellApps();});});
+</script></body>
 </html>
