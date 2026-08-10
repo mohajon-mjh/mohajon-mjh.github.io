@@ -1130,7 +1130,7 @@ window.approveSellApp=async(uid)=>{
  const errs=[];
  try{await set(ref(db,"sellers/"+uid),{ownerUid:uid,storeName:s.storeName,storeDescription:s.storeDesc||"",status:"approved",commissionRate:rate,createdAt:Date.now(),updatedAt:Date.now()});}catch(e){errs.push("sellers → "+e.message);}
  try{const u=await get(ref(db,"users/"+uid));
-  if(u.exists()){await update(ref(db,"users/"+uid),{role:"seller",updatedAt:Date.now()});}
+  if(u.exists()){const r=(u.val()||{}).role;if(r!=="admin"&&r!=="superadmin"){await update(ref(db,"users/"+uid),{role:"seller",updatedAt:Date.now()});}}
   else{await set(ref(db,"users/"+uid),{uid:uid,name:s.ownerName||"Seller",email:((s.email&&s.email.indexOf("@")>0)?s.email:uid.slice(-8)+"@mjh-seller.com"),role:"seller",createdAt:Date.now(),updatedAt:Date.now()});}
  }catch(e){errs.push("users → "+e.message);}
  try{const fp=s.firstProduct||{};
