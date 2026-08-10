@@ -62,8 +62,8 @@ function render(t){
   <div class="card"><h3>🏪 Store Info</h3><div class="row">Name: <b>${seller?seller.storeName:"-"}</b></div><div class="row">Status: <b>${seller?seller.status:"-"}</b></div><div class="row">Commission: <b>${seller?seller.commissionRate||0:0}%</b></div></div>`;
  }
  if(t==="inv"){
-  let rows=Object.entries(myProducts).map(([id,p])=>`<div class="row"><b>${p.title||p.name}</b> — ${fmt(p.price)} — Stock: ${p.stock||0} — ${p.status}<br><button class="btn" onclick="window.__stock('${id}',10)">+10 Stock</button> <button class="btn" onclick="window.__stock('${id}',-10)">-10 Stock</button></div>`).join("");
-  c.innerHTML=`<div class="card"><h3>📦 Inventory (${Object.keys(myProducts).length})</h3>${rows||"কোনো product নেই"}</div>
+  let rows=Object.entries(myProducts).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).map(([id,p])=>`<div class="row"><b>${p.title||p.name}</b> — ${fmt(p.price)} — Stock: ${p.stock||0} — ${p.status}<br><button class="btn" onclick="window.__stock('${id}',10)">+10 Stock</button> <button class="btn" onclick="window.__stock('${id}',-10)">-10 Stock</button></div>`).join("");
+  c.innerHTML=`<div class="card"><h3>📦 Inventory (${Object.keys(myProducts).length})</h3>${Object.keys(myProducts).length>50?'<p style="font-size:12px;color:#FF9900">⚠️ Admin account-এ login — তাই সব পণ্য দেখাচ্ছে। আলাদা seller account-এ শুধু নিজেরগুলো দেখাবে।</p>':''}<input class="inp" placeholder="🔍 পণ্য খুঁজুন..." oninput="document.querySelectorAll('#invRows .row').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(this.value.toLowerCase())?'block':'none')"><div id="invRows">${rows||"কোনো product নেই"}</div></div>
   <div class="card"><h3>➕ Add Product</h3><input class="inp" id="pTitle" placeholder="Product name"><input class="inp" id="pPrice" type="number" placeholder="Price (৳)"><input class="inp" id="pStock" type="number" placeholder="Stock"><input class="inp" id="pImg" placeholder="Image URL"><input class="inp" id="pSup" placeholder="Supplier name/contact (dropship — শুধু admin দেখবে)"><button class="btn" onclick="window.__addProd()">Add</button></div>`;
  }
  if(t==="ord"){
