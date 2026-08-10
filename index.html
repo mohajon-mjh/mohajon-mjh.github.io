@@ -2196,7 +2196,19 @@ function loadGlobalCatProducts(catId){
   buildGcRows();
 })();
 </script>
-<script>(function(){var r=new URLSearchParams(location.search).get("ref");if(r)localStorage.setItem("affRef",r);})();</script></body>
+<script>(function(){var r=new URLSearchParams(location.search).get("ref");if(r)localStorage.setItem("affRef",r);})();</script>
+<script>
+(function(){
+ if(new URLSearchParams(location.search).get("pick")!=="1")return;
+ var bar=document.createElement("div");bar.innerHTML="🛍️ <b>পণ্য Select mode:</b> যেকোনো পণ্যে click করুন → আপনার Business account-এ যোগ হবে";bar.style.cssText="position:fixed;top:0;left:0;right:0;background:#FF9900;color:#111;text-align:center;padding:9px;z-index:9999;font-size:13px;font-weight:700";document.body.appendChild(bar);
+ document.addEventListener("click",function(e){
+  var t=e.target,card=t.closest("[data-id],[data-pid],[data-product-id]"),id=card?(card.dataset.id||card.dataset.pid||card.dataset.productId):null;
+  if(!id){var a=t.closest("a[href*='id=']");if(a){var m=(a.getAttribute("href")||"").match(/[?&]id=([^&]+)/);if(m)id=m[1];}}
+  if(!id){var b=t.closest("button");if(b){var oc=b.getAttribute("onclick")||"";var m2=oc.match(/buyNow\(['"]([^'"]+)['"]/)||oc.match(/['"]([A-Za-z0-9_-]{6,})['"]/);if(m2)id=m2[1];}}
+  if(id){e.preventDefault();e.stopPropagation();location.href="affiliate.html?product="+id;}
+ },true);
+})();
+</script></body>
 </html>
 
 <script>
