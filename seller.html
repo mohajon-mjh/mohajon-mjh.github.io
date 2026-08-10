@@ -33,6 +33,7 @@ async function loadAll(){
  try{const s=await get(ref(db,"sellers/"+uid));seller=s.val();}catch(e){}
  $("storeName").textContent=seller?("— "+seller.storeName):"";
  try{const p=await get(query(ref(db,"products"),orderByChild("sellerId"),equalTo(uid)));myProducts=p.val()||{};}catch(e){}
+ try{const sa=await get(ref(db,"sellerApps/"+uid));const cut=(sa.val()&&sa.val().createdAt)||0;if(cut){Object.keys(myProducts).forEach(k=>{if((myProducts[k].createdAt||0)<cut)delete myProducts[k];});}}catch(e){}
  try{const o=await get(query(ref(db,"orders"),orderByChild("sellerId"),equalTo(uid)));myOrders=o.val()||{};}catch(e){}
  try{const w=await get(ref(db,"wallets/"+uid));wallet=w.val();}catch(e){}
  try{const t=await get(query(ref(db,"transactions"),orderByChild("userId"),equalTo(uid)));txns=t.val()||{};}catch(e){}
@@ -75,8 +76,7 @@ function render(t){
  }
  if(t==="inv"){
   let rows=Object.entries(myProducts).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).map(([id,p])=>`<div class="row"><b>${p.title||p.name}</b> — ${fmt(p.price)} — Stock: ${p.stock||0} — ${p.status}<br><button class="btn" onclick="window.__stock('${id}',10)">+10 Stock</button> <button class="btn" onclick="window.__stock('${id}',-10)">-10 Stock</button></div>`).join("");
-  c.innerHTML=`<div class="card"><h3>📦 Inventory (${Object.keys(myProducts).length})</h3>${Object.keys(myProducts).length>50?'<p style="font-size:12px;color:#FF9900">⚠️ Admin account-এ login — তাই সব পণ্য দেখাচ্ছে। আলাদা seller account-এ শুধু নিজেরগুলো দেখাবে।</p>':''}<input class="inp" placeholder="🔍 পণ্য খুঁজুন..." oninput="document.querySelectorAll('#invRows .row').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(this.value.toLowerCase())?'block':'none')"><div id="invRows">${rows||"কোনো product নেই"}</div></div>
-  <div class="card"><h3>➕ Add Product</h3>
+  c.innerHTML=`<div class="card"><h3>➕ Add Product</h3>
 <input class="inp" id="pTitle" placeholder="পণ্যের নাম *" oninput="document.getElementById('pCatHint').textContent='📂 '+(window.autoCat?window.autoCat(this.value):'')">
 <span id="pCatHint" style="font-size:11px;color:#7CFC00"></span>
 <input class="inp" id="pDesc" placeholder="বিবরণ">
@@ -89,7 +89,8 @@ function render(t){
 <input type="file" accept="image/*" onchange="window.__pImg(this)"><img id="pPrev" style="display:none;max-width:120px;border-radius:8px;margin:4px 0">
 <input class="inp" id="pSup" placeholder="Supplier (ঐচ্ছিক, শুধু admin দেখবে)">
 <button class="btn" style="width:100%" onclick="window.__addProd()">➕ Product Add করুন</button></div>
-<div class="card"><h3>🤖 AI Bulk Add — একসাথে অনেক পণ্য</h3><p style="font-size:12px">কয়েকটা ছবি একসাথে select করুন — AI প্রতিটার নাম, দাম, ক্যাটাগরি auto দিয়ে product বানাবে!</p><input type="file" accept="image/*" multiple onchange="window.__bulkAI(this)"><div id="bulkLog" style="font-size:12px;margin-top:6px"></div></div>`;
+<div class="card"><h3>🤖 AI Bulk Add — একসাথে অনেক পণ্য</h3><p style="font-size:12px">কয়েকটা ছবি একসাথে select করুন — AI প্রতিটার নাম, দাম, ক্যাটাগরি auto দিয়ে product বানাবে!</p><input type="file" accept="image/*" multiple onchange="window.__bulkAI(this)"><div id="bulkLog" style="font-size:12px;margin-top:6px"></div></div><div class="card"><h3>📦 Inventory (${Object.keys(myProducts).length})</h3>${Object.keys(myProducts).length>50?'<p style="font-size:12px;color:#FF9900">⚠️ Admin account-এ login — তাই সব পণ্য দেখাচ্ছে। আলাদা seller account-এ শুধু নিজেরগুলো দেখাবে।</p>':''}<input class="inp" placeholder="🔍 পণ্য খুঁজুন..." oninput="document.querySelectorAll('#invRows .row').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(this.value.toLowerCase())?'block':'none')"><div id="invRows">${rows||"কোনো product নেই"}</div></div>
+  `;
  }
  if(t==="ord"){
   let rows=Object.entries(myOrders).map(([id,o])=>`<div class="row"><b>#${id.slice(-6)}</b> — ${fmt(o.total)} — ${o.status}<br><select class="btn" id="st_${id}"><option>processing</option><option>shipped</option><option>delivered</option></select> <button class="btn" onclick="window.__ship('${id}')">Update</button></div>`).join("");
