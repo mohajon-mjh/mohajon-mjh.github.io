@@ -57,4 +57,11 @@ window.submitApp=async()=>{const g=id=>document.getElementById(id).value.trim();
  if(!g("sName")||!g("oName")||!g("oPhone")||!g("oAddr")||!g("oNid")||!g("gTitle")||!g("gPrice")||!imgData)return alert("Store নাম, owner নাম, ফোন, ঠিকানা, NID, পণ্যের নাম, দাম ও ছবি আবশ্যক");
  try{await set(ref(db,"sellerApps/"+uid),{uid,storeName:g("sName"),storeDesc:g("sDesc"),ownerName:g("oName"),email:g("oEmail"),phone:g("oPhone"),address:g("oAddr"),nid:g("oNid"),bkash:g("pBkash"),bank:"Name: "+g("pAccName")+" | Bank: "+g("pBankName")+" | A/C: "+g("pAccNum")+" | Branch: "+g("pBranch"),firstProduct:{title:g("gTitle"),desc:g("gDesc"),price:+g("gPrice"),discount:+g("gDisc")||0,start:g("gStart"),end:g("gEnd"),stock:+g("gStock")||0,cat:g("gCat")||"general",image:imgData},status:"pending",createdAt:Date.now()});
  alert("✅ Submitted! Admin approve করলে 🆔 Seller ID পাবেন");location.reload();}catch(e){alert("❌ "+e.message);}};
-</script></body></html>
+</script>
+<script type="module">/*newAcc-override-v2*/
+import{getAuth,signOut}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","authDomain":"mohajon-mjh.firebaseapp.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+window.__newAcc=async()=>{try{await signOut(getAuth(app));location.href="login.html";}catch(e){alert(e.message);}};
+</script>
+</body></html>

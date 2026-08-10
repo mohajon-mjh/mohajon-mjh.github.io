@@ -1168,5 +1168,32 @@ window.approveSellApp=async(uid)=>{
  loadSellApps();
 };
 </script>
+
+<script type="module">/*sellApps-override-v2*/
+import{getDatabase,ref,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+window.loadSellApps=async()=>{
+ try{
+ const snap=await get(ref(db,"sellerApps"));
+ const all=snap.val()||{};
+ const phones={};Object.values(all).forEach(x=>{if(x.phone)phones[x.phone]=(phones[x.phone]||0)+1;});
+ const el=document.getElementById("sellAppsList");if(!el)return;
+ el.innerHTML=Object.entries(all).map(([uid,s])=>{
+  const fp=s.firstProduct||{};
+  return '<div style="background:#232f3e;padding:14px;border-radius:8px;margin:8px 0">'+
+  '<b style="color:#FF9900">🏪 '+s.storeName+'</b> '+(s.status==="approved"?"✅":s.status==="rejected"?"❌":"")+((phones[s.phone]||0)>1?' <span style="color:#FF9900;font-weight:700">⚠️ একই নম্বরে আরো আবেদন!</span>':'')+'<br>'+
+  '👤 '+s.ownerName+' | 📞 '+s.phone+' | 📍 '+s.address+'<br>'+
+  '💳 bKash: '+(s.bkash||"-")+' | '+(s.bank||"-")+'<br>'+
+  '📦 প্রথম পণ্য: '+(fp.title||"-")+' — ৳'+(fp.price||0)+(fp.discount?' (-'+fp.discount+'%)':'')+'<br>'+
+  (fp.image?'<img src="'+fp.image+'" style="max-width:110px;border-radius:8px;margin:6px 0"><br>':'')+
+  (s.status==="pending"?'Commission %: <input id="rate_'+uid+'" type="number" value="10" style="width:60px;padding:4px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"> <button onclick="approveSellApp(\''+uid+'\')" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:6px 12px;font-weight:700;margin:3px">✅ Approve + ID দিন</button> <button onclick="rejectSellApp(\''+uid+'\')" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;margin:3px">❌ Reject</button>':'<b style="color:#7CFC00">🆔 '+(s.code||"")+'</b>')+
+  '</div>';
+ }).join("")||"কোনো আবেদন নেই";
+ }catch(e){const el=document.getElementById("sellAppsList");if(el)el.innerHTML="❌ "+e.message;}
+};
+document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{if(b.dataset.tab==="sellapps")loadSellApps();});});
+</script>
 </body>
 </html>
