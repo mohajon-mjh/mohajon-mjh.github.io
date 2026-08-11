@@ -61,4 +61,21 @@ function buyAgain(items){
  location.href="cart.html";
 }
 </script><script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
-</body></html>
+
+<script type="module">/*buyerChat-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get,query,orderByChild,equalTo}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+onAuthStateChanged(auth,async u=>{
+ if(!u)return;
+ const snap=await get(query(ref(db,"orders"),orderByChild("buyerId"),equalTo(u.uid)));
+ const ords=Object.entries(snap.val()||{}).slice(-5);
+ if(!ords.length)return;
+ const panel=document.createElement("div");
+ panel.style.cssText="position:fixed;bottom:0;left:0;right:0;background:#131921;color:#fff;max-height:40%;overflow:auto;padding:12px;z-index:9998;border-radius:14px 14px 0 0";
+ panel.innerHTML='<b>📦 Recent Orders</b> <span onclick="this.parentNode.style.display=\'none\'" style="float:right;cursor:pointer">✕</span>'+ords.map(([id,o])=>'<div style="background:#232f3e;border-radius:8px;padding:9px;margin:6px 0;font-size:12px">Order #'+id.slice(-6)+' — '+(o.status||"")+' <a href="chat.html?o='+id+'" style="color:#FFD814;font-weight:700;text-decoration:none">💬 Chat with seller</a></div>').join("");
+ document.body.appendChild(panel);
+});
+</script></html>

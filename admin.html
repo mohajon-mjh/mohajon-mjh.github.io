@@ -1280,7 +1280,7 @@ window.__adminSweep=async()=>{
  for(const [oid,o] of Object.entries(ords)){
   if(o.status==="cancelled")canc[o.sellerId]=(canc[o.sellerId]||0)+1;
   const pm=o.shippingAddress&&o.shippingAddress.payMethod;
-  if(o.status==="delivered"&&(pm||"").toLowerCase().indexOf("cash")>-1){
+  if(o.status==="delivered"&&["cod","cash"].some(k=>(pm||"").toLowerCase().indexOf(k)>-1)){
    const ex=await get(query(ref(db,"commissions"),orderByChild("orderId"),equalTo(oid)));
    if(!Object.keys(ex.val()||{}).length){
     const rate=(sellers[o.sellerId]&&sellers[o.sellerId].commissionRate)||10;
@@ -1297,6 +1297,6 @@ window.__markPaid=async(sid)=>{
  for(const id of Object.keys(t.val()||{})){await remove(ref(db,"commissions/"+id));}
  alert("✅ Commission paid marked");loadSellers();
 };
-document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{if(b.dataset.tab==="sellers"){window.__adminSweep&&__adminSweep();}})});
+document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{if(b.dataset.tab==="sellers"||b.dataset.tab==="overview"){window.__adminSweep&&__adminSweep();}})});
 </script>
 </html>
