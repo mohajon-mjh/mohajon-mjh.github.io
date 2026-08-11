@@ -7,6 +7,7 @@
 <option value="pathao">🇧 Pathao (ঢাকা ৳60-80)</option>
 <option value="redx">🇧🇩 RedX (৳60-140)</option>
 <option value="steadfast">🇧 Steadfast (Sonagazi branch ৳50-120)</option>
+<option value="ecourier">🟢 eCourier (Full Online ৳60-120)</option>
 <option value="sundarban">🇧🇩 Sundarban (Sonagazi agency ৳50-100)</option>
 <option value="continental">🇧🇩 Continental (Sonagazi ৳60-120)</option>
 <option value="saparibahan">🇧🇩 S.A Paribahan (Feni ৳50-100)</option>
@@ -24,6 +25,22 @@
 <input class="inp" id="pamt" type="number" placeholder="COD amount (৳)">
 <div id="rate" style="font-size:12px;color:#007600;margin:4px 0"></div>
 <button class="btn" style="width:100%" onclick="window.__reqPickup()">🚚 Request Pickup</button></div>
+
+<div class="card"><h3>👤 BD Agent Info (Pickup Address)</h3>
+<p style="font-size:12px;color:#888">Courier pickup address আপনার BD agent-এর হতে হবে</p>
+<input class="inp" id="agentName" placeholder="Agent name (যেমন: মোহাম্মদ ভাই)">
+<input class="inp" id="agentPhone" placeholder="Agent BD phone">
+<input class="inp" id="agentAddr" placeholder="Agent full address (Sonagazi, Feni)">
+<button class="btn" style="width:100%" onclick="window.__saveAgent()">💾 Save Agent Info</button>
+</div>
+<script>
+window.__saveAgent=()=>{
+ localStorage.setItem("mjh_agent",JSON.stringify({name:document.getElementById("agentName").value,phone:document.getElementById("agentPhone").value,addr:document.getElementById("agentAddr").value}));
+ alert("✅ Agent info saved!");
+};
+const ag=JSON.parse(localStorage.getItem("mjh_agent")||"{}");
+if(ag.name){["agentName","agentPhone","agentAddr"].forEach(id=>{const k=id.replace("agent","").toLowerCase();document.getElementById(id).value=ag[k]||"";});}
+</script>
 <div class="card"><h3>📦 My Pickup Requests</h3><div id="picks">লোড হচ্ছে...</div></div>
 </div>
 <script type="module">
@@ -33,7 +50,7 @@ import{getDatabase,ref,get,set,push,update,query,orderByChild,equalTo}from"https
 const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
 const auth=getAuth(app),db=getDatabase(app);let uid=null;
 const INTL=["dhl","aramex","fedex","ups"];
-const RATES={pathao:[60,80],redx:[60,140],steadfast:[50,120],sundarban:[50,100],continental:[60,120],saparibahan:[50,100],dhl:[2500,3200],aramex:[2000,2800],fedex:[2200,3000],ups:[2300,3100]};
+const RATES={pathao:[60,80],redx:[60,140],steadfast:[50,120],ecourier:[60,120],sundarban:[50,100],continental:[60,120],saparibahan:[50,100],dhl:[2500,3200],aramex:[2000,2800],fedex:[2200,3000],ups:[2300,3100]};
 window.__intl=()=>{const c=document.getElementById("courier").value;document.getElementById("intlBox").style.display=INTL.includes(c)?"block":"none";const w=+document.getElementById("pweight").value||1;const r=RATES[c];document.getElementById("rate").textContent="📊 আনুমানিক charge: ৳"+(r[0]*w)+" - ৳"+(r[1]*w)+(INTL.includes(c)?" (international)":" (local)");};
 onAuthStateChanged(auth,async u=>{if(!u){location.href="login.html";return;}uid=u.uid;loadPicks();});
 async function loadPicks(){
