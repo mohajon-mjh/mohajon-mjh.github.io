@@ -6,7 +6,10 @@
 <select id="courier" class="inp" onchange="window.__intl()">
 <option value="pathao">🇧 Pathao (ঢাকা ৳60-80)</option>
 <option value="redx">🇧🇩 RedX (৳60-140)</option>
-<option value="steadfast">🇧🇩 Steadfast (৳50-120)</option>
+<option value="steadfast">🇧 Steadfast (Sonagazi branch ৳50-120)</option>
+<option value="sundarban">🇧🇩 Sundarban (Sonagazi agency ৳50-100)</option>
+<option value="continental">🇧🇩 Continental (Sonagazi ৳60-120)</option>
+<option value="saparibahan">🇧🇩 S.A Paribahan (Feni ৳50-100)</option>
 <option value="dhl">🌍 DHL Express (intl ৳2500+/kg)</option>
 <option value="aramex">🌍 Aramex (intl ৳2000+/kg)</option>
 <option value="fedex">🌍 FedEx (intl ৳2200+/kg)</option>
@@ -30,7 +33,7 @@ import{getDatabase,ref,get,set,push,update,query,orderByChild,equalTo}from"https
 const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
 const auth=getAuth(app),db=getDatabase(app);let uid=null;
 const INTL=["dhl","aramex","fedex","ups"];
-const RATES={pathao:[60,80],redx:[60,140],steadfast:[50,120],dhl:[2500,3200],aramex:[2000,2800],fedex:[2200,3000],ups:[2300,3100]};
+const RATES={pathao:[60,80],redx:[60,140],steadfast:[50,120],sundarban:[50,100],continental:[60,120],saparibahan:[50,100],dhl:[2500,3200],aramex:[2000,2800],fedex:[2200,3000],ups:[2300,3100]};
 window.__intl=()=>{const c=document.getElementById("courier").value;document.getElementById("intlBox").style.display=INTL.includes(c)?"block":"none";const w=+document.getElementById("pweight").value||1;const r=RATES[c];document.getElementById("rate").textContent="📊 আনুমানিক charge: ৳"+(r[0]*w)+" - ৳"+(r[1]*w)+(INTL.includes(c)?" (international)":" (local)");};
 onAuthStateChanged(auth,async u=>{if(!u){location.href="login.html";return;}uid=u.uid;loadPicks();});
 async function loadPicks(){
