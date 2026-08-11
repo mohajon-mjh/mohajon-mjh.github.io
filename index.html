@@ -2223,7 +2223,29 @@ function loadGlobalCatProducts(catId){
  document.body.appendChild(b);
 })();
 </script>
-</body>
+
+<script type="module">/*adminGate-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+function setAdminUI(isA){
+ document.querySelectorAll("a").forEach(a=>{
+  const t=(a.textContent||"").trim();const h=a.getAttribute("href")||"";
+  if(t==="Admin"||h==="admin.html"||h.endsWith("/admin.html")){a.style.display=isA?"":"none";}
+ });
+ let ic=document.getElementById("adminQuick");
+ if(!ic){ic=document.createElement("button");ic.id="adminQuick";ic.innerHTML="🛠️";ic.title="Admin Panel";
+  ic.style.cssText="position:fixed;top:120px;left:6px;z-index:9999;background:#131921;color:#FF9900;border:1px solid #FF9900;border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)";
+  ic.onclick=function(){location.href="admin.html";};document.body.appendChild(ic);}
+ ic.style.display=isA?"block":"none";
+}
+onAuthStateChanged(auth,async u=>{
+ if(!u){setAdminUI(false);return;}
+ try{const s=await get(ref(db,"users/"+u.uid));const r=(s.val()||{}).role;setAdminUI(r==="admin"||r==="superadmin");}catch(e){setAdminUI(false);}
+});
+</script>
 </html>
 
 <script>

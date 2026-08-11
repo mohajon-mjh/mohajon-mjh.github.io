@@ -101,6 +101,19 @@ h2{margin-top:0}
 <style>button:disabled{color:#111!important;background:#d8d8d8!important;border:1px solid #888!important;opacity:1!important;font-weight:700;text-shadow:none!important}</style></head>
 
 <body>
+<script type="module">/*adminGuard-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+onAuthStateChanged(auth,async u=>{
+ if(!u){location.replace("login.html");return;}
+ try{const s=await get(ref(db,"users/"+u.uid));const r=(s.val()||{}).role;
+  if(r!=="admin"&&r!=="superadmin"){alert("⛔ Admin নয়!");location.replace("index.html");}
+ }catch(e){location.replace("index.html");}
+});
+</script>
 <div id="menuBtn" class="hamburger">☰</div>
 <nav id="sideMenu" class="side-menu">
 <h3>Categories</h3>
