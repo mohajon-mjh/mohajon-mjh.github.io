@@ -19,48 +19,7 @@
  <a href="login.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">👤 <span class="hiName">Sign in</span></a><a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none">🛒 Cart</a>
 </header>
 <div class="wrap"><h2 style="font-size:19px">📦 My Orders</h2><div id="list">লোড হচ্ছে...</div></div>
-<script>
-const DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
-const fmt=v=>"৳"+Number(v||0).toFixed(2);
-const IDS=JSON.parse(localStorage.getItem("myOrders")||"[]").reverse();
-const LABELS=["অর্ডার প্লেসড","প্রসেসিং","শিপড","ডেলিভারড"];
-const IDX={pending:0,processing:1,shipped:2,delivered:3};
-(async()=>{
- if(IDS.length===0){document.getElementById("list").innerHTML='<div style="background:#fff;border-radius:8px;padding:26px;text-align:center">এখনো কোনো অর্ডার নেই<br><br><button class="btn" onclick="location.href='index.html'">Shop Now →</button></div>';return;}
- const A=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
- const D=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
- const U=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js");
- const app=A.getApps().length?A.getApp():A.initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","authDomain":"mohajon-mjh.firebaseapp.com","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","storageBucket":"mohajon-mjh.firebasestorage.app","messagingSenderId":"526105903976","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
- const db=D.getDatabase(app);const auth=U.getAuth(app);
- if(!auth.currentUser){try{await U.signInAnonymously(auth);}catch(e){}}
- const orders=await Promise.all(IDS.map(async id=>{try{const s=await D.get(D.ref(db,"orders/"+id));return {id,o:s.val()};}catch(e){return null;}}));
- document.getElementById("list").innerHTML=orders.filter(x=>x&&x.o).map(({id,o})=>{
-  const dt=new Date(o.createdAt);
-  const cancelled=(o.status==="cancelled"||o.status==="refunded");
-  const idx=cancelled?0:(IDX[o.status]??0);
-  const statusText=cancelled?"❌ অর্ডার বাতিল হয়েছে":(o.status==="delivered"?"✅ Delivered — ধন্যবাদ!":"🚚 Arriving by "+((o.shippingAddress&&o.shippingAddress.expectedDelivery)||""));
-  return `<div class="order">
-   <div class="ohead">
-     <div>ORDER PLACED<b>${dt.getDate()}-${dt.getMonth()+1}-${dt.getFullYear()}</b></div>
-     <div>TOTAL<b>${fmt(o.total)}</b></div>
-     <div>SHIP TO<b>${(o.shippingAddress&&o.shippingAddress.name)||"-"}</b></div>
-     <div style="margin-left:auto">ORDER #<b>${id.slice(-8)}</b></div>
-   </div>
-   <div class="obody">
-     <div class="status" style="color:${cancelled?'#c0392b':'#007600'}">${statusText}</div>
-     ${cancelled?"":`<div class="steps">${LABELS.map((l,i)=>`<div class="step ${i<=idx?'on':''}"><div class="dot"></div>${l}</div>`).join("")}</div>`}
-     <div style="font-size:13px;border-top:1px solid #eee;padding-top:10px">${(o.items||[]).map(i=>`<div style="margin:3px 0">🔸 ${i.name} × ${i.qty||1} — ${fmt(i.price*(i.qty||1))}</div>`).join("")}</div>
-     <div style="margin-top:10px"><button class="btn" onclick="buyAgain(${JSON.stringify(o.items||[]).replace(/"/g,"&quot;")})">🔄 Buy Again</button></div>
-   </div></div>`;
- }).join("");
-})();
-function buyAgain(items){
- let c=JSON.parse(localStorage.getItem("cart")||"[]");
- items.forEach(i=>{const it=c.find(x=>x.id===i.id);if(it){it.qty=(it.qty||1)+(i.qty||1);}else{c.push({id:i.id,name:i.name,price:i.price,qty:i.qty||1})}});
- localStorage.setItem("cart",JSON.stringify(c));
- location.href="cart.html";
-}
-</script><script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
+<script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
 
 <script type="module">/*buyerChat-v1*/
 import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
