@@ -1718,6 +1718,20 @@ function bind4(){
 }
 for(let i=0;i<20;i++)setTimeout(bind4,400*i+300);
 </script>
+
+<script>/*fix-v5*/
+(function(){
+ // ❓ pill চিরতরে মুছুন
+ function killQ(){[...document.querySelectorAll("button,div,span")].forEach(function(b){var t=(b.textContent||"").trim();if(/^❓\s*\d+$/.test(t)&&!b.id)b.remove();});}
+ killQ();var n=0;var t1=setInterval(function(){killQ();n++;if(n>15)clearInterval(t1);},1000);
+ // drawer backdrop (বাইরে tap = বন্ধ)
+ var bd=document.createElement("div");bd.id="mpBackdrop";
+ bd.style.cssText="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99996";
+ bd.onclick=function(){bd.style.display="none";var d=document.getElementById("mpDrawer");if(d)d.style.right="-460px";};
+ document.body.appendChild(bd);
+ setInterval(function(){var d=document.getElementById("mpDrawer");if(d){var open=(d.style.right==="0px"||d.style.right==="0");bd.style.display=open?"block":"none";}},500);
+})();
+</script>
 </html>
 
 <script type="module">/*helpSide-v2*/
