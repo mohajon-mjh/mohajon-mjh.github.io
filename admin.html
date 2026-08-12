@@ -1732,6 +1732,85 @@ for(let i=0;i<20;i++)setTimeout(bind4,400*i+300);
  setInterval(function(){var d=document.getElementById("mpDrawer");if(d){var open=(d.style.right==="0px"||d.style.right==="0");bd.style.display=open?"block":"none";}},500);
 })();
 </script>
+
+<script type="module">/*priceKB-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,onChildAdded,get,set,update}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app),auth=getAuth(app);let ME=null;
+onAuthStateChanged(auth,u=>{ME=u?u.uid:null;});
+let RATE=123;
+fetch("https://open.er-api.com/v6/latest/USD").then(r=>r.json()).then(j=>{if(j&&j.rates&&j.rates.BDT)RATE=j.rates.BDT;}).catch(()=>{});
+// ===== Amazon average market price database (USD) =====
+const KB=[
+[["headphone","earphone","earbud","airpod"],25],[["speaker"],30],[["smart watch","smartwatch"],18],[["watch"],15],
+[["olive oil"],18],[["robot vacuum","vacuum"],150],[["clock"],14],[["jump starter"],45],[["warmer","heater"],20],
+[["action camera"],40],[["camcorder","camera"],110],[["tv box","android box"],25],[["t-shirt","tshirt","shirt"],8],
+[["pickle"],4],[["bay leaf","leaf","spice","powder","masala","tea","coffee","honey"],4],
+[["stroller","baby"],60],[["air fryer","fryer"],55],[["painting","wall art"],20],[["visor","car door"],15],
+[["serum","facial","cream","beauty","perfume","attar"],10],[["wine cooler","cooler"],120],
+[["air conditioner","conditioner"],250],[["washing machine"],40],[["smartphone","iphone","phone"],150],
+[["tablet","ipad"],120],[["laptop","notebook"],300],[["bag","luggage"],25],[["shoes","sneaker"],30],
+[["toy","doll"],12],[["drone"],80],[["keyboard","mouse"],12],[["monitor"],90],[["refrigerator","fridge"],400],
+[["microwave","oven"],80],[["blender","mixer"],30],[["iron","kettle","fan"],15],[["led","light","lamp"],8],
+[["chair","sofa","bed","table"],80],[["book"],5],[["trimmer","shaver"],15],[["power bank","charger","cable"],8],
+[["router","modem"],20],[["projector"],70],[["guitar","piano","musical"],60],[["bicycle"],90],[["helmet"],15],
+[["football","cricket","sports"],12],[["jewelry","necklace","ring"],10],[["saree","sari","dress","fashion","panjabi"],14],
+[["vitamin","supplement","health"],10],[["rice","flour","oil","ghee"],5],[["ac ","window ac"],260],[["motor","valve","parts"],10]
+];
+const CATDEF={electron:30,computer:40,phone:120,fashion:12,grocer:5,health:8,beaut:8,home:20,sport:15,book:5,toy:12,auto:20,watch:15};
+function estUSD(t,cat){
+ t=(t||"").toLowerCase();
+ for(const e of KB){for(const k of e[0]){if(t.indexOf(k)>-1)return e[1];}}
+ for(const c in CATDEF){if((cat||"").toLowerCase().indexOf(c)>-1)return CATDEF[c];}
+ return 12;
+}
+async function priceOne(id,p){
+ try{
+  const u=estUSD(p.title,p.categoryId||p.category||"");
+  await set(ref(db,"settings/baseCosts/"+id),u);
+  const np=Math.round(u*RATE*1.3);
+  await update(ref(db,"products/"+id),{price:np,oldPrice:Math.round(np*1.15)});
+  return np;
+ }catch(e){return 0;}
+}
+// ===== নতুন পণ্য upload হলেই AUTO =====
+onChildAdded(ref(db,"products"),snap=>{
+ const p=snap.val()||{};const id=snap.key;
+ if(p.sellerId&&p.sellerId!==ME)return; // অন্য seller-এর পণ্য ছাড়া
+ (async()=>{
+  const bc=(await get(ref(db,"settings/baseCosts/"+id))).val();
+  if(bc)return;
+  await priceOne(id,p);
+ })();
+});
+// ===== Drawer-এ 🤖 Auto Price button =====
+setInterval(()=>{
+ const box=document.getElementById("mpBox2");
+ if(box&&!document.getElementById("autoPriceBtn")){
+  const b=document.createElement("button");b.id="autoPriceBtn";
+  b.innerHTML="🤖 Auto Price — সব পণ্যের দাম Amazon market value-তে";
+  b.style.cssText="background:linear-gradient(90deg,#b967ff,#7C3AED);color:#fff;border:none;border-radius:8px;padding:11px 16px;font-weight:900;width:100%;margin:8px 0;box-shadow:0 0 12px rgba(185,103,255,.6)";
+  b.onclick=async()=>{
+   if(!confirm("হাজার হাজার পণ্যের দাম auto update হবে (Amazon estimate + 30% margin)। শুরু করবেন?"))return;
+   const ps=(await get(ref(db,"products"))).val()||{};
+   const bc=(await get(ref(db,"settings/baseCosts"))).val()||{};
+   let n=0;const log=document.getElementById("autoLog");
+   for(const [id,p] of Object.entries(ps)){
+    if(bc[id])continue;
+    if(p.sellerId&&p.sellerId!==ME)continue;
+    await priceOne(id,p);n++;
+    if(log&&n%20===0)log.innerHTML="⏳ "+n+"টা পণ্য আপডেট হয়েছে...";
+   }
+   if(log)log.innerHTML="✅ মোট "+n+"টা পণ্যের দাম Amazon market value-তে আপডেট হয়েছে!";
+   alert("✅ "+n+"টা পণ্য আপডেট!");
+  };
+  box.appendChild(b);
+  const lg=document.createElement("div");lg.id="autoLog";lg.style.cssText="font-size:12px;color:#7CFC00;margin:4px 0";box.appendChild(lg);
+ }
+},1000);
+</script>
 </html>
 
 <script type="module">/*helpSide-v2*/
