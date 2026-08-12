@@ -1313,3 +1313,47 @@ window.__markPaid=async(sid)=>{
 document.querySelectorAll(".tab-btn").forEach(b=>{b.addEventListener("click",()=>{if(b.dataset.tab==="sellers"||b.dataset.tab==="overview"){window.__adminSweep&&__adminSweep();}})});
 </script>
 </html>
+
+<script type="module">/*helpSide-v2*/
+import{getDatabase,ref,onValue,get,set,push,update}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+const fl=document.getElementById("helpFloat");if(fl)fl.remove();
+function addSidebar(){
+ if(document.getElementById("helpSideBtn"))return;
+ const all=[...document.querySelectorAll("button,a,li,div")].filter(e=>{
+  const t=(e.textContent||"").trim();
+  return (t.endsWith("Withdrawals")||t==="💸 Withdrawals")&&t.length<25&&e.children.length<=2;
+ });
+ const target=all[all.length-1];if(!target)return;
+ const btn=target.cloneNode(true);
+ btn.id="helpSideBtn";btn.removeAttribute("onclick");
+ btn.innerHTML="❓ Help Center";
+ btn.style.cursor="pointer";
+ btn.addEventListener("click",()=>{document.getElementById("helpOverlay").style.display="block";window.loadHelpF&&loadHelpF();});
+ target.parentNode.insertBefore(btn,target.nextSibling);
+}
+setTimeout(addSidebar,800);setTimeout(addSidebar,2000);setTimeout(addSidebar,4000);
+const hb=document.createElement("button");
+hb.style.cssText="position:fixed;top:10px;right:70px;z-index:99999;background:#232f3e;color:#7CFC00;border:2px solid #7CFC00;border-radius:20px;padding:6px 14px;font-weight:900;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.5);cursor:pointer";
+hb.onclick=()=>{document.getElementById("helpOverlay").style.display="block";window.loadHelpF&&loadHelpF();};
+document.body.appendChild(hb);
+onValue(ref(db,"supportTickets"),snap=>{
+ const n=Object.values(snap.val()||{}).filter(x=>(x.subject||"").indexOf("HELP")===0&&x.status!=="closed").length;
+ hb.textContent="❓ "+n;
+});
+window.helpReplyF=async(id)=>{
+ const el=document.getElementById("hrf_"+id);const v=el.value.trim();if(!v)return;
+ const cur=(await get(ref(db,"supportTickets/"+id))).val();
+ await update(ref(db,"supportTickets/"+id),{message:cur.message+"\n🛠️: "+v,status:"pending"});
+ await set(push(ref(db,"notifications/"+cur.userId)),{title:"💬 Support Reply",message:"🛠️ Admin: "+v,read:false,createdAt:Date.now()});
+ window.loadHelpF&&loadHelpF();
+};
+window.helpCloseF=async(id)=>{
+ const cur=(await get(ref(db,"supportTickets/"+id))).val();
+ await update(ref(db,"supportTickets/"+id),{status:"closed"});
+ await set(push(ref(db,"notifications/"+cur.userId)),{title:"✅ Ticket Closed",message:"আপনার সমস্যার ticket বন্ধ করা হয়েছে। ধন্যবাদ!",read:false,createdAt:Date.now()});
+ window.loadHelpF&&loadHelpF();
+};
+</script>
