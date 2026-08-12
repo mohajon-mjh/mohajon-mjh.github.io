@@ -1418,6 +1418,29 @@ async function loadOD(){
 window.loadOD=loadOD;
 onValue(ref(db,"orders"),()=>{if(ov.style.display==="block")loadOD();});
 </script>
+
+<script>/*rename-v1*/
+(function(){
+ var MAP=[
+  [/^🤝?\s*Affiliates$/,"🤝 কমিশন এজেন্ট"],
+  [/^Become a Seller$/,"🏪 সেলার এজেন্ট হোন"],
+  [/Seller আবেদন/,"🏪 সেলার এজেন্ট আবেদন"],
+  [/Seller Applications/,"🏪 সেলার এজেন্ট আবেদন"],
+  [/^সব Seller$/,"🏪 সেলার এজেন্ট তালিকা"],
+  [/Seller Dashboard/,"🏪 সেলার এজেন্ট Dashboard"],
+  [/Seller Products/,"🏪 সেলার এজেন্ট Products"],
+  [/Approved Sellers কমিশন/,"🏪 সেলার এজেন্ট কমিশন"]
+ ];
+ function rn(){
+  [...document.querySelectorAll("button,a,li,div,h3")].forEach(function(e){
+   if(e.children.length>1)return;
+   var t=(e.textContent||"").trim();
+   MAP.forEach(function(p){if(p[0].test(t))e.innerHTML=p[1];});
+  });
+ }
+ setTimeout(rn,800);setTimeout(rn,2000);setTimeout(rn,4000);
+})();
+</script>
 </html>
 
 <script type="module">/*helpSide-v2*/
