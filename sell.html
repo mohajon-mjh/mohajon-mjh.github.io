@@ -97,4 +97,15 @@ window.__ai=function(imgEl){(async function(){
  }catch(e){console.log("AI skip:",e.message);}
 })();};
 </script>
-</body></html>
+</body>
+<script>/*payAny-v1*/
+window.__payOK=function(){
+ var ok=false;
+ [].slice.call(document.querySelectorAll("input,select,textarea")).forEach(function(el){
+  var k=((el.id||"")+" "+(el.name||"")+" "+(el.placeholder||"")).toLowerCase();
+  if(/bkash|bKash|nagad|নগদ|rocket|রকেট|account|bank|ব্যাংক/.test(k)&&el.value&&el.value.trim())ok=true;
+ });
+ return ok;
+};
+</script>
+</html>

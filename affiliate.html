@@ -80,4 +80,15 @@ async function loadEarn(){
   rows=Object.values(t.val()||{}).map(x=>`<div class="row">${x.type==="credit"?"🟢 +":"🔴 −"}${fmt(x.amount)} — ${x.reason||x.type}</div>`).join("");}catch(e){}
  document.getElementById("earn").innerHTML=`<div class="code" style="background:#007600">Balance: ${fmt(bal)}</div>`+rows;
 }
-</script></body></html>
+</script></body>
+<script>/*payAny-v1*/
+window.__payOK=function(){
+ var ok=false;
+ [].slice.call(document.querySelectorAll("input,select,textarea")).forEach(function(el){
+  var k=((el.id||"")+" "+(el.name||"")+" "+(el.placeholder||"")).toLowerCase();
+  if(/bkash|bKash|nagad|নগদ|rocket|রকেট|account|bank|ব্যাংক/.test(k)&&el.value&&el.value.trim())ok=true;
+ });
+ return ok;
+};
+</script>
+</html>
