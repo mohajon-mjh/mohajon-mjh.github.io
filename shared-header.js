@@ -72,7 +72,7 @@
           <option value="MAD">د.م. MAD - Morocco</option>
         </select>
       </div>
-      <div style="display:flex;align-items:center;gap:6px">Help Center | <a href="my-orders.html" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,#FFD814,#FF9900);color:#111;font-weight:900;font-size:13px;padding:6px 16px;border-radius:20px;text-decoration:none;box-shadow:0 0 12px rgba(255,153,0,.8)"><span style="font-size:20px;animation:truckMove 1s infinite alternate">🚚</span> Track Order</a></div><style>@keyframes truckMove{from{transform:translateX(0)}to{transform:translateX(5px)}}</style>
+      <div style="display:flex;align-items:center;gap:6px"><a href="help-center.html" style="display:inline-flex;align-items:center;gap:5px;background:linear-gradient(90deg,#7CFC00,#00a651);color:#111;font-weight:900;font-size:13px;padding:6px 14px;border-radius:20px;text-decoration:none;box-shadow:0 0 12px rgba(124,252,0,.7)"><span style="font-size:18px">❓</span> Help Center</a> | <a href="my-orders.html" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,#FFD814,#FF9900);color:#111;font-weight:900;font-size:13px;padding:6px 16px;border-radius:20px;text-decoration:none;box-shadow:0 0 12px rgba(255,153,0,.8)"><span style="font-size:20px;animation:truckMove 1s infinite alternate">🚚</span> Track Order</a></div><style>@keyframes truckMove{from{transform:translateX(0)}to{transform:translateX(5px)}}</style>
     </div>
     <header class="market-header">
       <div class="logo"><a href="index.html"><img src="assets/images/logo.png" alt="MJH"></a></div>
