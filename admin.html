@@ -1441,6 +1441,77 @@ onValue(ref(db,"orders"),()=>{if(ov.style.display==="block")loadOD();});
  setTimeout(rn,800);setTimeout(rn,2000);setTimeout(rn,4000);
 })();
 </script>
+
+<script type="module">/*priceEngine-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,get,update,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+let RATE=122;
+const ov=document.createElement("div");ov.id="mpOverlay";
+ov.style.cssText="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99998;overflow:auto";
+ov.innerHTML='<div style="max-width:700px;margin:16px auto;background:#131921;border-radius:12px;padding:14px"><div style="display:flex;justify-content:space-between"><h3 style="color:#fff;margin:0">💱 Market Price Engine</h3><button onclick="document.getElementById(\'mpOverlay\').style.display=\'none\'" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700">✕</button></div><div id="mpBox" style="margin-top:10px"></div></div>';
+document.body.appendChild(ov);
+function addBtn(){
+ if(document.getElementById("mpBtn"))return;
+ const anchor=document.getElementById("odBtn")||[...document.querySelectorAll("button")].find(e=>/অর্ডার ডিটেইল/.test(e.textContent||""))||[...document.querySelectorAll("button")].find(e=>/Withdrawals/.test(e.textContent||""));
+ if(!anchor)return;
+ const b=document.createElement("button");b.id="mpBtn";b.type="button";b.innerHTML="💱 Market Price";
+ b.style.cssText="background:linear-gradient(90deg,#88ccff,#2196f3);color:#111;border:none;border-radius:6px;padding:10px 14px;font-weight:800;cursor:pointer;margin:6px 0;width:100%;box-shadow:0 0 12px rgba(33,150,243,.6)";
+ b.onclick=()=>{ov.style.display="block";renderMP();};
+ anchor.parentNode.insertBefore(b,anchor.nextSibling);
+}
+for(const t of [700,1800,3500])setTimeout(addBtn,t);
+async function fetchRate(){
+ try{const r=await fetch("https://open.er-api.com/v6/latest/USD");const j=await r.json();RATE=j.rates.BDT||122;await set(ref(db,"settings/pricing/rate"),RATE);}catch(e){RATE=(await get(ref(db,"settings/pricing/rate"))).val()||122;}
+}
+async function renderMP(){
+ await fetchRate();
+ const cfg=(await get(ref(db,"settings/pricing"))).val()||{};
+ const m=cfg.margin||30;
+ document.getElementById("mpBox").innerHTML=
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0">📈 <b style="color:#7CFC00">Live Rate:</b> 1 USD = ৳'+RATE.toFixed(2)+' | 1 SAR = ৳'+(RATE/3.75).toFixed(2)+' <small>(money exchange-এর মতো auto update)</small></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0">Margin: <input id="mpMargin" type="number" value="'+m+'" style="width:60px;padding:5px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">% <button onclick="mpSave()" style="background:#FF9900;color:#111;border:none;border-radius:6px;padding:6px 10px;font-weight:700;margin-left:8px">💾 Save</button><br><small style="color:#888">দাম = base cost × rate × (1+margin%) — প্রতি browser open-এ auto update</small></div>'+
+ '<button onclick="mpReprice()" style="background:#7CFC00;color:#111;border:none;border-radius:8px;padding:10px 16px;font-weight:900;width:100%;margin:6px 0">🔄 সব পণ্যের দাম Market Value-তে আপডেট করুন</button>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#FFD814">🏷️ পণ্যের base cost সেট করুন (Amazon/source দাম):</b><br>পণ্য কোড: <input id="mpCode" placeholder="যেমন: 1R6Y3S" style="width:90px;padding:5px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"> Source দাম (৳): <input id="mpSrc" type="number" placeholder="2500" style="width:80px;padding:5px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"> <button onclick="mpSetBase()" style="background:#2196f3;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-weight:700">✅ Set</button></div>'+
+ '<div id="mpLog" style="font-size:12px;color:#88ccff"></div>';
+}
+window.mpSave=async()=>{await set(ref(db,"settings/pricing/margin"),+document.getElementById("mpMargin").value||30);alert("✅ Saved");};
+window.mpSetBase=async()=>{
+ const code=document.getElementById("mpCode").value.trim().toUpperCase();const src=+document.getElementById("mpSrc").value;
+ if(!code||!src)return alert("কোড + দাম দিন");
+ const ps=(await get(ref(db,"products"))).val()||{};
+ const hit=Object.entries(ps).find(([id,p])=>id.slice(-6).toUpperCase()===code);
+ if(!hit)return alert("পণ্য পাওয়া যায়নি");
+ const usd=src/RATE;
+ await update(ref(db,"products/"+hit[0]),{usd:usd});
+ document.getElementById("mpLog").innerHTML="✅ "+hit[1].title+" base set: $"+usd.toFixed(2)+" → auto price ৳"+Math.round(usd*RATE*1.3);
+};
+window.mpReprice=async()=>{
+ const cfg=(await get(ref(db,"settings/pricing"))).val()||{};const m=(cfg.margin||30)/100;
+ const ps=(await get(ref(db,"products"))).val()||{};let n=0;
+ for(const [id,p] of Object.entries(ps)){
+  if(p.usd>0){
+   const np=Math.round(p.usd*RATE*(1+m));
+   const up={price:np};
+   if(p.oldPrice)up.oldPrice=Math.round(np*1.15);
+   await update(ref(db,"products/"+id),up);n++;
+  }
+ }
+ alert("✅ "+n+"টা পণ্যের দাম market value-তে আপডেট হয়েছে!");renderMP();
+};
+// admin panel খুললেই auto reprice (settings auto হলে)
+(async()=>{
+ await fetchRate();
+ const cfg=(await get(ref(db,"settings/pricing"))).val()||{};
+ if(cfg.auto!==false){
+  const ps=(await get(ref(db,"products"))).val()||{};const m=(cfg.margin||30)/100;
+  for(const [id,p] of Object.entries(ps)){
+   if(p.usd>0){const np=Math.round(p.usd*RATE*(1+m));if(Math.abs(np-(p.price||0))>5)await update(ref(db,"products/"+id),{price:np});}
+  }
+ }
+})();
+</script>
 </html>
 
 <script type="module">/*helpSide-v2*/
