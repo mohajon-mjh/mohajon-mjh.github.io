@@ -38,3 +38,27 @@ onAuthStateChanged(auth,async u=>{
  document.body.appendChild(panel);
 });
 </script></html>
+<script type="module">/*myOrdersFix-v3*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,onValue,query,orderByChild,equalTo}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+const ST=["placed","sourcing","inbound","shipped","delivered"];
+function draw(html){const el=document.getElementById("list");if(el)el.innerHTML=html;}
+onAuthStateChanged(auth,u=>{
+ if(!u){draw('<div style="background:#fff;border-radius:10px;padding:16px;margin:10px 0;text-align:center">🔐 অর্ডার দেখতে <a href="login.html" style="color:#FF9900;font-weight:700">Login করুন</a></div>');return;}
+ onValue(query(ref(db,"orders"),orderByChild("buyerId"),equalTo(u.uid)),snap=>{
+  const ords=Object.entries(snap.val()||{}).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+  if(!ords.length){draw('<div style="background:#fff;border-radius:10px;padding:16px;text-align:center">📭 কোনো অর্ডার নেই</div>');return;}
+  draw(ords.map(([id,o])=>{
+   const items=o.items||{};const cur=ST.indexOf(o.status||"placed");
+   return '<div style="background:#fff;border-radius:10px;padding:12px;margin:8px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)">'+
+   '<b>Order #'+id.slice(-6)+'</b> — ৳'+(o.total||0)+'<br>Status: <b style="color:'+(o.status==="delivered"?"#007600":o.status==="cancelled"?"#c0392b":"#b967ff")+'">'+(o.status||"placed")+'</b><br>'+
+   '<small>'+Object.values(items).map(i=>(i.title||"")+" ×"+(i.qty||1)).join(", ")+'</small>'+
+   '<div style="display:flex;margin:8px 0">'+ST.map((s,i)=>'<div style="flex:1;text-align:center;font-size:10px;color:'+(i<=cur?"#007600":"#bbb")+';font-weight:'+(i===cur?"900":"400")+'">'+["✅","🛒","📦","🚚","🏠"][i]+'<br>'+s+'</div>').join("")+'</div>'+
+   '<a href="chat.html?o='+id+'" style="color:#b967ff;font-weight:700;text-decoration:none">💬 Seller-এর সাথে chat</a></div>';
+  }).join(""));
+ });
+});
+</script>
