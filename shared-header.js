@@ -72,7 +72,7 @@
           <option value="MAD">د.م. MAD - Morocco</option>
         </select>
       </div>
-      <div>Help Center | Track Order</div>
+      <div style="display:flex;align-items:center;gap:6px">Help Center | <a href="my-orders.html" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,#FFD814,#FF9900);color:#111;font-weight:900;font-size:13px;padding:6px 16px;border-radius:20px;text-decoration:none;box-shadow:0 0 12px rgba(255,153,0,.8)"><span style="font-size:20px;animation:truckMove 1s infinite alternate">🚚</span> Track Order</a></div><style>@keyframes truckMove{from{transform:translateX(0)}to{transform:translateX(5px)}}</style>
     </div>
     <header class="market-header">
       <div class="logo"><a href="index.html"><img src="assets/images/logo.png" alt="MJH"></a></div>
