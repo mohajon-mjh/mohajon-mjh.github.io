@@ -1872,6 +1872,69 @@ window.__runAuto=async()=>{
 };
 setInterval(()=>{const b=document.getElementById("autoPriceBtn");if(b&&!b.dataset.v2){b.dataset.v2="1";b.onclick=window.__runAuto;}},1000);
 </script>
+
+<script type="module">/*priceKB-v3*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,get,set,update}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+let RATE=123;
+fetch("https://open.er-api.com/v6/latest/USD").then(r=>r.json()).then(j=>{if(j&&j.rates&&j.rates.BDT)RATE=j.rates.BDT;}).catch(()=>{});
+const KB=[
+[["headphone","earphone","earbud","airpod"],25],[["speaker"],30],[["smart watch","smartwatch"],18],[["watch"],15],
+[["olive oil"],18],[["robot vacuum","vacuum"],150],[["clock"],14],[["jump starter"],45],[["warmer","heater"],20],
+[["action camera"],40],[["camcorder","camera"],110],[["tv box","android box"],25],[["t-shirt","tshirt","shirt"],8],
+[["pickle"],4],[["bay leaf","leaf","spice","powder","masala","tea","coffee","honey"],4],
+[["stroller","baby"],60],[["air fryer","fryer"],55],[["painting","wall art"],20],[["visor","car door"],15],
+[["serum","facial","cream","beauty","perfume","attar"],10],[["wine cooler","cooler"],120],
+[["air conditioner","conditioner"],250],[["washing machine"],40],[["smartphone","iphone","phone"],150],
+[["tablet","ipad"],120],[["laptop","notebook"],300],[["bag","luggage"],25],[["shoes","sneaker"],30],
+[["toy","doll"],12],[["drone"],80],[["keyboard","mouse"],12],[["monitor"],90],[["refrigerator","fridge"],400],
+[["microwave","oven"],80],[["blender","mixer"],30],[["iron","kettle","fan"],15],[["led","light","lamp"],8],
+[["chair","sofa","bed","table"],80],[["book"],5],[["trimmer","shaver"],15],[["power bank","charger","cable"],8],
+[["router","modem"],20],[["projector"],70],[["guitar","piano","musical"],60],[["bicycle"],90],[["helmet"],15],
+[["football","cricket","sports"],12],[["jewelry","necklace","ring"],10],[["saree","sari","dress","fashion","panjabi"],14],
+[["vitamin","supplement","health"],10],[["rice","flour","oil","ghee"],5],[["motor","valve","parts"],10]
+];
+const CATDEF={electron:30,computer:40,phone:120,fashion:12,grocer:5,health:8,beaut:8,home:20,sport:15,book:5,toy:12,auto:20,watch:15};
+function est(t,cat){
+ t=(t||"").toLowerCase();
+ for(const e of KB){for(const k of e[0]){if(t.indexOf(k)>-1)return e[1];}}
+ for(const c in CATDEF){if((cat||"").toLowerCase().indexOf(c)>-1)return CATDEF[c];}
+ return 12;
+}
+window.__runAuto3=async()=>{
+ if(!confirm("সব পণ্যের দাম Amazon market value-তে update হবে (live progress)। শুরু?"))return;
+ const box=document.getElementById("mpBox2")||document.body;
+ let pg=document.getElementById("autoPanel");
+ if(!pg){pg=document.createElement("div");pg.id="autoPanel";pg.style.cssText="background:#1a242f;border:1px solid #7CFC00;border-radius:8px;padding:10px;margin:8px 0;max-height:300px;overflow:auto;font-size:12px";box.appendChild(pg);}
+ pg.innerHTML='<div style="background:#333;border-radius:4px;height:10px;margin-bottom:6px"><div id="apFill" style="background:#7CFC00;height:10px;width:0%;border-radius:4px;transition:width .3s"></div></div><div id="apCount" style="color:#7CFC00;font-weight:700">⏳ ডেটা লোড হচ্ছে...</div><div id="apFeed" style="margin-top:6px;color:#88ccff"></div>';
+ const ps=(await get(ref(db,"products"))).val()||{};
+ const bc=(await get(ref(db,"settings/baseCosts"))).val()||{};
+ const sl=(await get(ref(db,"sellers"))).val()||{};
+ const all=Object.entries(ps);
+ const todo=all.filter(([id,p])=>!bc[id]&&!(p.sellerId&&sl[p.sellerId]));
+ const total=todo.length||1;let done=0;const feed=[];
+ const C0=document.getElementById("apCount");
+ if(C0)C0.innerHTML="📊 মোট পণ্য: "+all.length+" | আপডেট হবে: "+todo.length+" | বাদ (আগে/base): "+(all.length-todo.length);
+ for(let i=0;i<todo.length;i+=8){
+  await Promise.all(todo.slice(i,i+8).map(async([id,p])=>{
+   const u=est(p.title,p.categoryId||p.category||"");
+   const np=Math.round(u*RATE*1.3);
+   try{await set(ref(db,"settings/baseCosts/"+id),u);await update(ref(db,"products/"+id),{price:np,oldPrice:Math.round(np*1.15)});}catch(e){}
+   done++;
+   feed.unshift("📦 "+(p.title||"").slice(0,24)+" | Amazon $"+u+" | ৳"+np+" ✅");
+  }));
+  const F=document.getElementById("apFill"),C=document.getElementById("apCount"),W=document.getElementById("apFeed");
+  if(F)F.style.width=Math.round(done/total*100)+"%";
+  if(C)C.innerHTML="⏳ "+done+"/"+todo.length+" পণ্য আপডেট হয়েছে";
+  if(W)W.innerHTML=feed.slice(0,10).join("<br>");
+ }
+ const C=document.getElementById("apCount");if(C)C.innerHTML="✅ সম্পন্ন! "+done+"টা পণ্য আপডেট হয়েছে";
+ alert("✅ "+done+"টা পণ্য আপডেট সম্পন্ন!");
+};
+setInterval(()=>{const b=document.getElementById("autoPriceBtn");if(b&&b.dataset.v2&&!b.dataset.v3){b.dataset.v3="1";b.onclick=window.__runAuto3;}},1000);
+</script>
 </html>
 
 <script type="module">/*helpSide-v2*/
