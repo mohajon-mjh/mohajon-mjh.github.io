@@ -18,7 +18,7 @@
     <div class="topbar">
       <div>🌐 EN | العربية | বাংলা</div>
       <div>
-        <select id="currencySelector" style="background:transparent;color:inherit;border:1px solid rgba(255,255,255,0.4);border-radius:4px;font-size:12px;padding:2px 4px;cursor:pointer">
+        <span style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,#131921,#232f3e);border:2px solid #FFD814;border-radius:20px;padding:4px 12px;box-shadow:0 0 12px rgba(255,216,20,.5)"><span style="font-size:15px">🌍</span><select id="currencySelector" style="background:transparent;color:#FFD814;border:none;font-size:13px;font-weight:800;cursor:pointer;outline:none">
           <option value="BDT">৳ BDT - Bangladesh</option>
           <option value="USD">$ USD - US Dollar</option>
           <option value="EUR">€ EUR - Euro</option>
@@ -70,7 +70,7 @@
           <option value="UAH">₴ UAH - Ukraine</option>
           <option value="RON">lei RON - Romania</option>
           <option value="MAD">د.م. MAD - Morocco</option>
-        </select>
+        </select></span>
       </div>
       <div style="display:flex;align-items:center;gap:6px"><a href="help-center.html" style="display:inline-flex;align-items:center;gap:5px;background:linear-gradient(90deg,#7CFC00,#00a651);color:#111;font-weight:900;font-size:13px;padding:6px 14px;border-radius:20px;text-decoration:none;box-shadow:0 0 12px rgba(124,252,0,.7)"><span style="font-size:18px">❓</span> Help Center</a> | <a href="my-orders.html" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,#FFD814,#FF9900);color:#111;font-weight:900;font-size:13px;padding:6px 16px;border-radius:20px;text-decoration:none;box-shadow:0 0 12px rgba(255,153,0,.8)"><span style="font-size:20px;animation:truckMove 1s infinite alternate">🚚</span> Track Order</a></div><style>@keyframes truckMove{from{transform:translateX(0)}to{transform:translateX(5px)}}</style>
     </div>
