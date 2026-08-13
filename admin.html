@@ -2560,7 +2560,7 @@ async function DB(){
  const app=fa.getApps().length?fa.getApp():fa.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
  fb={fd:fd,db:fd.getDatabase(app)};return fb;
 }
-async function syncLoad(){
+window.syncLoad=async function(){
  var c=getCfg();
  if(!c.access_token){
   try{const m=await DB();const s=(await m.fd.get(m.fd.ref(m.db,"settings/pathao"))).val();if(s&&s.access_token){setCfg(s);return s;}}catch(e){}
