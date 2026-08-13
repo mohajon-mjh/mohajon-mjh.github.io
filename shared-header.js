@@ -190,3 +190,20 @@
 
   document.addEventListener("headerLoaded", checkAdminAndShowLink);
 })();
+
+/*offerExpiry-v1*/
+(function(){
+ function sweep(){
+  document.querySelectorAll("div,span,p,small").forEach(function(e){
+   if(e.children.length>0)return;
+   var t=e.textContent||"";
+   if(t.indexOf("অফার")===-1||t.indexOf("পর্যন্ত")===-1)return;
+   var m=t.match(/(\d{1,2})-(\d{1,2})-(\d{4})/g);
+   if(!m||!m.length)return;
+   var last=m[m.length-1].split("-");
+   var end=new Date(+last[2],+last[1]-1,+last[0],23,59,59); // end date রাত ১২টা পর্যন্ত
+   e.style.display=(Date.now()>end.getTime())?"none":"";
+  });
+ }
+ sweep();setInterval(sweep,5000);
+})();
