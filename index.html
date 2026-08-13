@@ -2254,6 +2254,11 @@ onAuthStateChanged(auth,async u=>{
  try{const s=await get(ref(db,"users/"+u.uid));const r=(s.val()||{}).role;setAdminUI(r==="admin"||r==="superadmin");}catch(e){setAdminUI(false);}
 });
 </script>
+
+<script>/*hideAdmin-v5*/
+(function(){function h(){document.querySelectorAll("a").forEach(function(a){var t=(a.textContent||"").trim();var x=a.getAttribute("href")||"";if(t==="Admin"||x==="admin.html"||x.endsWith("/admin.html"))a.style.display="none";});}
+h();var n=0;var t=setInterval(function(){h();n++;if(n>10)clearInterval(t);},1500);})();
+</script>
 </html>
 
 <script>
