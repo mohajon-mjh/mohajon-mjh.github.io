@@ -2656,3 +2656,25 @@ function fix(){var b=document.getElementById("pthBtn2");if(b&&!b.dataset.v12){b.
 for(var i=0;i<20;i++)setTimeout(fix,500*i+300);
 })();
 </script>
+<script>/*pathao-v13*/
+(function(){
+function ensureDrawer(){
+ var d=document.getElementById("pthDrawer2");
+ if(!d){d=document.createElement("div");d.id="pthDrawer2";d.style.cssText="position:fixed;top:0;right:-520px;width:500px;max-width:96vw;height:100vh;background:#131921;z-index:99997;overflow-y:auto;transition:right .3s;padding:14px;box-shadow:-4px 0 20px rgba(0,0,0,.5)";document.body.appendChild(d);}
+ return d;
+}
+function bind(){
+ var b=document.getElementById("pthBtn2")||document.getElementById("pthBtn");
+ if(!b||b.dataset.v13)return;
+ b.dataset.v13="1";
+ b.onclick=function(){
+  var d=ensureDrawer();
+  d.style.right="0";
+  try{window.renderP12&&renderP12();}catch(e){}
+  try{window.syncLoad&&window.syncLoad().then(function(){window.renderP12&&renderP12();}).catch(function(){});}catch(e){}
+ };
+}
+for(var i=0;i<30;i++)setTimeout(bind,500*i+300);
+window.__p13bind=bind;
+})();
+</script>
