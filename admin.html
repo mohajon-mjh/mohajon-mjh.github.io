@@ -1935,6 +1935,35 @@ window.__runAuto3=async()=>{
 };
 setInterval(()=>{const b=document.getElementById("autoPriceBtn");if(b&&b.dataset.v2&&!b.dataset.v3){b.dataset.v3="1";b.onclick=window.__runAuto3;}},1000);
 </script>
+
+<style>/*notifAll-v1-css*/#notifBell{top:2px !important;right:56px !important;}</style>
+<script type="module">/*notifAll-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,onValue}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+const DAY30=30*86400000;
+let O={},T={},S={},W={};
+function render(){
+ const now=Date.now();const items=[];
+ Object.entries(O).forEach(([id,o])=>{if((o.createdAt||0)>now-DAY30)items.push({t:o.createdAt,icon:"📦",txt:"নতুন অর্ডার — ৳"+(o.total||0)+" | "+(((o.shippingAddress||{}).name)||""),c:"#FFD814"});});
+ Object.entries(T).forEach(([id,x])=>{if((x.createdAt||0)>now-DAY30)items.push({t:x.createdAt,icon:"❓",txt:"Help ticket — "+(x.subject||""),c:"#7CFC00"});});
+ Object.entries(S).forEach(([id,s])=>{if((s.createdAt||0)>now-DAY30)items.push({t:s.createdAt,icon:"🏪",txt:"Seller আবেদন — "+(s.storeName||""),c:"#88ccff"});});
+ Object.entries(W).forEach(([id,w])=>{if((w.createdAt||0)>now-DAY30)items.push({t:w.createdAt,icon:"💸",txt:"Withdraw request — ৳"+(w.amount||0),c:"#ff9999"});});
+ items.sort((a,b)=>b.t-a.t);
+ const dd=document.getElementById("notifDropdown");
+ if(dd)dd.innerHTML=items.slice(0,50).map(i=>'<div class="notif-item" style="border-left:3px solid '+i.c+'">'+i.icon+' '+i.txt+'<br><small style="color:#888">'+new Date(i.t).toLocaleString("bn-BD")+'</small></div>').join("")||'<div class="notif-empty">কোনো notification নেই</div>';
+ const bd=document.getElementById("notifBadge");
+ if(bd){bd.textContent=items.length;bd.style.display=items.length?"flex":"none";}
+}
+onValue(ref(db,"orders"),s=>{O=s.val()||{};render();});
+onValue(ref(db,"supportTickets"),s=>{T=s.val()||{};render();});
+onValue(ref(db,"sellerApps"),s=>{S=s.val()||{};render();});
+onValue(ref(db,"withdrawRequests"),s=>{W=s.val()||{};render();}).catch(()=>{});
+onValue(ref(db,"withdrawals"),s=>{W=Object.assign(W,s.val()||{});render();}).catch(()=>{});
+document.getElementById("notifBell")&&document.getElementById("notifBell").addEventListener("click",()=>setTimeout(render,200),true);
+setInterval(render,10000);
+</script>
 </html>
 
 <script type="module">/*helpSide-v2*/
