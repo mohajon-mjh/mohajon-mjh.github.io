@@ -2322,3 +2322,67 @@ window.renderP3=renderP3;
  for(var i=0;i<20;i++)setTimeout(fix,500*i+300);
 })();
 </script>
+<script>/*pathao-v6*/
+(function(){
+function getCfg(){try{return JSON.parse(localStorage.getItem("pthCfg")||"{}");}catch(e){return{};}}
+function setCfg(c){localStorage.setItem("pthCfg",JSON.stringify(c));}
+async function fetchX(url,opts){
+ var c=getCfg();
+ var tries=[];
+ if(c.worker)tries.push(c.worker+"?url="+encodeURIComponent(url));
+ tries.push(url);
+ for(const t of tries){
+  try{const r=await fetch(t,opts);const j=await r.json();if(j)return j;}catch(e){}
+ }
+ return {message:"❌ সব route fail"};
+}
+window.p2connect=async function(){
+ var c=getCfg();
+ c.client_id=document.getElementById("p2cid").value.trim();
+ c.client_secret=document.getElementById("p2sec").value.trim();
+ c.username=document.getElementById("p2user").value.trim();
+ c.password=document.getElementById("p2pass").value.trim();
+ c.worker=(document.getElementById("p2worker")?document.getElementById("p2worker").value.trim():"")||c.worker||"";
+ c.base=document.getElementById("p2sand").checked?"https://courier-api-sandbox.pathao.com":"https://courier-api.pathao.com";
+ setCfg(c);
+ var j=await fetchX(c.base+"/aladdin/api/v1/issue-token",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({client_id:c.client_id,client_secret:c.client_secret,grant_type:"password",username:c.username,password:c.password})});
+ if(j&&j.access_token){c.access_token=j.access_token;c.refresh_token=j.refresh_token;c.lastError="";setCfg(c);alert("✅ Connected!");setTimeout(function(){window.p2store&&p2store();},300);}
+ else{c.lastError=(j&&j.message)||"Unknown";setCfg(c);alert("❌ "+c.lastError);}
+ window.renderP4&&renderP4();
+};
+window.p2store=async function(){
+ var c=getCfg();if(!c.access_token)return alert("Connect first");
+ var j=await fetchX(c.base+"/aladdin/api/v1/stores",{headers:{"Authorization":"Bearer "+c.access_token}});
+ if(j&&j.data&&j.data.data&&j.data.data[0]){c.store_id=j.data.data[0].store_id;setCfg(c);alert("✅ Store ID: "+c.store_id);}
+ else alert("❌ "+((j&&j.message)||"store পাইনি"));
+};
+window.p2send=async function(){
+ var c=getCfg();if(!c.access_token||!c.store_id)return alert("Connect + Store ID first");
+ var payload={store_id:+c.store_id,merchant_order_id:"MJH-TEST-"+Date.now().toString().slice(-6),recipient_name:document.getElementById("p2name").value.trim()||"Test Customer",recipient_phone:document.getElementById("p2phone").value.trim(),recipient_address:document.getElementById("p2addr").value.trim()||"Sonagazi, Feni",delivery_type:48,item_type:2,item_quantity:1,item_weight:"0.5",item_description:"Test parcel",amount_to_collect:+(document.getElementById("p2amt").value||0)};
+ var lg=document.getElementById("p2log");if(lg)lg.innerHTML="⏳ Sending...";
+ var j=await fetchX(c.base+"/aladdin/api/v1/orders",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+c.access_token},body:JSON.stringify(payload)});
+ if(lg)lg.innerHTML=(j&&j.data&&j.data.consignment_id)?("✅ Consignment: "+j.data.consignment_id+" | Fee: ৳"+j.data.delivery_fee):("❌ "+((j&&j.message)||JSON.stringify(j)));
+};
+window.renderP4=function(){
+ var c=getCfg();var box=document.getElementById("pthDrawer2");if(!box)return;
+ box.innerHTML='<div style="display:flex;justify-content:space-between"><h3 style="color:#fff;margin:0">🟠 Pathao Courier</h3><button onclick="document.getElementById(\'pthDrawer2\').style.right=\'-520px\'" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700">✕</button></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:10px;margin:8px 0;color:'+(c.access_token?"#7CFC00":"#ff5555")+';font-weight:700">'+(c.access_token?"✅ Connected (Store: "+(c.store_id||"-")+")":"❌ Not connected")+(c.lastError?'<br><small style="color:#ff9999">'+c.lastError+'</small>':'')+'</div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#FFD814">🔑 Credentials</b>'+
+ '<input id="p2worker" placeholder="☁️ Worker Proxy URL" value="'+(c.worker||"")+'" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#7CFC00;border:1px solid #7CFC00;border-radius:4px">'+
+ '<input id="p2cid" placeholder="Client ID" value="'+(c.client_id||"")+'" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2sec" placeholder="Client Secret" value="'+(c.client_secret||"")+'" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2user" placeholder="Email" value="'+(c.username||"")+'" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2pass" placeholder="Password" type="password" value="'+(c.password||"")+'" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<label style="color:#ccc;font-size:12px"><input id="p2sand" type="checkbox" '+(c.base&&c.base.indexOf("sandbox")>-1?"checked":"")+'> Sandbox (test)</label><br>'+
+ '<button onclick="p2connect()" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:8px 14px;font-weight:700;margin-top:6px">🔐 Connect</button> <button onclick="p2store()" style="background:#2196f3;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-weight:700;margin-top:6px">🏪 Get Store ID</button>'+
+ '<div id="p2st" style="font-size:12px;color:#88ccff;margin-top:6px"></div></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#FFD814">🚀 Test Order পাঠান</b><br>'+
+ '<input id="p2name" placeholder="Recipient name" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2phone" placeholder="01XXXXXXXXX" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2addr" placeholder="Full address" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2amt" type="number" placeholder="Amount (COD)" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<button onclick="p2send()" style="background:#FF9900;color:#111;border:none;border-radius:6px;padding:8px 14px;font-weight:700;margin-top:6px">🚀 Create Order</button>'+
+ '<div id="p2log" style="font-size:12px;color:#88ccff;margin-top:6px"></div></div>';
+};
+})();
+</script>
