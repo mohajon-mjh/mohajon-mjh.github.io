@@ -2178,3 +2178,74 @@ window.helpCloseF=async(id)=>{
 .admin-tabs a{color:#fff !important;font-weight:700 !important;font-size:16px !important;}
 .admin-tabs h2{color:#FFD814 !important;}
 </style>
+<script>/*pathao-v2*/
+(function(){
+function getCfg(){try{return JSON.parse(localStorage.getItem("pthCfg")||"{}");}catch(e){return{};}}
+function setCfg(c){localStorage.setItem("pthCfg",JSON.stringify(c));}
+var drawer=document.createElement("div");drawer.id="pthDrawer2";
+drawer.style.cssText="position:fixed;top:0;right:-520px;width:500px;max-width:96vw;height:100vh;background:#131921;z-index:99997;overflow-y:auto;transition:right .3s;padding:14px;box-shadow:-4px 0 20px rgba(0,0,0,.5)";
+document.body.appendChild(drawer);
+function render(){
+ var c=getCfg();
+ drawer.innerHTML='<div style="display:flex;justify-content:space-between"><h3 style="color:#fff;margin:0">🟠 Pathao Courier</h3><button onclick="document.getElementById(\'pthDrawer2\').style.right=\'-520px\'" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700">✕</button></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:10px;margin:8px 0;color:'+(c.access_token?"#7CFC00":"#ff5555")+';font-weight:700">'+(c.access_token?"✅ Connected (Store: "+(c.store_id||"-")+")":"❌ Not connected")+'</div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#FFD814">🔑 Credentials</b>'+
+ '<input id="p2cid" placeholder="Client ID" value="'+(c.client_id||"")+'" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2sec" placeholder="Client Secret" value="'+(c.client_secret||"")+'" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2user" placeholder="Email" value="'+(c.username||"")+'" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2pass" placeholder="Password" type="password" value="'+(c.password||"")+'" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<label style="color:#ccc;font-size:12px"><input id="p2sand" type="checkbox" '+(c.base&&c.base.indexOf("sandbox")>-1?"checked":"")+'> Sandbox (test)</label><br>'+
+ '<button onclick="p2connect()" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:8px 14px;font-weight:700;margin-top:6px">🔐 Connect</button> <button onclick="p2store()" style="background:#2196f3;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-weight:700;margin-top:6px">🏪 Get Store ID</button>'+
+ '<div id="p2st" style="font-size:12px;color:#88ccff;margin-top:6px"></div></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#FFD814">🚀 Test Order পাঠান</b><br>'+
+ '<input id="p2name" placeholder="Recipient name" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2phone" placeholder="01XXXXXXXXX" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2addr" placeholder="Full address" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<input id="p2amt" type="number" placeholder="Amount (COD)" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<button onclick="p2send()" style="background:#FF9900;color:#111;border:none;border-radius:6px;padding:8px 14px;font-weight:700;margin-top:6px">🚀 Create Order</button>'+
+ '<div id="p2log" style="font-size:12px;color:#88ccff;margin-top:6px"></div></div>';
+}
+window.p2connect=async function(){
+ var c={client_id:document.getElementById("p2cid").value.trim(),client_secret:document.getElementById("p2sec").value.trim(),username:document.getElementById("p2user").value.trim(),password:document.getElementById("p2pass").value.trim(),base:document.getElementById("p2sand").checked?"https://courier-api-sandbox.pathao.com":"https://courier-api.pathao.com"};
+ document.getElementById("p2st").innerHTML="⏳ Connecting...";
+ try{
+  var r=await fetch(c.base+"/aladdin/api/v1/issue-token",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({client_id:c.client_id,client_secret:c.client_secret,grant_type:"password",username:c.username,password:c.password})});
+  var j=await r.json();
+  if(j.access_token){c.access_token=j.access_token;c.refresh_token=j.refresh_token;setCfg(c);setCfg(c);setTimeout(function(){p2store();},300);}
+  else document.getElementById("p2st").innerHTML="❌ "+(j.message||JSON.stringify(j));
+ }catch(e){document.getElementById("p2st").innerHTML="❌ "+e.message;}
+ render();
+};
+window.p2store=async function(){
+ var c=getCfg();if(!c.access_token)return alert("Connect first");
+ try{
+  var r=await fetch(c.base+"/aladdin/api/v1/stores",{headers:{"Authorization":"Bearer "+c.access_token}});
+  var j=await r.json();
+  if(j.data&&j.data.data&&j.data.data[0]){c.store_id=j.data.data[0].store_id;setCfg(c);alert("✅ Store ID: "+c.store_id);}
+  else alert("❌ "+(j.message||"store পাইনি"));
+ }catch(e){alert("❌ "+e.message);}
+ render();
+};
+window.p2send=async function(){
+ var c=getCfg();if(!c.access_token||!c.store_id)return alert("Connect + Store ID first");
+ var payload={store_id:+c.store_id,merchant_order_id:"MJH-TEST-"+Date.now().toString().slice(-6),recipient_name:document.getElementById("p2name").value.trim()||"Test Customer",recipient_phone:document.getElementById("p2phone").value.trim(),recipient_address:document.getElementById("p2addr").value.trim()||"Sonagazi, Feni",delivery_type:48,item_type:2,item_quantity:1,item_weight:"0.5",item_description:"Test parcel",amount_to_collect:+(document.getElementById("p2amt").value||0)};
+ document.getElementById("p2log").innerHTML="⏳ Sending...";
+ try{
+  var r=await fetch(c.base+"/aladdin/api/v1/orders",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+c.access_token},body:JSON.stringify(payload)});
+  var j=await r.json();
+  document.getElementById("p2log").innerHTML=j.data&&j.data.consignment_id?("✅ Consignment: "+j.data.consignment_id+" | Fee: ৳"+j.data.delivery_fee):("❌ "+(j.message||JSON.stringify(j)));
+ }catch(e){document.getElementById("p2log").innerHTML="❌ "+e.message;}
+};
+function addBtn(){
+ if(document.getElementById("pthBtn2"))return;
+ var ms=[].slice.call(document.querySelectorAll("button")).filter(function(b){return (b.textContent||"").indexOf("Market Price")>-1;});
+ var anchor=ms[ms.length-1]||document.getElementById("admin-logout-btn");
+ if(!anchor)return;
+ var b=document.createElement("button");b.id="pthBtn2";b.type="button";b.innerHTML="🟠 Pathao Courier";
+ b.style.cssText="background:linear-gradient(90deg,#FF9900,#FF6600);color:#fff;border:none;border-radius:6px;padding:10px 14px;font-weight:800;cursor:pointer;margin:6px 0;width:100%;box-shadow:0 0 12px rgba(255,102,0,.6)";
+ b.onclick=function(){drawer.style.right="0";render();};
+ anchor.parentNode.insertBefore(b,anchor.nextSibling);
+}
+for(var i=0;i<20;i++)setTimeout(addBtn,500*i+400);
+})();
+</script>
