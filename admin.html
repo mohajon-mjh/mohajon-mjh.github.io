@@ -2386,3 +2386,48 @@ window.renderP4=function(){
 };
 })();
 </script>
+<script>/*pathao-v8*/
+(function(){
+function getCfg(){try{return JSON.parse(localStorage.getItem("pthCfg")||"{}");}catch(e){return{};}}
+function setCfg(c){localStorage.setItem("pthCfg",JSON.stringify(c));}
+async function fetchX(url,opts){
+ var c=getCfg();var errs=[];
+ var tries=[];
+ if(c.worker)tries.push(c.worker.trim()+"?url="+encodeURIComponent(url));
+ tries.push(url);
+ for(const t of tries){
+  try{
+   const r=await fetch(t,opts);
+   const txt=await r.text();
+   try{const j=JSON.parse(txt);if(j)return j;}catch(e){errs.push("notJSON:"+txt.slice(0,50));}
+  }catch(e){errs.push(e.message);}
+ }
+ return {message:"❌ "+errs.join(" | ")};
+}
+window.p2connect=async function(){
+ var c=getCfg();
+ c.client_id=document.getElementById("p2cid").value.trim();
+ c.client_secret=document.getElementById("p2sec").value.trim();
+ c.username=document.getElementById("p2user").value.trim();
+ c.password=document.getElementById("p2pass").value.trim();
+ c.worker=(document.getElementById("p2worker")?document.getElementById("p2worker").value.trim():"")||c.worker||"";
+ var sand=document.getElementById("p2sand").checked;
+ var bases=sand?["https://courier-api-sandbox.pathao.com"]:["https://courier-api.pathao.com","https://api.pathao.com","https://courier.pathao.com"];
+ var last="";
+ for(const b of bases){
+  var j=await fetchX(b+"/aladdin/api/v1/issue-token",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({client_id:c.client_id,client_secret:c.client_secret,grant_type:"password",username:c.username,password:c.password})});
+  if(j&&j.access_token){
+   c.base=b;c.access_token=j.access_token;c.refresh_token=j.refresh_token;c.lastError="";setCfg(c);
+   alert("✅ Connected! Host: "+b);
+   setTimeout(function(){window.p2store&&p2store();},300);
+   window.renderP4&&renderP4();
+   return;
+  }
+  last=b+" => "+((j&&j.message)||"fail");
+ }
+ c.lastError=last;setCfg(c);
+ alert("❌ "+last);
+ window.renderP4&&renderP4();
+};
+})();
+</script>
