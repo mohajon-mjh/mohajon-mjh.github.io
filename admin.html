@@ -2313,3 +2313,12 @@ function renderP3(){
 window.renderP3=renderP3;
 })();
 </script>
+<script>/*pathao-v5*/
+(function(){
+ function fix(){
+  var b=document.getElementById("pthBtn2");
+  if(b&&!b.dataset.v5){b.dataset.v5="1";b.onclick=function(){document.getElementById("pthDrawer2").style.right="0";if(window.renderP4)window.renderP4();};}
+ }
+ for(var i=0;i<20;i++)setTimeout(fix,500*i+300);
+})();
+</script>
