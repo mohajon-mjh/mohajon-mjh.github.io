@@ -2008,4 +2008,9 @@ window.helpCloseF=async(id)=>{
  await set(push(ref(db,"notifications/"+cur.userId)),{title:"✅ Ticket Closed",message:"আপনার সমস্যার ticket বন্ধ করা হয়েছে। ধন্যবাদ!",read:false,createdAt:Date.now()});
  window.loadHelpF&&loadHelpF();
 };
-</script>
+</script><style>/*adminUI-v1*/
+.tab-btn{color:#fff !important;font-weight:700 !important;font-size:16px !important;background:#262626 !important;border-left:4px solid #FF9900 !important;margin:3px 0 !important;border-radius:6px !important;}
+.tab-btn.active{background:#2563eb !important;border-left-color:#7CFC00 !important;}
+.admin-tabs a{color:#fff !important;font-weight:700 !important;font-size:16px !important;}
+.admin-tabs h2{color:#FFD814 !important;}
+</style>
