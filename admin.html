@@ -1964,6 +1964,170 @@ onValue(ref(db,"withdrawals"),s=>{W=Object.assign(W,s.val()||{});render();}).cat
 document.getElementById("notifBell")&&document.getElementById("notifBell").addEventListener("click",()=>setTimeout(render,200),true);
 setInterval(render,10000);
 </script>
+
+<script type="module">/*pathao-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,get,set,update,remove,onValue}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+const PROD="https://courier-api.pathao.com";
+const dr=document.createElement("div");dr.id="pathaoDrawer";
+dr.style.cssText="position:fixed;top:0;right:-520px;width:500px;max-width:96vw;height:100vh;background:#131921;z-index:99997;overflow-y:auto;transition:right .3s;box-shadow:-4px 0 20px rgba(0,0,0,.5);padding:14px";
+dr.innerHTML='<div style="display:flex;justify-content:space-between"><h3 style="color:#fff;margin:0">🟠 Pathao Courier Integration</h3><button onclick="document.getElementById(\'pathaoDrawer\').style.right=\'-520px\'" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700">✕</button></div><div id="pthBox" style="margin-top:10px"></div>';
+document.body.appendChild(dr);
+let CFG={};
+async function loadCfg(){CFG=(await get(ref(db,"settings/pathao"))).val()||{};}
+async function pthLogin(){
+ const cid=document.getElementById("pthCid").value.trim();
+ const csec=document.getElementById("pthCsec").value.trim();
+ const u=document.getElementById("pthUser").value.trim();
+ const p=document.getElementById("pthPass").value.trim();
+ const useSandbox=document.getElementById("pthSand").checked;
+ const base=useSandbox?"https://courier-api-sandbox.pathao.com":PROD;
+ try{
+  const r=await fetch(base+"/aladdin/api/v1/issue-token",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({client_id:cid,client_secret:csec,grant_type:"password",username:u,password:p})});
+  const j=await r.json();
+  if(j.access_token){
+   await set(ref(db,"settings/pathao"),{client_id:cid,client_secret:csec,username:u,password:p,access_token:j.access_token,refresh_token:j.refresh_token,expires_in:j.expires_in,base:base,connected:true,connectedAt:Date.now()});
+   await loadCfg();
+   document.getElementById("pthStatus").innerHTML="✅ Connected! Token saved";
+   renderBox();
+  }else{
+   document.getElementById("pthStatus").innerHTML="❌ "+(j.message||JSON.stringify(j));
+  }
+ }catch(e){document.getElementById("pthStatus").innerHTML="❌ "+e.message;}
+}
+async function getStoreId(){
+ if(!CFG.access_token)return null;
+ try{
+  const r=await fetch(CFG.base+"/aladdin/api/v1/stores",{headers:{"Content-Type":"application/json","Authorization":"Bearer "+CFG.access_token}});
+  const j=await r.json();
+  if(j.data&&j.data.data&&j.data.data[0]){
+   const sid=j.data.data[0].store_id;
+   await update(ref(db,"settings/pathao"),{store_id:sid});CFG.store_id=sid;
+   return sid;
+  }
+ }catch(e){}
+ return CFG.store_id||null;
+}
+async function sendToPathao(orderId){
+ if(!CFG.connected)return alert("আগে Connect করুন");
+ const o=(await get(ref(db,"orders/"+orderId))).val();if(!o)return alert("Order নেই");
+ const sa=o.shippingAddress||{};
+ const items=Object.values(o.items||{});
+ const first=items[0]||{};
+ let sid=CFG.store_id;if(!sid)sid=await getStoreId();
+ if(!sid)return alert("Store ID পাইনি — Connect button আবার চাপুন");
+ const payload={
+  store_id:+sid,
+  merchant_order_id:"MJH-"+orderId.slice(-8),
+  recipient_name:sa.name||"Customer",
+  recipient_phone:(sa.phone||"").replace(/[^0-9]/g,"").slice(0,11),
+  recipient_address:(sa.address||"").slice(0,220),
+  delivery_type:48,
+  item_type:2,
+  special_instruction:(sa.note||"MJH marketplace order").slice(0,200),
+  item_quantity:items.length||1,
+  item_weight:"0.5",
+  item_description:items.map(i=>(i.title||"item")+" x"+(i.qty||1)).join(", ").slice(0,500),
+  amount_to_collect:+(o.total||0)
+ };
+ const log=document.getElementById("pthLog");if(log)log.innerHTML="⏳ Pathao-তে পাঠানো হচ্ছে...";
+ try{
+  const r=await fetch(CFG.base+"/aladdin/api/v1/orders",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+CFG.access_token},body:JSON.stringify(payload)});
+  const j=await r.json();
+  if(j.data&&j.data.consignment_id){
+   await update(ref(db,"orders/"+orderId),{pathaoId:j.data.consignment_id,pathaoStatus:j.data.order_status,deliveryFee:j.data.delivery_fee,courier:"pathao"});
+   if(log)log.innerHTML="✅ Success! Consignment ID: "+j.data.consignment_id+" | Delivery fee: ৳"+j.data.delivery_fee;
+   alert("✅ Pathao order created!
+Consignment ID: "+j.data.consignment_id+"
+Delivery fee: ৳"+j.data.delivery_fee);
+  }else{
+   if(log)log.innerHTML="❌ "+(j.message||JSON.stringify(j));
+  }
+ }catch(e){if(log)log.innerHTML="❌ "+e.message;}
+}
+async function checkStatus(cid){
+ if(!CFG.connected)return;
+ try{
+  const r=await fetch(CFG.base+"/aladdin/api/v1/orders/"+cid+"/info",{headers:{"Authorization":"Bearer "+CFG.access_token}});
+  const j=await r.json();
+  alert("Status: "+j.data.order_status+"
+Updated: "+j.data.updated_at);
+ }catch(e){alert("❌ "+e.message);}
+}
+async function renderBox(){
+ const box=document.getElementById("pthBox");if(!box)return;
+ const connected=CFG.connected&&CFG.access_token;
+ box.innerHTML='<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:'+(connected?"#7CFC00":"#ff5555")+'">'+(connected?"✅ Connected":"❌ Not connected")+'</b>'+(CFG.connectedAt?'<br><small>Last: '+new Date(CFG.connectedAt).toLocaleString("bn-BD")+'</small>':'')+(CFG.store_id?'<br><small>Store ID: '+CFG.store_id+'</small>':'')+'</div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><h4 style="color:#FFD814;margin:0 0 8px">🔑 API Credentials</h4>'+
+ '<label style="display:block;color:#ccc;font-size:12px">Client ID: <input id="pthCid" value="'+(CFG.client_id||"")+'" style="width:100%;padding:5px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"></label>'+
+ '<label style="display:block;color:#ccc;font-size:12px;margin-top:4px">Client Secret: <input id="pthCsec" value="'+(CFG.client_secret||"")+'" style="width:100%;padding:5px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"></label>'+
+ '<label style="display:block;color:#ccc;font-size:12px;margin-top:4px">Username (email): <input id="pthUser" value="'+(CFG.username||"")+'" style="width:100%;padding:5px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"></label>'+
+ '<label style="display:block;color:#ccc;font-size:12px;margin-top:4px">Password: <input id="pthPass" type="password" value="'+(CFG.password||"")+'" style="width:100%;padding:5px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"></label>'+
+ '<label style="display:block;color:#ccc;font-size:12px;margin-top:4px"><input id="pthSand" type="checkbox" '+(CFG.base&&CFG.base.indexOf("sandbox")>-1?"checked":"")+'> Sandbox (test) mode</label>'+
+ '<button onclick="pthLogin()" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:8px 14px;font-weight:700;margin-top:8px">🔐 Connect</button>'+
+ '<div id="pthStatus" style="font-size:12px;color:#88ccff;margin-top:6px"></div></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><h4 style="color:#FFD814;margin:0 0 8px">📦 Manual Order Send</h4>'+
+ '<label style="display:block;color:#ccc;font-size:12px">Order ID: <input id="pthOid" placeholder="e.g. -Mabc123..." style="width:100%;padding:5px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"></label>'+
+ '<button onclick="sendToPathao(document.getElementById(\'pthOid\').value.trim())" style="background:#FF9900;color:#111;border:none;border-radius:6px;padding:8px 14px;font-weight:700;margin-top:8px">🚀 Send to Pathao</button>'+
+ '<label style="display:block;color:#ccc;font-size:12px;margin-top:8px">Consignment ID (status check): <input id="pthCid2" style="width:100%;padding:5px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"></label>'+
+ '<button onclick="checkStatus(document.getElementById(\'pthCid2\').value.trim())" style="background:#2196f3;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-weight:700;margin-top:6px">🔍 Check Status</button>'+
+ '<div id="pthLog" style="font-size:12px;color:#88ccff;margin-top:6px"></div></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><button onclick="autoPathao()" style="background:linear-gradient(90deg,#b967ff,#7C3AED);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:900;width:100%">🤖 Auto-send pending orders (10 orders at once)</button></div>';
+}
+async function autoPathao(){
+ if(!CFG.connected)return alert("Connect first");
+ const ords=(await get(ref(db,"orders"))).val()||{};
+ const pending=Object.entries(ords).filter(([id,o])=>(o.status==="placed"||o.status==="pending")&&!o.pathaoId);
+ if(!pending.length)return alert("কোনো pending order নেই");
+ const batch=pending.slice(0,10);
+ let n=0;
+ for(const [id,o] of batch){
+  const sa=o.shippingAddress||{};const items=Object.values(o.items||{});
+  const payload={store_id:+(CFG.store_id||0),merchant_order_id:"MJH-"+id.slice(-8),recipient_name:sa.name||"Customer",recipient_phone:(sa.phone||"").replace(/[^0-9]/g,"").slice(0,11),recipient_address:(sa.address||"").slice(0,220),delivery_type:48,item_type:2,special_instruction:"MJH marketplace",item_quantity:items.length||1,item_weight:"0.5",item_description:items.map(i=>(i.title||"item")+" x"+(i.qty||1)).join(", ").slice(0,500),amount_to_collect:+(o.total||0)};
+  try{
+   const r=await fetch(CFG.base+"/aladdin/api/v1/orders",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+CFG.access_token},body:JSON.stringify(payload)});
+   const j=await r.json();
+   if(j.data&&j.data.consignment_id){await update(ref(db,"orders/"+id),{pathaoId:j.data.consignment_id,courier:"pathao",deliveryFee:j.data.delivery_fee});n++;}
+  }catch(e){}
+ }
+ alert("✅ "+n+"/"+batch.length+" orders Pathao-তে পাঠানো হয়েছে!");renderBox();
+}
+function addBtn(){
+ if(document.getElementById("pthBtn"))return;
+ const anchor=document.getElementById("mpBtn4")||document.getElementById("mpBtn2")||[...document.querySelectorAll("button")].find(e=>/Market Price/.test(e.textContent||""));
+ if(!anchor)return;
+ const b=document.createElement("button");b.id="pthBtn";b.type="button";b.innerHTML="🟠 Pathao Courier";
+ b.style.cssText="background:linear-gradient(90deg,#FF9900,#FF6600);color:#fff;border:none;border-radius:6px;padding:10px 14px;font-weight:800;cursor:pointer;margin:6px 0;width:100%;box-shadow:0 0 12px rgba(255,102,0,.6)";
+ b.onclick=async()=>{await loadCfg();dr.style.right="0";renderBox();};
+ anchor.parentNode.insertBefore(b,anchor.nextSibling);
+}
+for(const t of [700,1800,3500])setTimeout(addBtn,t);
+// === AUTO: নতুন order হলে Pathao-তে auto send ===
+import{onChildAdded}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+onChildAdded(ref(db,"orders"),async snap=>{
+ const o=snap.val()||{};const id=snap.key;
+ if(o.pathaoId)return;
+ if(!CFG.connected){await loadCfg();if(!CFG.connected)return;}
+ const sa=o.shippingAddress||{};const items=Object.values(o.items||{});
+ const sid=CFG.store_id||await getStoreId();if(!sid)return;
+ const payload={store_id:+sid,merchant_order_id:"MJH-"+id.slice(-8),recipient_name:sa.name||"Customer",recipient_phone:(sa.phone||"").replace(/[^0-9]/g,"").slice(0,11),recipient_address:(sa.address||"").slice(0,220),delivery_type:48,item_type:2,special_instruction:"MJH marketplace",item_quantity:items.length||1,item_weight:"0.5",item_description:items.map(i=>(i.title||"item")+" x"+(i.qty||1)).join(", ").slice(0,500),amount_to_collect:+(o.total||0)};
+ try{
+  const r=await fetch(CFG.base+"/aladdin/api/v1/orders",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+CFG.access_token},body:JSON.stringify(payload)});
+  const j=await r.json();
+  if(j.data&&j.data.consignment_id){
+   await update(ref(db,"orders/"+id),{pathaoId:j.data.consignment_id,courier:"pathao",deliveryFee:j.data.delivery_fee,pathaoStatus:"Pending",pathaoAuto:true});
+   await set(ref(db,"notifications/"+(o.buyerId||"unknown")),null).catch(()=>{});
+   const nRef=ref(db,"notifications/"+(o.buyerId||"unknown"));
+   const nSnap=await get(nRef);const list=nSnap.val()||{};
+   list["auto_"+Date.now()]={title:"🚚 পণ্য Pathao-তে পাঠানো হয়েছে",message:"Consignment ID: "+j.data.consignment_id,read:false,createdAt:Date.now()};
+   await set(nRef,list);
+  }
+ }catch(e){console.log("pathao auto fail",e);}
+});
+window.pthLogin=pthLogin;window.sendToPathao=sendToPathao;window.checkStatus=checkStatus;window.autoPathao=autoPathao;
+</script>
 </html>
 
 <script type="module">/*helpSide-v2*/
