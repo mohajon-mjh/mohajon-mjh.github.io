@@ -222,3 +222,17 @@
  }
  fix();setInterval(fix,3000);
 })();
+
+/*twoLine-v1*/
+(function(){
+ function fix(){
+  [...document.querySelectorAll("button,a,div,span,h2,h3")].forEach(function(e){
+   if(e.children.length>1)return;
+   var t=e.textContent||"";
+   if(t.indexOf("Special Offers")>-1&&t.indexOf("for One Week")>-1&&e.innerHTML.indexOf("<br>")===-1){
+    e.innerHTML=e.innerHTML.replace(/🎉(\s*)for One Week/,"<br>🎉 for One Week");
+   }
+  });
+ }
+ fix();setInterval(fix,3000);
+})();
