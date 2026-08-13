@@ -2494,3 +2494,50 @@ function fix(){var b=document.getElementById("pthBtn2");if(b&&!b.dataset.v9){b.d
 for(var i=0;i<20;i++)setTimeout(fix,500*i+300);
 })();
 </script>
+<script>/*pathao-v11*/
+(function(){
+function getCfg(){try{return JSON.parse(localStorage.getItem("pthCfg")||"{}");}catch(e){return{};}}
+async function fetchX(url,opts){
+ var c=getCfg();var tries=[];
+ if(c.worker)tries.push(c.worker.trim()+"?url="+encodeURIComponent(url));
+ tries.push(url);
+ for(const t of tries){try{const r=await fetch(t,opts);const j=await r.json();if(j)return j;}catch(e){}}
+ return null;
+}
+var fb=null;
+async function DB(){
+ if(fb)return fb;
+ const fa=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
+ const fd=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
+ const app=fa.getApps().length?fa.getApp():fa.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+ fb={fd:fd,db:fd.getDatabase(app)};return fb;
+}
+window.p2one=async function(){
+ var id=document.getElementById("p2oid").value.trim();
+ if(!id)return alert("Order ID দিন");
+ const c=getCfg();if(!c.access_token||!c.store_id)return alert("আগে Connect করুন");
+ const m=await DB();const fd=m.fd,db=m.db;
+ const o=(await fd.get(fd.ref(db,"orders/"+id))).val();
+ if(!o)return alert("Order পাওয়া যায়নি — ID ঠিক আছে কিনা দেখুন");
+ if(o.pathaoId)return alert("এটা আগেই পাঠানো হয়েছে! Consignment: "+o.pathaoId);
+ const sa=o.shippingAddress||{};const items=Object.values(o.items||{});
+ const addr=(sa.address||"").slice(0,220);
+ const payload={store_id:+c.store_id,merchant_order_id:"MJH-"+id.slice(-6),recipient_name:(sa.name||"Customer").slice(0,100),recipient_phone:(sa.phone||"").replace(/[^0-9]/g,"").slice(0,11),recipient_address:addr.length>=10?addr:addr+", Bangladesh",delivery_type:48,item_type:2,item_quantity:items.length||1,item_weight:"0.5",item_description:items.map(function(i){return (i.title||"item")+" x"+(i.qty||1);}).join(", ").slice(0,500),amount_to_collect:+(o.total||0)};
+ const j=await fetchX(c.base+"/aladdin/api/v1/orders",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+c.access_token},body:JSON.stringify(payload)});
+ if(j&&j.data&&j.data.consignment_id){
+  await fd.update(fd.ref(db,"orders/"+id),{pathaoId:j.data.consignment_id,courier:"pathao",deliveryFee:j.data.delivery_fee,pathaoStatus:"Pending",status:"packed"});
+  alert("✅ Rider-এর কাছে গেছে!\nConsignment: "+j.data.consignment_id+"\nFee: ৳"+j.data.delivery_fee);
+ }else alert("❌ "+((j&&j.message)||"fail"));
+};
+function addSec(){
+ var d=document.getElementById("pthDrawer2");
+ if(d&&!document.getElementById("p2oneSec")){
+  var s=document.createElement("div");s.id="p2oneSec";
+  s.style.cssText="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0";
+  s.innerHTML='<b style="color:#FFD814">📦 পণ্য Ready হলে — Order পাঠান</b><br><input id="p2oid" placeholder="Order ID paste করুন" style="width:100%;margin:6px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"><button onclick="p2one()" style="background:#FF9900;color:#111;border:none;border-radius:6px;padding:10px 16px;font-weight:800;margin-top:4px">📦 Ready → Rider-এর কাছে পাঠান</button>';
+  d.appendChild(s);
+ }
+}
+for(var i=0;i<30;i++)setTimeout(addSec,600*i+500);
+})();
+</script>
