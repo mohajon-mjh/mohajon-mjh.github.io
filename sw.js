@@ -1,10 +1,12 @@
-const CACHE="mjh-fresh-v1";
-self.addEventListener("install",e=>{self.skipWaiting();});
-self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
-self.addEventListener("fetch",e=>{
- e.respondWith(
-  fetch(e.request).then(r=>{
-   const c=r.clone();caches.open(CACHE).then(cc=>cc.put(e.request,c));return r;
-  }).catch(()=>caches.match(e.request))
- );
+/* Mohajon-MJH SW v2026-08-15 : PASS-THROUGH (no cache) - always fresh like incognito */
+self.addEventListener("install",function(e){self.skipWaiting();});
+self.addEventListener("activate",function(e){
+ e.waitUntil((async function(){
+  try{
+   var keys=await caches.keys();
+   for(var i=0;i<keys.length;i++){await caches.delete(keys[i]);}
+  }catch(err){}
+  await self.clients.claim();
+ })());
 });
+/* No fetch listener = browser loads everything from network, exactly like incognito */
