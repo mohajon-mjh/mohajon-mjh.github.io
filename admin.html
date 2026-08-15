@@ -2678,3 +2678,75 @@ for(var i=0;i<30;i++)setTimeout(bind,500*i+300);
 window.__p13bind=bind;
 })();
 </script>
+<script>/*amazon-sync-v1*/
+(function(){
+var WORKER="https://mjh-proxy.mohajonmjh.workers.dev";
+var fb=null;
+async function DB(){if(fb)return fb;const fa=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");const fd=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");const app=fa.getApps().length?fa.getApp():fa.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});fb={fd:fd,db:fd.getDatabase(app)};return fb;}
+async function sarRate(){try{const r=await fetch("https://open.er-api.com/v6/latest/USD");const j=await r.json();return +((j.rates.BDT||122)/(j.rates.SAR||3.75)).toFixed(2);}catch(e){return 32.5;}}
+function getSet(){try{return JSON.parse(localStorage.getItem("amzSet")||"{}");}catch(e){return{};}}
+function setSet(s){localStorage.setItem("amzSet",JSON.stringify(s));}
+var drawer=document.createElement("div");drawer.id="amzDrawer";
+drawer.style.cssText="position:fixed;top:0;right:-520px;width:500px;max-width:96vw;height:100vh;background:#131921;z-index:99998;overflow-y:auto;transition:right .3s;padding:14px;box-shadow:-4px 0 20px rgba(0,0,0,.5)";
+document.body.appendChild(drawer);
+async function priceProduct(pid,url,set,rate){
+ var r=await fetch(WORKER+"?mode=amazon&url="+encodeURIComponent(url));
+ var j=await r.json();
+ if(!j||!j.price)return null;
+ var bdt=j.price*rate;
+ var final=Math.round(bdt*(1+((set.profit||30)/100)))+(set.delivery||60);
+ return {sar:j.price,bdt:Math.round(bdt),final:final};
+}
+window.amzRender=async function(){
+ var s=getSet();var m=await DB();var fd=m.fd,db=m.db;
+ var prods=(await fd.get(fd.ref(db,"products"))).val()||{};
+ var links=(await fd.get(fd.ref(db,"amazonLinks"))).val()||{};
+ var opts=Object.entries(prods).map(function(e){return '<option value="'+e[0]+'">'+(e[1].title||e[1].name||e[0]).slice(0,40)+'</option>';}).join("");
+ drawer.innerHTML='<div style="display:flex;justify-content:space-between"><h3 style="color:#fff;margin:0">🛒 Amazon Price Sync</h3><button onclick="document.getElementById(\'amzDrawer\').style.right=\'-520px\'" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700">✕</button></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#FFD814">⚙️ Settings (auto formula)</b><br><small style="color:#88ccff">দাম = (Amazon × লাভ%) + Delivery</small><br>'+
+ '<label style="color:#ccc;font-size:12px">লাভ %: <input id="amzProfit" type="number" value="'+(s.profit||30)+'" style="width:70px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px;padding:4px"></label> '+
+ '<label style="color:#ccc;font-size:12px">Delivery ৳: <input id="amzDel" type="number" value="'+(s.delivery||60)+'" style="width:70px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px;padding:4px"></label> '+
+ '<button onclick="amzSaveSet()" style="background:#2196f3;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-weight:700">💾 Save</button></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#FFD814">🔗 Product-এ Amazon link যুক্ত করুন</b><br>'+
+ '<select id="amzProd" style="width:100%;margin:6px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px"><option value="">-- Product বাছুন --</option>'+opts+'</select>'+
+ '<input id="amzUrl" placeholder="Amazon product URL paste করুন" style="width:100%;margin:4px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<button onclick="amzLink()" style="background:#FF9900;color:#111;border:none;border-radius:6px;padding:10px 14px;font-weight:800;margin-top:4px">💰 Link Save + দাম Set করুন</button></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#7CFC00">🔄 সব Product-এর দাম Auto Update</b><br><small style="color:#888">Link যুক্ত '+Object.keys(links).length+' টা product-এর দাম এখনই update হবে</small><br>'+
+ '<button onclick="amzSyncAll()" style="background:linear-gradient(90deg,#7C3AED,#b967ff);color:#fff;border:none;border-radius:8px;padding:12px 18px;font-weight:900;margin-top:6px;width:100%">🔄 SYNC ALL PRICES</button></div>'+
+ '<div id="amzLog" style="font-size:12px;color:#88ccff;margin-top:8px"></div>';
+};
+window.amzSaveSet=function(){var s=getSet();s.profit=+document.getElementById("amzProfit").value||30;s.delivery=+document.getElementById("amzDel").value||60;setSet(s);alert("✅ Saved!");};
+window.amzLink=async function(){
+ var pid=document.getElementById("amzProd").value;var url=document.getElementById("amzUrl").value.trim();
+ if(!pid||!url)return alert("Product + URL দুটোই দিন");
+ var s=getSet();var rate=await sarRate();
+ var lg=document.getElementById("amzLog");lg.innerHTML="⏳ Amazon দাম পড়ছি...";
+ var p=await priceProduct(pid,url,s,rate);
+ if(!p)return lg.innerHTML="❌ দাম পড়া যায়নি — URL check করুন";
+ var m=await DB();
+ await m.fd.set(m.fd.ref(m.db,"amazonLinks/"+pid),{url:url,updatedAt:Date.now()});
+ await m.fd.update(m.fd.ref(m.db,"products/"+pid),{price:p.final});
+ lg.innerHTML="✅ Amazon: "+p.sar+" SAR → ৳"+p.bdt+" → আপনার দাম: <b style='color:#7CFC00'>৳"+p.final+"</b> (লাভ "+(s.profit||30)+"% + delivery ৳"+(s.delivery||60)+")";
+};
+window.amzSyncAll=async function(){
+ var m=await DB();var fd=m.fd,db=m.db;
+ var links=(await fd.get(fd.ref(db,"amazonLinks"))).val()||{};
+ var entries=Object.entries(links);
+ if(!entries.length)return alert("কোনো link যুক্ত product নেই — আগে link যুক্ত করুন");
+ var s=getSet();var rate=await sarRate();
+ var lg=document.getElementById("amzLog");var n=0;
+ for(const [pid,l] of entries.slice(0,10)){
+  lg.innerHTML="⏳ "+(n+1)+"/"+entries.length+" update হচ্ছে...";
+  var p=await priceProduct(pid,l.url,s,rate);
+  if(p){await fd.update(fd.ref(db,"products/"+pid),{price:p.final});n++;}
+ }
+ lg.innerHTML="✅ "+n+" টা product-এর দাম update হয়েছে! (1 SAR = ৳"+rate+")";
+};
+var btn=document.createElement("button");btn.id="amzBtn";btn.type="button";
+btn.innerHTML="🛒 Amazon Sync";
+btn.style.cssText="position:fixed;bottom:18px;right:18px;z-index:99999;background:linear-gradient(90deg,#FF9900,#FF6600);color:#fff;border:none;border-radius:30px;padding:12px 20px;font-weight:900;box-shadow:0 0 16px rgba(255,102,0,.7)";
+btn.onclick=function(){drawer.style.right="0";amzRender();};
+document.body.appendChild(btn);
+setTimeout(async function(){try{var m=await DB();var links=(await m.fd.get(m.fd.ref(m.db,"amazonLinks"))).val()||{};if(Object.keys(links).length){var s=getSet();var rate=await sarRate();for(const [pid,l] of Object.entries(links).slice(0,5)){var p=await priceProduct(pid,l.url,s,rate);if(p)await m.fd.update(m.fd.ref(m.db,"products/"+pid),{price:p.final});}}}catch(e){}},6000);
+})();
+</script>
