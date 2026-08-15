@@ -1,36 +1,58 @@
 <!DOCTYPE html>
-<html>
-<head><title>Clear Cache - MJH</title></head>
-<body style="font-family:sans-serif;padding:20px;background:#1a1a1a;color:#fff">
-<h2>🧹 Cache Cleaning...</h2>
-<div id="status"></div>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clear Cache - Mohajon MJH</title>
+<style>
+body{font-family:Arial;margin:0;padding:40px 20px;background:#f5f5f5;text-align:center}
+.box{max-width:500px;margin:0 auto;background:#fff;padding:30px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+h1{color:#007185;margin-top:0}
+.ok{color:#1a7f37;font-size:18px;font-weight:bold;margin:20px 0}
+.btn{display:inline-block;background:#ffd814;border:1px solid #fcd200;padding:12px 28px;border-radius:20px;text-decoration:none;color:#111;font-weight:bold;margin-top:20px}
+li{text-align:left;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="box">
+<h1>🧹 ক্যাশে পরিষ্কার</h1>
+<ul id="log"></ul>
+<div id="ok" class="ok" style="display:none">✅ সব ক্যাশে সফলভাবে মুছে ফেলা হয়েছে!</div>
+<a href="index.html" class="btn">🏠 হোম পেজে যান</a>
+</div>
 <script>
-const status = document.getElementById('status');
-let steps = [];
+const log=document.getElementById("log");
+function L(m,c){const li=document.createElement("li");li.textContent=m;if(c)li.style.color=c;log.appendChild(li);}
 
-// Unregister service workers
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    registrations.forEach(reg => {
-      reg.unregister();
-      steps.push('✅ Unregistered: ' + reg.scope);
-    });
-    status.innerHTML = steps.join('<br>');
-  });
-}
+(async()=>{
+ try{
+  const keys=await caches.keys();
+  L("📦 "+keys.length+" টি ক্যাশে পাওয়া গেছে","#007185");
+  for(const k of keys){await caches.delete(k);L("  ✓ মুছে ফেলা হয়েছে: "+k,"#1a7f37");}
+ }catch(e){L("❌ Cache error: "+e.message,"red");}
 
-// Clear all caches
-if ('caches' in window) {
-  caches.keys().then(names => {
-    names.forEach(name => {
-      caches.delete(name);
-      steps.push('✅ Deleted cache: ' + name);
-    });
-    status.innerHTML = steps.join('<br>');
-    status.innerHTML += '<h3 style="margin-top:30px">🎉 All cleared!</h3>';
-    status.innerHTML += '<p><a href="/" style="font-size:20px;color:#4CAF50">← Go to homepage (fresh load)</a></p>';
-  });
-}
+ try{
+  const regs=await navigator.serviceWorker.getRegistrations();
+  L("🔧 "+regs.length+" টি Service Worker পাওয়া গেছে","#007185");
+  for(const r of regs){await r.unregister();L("  ✓ আনরেজিস্টার করা হয়েছে: "+(r.scope||"SW"),"#1a7f37");}
+ }catch(e){L("❌ SW error: "+e.message,"red");}
+
+ try{
+  const dbs=await indexedDB.databases();
+  if(dbs&&dbs.length){
+   L("💾 "+dbs.length+" টি IndexedDB পাওয়া গেছে","#007185");
+   for(const d of dbs){indexedDB.deleteDatabase(d.name);L("  ✓ মুছে ফেলা হয়েছে: "+d.name,"#1a7f37");}
+  }else{L("💾 কোনো IndexedDB নেই","#666");}
+ }catch(e){L("💾 IndexedDB চেক বাদ","#666");}
+
+ try{
+  const ls=localStorage.length;
+  const ss=sessionStorage.length;
+  L("🗃️  localStorage: "+ls+" আইটেম, sessionStorage: "+ss+" আইটেম","#007185");
+ }catch(e){}
+
+ document.getElementById("ok").style.display="block";
+})();
 </script>
 </body>
 </html>
