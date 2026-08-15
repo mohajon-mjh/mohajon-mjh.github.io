@@ -134,3 +134,19 @@ function render(P){
 })();
 </script>
 </body></html>
+<script>
+(function(){
+function go(){
+ if(!document.getElementById("mainImg"))return;
+ if(document.getElementById("amzIcons"))return;
+ var rb=document.querySelector(".rating-bar");
+ if(rb&&!document.getElementById("amzIcons")){var ic=document.createElement("div");ic.id="amzIcons";ic.style.cssText="display:flex;gap:6px;margin:14px 0";ic.innerHTML="<div style='flex:1;text-align:center'><div style='font-size:22px'>📦</div><div style='font-size:11px;color:#565959'>30 days Returnable</div></div><div style='flex:1;text-align:center'><div style='font-size:22px'>🚚</div><div style='font-size:11px;color:#565959'>Free Delivery</div></div><div style='flex:1;text-align:center'><div style='font-size:22px'>🏪</div><div style='font-size:11px;color:#565959'>Ships from MJH</div></div><div style='flex:1;text-align:center'><div style='font-size:22px'>🔒</div><div style='font-size:11px;color:#565959'>Secure payment</div></div>";rb.insertAdjacentElement("afterend",ic);}
+ var hl=document.querySelector(".highlights");
+ if(hl&&!document.getElementById("amzTable")){var t=document.createElement("div");t.id="amzTable";t.style.cssText="margin:16px 0";t.innerHTML="<h3 style='font-size:16px;margin:0 0 8px;font-weight:700'>Product details</h3><table style='width:100%;font-size:13px;border-collapse:collapse'><tr><td style='padding:7px 0;color:#565959;width:42%'>Material composition</td><td>Premium Quality</td></tr><tr><td style='padding:7px 0;color:#565959'>Care instructions</td><td>Hand wash only</td></tr><tr><td style='padding:7px 0;color:#565959'>Style</td><td>Modern Classic</td></tr><tr><td style='padding:7px 0;color:#565959'>Brand</td><td>Mohajon MJH</td></tr></table>";hl.insertAdjacentElement("beforebegin",t);}
+ var bb=document.querySelector(".buybox");
+ if(bb&&!document.getElementById("amzSellers")){var s=document.createElement("div");s.id="amzSellers";s.style.cssText="border:1px solid #d5d9d9;border-radius:8px;padding:12px;margin-top:12px;font-size:12px";s.innerHTML="<b>Other sellers on Mohajon-MJH</b><div style='margin-top:6px;color:#565959'>New (2) from <b style='color:#B12704'>"+document.querySelector(".bb-price").textContent+"</b> + FREE shipping</div>";bb.appendChild(s);}
+ var pr=document.querySelector(".price-big");if(pr){var sub=document.createElement("div");sub.style.cssText="font-size:12px;color:#565959;margin-top:4px";sub.textContent="Inclusive of all taxes";pr.insertAdjacentElement("afterend",sub);}
+}
+var n=0;var t=setInterval(function(){n++;try{go();}catch(e){}if(n>40||document.getElementById("amzIcons"))clearInterval(t);},500);
+})();
+</script>
