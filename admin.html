@@ -2777,3 +2777,59 @@ function setup(){
 for(var i=0;i<30;i++)setTimeout(function(){setup();},600*i+500);
 })();
 </script>
+<script>/*amazon-sync-v3-auto*/
+(function(){
+var WORKER="https://mjh-proxy.mohajonmjh.workers.dev";
+var fb=null;
+async function DB(){if(fb)return fb;const fa=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");const fd=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");const app=fa.getApps().length?fa.getApp():fa.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});fb={fd:fd,db:fd.getDatabase(app)};return fb;}
+async function sarRate(){try{const r=await fetch("https://open.er-api.com/v6/latest/USD");const j=await r.json();return +((j.rates.BDT||122)/(j.rates.SAR||3.75)).toFixed(2);}catch(e){return 32.5;}}
+var _rate=0,_rt=0;
+async function rate(){if(Date.now()-_rt>300000){_rate=await sarRate();_rt=Date.now();}return _rate;}
+function getSet(){try{return JSON.parse(localStorage.getItem("amzSet")||"{}");}catch(e){return{};}}
+var running=false,list=null,idx=0,done=0,fail=0;
+function log(html){var l=document.getElementById("amzLog2");if(l)l.innerHTML=html;}
+async function loadList(){
+ var m=await DB();
+ var prods=(await m.fd.get(m.fd.ref(m.db,"products"))).val()||{};
+ list=Object.entries(prods).map(function(e){return {id:e[0],title:(e[1].title||e[1].name||"item"),price:+e[1].price||0};});
+ idx=+(localStorage.getItem("amzIdx")||0);
+ if(idx>=list.length)idx=0;
+}
+async function step(){
+ if(!running)return;
+ if(!list)await loadList();
+ if(idx>=list.length){running=false;log("🎉 সব শেষ! ✅"+done+" update | ❌"+fail);return;}
+ var p=list[idx];var m=await DB();var fd=m.fd,db=m.db;
+ var s=getSet();var rt=await rate();
+ var url="https://www.amazon.sa/s?k="+encodeURIComponent(String(p.title).slice(0,60));
+ var final=null,sar=0;
+ try{
+  var r=await fetch(WORKER+"?mode=amazon&url="+encodeURIComponent(url));
+  var j=await r.json();
+  if(j&&j.price>0){sar=j.price;final=Math.round(sar*rt*(1+(s.profit||30)/100))+(s.delivery||60);}
+ }catch(e){}
+ if(!final&&p.price>0)final=Math.round(p.price*(1+(s.profit||30)/100))+(s.delivery||60);
+ if(final){await fd.update(fd.ref(db,"products/"+p.id),{price:final});done++;}else fail++;
+ idx++;localStorage.setItem("amzIdx",idx);
+ log("⏳ "+idx+"/"+list.length+" | ✅"+done+" ❌"+fail+"<br>📦 "+String(p.title).slice(0,35)+" → <b style='color:#7CFC00'>৳"+final+"</b>"+(sar?" ("+sar+" SAR)":" (fallback +"+(s.profit||30)+"%)"));
+ setTimeout(step,1200);
+}
+window.amzStart=function(){if(running)return;running=true;log("🚀 AUTO শুরু...");step();};
+window.amzStop=function(){running=false;log("⏹ থামানো হয়েছে | ✅"+done+" ❌"+fail);};
+window.amzReset=function(){localStorage.setItem("amzIdx",0);idx=0;done=0;fail=0;log("🔄 Reset — শুরু থেকে চলবে");};
+var old=window.amzRender;
+window.amzRender=async function(){
+ await old();
+ var d=document.getElementById("amzDrawer");
+ if(!d||document.getElementById("amzAutoSec"))return;
+ var sec=document.createElement("div");sec.id="amzAutoSec";
+ sec.style.cssText="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0";
+ sec.innerHTML='<b style="color:#FFD814">🚀 AUTO MODE — সব পণ্যের দাম একসাথে</b><br><small style="color:#888">প্রতি পণ্যের title দিয়ে Amazon.sa search → দাম → (দাম×লাভ%)+delivery → auto update। Amazon না পেলে পুরনো দামে +লাভ%।</small><br>'+
+ '<button onclick="amzStart()" style="background:linear-gradient(90deg,#7CFC00,#00c853);color:#111;border:none;border-radius:8px;padding:12px 18px;font-weight:900;margin-top:8px">▶️ AUTO START</button> '+
+ '<button onclick="amzStop()" style="background:#c0392b;color:#fff;border:none;border-radius:8px;padding:12px 18px;font-weight:900;margin-top:8px">⏹ STOP</button> '+
+ '<button onclick="amzReset()" style="background:#555;color:#fff;border:none;border-radius:8px;padding:12px 14px;font-weight:700;margin-top:8px">🔄 Reset</button>'+
+ '<div id="amzLog2" style="font-size:12px;color:#88ccff;margin-top:8px"></div>';
+ d.appendChild(sec);
+};
+})();
+</script>
