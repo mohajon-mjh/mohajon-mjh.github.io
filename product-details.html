@@ -150,3 +150,23 @@ function go(){
 var n=0;var t=setInterval(function(){n++;try{go();}catch(e){}if(n>40||document.getElementById("amzIcons"))clearInterval(t);},500);
 })();
 </script>
+<script>/*amz-attr-v3*/
+(function(){
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var id=new URLSearchParams(location.search).get("id");
+function guess(t){t=(t||"").toLowerCase();var a={};
+if(/dress|kurta|shirt|pant|abaya|skirt|gown|anarkali|clothing|saree|kurti|fashion/.test(t))a.sizes="S,M,L,XL,XXL,3XL";
+if(/kg|food|rice|flour|oil|spice|tea|sugar|salt|feed|fertilizer|seed|honey|date|powder/.test(t))a.weight=((t.match(/([\d.]+)\s*kg/)||[])[1]||"1")+" kg";
+if(/headphone|phone|watch|earbud|charger|cable|lamp|speaker|trimmer|device|machine/.test(t)){a.pieces="1";a.weight=a.weight||"0.3 kg";}
+if(!a.sizes&&!a.weight)a.pieces="1";return a;}
+function chips(label,items){return '<div style="margin:10px 0"><div style="font-size:13px">'+label+':</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'+items.map(function(x,i){return '<div style="border:2px solid '+(i===0?'#007185':'#ddd')+';border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;background:#fff" onclick="var p=this.parentNode;for(var k=0;k<p.children.length;k++)p.children[k].style.borderColor=\'#ddd\';this.style.borderColor=\'#007185\'">'+x+'</div>';}).join("")+'</div></div>';}
+function topBar(){if(document.getElementById("amzTop"))return;var h=document.querySelector("header");if(!h)return;var b=document.createElement("div");b.id="amzTop";b.innerHTML='<div style="background:#232F3E;padding:8px 14px;display:flex;gap:8px"><input id="amzQ" placeholder="Search Mohajon-MJH" style="flex:1;border:none;border-radius:6px 0 0 6px;padding:8px;font-size:14px"><button onclick="location.href=\'products.html?q=\'+encodeURIComponent(document.getElementById(\'amzQ\').value)" style="background:#FEBD69;border:none;border-radius:0 6px 6px 0;padding:8px 14px;cursor:pointer">🔍</button></div><div style="background:#131921;color:#fff;padding:6px 14px;display:flex;gap:16px;overflow-x:auto;font-size:12px;white-space:nowrap">'+["☰ All","Fashion","Electronics","Groceries","Beauty","Home & Kitchen","Sports","Books"].map(function(c){return '<span onclick="location.href=\'products.html?q='+encodeURIComponent(c.replace('☰ ',''))+'" style="cursor:pointer">'+c+'</span>';}).join("")+'</div>';h.insertAdjacentElement("afterend",b);}
+async function main(){topBar();if(!id)return;var P;try{P=await (await fetch(DB+"/products/"+id+".json")).json();}catch(e){return;}if(!P)return;
+var a={sizes:P.sizes||"",weight:P.weight||"",pieces:P.pieces||""};var g=guess(P.title);
+if(!a.sizes&&g.sizes)a.sizes=g.sizes;if(!a.weight&&g.weight)a.weight=g.weight;if(!a.pieces&&g.pieces)a.pieces=g.pieces;
+var w=0;var t=setInterval(function(){w++;var pb=document.querySelector(".price-box");
+if(pb&&!document.getElementById("amzAttr")){var html="";if(a.sizes)html+=chips("Size",a.sizes.split(","));if(a.weight)html+=chips("Weight",[a.weight]);if(a.pieces)html+=chips("Pieces",[a.pieces+" pc"]);
+if(html){var d=document.createElement("div");d.id="amzAttr";d.innerHTML=html;pb.insertAdjacentElement("afterend",d);}clearInterval(t);}
+if(w>30)clearInterval(t);},500);}
+main();})();
+</script>

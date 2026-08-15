@@ -2924,3 +2924,37 @@ function bind(){
 for(var i=0;i<30;i++)setTimeout(bind,600*i+400);
 })();
 </script>
+<script>/*attr-editor-v1*/
+(function(){
+var fb=null;
+async function DB(){if(fb)return fb;const fa=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");const fd=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");const app=fa.getApps().length?fa.getApp():fa.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});fb={fd:fd,db:fd.getDatabase(app)};return fb;}
+var list=null;
+async function load(){if(list)return list;var m=await DB();var p=(await m.fd.get(m.fd.ref(m.db,"products"))).val()||{};list=Object.entries(p).map(function(e){return {id:e[0],t:String(e[1].title||e[1].name||""),sizes:e[1].sizes||"",weight:e[1].weight||"",pieces:e[1].pieces||""};});return list;}
+function guess(t){t=(t||"").toLowerCase();var a={};
+if(/dress|kurta|shirt|pant|abaya|skirt|gown|anarkali|clothing|saree|kurti|fashion/.test(t))a.sizes="S,M,L,XL,XXL,3XL";
+if(/kg|food|rice|flour|oil|spice|tea|sugar|salt|feed|fertilizer|seed|honey|date|powder/.test(t))a.weight=((t.match(/([\d.]+)\s*kg/)||[])[1]||"1")+" kg";
+if(/headphone|phone|watch|earbud|charger|cable|lamp|speaker|trimmer|device|machine/.test(t)){a.pieces="1";a.weight=a.weight||"0.3 kg";}
+if(!a.sizes&&!a.weight)a.pieces="1";return a;}
+var d=document.createElement("div");d.id="attrDrawer";document.body.appendChild(d);
+window.attrOpen=async function(){
+ d.style.cssText="position:fixed;top:0;right:0;width:480px;max-width:96vw;height:100vh;background:#131921;z-index:999999;overflow-y:auto;padding:14px";
+ d.innerHTML='<div style="display:flex;justify-content:space-between"><h3 style="color:#fff;margin:0">🎯 Attributes (Size/Weight/Pieces)</h3><button onclick="document.getElementById(\'attrDrawer\').style.display=\'none\'" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px">✕</button></div>'+
+ '<input id="atq" placeholder="Product নাম লিখুন" oninput="atFind()" style="width:100%;padding:8px;background:#1a242f;color:#7CFC00;border:1px solid #7CFC00;border-radius:4px;margin:8px 0">'+
+ '<div id="atf" style="max-height:140px;overflow-y:auto"></div>'+
+ '<div id="atForm" style="display:none;background:#232f3e;border-radius:8px;padding:12px;margin:8px 0">'+
+ '<label style="color:#ccc;font-size:12px">Sizes:<br><input id="atSizes" style="width:100%;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px;margin:4px 0"></label>'+
+ '<label style="color:#ccc;font-size:12px">Weight:<br><input id="atWeight" style="width:100%;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px;margin:4px 0"></label>'+
+ '<label style="color:#ccc;font-size:12px">Pieces:<br><input id="atPieces" style="width:100%;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px;margin:4px 0"></label>'+
+ '<button onclick="atAuto()" style="background:#2196f3;color:#fff;border:none;border-radius:6px;padding:8px 12px;font-weight:700;margin:4px">🤖 AUTO</button>'+
+ '<button onclick="atSave()" style="background:#7CFC00;color:#111;border:none;border-radius:6px;padding:8px 12px;font-weight:700;margin:4px">💾 Save</button>'+
+ '<div id="atLog" style="font-size:12px;color:#88ccff;margin-top:6px"></div></div>';
+ await load();
+};
+window.atFind=function(){var q=(document.getElementById("atq").value||"").toLowerCase();var b=document.getElementById("atf");if(q.length<2){b.innerHTML="";return;}b.innerHTML=list.filter(function(p){return p.t.toLowerCase().indexOf(q)>-1;}).slice(0,8).map(function(p){return '<div onclick="atPick(\''+p.id+'\')" style="background:#1a242f;color:#fff;padding:6px;margin:2px 0;border-radius:4px;cursor:pointer;font-size:12px">'+p.t.slice(0,45)+'</div>';}).join("");};
+window.atPick=function(id){window.__atid=id;var p=list.find(function(x){return x.id===id;});document.getElementById("atForm").style.display="block";document.getElementById("atSizes").value=p.sizes;document.getElementById("atWeight").value=p.weight;document.getElementById("atPieces").value=p.pieces;};
+window.atAuto=function(){var p=list.find(function(x){return x.id===window.__atid;});var g=guess(p.t);if(g.sizes)document.getElementById("atSizes").value=g.sizes;if(g.weight)document.getElementById("atWeight").value=g.weight;if(g.pieces)document.getElementById("atPieces").value=g.pieces;document.getElementById("atLog").innerHTML="🤖 Auto filled — Save চাপুন";};
+window.atSave=async function(){var m=await DB();await m.fd.update(m.fd.ref(m.db,"products/"+window.__atid),{sizes:document.getElementById("atSizes").value,weight:document.getElementById("atWeight").value,pieces:document.getElementById("atPieces").value});document.getElementById("atLog").innerHTML="✅ Saved!";};
+function btn(){var all=[].slice.call(document.querySelectorAll("button,a,div"));var lo=null;all.forEach(function(b){var t=(b.textContent||"").trim();if(t==="Logout")lo=b;});if(!lo)return;if(!document.getElementById("attrBtn")){var b=document.createElement("button");b.id="attrBtn";b.type="button";b.innerHTML="🎯 Attributes";b.style.cssText="display:block;width:100%;margin:4px 0;background:linear-gradient(90deg,#00bcd4,#0097a7);color:#fff;border:none;border-radius:8px;padding:12px 14px;font-weight:800;text-align:left;font-size:14px";b.onclick=function(){attrOpen();};lo.parentElement.insertBefore(b,lo);}}
+for(var i=0;i<20;i++)setTimeout(btn,600*i+400);
+})();
+</script>
