@@ -99,7 +99,7 @@ if(mode==="buynow"){const b=JSON.parse(localStorage.getItem("buyNowItem")||"null
 let state={contact:JSON.parse(localStorage.getItem("defaultAddress")||"null"),pickup:null,deliveryType:null,pay:"cod"};
 if(state.contact&&state.contact.street)state.deliveryType="home";
 const subtotal=cart.reduce((a,i)=>a+i.price*(i.qty||1),0);
-const d3=new Date(Date.now()+3*864e5),d4=new Date(Date.now()+4*864e5);
+const d3=new Date(Date.now()+13*864e5),d4=new Date(Date.now()+14*864e5);
 const fdate=d=>d.getDate()+"-"+(d.getMonth()+1)+"-"+d.getFullYear();
 const PICKUPS=[
  {name:"MJH Counter – Gulshan 1",addr:"House 12, Road 5, Gulshan 1, Dhaka 1212",area:"ঢাকা"},

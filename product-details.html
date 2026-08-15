@@ -100,7 +100,7 @@ function render(P){
  var rating=+P.rating||4.3,reviews=+P.reviews||2700;
  var stock=+P.stock||100;
  var cur=localStorage.getItem("selectedCurrency")||"BDT";
- var del=new Date(Date.now()+4*864e5);
+ var del=new Date(Date.now()+14*864e5);
  var dStr=del.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
  var freeDel=price>=2000;
  var descLines=(P.description||"").split(/\n|\|/).map(function(s){return s.trim();}).filter(Boolean);
@@ -182,11 +182,15 @@ function varBlock(){
  var thumbs=[].slice.call(document.querySelectorAll(".thumbs img"));
  if(!thumbs.length)return;
  var pe=document.querySelector(".price-big");var price=pe?pe.textContent.trim():"";
+ var auto=[{n:"Red",f:"hue-rotate(140deg) saturate(1.5)"},{n:"Blue",f:"hue-rotate(220deg) saturate(1.3)"},{n:"Purple",f:"hue-rotate(280deg) saturate(1.3)"},{n:"Yellow",f:"hue-rotate(70deg) saturate(1.6)"},{n:"Black",f:"grayscale(1) brightness(0.55)"}];
+ var all=thumbs.map(function(im,i){return {src:im.src,f:"",i:i,l:price};});
+ all=all.concat(auto.map(function(a){return {src:thumbs[0].src,f:a.f,i:-1,l:a.n};}));
  var d=document.createElement("div");d.id="amzVar5";
- d.innerHTML='<div style="font-size:13px;margin:12px 0 6px">Colour: <b>'+thumbs.length+' options</b></div><div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px">'+thumbs.map(function(im,i){return '<div class="v5opt" data-i="'+i+'" style="min-width:78px;text-align:center;border:2px solid '+(i===0?"#007185":"#ddd")+';border-radius:8px;padding:4px;cursor:pointer;background:#fff"><img src="'+im.src+'" style="width:64px;height:64px;object-fit:cover;border-radius:4px"><div style="font-size:10px;color:#565959;margin-top:2px">'+price+'</div></div>';}).join("")+'</div>';
+ d.innerHTML='<div style="font-size:13px;margin:12px 0 6px">Colour: <b>'+all.length+' options</b></div><div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px">'+all.map(function(o,i){return '<div class="v5opt" data-i="'+i+'" style="min-width:78px;text-align:center;border:2px solid '+(i===0?"#007185":"#ddd")+';border-radius:8px;padding:4px;cursor:pointer;background:#fff"><img src="'+o.src+'" style="width:64px;height:64px;object-fit:cover;border-radius:4px;filter:'+o.f+'"><div style="font-size:10px;color:#565959;margin-top:2px">'+o.l+'</div></div>';}).join("")+'</div>';
  anchor.insertAdjacentElement("afterend",d);
- [].slice.call(d.querySelectorAll(".v5opt")).forEach(function(el){el.onclick=function(){var i=+el.getAttribute("data-i");var t=document.querySelectorAll(".thumbs img")[i];if(t)t.click();[].slice.call(d.querySelectorAll(".v5opt")).forEach(function(x){x.style.borderColor="#ddd";});el.style.borderColor="#007185";};});
+ [].slice.call(d.querySelectorAll(".v5opt")).forEach(function(el){el.onclick=function(){var i=+el.getAttribute("data-i");var o=all[i];[].slice.call(d.querySelectorAll(".v5opt")).forEach(function(x){x.style.borderColor="#ddd";});el.style.borderColor="#007185";var mi=document.getElementById("mainImg");if(o.i>=0){var t=document.querySelectorAll(".thumbs img")[o.i];if(t)t.click();if(mi)mi.style.filter="";}else if(mi){mi.style.filter=o.f;}};});
 }
+
 function variantChips(){
  if(document.getElementById("amzVarChips"))return;
  var anchor=document.getElementById("amzVar5")||document.getElementById("amzAttr")||document.querySelector(".price-box");
