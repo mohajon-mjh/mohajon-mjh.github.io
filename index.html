@@ -2427,3 +2427,31 @@ window.MJHCurrency = {
   getRates: () => currentRates
 };
 </script>
+<script type="module">/*currency-fix-v2*/
+import{getApps,getApp,initializeApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,onValue}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app);
+const SYM={BDT:"৳",USD:"$",EUR:"€",GBP:"£",SAR:"﷼",AED:"د.إ",QAR:"﷼",KWD:"د.ك",BHD:".د.ب",OMR:"﷼",MYR:"RM",SGD:"S$",INR:"₹",PKR:"₨",NPR:"₨",LKR:"₨",CNY:"¥",JPY:"¥",KRW:"₩",THB:"฿",IDR:"Rp",PHP:"₱",VND:"₫",AUD:"A$",NZD:"NZ$",CAD:"C$",CHF:"Fr",SEK:"kr",NOK:"kr",DKK:"kr",RUB:"₽",TRY:"₺",ZAR:"R",EGP:"£",NGN:"₦",KES:"KSh",BRL:"R$",MXN:"$",ARS:"$",HKD:"HK$",TWD:"NT$",ILS:"₪",JOD:"د.ا",IQD:"ع.د",IRR:"﷼",AFN:"؋",MMK:"K",PLN:"zł",UAH:"₴",RON:"lei",MAD:"د.ম."};
+let RATES={BDT:1,USD:110,EUR:119,GBP:139,SAR:29.3,AED:30};
+function norm(data){const out={BDT:1};for(const k in data){out[String(k).toUpperCase()]=+data[k]||1;}return out;}
+onValue(ref(db,"settings/currencyRates"),s=>{if(s.exists())RATES=norm(s.val());apply();});
+function cur(){return String(localStorage.getItem("selectedCurrency")||"BDT").toUpperCase();}
+function fmt(v){const c=cur();const r=RATES[c]||1;const sym=SYM[c]||"৳";const n=c==="BDT"?+v||0:(+v||0)/r;return sym+n.toFixed(2);}
+function apply(){
+ document.querySelectorAll("[data-price-bdt]").forEach(el=>{el.textContent=fmt(el.getAttribute("data-price-bdt"));});
+ document.querySelectorAll("[data-old-price-bdt]").forEach(el=>{const v=+el.getAttribute("data-old-price-bdt");if(v>0)el.textContent=fmt(v);});
+}
+let last=cur();
+setInterval(()=>{const c=cur();if(c!==last){last=c;apply();}},500);
+document.addEventListener("currencyChanged",()=>setTimeout(apply,50));
+setTimeout(apply,800);setTimeout(apply,2000);setTimeout(apply,4000);
+const MJH=window.MJHCurrency||{};
+MJH.formatPrice=fmt;
+MJH.getSelectedCurrency=cur;
+MJH.getRates=()=>RATES;
+MJH.convertPrice=v=>{const c=cur();return c==="BDT"?+v||0:(+v||0)/(RATES[c]||1);};
+MJH.setSelectedCurrency=code=>{localStorage.setItem("selectedCurrency",code);last=String(code).toUpperCase();apply();document.dispatchEvent(new CustomEvent("currencyChanged",{detail:{currency:code}}));};
+window.MJHCurrency=MJH;
+console.log("currency-fix-v2 ready");
+</script>
