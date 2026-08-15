@@ -3,6 +3,7 @@ import {initializeApp,getApps,getApp} from "https://www.gstatic.com/firebasejs/1
 import {getDatabase,ref,query,orderByChild,equalTo,limitToFirst,get} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 const afApp=getApps().some(a=>a.name==="mjhMain")?getApps().find(a=>a.name==="mjhMain"):(getApps().length?getApps()[0]:initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"},"mjhMain"));
 const db=getDatabase(afApp);
+const AF_START=Date.now();
 let POOL=null;
 async function getPool(){
  if(POOL)return POOL;
@@ -32,7 +33,7 @@ function afCard(p){
  card.querySelector(".btn-buy-now").onclick=function(e){e.stopPropagation();if(typeof addCart==="function")addCart(id,p.title||p.name,price);location.href="cart.html";};
  return card;
 }
-function isEmptyGrid(g){if(!g)return false;const t=g.textContent||"";return /এখনো কোনো|শীঘ্রই পণ্য|লোড করতে সমস্যা/.test(t)||t.trim()==="";}
+function isEmptyGrid(g){if(!g)return false;const t=g.textContent||"";if(/এখনো কোনো|শীঘ্রই পণ্য|লোড করতে সমস্যা/.test(t))return true;if(/লোড হচ্ছে/.test(t))return (Date.now()-AF_START)>15000;return t.trim()==="";}
 function fillGrid(g,list){g.innerHTML="";list.slice(0,30).forEach(p=>g.appendChild(afCard(p)));if(!list.length)g.innerHTML='<p style="text-align:center;color:#888">শীঘ্রই পণ্য যুক্ত হবে...</p>';}
 const GC_MAP={electronics:["consumer_electronics","electronics_tv_audio_gaming","mobile_phones_accessories","computers_tablets_networking"],computers:["computers_tablets_networking","laptops_pcs"],tv_appliances:["electronics_tv_audio_gaming","appliances_home_appliances_large_small","air_conditioners_refrigerators_washing_machines"],watches:["jewelry_eyewear_watches"],men_fashion:["clothing_fashion_apparel_men_women_kids","shoes_accessories"],women_fashion:["clothing_fashion_apparel_men_women_kids","makeup_skincare_fragrance","shoes_accessories"],mother_baby:["baby_products_baby_essentials"],toys_games:["toys_games_hobbies","video_games_consoles"],grocery:["food_grocery","agriculture_food_beverage"],spices:["agriculture_food_beverage","food_grocery"],food_beverages:["food_grocery","agriculture_food_beverage"],beauty:["beauty_personal_care","makeup_skincare_fragrance"],health:["health_wellness","health_medical_supplies"],home_kitchen:["home_kitchen","furniture_home_decor","appliances_home_appliances_large_small"],automotive:["automotive_vehicle_parts_accessories","vehicles_transportation"],sports:["sports_outdoors_fitness"],pet_supplies:["pet_supplies"],books:["books_media_music"],travel:["luggage_bags_cases"],gift_items:["gifts_crafts"]};
 const GC_NAMES=[["electronics","Electronics"],["computers","Computers"],["tv_appliances","TV"],["watches","Watches"],["men_fashion","Men Fashion"],["women_fashion","Women Fashion"],["mother_baby","Mother"],["toys_games","Toys"],["grocery","Grocery"],["spices","Spices"],["food_beverages","Food"],["beauty","Beauty"],["health","Health"],["home_kitchen","Home & Kitchen"],["automotive","Automotive"],["sports","Sports"],["pet_supplies","Pet"],["books","Books"],["travel","Travel"],["gift_items","Gift"]];
@@ -53,4 +54,4 @@ async function tick(){
  const gc=document.getElementById("globalCatCarousel");
  if(gc&&isEmptyGrid(gc)){const id=gcIdFromActive();const k="gc:"+(id||"x");if(!filled[k]){filled[k]=1;const l=await gcFallback();if(l.length)fillGrid(gc,l);}}
 }
-setTimeout(function(){let n=0;const iv=setInterval(function(){n++;tick();if(n>30)clearInterval(iv);},3000);},4000);
+setTimeout(function(){let n=0;const iv=setInterval(function(){n++;tick();if(n>40)clearInterval(iv);},3000);},4000);
