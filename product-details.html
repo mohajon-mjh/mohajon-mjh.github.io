@@ -126,7 +126,7 @@ function render(P){
  '</div>';
  document.getElementById("crumbTitle").textContent=(P.title||"Product").slice(0,30);
  document.getElementById("addBtn").onclick=function(){var q=+document.getElementById("qty").value;addCart(P,q);document.getElementById("popMsg").textContent=q+" × "+(P.title||"").slice(0,40);document.getElementById("popup").classList.add("show");setTimeout(function(){document.getElementById("popup").classList.remove("show");},3000);};
- document.getElementById("buyBtn").onclick=function(){var q=+document.getElementById("qty").value;localStorage.setItem("buyNowItem",JSON.stringify({id:id,name:P.title,price:price,qty:q,sellerId:P.sellerId||"admin"}));location.href="checkout.html?mode=buynow";};
+ document.getElementById("buyBtn").onclick=function(){var q=+document.getElementById("qty").value;localStorage.setItem("buyNowItem",JSON.stringify({id:id,name:P.title,price:price,qty:q,sellerId:P.sellerId||"admin"}));location.href="buyflow.html?mode=buynow";};
 }
 (async function(){
  try{var r=await fetch("https://open.er-api.com/v6/latest/USD");var j=await r.json();if(j&&j.rates&&j.rates.BDT){var B=j.rates.BDT;RATES={BDT:1,SAR:(j.rates.SAR||3.75)/B,USD:1/B,EUR:(j.rates.EUR||0.92)/B,GBP:(j.rates.GBP||0.79)/B,AED:(j.rates.AED||3.67)/B};}}catch(e){}

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in - Mohajon-MJH</title>
+<style>
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111}
+.logo{text-align:center;padding:14px 0 6px;font-size:26px;font-weight:700;letter-spacing:-1px}
+.logo span{color:#ff9900}
+.wrap{max-width:420px;margin:10px auto;padding:0 14px}
+.card{border:1px solid #ddd;border-radius:8px;padding:20px;background:#fff}
+h1{font-size:17px;font-weight:700;margin:0 0 12px}
+label{font-size:13px;font-weight:700;display:block;margin:6px 0 4px}
+input[type=text],input[type=tel],select{width:100%;box-sizing:border-box;padding:9px 10px;font-size:14px;border:1px solid #888;border-radius:6px}
+input:focus,select:focus{outline:2px solid #007185}
+.ybtn{display:block;width:100%;margin:14px 0 10px;background:#ffd814;border:1px solid #fcd200;border-radius:18px;padding:10px;font-size:14px;cursor:pointer}
+.ybtn:hover{background:#f7ca00}
+.wbtn{display:block;width:100%;margin:8px 0;background:#fff;border:1px solid #d5d9d9;border-radius:18px;padding:10px;font-size:14px;cursor:pointer}
+.small{font-size:12px;color:#565959}
+.link{color:#007185;font-size:13px;cursor:pointer;text-decoration:none}
+.hr{border:none;border-top:1px solid #eee;margin:14px 0}
+.warn{border:1px solid #f0c14b;border-left:4px solid #e77600;background:#fff8f0;border-radius:6px;padding:10px;font-size:13px;margin-bottom:12px}
+.row{display:flex;gap:8px}
+.row select{width:110px}
+.center{text-align:center}
+.terms{font-size:11px;color:#565959;margin-top:10px}
+.hide{display:none}
+.otp{font-size:20px;letter-spacing:6px;text-align:center}
+footer{border-top:1px solid #ddd;margin-top:30px;padding:16px;text-align:center;font-size:11px;color:#565959}
+</style>
+</head>
+<body>
+<div class="logo">mohajon<span>-MJH</span></div>
+<div class="wrap">
+<div id="s1" class="card">
+<h1>Sign in or create account</h1>
+<label>Enter mobile number or email</label>
+<input type="text" id="ident" placeholder="01XXXXXXXXX or email">
+<button class="ybtn" id="btn1">Continue</button>
+<div class="terms">By continuing, you agree to Mohajon-MJH's <a class="link" href="terms.html">Conditions of Use</a> and <a class="link" href="privacy-policy.html">Privacy Notice</a>.</div>
+<p><a class="link" href="help-center.html">Need help?</a></p>
+</div>
+<div id="s2" class="card hide">
+<h1>Looks like you're new to Mohajon-MJH</h1>
+<div class="small" id="pIdent"></div>
+<p><a class="link" id="chg1">Change</a></p>
+<p class="small">Let's create an account using your mobile number</p>
+<button class="ybtn" id="btn2">Proceed to create an account</button>
+<div class="hr"></div>
+<p class="small"><b>Already a customer?</b></p>
+<p><a class="link" id="chg2">Sign in with another email or mobile number</a></p>
+</div>
+<div id="s3" class="card hide">
+<h1>Create account</h1>
+<label>Mobile number</label>
+<div class="row">
+<select id="cc"><option value="+880">BD +880</option><option value="+966">SA +966</option><option value="+971">AE +971</option><option value="+91">IN +91</option></select>
+<input type="tel" id="phone" placeholder="1XXXXXXXXX">
+</div>
+<label>First and last name</label>
+<input type="text" id="name" placeholder="Your name">
+<p class="small">To verify your number, we will send you a text message with a temporary code. Message and data rates may apply.</p>
+<button class="ybtn" id="btn3">Verify mobile number</button>
+<div class="hr"></div>
+<p class="small"><b>Already a customer?</b><br><a class="link" href="login.html">Sign in instead</a></p>
+</div>
+<div id="s4" class="card hide">
+<div class="warn">Mobile number already in use</div>
+<h1>Create a new account with the same number?</h1>
+<p class="small" id="mcText"></p>
+<p><label style="font-weight:400"><input type="checkbox" id="agree" style="width:auto"> I understand and agree to proceed</label></p>
+<button class="ybtn" id="btn4">Continue with this number</button>
+<button class="wbtn" id="btn4c">Cancel</button>
+</div>
+<div id="s5" class="card hide">
+<h1 style="font-size:22px">Verify mobile number</h1>
+<p class="small">Enter the OTP we sent you.</p>
+<p class="small"><span id="otpPhone"></span> <a class="link" id="chg3">Change</a></p>
+<label>Enter OTP</label>
+<input type="text" id="otp" class="otp" inputmode="numeric">
+<button class="ybtn" id="btn5">Create your account</button>
+<p class="terms">By creating an account, you agree to Mohajon-MJH's <a class="link" href="terms.html">Conditions of Use</a> and <a class="link" href="privacy-policy.html">Privacy Notice</a>.</p>
+<p><a class="link" id="resend">Resend OTP</a></p>
+<div class="center small">— or —</div>
+<button class="wbtn" id="wa">Send OTP to WhatsApp</button>
+<p><a class="link" href="help-center.html">Need help?</a></p>
+</div>
+</div>
+<footer>© 1996–2026, Mohajon-MJH.com, Inc. or its affiliates</footer>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,RecaptchaVerifier,signInWithPhoneNumber,updateProfile} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getDatabase,ref,get,update} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const app=initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",authDomain:"mohajon-mjh.firebaseapp.com",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",storageBucket:"mohajon-mjh.firebasestorage.app",messagingSenderId:"526105903976",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+if(localStorage.getItem("mjhUser")){location.replace("checkout.html?mode=buynow");}
+let ident="",phone="",fullName="",conf=null,existing=false;
+function show(n){for(let i=1;i<=5;i++)document.getElementById("s"+i).classList.add("hide");document.getElementById("s"+n).classList.remove("hide");}
+function rc(){const el=document.createElement("div");el.id="rc"+Date.now();document.body.appendChild(el);return new RecaptchaVerifier(auth,el.id,{size:"invisible"});}
+async function startOtp(){try{conf=await signInWithPhoneNumber(auth,phone,rc());document.getElementById("otpPhone").textContent=phone;document.getElementById("btn5").textContent=existing?"Sign in & continue":"Create your account";show(5);}catch(e){alert("❌ OTP পাঠানো যায়নি: "+e.message);}}
+document.getElementById("btn1").onclick=function(){ident=document.getElementById("ident").value.trim().replace(/[\s-]/g,"");
+if(/^[^@]+@[^@]+\.[^@]+$/.test(ident)){document.getElementById("pIdent").textContent=ident;show(2);}
+else if(/^01[0-9]{9}$/.test(ident)){document.getElementById("cc").value="+880";document.getElementById("phone").value=ident;show(3);}
+else if(/^\+[0-9]{10,15}$/.test(ident)){document.getElementById("phone").value=ident;show(3);}
+else{alert("সঠিক মোবাইল (01XXXXXXXXX) বা email দিন");}};
+document.getElementById("chg1").onclick=function(){show(1);};
+document.getElementById("chg2").onclick=function(){show(1);};
+document.getElementById("btn2").onclick=function(){show(3);};
+document.getElementById("btn3").onclick=async function(){
+var cc=document.getElementById("cc").value;var num=document.getElementById("phone").value.trim().replace(/[\s-]/g,"");
+if(!num){alert("মোবাইল নাম্বার দিন");return;}
+if(/^01[0-9]{9}$/.test(num))phone="+88"+num;else if(/^\+[0-9]{10,15}$/.test(num))phone=num;else phone=cc+num.replace(/^0/,"");
+fullName=document.getElementById("name").value.trim();
+try{var snap=await get(ref(db,"users"));var found=false;if(snap.exists()){var u=snap.val();for(var k in u){var v=u[k]||{};if(v.phone===phone||v.phoneNumber===phone){found=true;break;}}}existing=found;}catch(e){existing=false;}
+if(existing){document.getElementById("mcText").textContent=phone+" will be removed from the existing account. The existing account will be accessible only with the linked email.";show(4);}
+else{startOtp();}};
+document.getElementById("btn4c").onclick=function(){show(3);};
+document.getElementById("btn4").onclick=function(){if(!document.getElementById("agree").checked){alert("আগে checkbox-এ টিক দিন");return;}startOtp();};
+document.getElementById("chg3").onclick=function(){show(3);};
+document.getElementById("resend").onclick=function(){startOtp();};
+document.getElementById("wa").onclick=function(){alert("WhatsApp OTP demo-তে নেই — SMS-এ পাঠানো OTP ব্যবহার করুন");};
+document.getElementById("btn5").onclick=async function(){
+var code=document.getElementById("otp").value.trim();
+if(!code){alert("OTP দিন");return;}
+try{
+var res=await conf.confirm(code);var u=res.user;
+if(!existing&&fullName){try{await updateProfile(u,{displayName:fullName});}catch(e){}}
+var rec={phone:phone,role:"buyer",lastLogin:Date.now()};
+if(fullName)rec.name=fullName;
+if(!existing){rec.createdAt=Date.now();if(ident.indexOf("@")>0)rec.email=ident;}
+await update(ref(db,"users/"+u.uid),rec);
+localStorage.setItem("mjhUser",JSON.stringify({uid:u.uid,name:fullName||"Buyer",phone:phone}));
+window.__uid=u.uid;
+location.href="checkout.html?mode=buynow";
+}catch(e){alert("❌ ভুল OTP: "+e.message);}};
+</script>
+</body>
+</html>
