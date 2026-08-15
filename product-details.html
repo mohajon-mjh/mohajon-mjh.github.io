@@ -6,235 +6,131 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#EAEDED;color:#0F1111;font-size:14px}
-a{color:#007185;text-decoration:none}a:hover{color:#C7511F;text-decoration:underline}
+a{color:#007185;text-decoration:none}
 header{background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:16px}
 header a{color:#fff;text-decoration:none;font-size:14px}
 .wrap{max-width:1400px;margin:0 auto;padding:14px}
 .crumb{font-size:12px;color:#565959;margin-bottom:10px}
 .main{background:#fff;border-radius:8px;padding:20px;display:grid;grid-template-columns:380px 1fr 280px;gap:24px}
-@media(max-width:1024px){.main{grid-template-columns:1fr;}}
+@media(max-width:1024px){.main{grid-template-columns:1fr}}
 .gal{display:flex;gap:10px}
-.gal .main-img{width:360px;max-width:100%;border-radius:8px;background:#f7f7f7;display:flex;align-items:center;justify-content:center;min-height:400px}
-.gal .main-img img{max-width:100%;max-height:420px;border-radius:6px}
-.gal .thumbs{display:flex;flex-direction:column;gap:6px}
-.gal .thumbs img{width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #ddd;transition:border-color .2s}
-.gal .thumbs img.on,.gal .thumbs img:hover{border-color:#e77600}
-@media(max-width:640px){.gal{flex-direction:column-reverse}.gal .thumbs{flex-direction:row;overflow-x:auto}.gal .main-img{width:100%}}
-.title-sec h1{font-size:22px;font-weight:400;line-height:1.3;margin:4px 0 8px;color:#0F1111}
+.main-img{width:360px;max-width:100%;border-radius:8px;background:#f7f7f7;display:flex;align-items:center;justify-content:center;min-height:300px}
+.main-img img{max-width:100%;max-height:420px;border-radius:6px}
+.thumbs{display:flex;flex-direction:column;gap:6px}
+.thumbs img{width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #ddd}
+.thumbs img.on,.thumbs img:hover{border-color:#e77600}
+@media(max-width:640px){.gal{flex-direction:column-reverse}.thumbs{flex-direction:row;overflow-x:auto}.main-img{width:100%}}
 .brand{font-size:14px;color:#007185;margin-bottom:6px}
+h1{font-size:22px;font-weight:400;line-height:1.3;margin:4px 0 8px}
 .rating-bar{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:13px}
 .stars{color:#FFA41C;font-size:16px;letter-spacing:1px}
-.rating-bar .count{color:#007185}
+.count{color:#007185}
 .sep{border:none;border-top:1px solid #eee;margin:14px 0}
 .price-box{background:#F7F7F7;border-radius:6px;padding:14px;margin:10px 0}
-.price-big{font-size:28px;color:#0F1111;font-weight:400}
-.price-big sup{font-size:14px;position:relative;top:-10px}
-.price-sar{font-size:13px;color:#565959;margin-top:4px}
+.price-big{font-size:28px;font-weight:400}
 .old-price{text-decoration:line-through;color:#565959;font-size:13px;margin-left:8px}
 .disc-badge{background:#CC0C39;color:#fff;padding:2px 8px;border-radius:3px;font-size:12px;font-weight:700;margin-right:6px}
 .save-txt{color:#007600;font-size:13px;font-weight:600}
-.highlights{margin-top:16px}
-.highlights h3{font-size:16px;margin:0 0 10px;font-weight:700}
+.price-sar{font-size:13px;color:#565959;margin-top:4px}
+.highlights h3,.desc h3{font-size:16px;margin:14px 0 10px;font-weight:700}
 .highlights ul{margin:0;padding-left:22px;line-height:1.7;font-size:13px}
-.desc h3{font-size:16px;margin:14px 0 10px;font-weight:700}
-.desc p{font-size:13px;line-height:1.7;color:#333;margin:4px 0}
-.buybox{border:1px solid #d5d9d9;border-radius:8px;padding:16px;height:fit-content;position:sticky;top:14px}
+.desc p{font-size:13px;line-height:1.7;color:#333}
+.buybox{border:1px solid #d5d9d9;border-radius:8px;padding:16px;height:fit-content}
 .bb-price{font-size:24px;font-weight:700;color:#B12704;margin-bottom:4px}
 .bb-delivery{background:#F0FFF4;border-radius:6px;padding:10px;margin:10px 0}
 .bb-delivery .free{color:#007600;font-weight:600;font-size:15px}
-.bb-delivery .date{color:#0F1111;font-size:13px;margin-top:2px}
-.bb-delivery .paid{background:#FFF8E1}
+.bb-delivery .date{font-size:13px;margin-top:2px}
 .bb-stock{color:#007600;font-size:16px;font-weight:600;margin:10px 0}
 .bb-stock.low{color:#C7511F}
 .bb-stock.out{color:#B12704}
 .bb-qty{margin:14px 0;display:flex;align-items:center;gap:10px}
-.bb-qty label{font-size:13px;font-weight:600}
-.bb-qty select{padding:6px 10px;border:1px solid #d5d9d9;border-radius:8px;font-size:14px;background:#F0F2F2}
-.btn-y,.btn-o{width:100%;border:none;border-radius:20px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;transition:filter .2s}
-.btn-y{background:#FFD814;border:1px solid #FCD200}.btn-y:hover{background:#F7CA00}
-.btn-o{background:#FFA41C;border:1px solid #FF8F00}.btn-o:hover{background:#FA8900}
-.trust{margin-top:10px;font-size:12px;color:#565959;line-height:1.6}
-.trust b{color:#0F1111}
-.fbt{background:#fff;border-radius:8px;padding:16px;margin-top:16px;display:none}
-.fbt h3{margin:0 0 10px;font-size:16px}
-.popup{position:fixed;top:20px;right:20px;background:#fff;border:1px solid #d5d9d9;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);padding:16px;z-index:9999;min-width:300px;display:none}
-.popup.show{display:block;animation:slide .3s}
-@keyframes slide{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-.popup .ic{color:#007600;font-size:28px;display:inline-block;vertical-align:top;margin-right:8px}
-.popup h4{margin:0 0 6px;font-size:15px}
-.popup p{font-size:13px;color:#565959;margin:0 0 10px}
-.popup .btns{display:flex;gap:8px}
+.bb-qty select{padding:6px 10px;border:1px solid #d5d9d9;border-radius:8px;background:#F0F2F2}
+.btn-y,.btn-o{width:100%;border-radius:20px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px}
+.btn-y{background:#FFD814;border:1px solid #FCD200}
+.btn-o{background:#FFA41C;border:1px solid #FF8F00}
+.trust{margin-top:10px;font-size:12px;color:#565959;line-height:1.7}
+.popup{position:fixed;top:20px;right:20px;background:#fff;border:1px solid #d5d9d9;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);padding:16px;z-index:9999;min-width:280px;display:none}
+.popup.show{display:block}
+.popup .ic{color:#007600;font-size:26px;margin-right:8px}
+.popup .btns{display:flex;gap:8px;margin-top:10px}
 .popup .btns button{flex:1;padding:8px;border-radius:8px;border:1px solid #d5d9d9;cursor:pointer;font-weight:600;font-size:13px}
 .popup .vc{background:#FFD814;border-color:#FCD200}
-.popup .cs{background:#fff}
-.loading{text-align:center;padding:80px 20px;color:#565959;font-size:15px}
+.loading{text-align:center;padding:80px 20px;color:#565959}
 </style>
 </head>
 <body>
 <header>
 <a href="index.html" style="font-weight:700;font-size:18px">🛍️ Mohajon-MJH</a>
 <a href="my-orders.html">📦 My Orders</a>
-<a href="login.html" style="margin-left:auto">👤 <span class="hiName">Sign in</span></a>
+<a href="login.html" style="margin-left:auto">👤 Sign in</a>
 <a href="cart.html">🛒 Cart (<span id="cartCount">0</span>)</a>
 </header>
-
 <div class="wrap">
-<div class="crumb">Home › <span id="crumbCat">Products</span> › <span id="crumbTitle">Product</span></div>
-
+<div class="crumb">Home › Products › <span id="crumbTitle">Product</span></div>
 <div id="content" class="loading">Loading product...</div>
 </div>
-
 <div class="popup" id="popup">
-<div style="display:flex;align-items:flex-start">
-<span class="ic">✓</span>
-<div>
-<h4 id="popTitle">Added to Cart</h4>
-<p id="popMsg"></p>
-</div>
-</div>
+<div><span class="ic">✓</span><b id="popTitle">Added to Cart</b></div>
+<p id="popMsg" style="font-size:13px;color:#565959;margin:8px 0 0"></p>
 <div class="btns">
-<button class="cs" onclick="document.getElementById('popup').classList.remove('show')">Continue Shopping</button>
+<button onclick="document.getElementById('popup').classList.remove('show')">Continue Shopping</button>
 <button class="vc" onclick="location.href='cart.html'">View Cart</button>
 </div>
 </div>
-
 <script>
-const DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
-const id=new URLSearchParams(location.search).get("id");
-const SYM={BDT:"৳",SAR:"﷼",USD:"$",EUR:"€",GBP:"£",AED:"د.إ"};
-let RATES={BDT:1,SAR:0.03};
-
-function fmt(bdt,cur){
- const r=RATES[cur]||1;
- const n=cur==="BDT"?bdt:bdt*r;
- const s=SYM[cur]||"৳";
- return cur==="BDT"?s+n.toFixed(0):s+n.toFixed(2);
-}
-
-function cartCount(){
- const c=JSON.parse(localStorage.getItem("cart")||"[]");
- document.getElementById("cartCount").textContent=c.reduce((a,i)=>a+(i.qty||1),0);
-}
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var id=new URLSearchParams(location.search).get("id");
+var SYM={BDT:"৳",SAR:"﷼",USD:"$",EUR:"€",GBP:"£",AED:"د.إ"};
+var RATES={BDT:1,SAR:0.0307,USD:0.0082,EUR:0.0075,GBP:0.0065,AED:0.03};
+function fmt(bdt,cur){var r=RATES[cur]||1;var n=(+bdt||0)*r;var s=SYM[cur]||"৳";return cur==="BDT"?s+n.toFixed(0):s+n.toFixed(2);}
+function cartCount(){var c=JSON.parse(localStorage.getItem("cart")||"[]");document.getElementById("cartCount").textContent=c.reduce(function(a,i){return a+(i.qty||1);},0);}
 cartCount();
-
-function addCart(p,qty){
- let c=JSON.parse(localStorage.getItem("cart")||"[]");
- let it=c.find(i=>i.id===p.id);
- if(it){it.qty=(it.qty||1)+qty;}
- else c.push({id:p.id,name:p.title,price:+p.price||0,qty,sellerId:p.sellerId||"admin"});
- localStorage.setItem("cart",JSON.stringify(c));
- cartCount();
-}
-
-function setImg(el,u){
- document.getElementById("mainImg").src=u;
- document.querySelectorAll(".thumbs img").forEach(t=>t.classList.remove("on"));
- el.classList.add("on");
-}
-
-function stars(r){
- const full=Math.floor(r);const half=r-full>=0.5?1:0;
- return "★".repeat(full)+(half?"☆":"")+" ".repeat(5-full-half);
-}
-
+function addCart(P,qty){var c=JSON.parse(localStorage.getItem("cart")||"[]");var it=c.find(function(i){return i.id===P.id;});if(it){it.qty=(it.qty||1)+qty;}else{c.push({id:P.id,name:P.title,price:+P.price||0,qty:qty,sellerId:P.sellerId||"admin"});}localStorage.setItem("cart",JSON.stringify(c));cartCount();}
+function setImg(el,u){document.getElementById("mainImg").src=u;document.querySelectorAll(".thumbs img").forEach(function(t){t.classList.remove("on");});el.classList.add("on");}
+function stars(r){var f=Math.floor(r);return "★".repeat(f)+"☆".repeat(5-f);}
 function render(P){
  if(!P){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">প্রোডাক্ট পাওয়া যায়নি</div>';return;}
+ P.id=id;
  document.title=(P.title||"Product")+" - Mohajon-MJH";
- const imgs=P.images?Object.values(P.images).filter(u=>typeof u==="string"&&u.startsWith("http")):[];
- const price=+P.price||0,old=+P.discountPrice||0;
- const hasOld=old>0&&old>price;
- const disc=hasOld?Math.round((1-price/old)*100):0;
- const saveAmt=hasOld?old-price:0;
- const rating=+P.rating||4.3;const reviews=+P.reviews||2700;
- const stock=+P.stock||100;
- const cur=localStorage.getItem("selectedCurrency")||"BDT";
- const delDate=new Date(Date.now()+4*864e5);
- const dStr=delDate.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
- const freeDel=price>=2000;
- const descLines=(P.description||"").split(/\n|\||\|/).map(s=>s.trim()).filter(Boolean);
- const highlights=descLines.slice(0,6);
- const restDesc=descLines.slice(6).join("\n");
-
+ var imgs=P.images?Object.values(P.images).filter(function(u){return typeof u==="string"&&u.indexOf("http")===0;}):[];
+ if(!imgs.length)imgs=["https://dummyimage.com/380x380/eeeeee/555&text=MJH"];
+ var price=+P.price||0,old=+P.discountPrice||0;
+ var hasOld=old>0&&old>price;
+ var disc=hasOld?Math.round((1-price/old)*100):0;
+ var rating=+P.rating||4.3,reviews=+P.reviews||2700;
+ var stock=+P.stock||100;
+ var cur=localStorage.getItem("selectedCurrency")||"BDT";
+ var del=new Date(Date.now()+4*864e5);
+ var dStr=del.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+ var freeDel=price>=2000;
+ var descLines=(P.description||"").split(/\n|\|/).map(function(s){return s.trim();}).filter(Boolean);
+ var highlights=descLines.slice(0,6);
+ var restDesc=descLines.slice(6).join("<br>");
+ var thumbsHtml=imgs.map(function(u,i){return '<img src="'+u+'" class="'+(i===0?"on":"")+'" onclick="setImg(this,\''+u+'\')">';}).join("");
+ var qtyHtml="";for(var i=1;i<=10;i++)qtyHtml+="<option>"+i+"</option>";
  document.getElementById("content").className="";
- document.getElementById("content").innerHTML=`
- <div class="main">
-  <div class="gal">
-   <div class="thumbs">${imgs.map((u,i)=>`<img src="${u}" class="${i===0?'on':''}" onclick="setImg(this,'${u}')">`).join("")||'<img src="https://dummyimage.com/56x56/eee/999&text=MJH" class="on" onclick="setImg(this,\\'https://dummyimage.com/380x380/eeeeee/555&text=MJH\\')"> '}</div>
-   <div class="main-img"><img id="mainImg" src="${imgs[0]||'https://dummyimage.com/380x380/eeeeee/555&text=MJH'}"></div>
-  </div>
-  <div class="title-sec">
-   <div class="brand">${P.brand||"Mohajon MJH"}</div>
-   <h1>${P.title||"Unnamed Product"}</h1>
-   <div class="rating-bar">
-    <span class="stars">${stars(rating)}</span>
-    <span class="count">${rating.toFixed(1)} (${reviews.toLocaleString()} reviews)</span>
-   </div>
-   <hr class="sep">
-   <div class="price-box">
-    ${disc>0?`<span class="disc-badge">-${disc}%</span>`:""}
-    <span class="price-big">${fmt(price,cur)}</span>
-    ${hasOld?`<span class="old-price">${fmt(old,cur)}</span> <span class="save-txt">Save ${fmt(saveAmt,cur)}</span>`:""}
-    <div class="price-sar">≈ ${fmt(price,"SAR")} + Free delivery</div>
-   </div>
-   <div class="highlights">
-    <h3>About this item</h3>
-    <ul>${(highlights.length?highlights:["Original product from Mohajon MJH","Fast delivery nationwide","Easy returns within 7 days","Cash on Delivery available","Secure payment options","Best quality guaranteed"]).map(l=>`<li>${l}</li>`).join("")}</ul>
-   </div>
-   ${restDesc?`<div class="desc"><h3>Product Description</h3><p>${restDesc.replace(/\n/g,"<br>")}</p></div>`:""}
-  </div>
-  <div class="buybox">
-   <div class="bb-price">${fmt(price,cur)}</div>
-   <div class="bb-delivery ${freeDel?"":"paid"}">
-    <div class="free">${freeDel?"FREE delivery":"Delivery ৳100"}</div>
-    <div class="date">${freeDel?"📦 ":""}${dStr}</div>
-   </div>
-   <div class="bb-stock ${stock<=5?'low':stock===0?'out':''}">
-    ${stock===0?"Out of Stock":stock<=5?`Only ${stock} left in stock - order soon`:"In Stock"}
-   </div>
-   ${stock>0?`
-   <div class="bb-qty">
-    <label>Qty:</label>
-    <select id="qty">${Array.from({length:10},(_,i)=>`<option>${i+1}</option>`).join("")}</select>
-   </div>
-   <button class="btn-y" id="addBtn">🛒 Add to Cart</button>
-   <button class="btn-o" id="buyBtn">⚡ Buy Now</button>
-   `:""}
-   <div class="trust">
-    <b>🔒 Secure transaction</b><br>
-    💵 Cash on Delivery available<br>
-    📦 Ships from Mohajon MJH<br>
-    🔄 7-day easy return
-   </div>
-  </div>
- </div>`;
+ document.getElementById("content").innerHTML='<div class="main">'+
+ '<div class="gal"><div class="thumbs">'+thumbsHtml+'</div><div class="main-img"><img id="mainImg" src="'+imgs[0]+'"></div></div>'+
+ '<div><div class="brand">'+(P.brand||"Mohajon MJH")+'</div><h1>'+(P.title||"Unnamed")+'</h1>'+
+ '<div class="rating-bar"><span class="stars">'+stars(rating)+'</span><span class="count">'+rating.toFixed(1)+' ('+reviews.toLocaleString()+' reviews)</span></div>'+
+ '<hr class="sep"><div class="price-box">'+(disc>0?'<span class="disc-badge">-'+disc+'%</span>':'')+'<span class="price-big">'+fmt(price,cur)+'</span>'+(hasOld?'<span class="old-price">'+fmt(old,cur)+'</span> <span class="save-txt">Save '+fmt(old-price,cur)+'</span>':'')+'<div class="price-sar">≈ '+fmt(price,"SAR")+' in Saudi Riyal</div></div>'+
+ '<div class="highlights"><h3>About this item</h3><ul>'+(highlights.length?highlights:["Mohajon MJH-এর অরিজিনাল প্রোডাক্ট","দ্রুত ডেলিভারি সারাদেশে","৭ দিনের সহজ রিটার্ন","Cash on Delivery available","নিরাপদ পেমেন্ট","সেরা মানের নিশ্চয়তা"]).map(function(l){return "<li>"+l+"</li>";}).join("")+'</ul></div>'+
+ (restDesc?'<div class="desc"><h3>Product Description</h3><p>'+restDesc+'</p></div>':'')+
+ '</div>'+
+ '<div class="buybox"><div class="bb-price">'+fmt(price,cur)+'</div>'+
+ '<div class="bb-delivery"><div class="free">'+(freeDel?"✅ FREE delivery":"🚚 Delivery ৳100")+'</div><div class="date">📦 '+dStr+'</div></div>'+
+ '<div class="bb-stock'+(stock<=5?" low":"")+'">'+(stock<=5?"Only "+stock+" left - order soon":"In Stock")+'</div>'+
+ '<div class="bb-qty"><label>Qty:</label><select id="qty">'+qtyHtml+'</select></div>'+
+ '<button class="btn-y" id="addBtn">🛒 Add to Cart</button><button class="btn-o" id="buyBtn">⚡ Buy Now</button>'+
+ '<div class="trust"><b>🔒 Secure transaction</b><br>💵 Cash on Delivery available<br>📦 Ships from Mohajon MJH<br>🔄 7-day easy return</div></div>'+
+ '</div>';
  document.getElementById("crumbTitle").textContent=(P.title||"Product").slice(0,30);
- if(stock>0){
-  document.getElementById("addBtn").onclick=()=>{
-   const q=+document.getElementById("qty").value;
-   addCart(P,q);
-   document.getElementById("popTitle").textContent="Added to Cart";
-   document.getElementById("popMsg").textContent=`${q} × ${P.title.slice(0,40)}`;
-   document.getElementById("popup").classList.add("show");
-   setTimeout(()=>document.getElementById("popup").classList.remove("show"),3000);
-  };
-  document.getElementById("buyBtn").onclick=()=>{
-   const q=+document.getElementById("qty").value;
-   localStorage.setItem("buyNowItem",JSON.stringify({id:P.id,name:P.title,price,qty:q,sellerId:P.sellerId||"admin"}));
-   location.href="checkout.html?mode=buynow";
-  };
- }
+ document.getElementById("addBtn").onclick=function(){var q=+document.getElementById("qty").value;addCart(P,q);document.getElementById("popMsg").textContent=q+" × "+(P.title||"").slice(0,40);document.getElementById("popup").classList.add("show");setTimeout(function(){document.getElementById("popup").classList.remove("show");},3000);};
+ document.getElementById("buyBtn").onclick=function(){var q=+document.getElementById("qty").value;localStorage.setItem("buyNowItem",JSON.stringify({id:id,name:P.title,price:price,qty:q,sellerId:P.sellerId||"admin"}));location.href="checkout.html?mode=buynow";};
 }
-
-(async()=>{
- try{
-  const r=await fetch("https://open.er-api.com/v6/latest/USD");
-  const j=await r.json();
-  if(j&&j.rates){RATES={BDT:1,SAR:+((j.rates.BDT||122)/(j.rates.SAR||3.75)).toFixed(4)?1/(j.rates.SAR||3.75)/(j.rates.BDT||122)*100:0.03};RATES.SAR=1/((j.rates.BDT||122)/(j.rates.SAR||3.75));}
- }catch(e){}
- try{
-  const P=await (await fetch(DB+"/products/"+id+".json")).json();
-  render(P);
- }catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error loading product</div>';}
+(async function(){
+ try{var r=await fetch("https://open.er-api.com/v6/latest/USD");var j=await r.json();if(j&&j.rates&&j.rates.BDT){var B=j.rates.BDT;RATES={BDT:1,SAR:(j.rates.SAR||3.75)/B,USD:1/B,EUR:(j.rates.EUR||0.92)/B,GBP:(j.rates.GBP||0.79)/B,AED:(j.rates.AED||3.67)/B};}}catch(e){}
+ try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error loading product</div>';}
 })();
 </script>
 </body></html>
