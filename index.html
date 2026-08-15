@@ -804,8 +804,8 @@ function renderFlashSaleCard(id, data, mapInfo){
     <div class="product-card-content">
       <h3 class="product-card-title">${data.title || data.name || "Unnamed Product"}</h3>
       <div class="product-card-price">
-        <span class="current-price">${priceDisplay}</span>
-        ${hasOldPrice ? `<span class="old-price">${oldPriceDisplay}</span>` : ""}
+        <span class="current-price" data-price-bdt="${salePrice}">${priceDisplay}</span>
+        ${hasOldPrice ? `<span class="old-price" data-old-price-bdt="${oldPrice}">${oldPriceDisplay}</span>` : ""}
       </div>
       ${dateRangeHTML}
       <div class="product-card-actions" style="flex-direction:column">
@@ -1073,8 +1073,8 @@ function renderTrendingCard(id, data){
     <div class="product-card-content">
       <h3 class="product-card-title">${data.title || data.name || "Unnamed Product"}</h3>
       <div class="product-card-price">
-        <span class="current-price">${priceDisplay}</span>
-        ${hasOldPrice ? `<span class="old-price">${oldPriceDisplay}</span>` : ""}
+        <span class="current-price" data-price-bdt="${salePrice}">${priceDisplay}</span>
+        ${hasOldPrice ? `<span class="old-price" data-old-price-bdt="${oldPrice}">${oldPriceDisplay}</span>` : ""}
       </div>
       ${dateHTML}
       <div class="product-card-actions" style="flex-direction:column">
@@ -1293,8 +1293,8 @@ function renderDealCard(id, data, mapInfo){
     <div class="product-card-content">
       <h3 class="product-card-title">${data.title || data.name || "Unnamed Product"}</h3>
       <div class="product-card-price">
-        <span class="current-price">${priceDisplay}</span>
-        ${hasOldPrice ? `<span class="old-price">${oldPriceDisplay}</span>` : ""}
+        <span class="current-price" data-price-bdt="${salePrice}">${priceDisplay}</span>
+        ${hasOldPrice ? `<span class="old-price" data-old-price-bdt="${oldPrice}">${oldPriceDisplay}</span>` : ""}
       </div>
       ${dateRangeHTML}
       <div class="product-card-actions" style="flex-direction:column">
@@ -1565,8 +1565,8 @@ async function loadSpecialCategoryProducts(slug, scroll = true){
             <div class="product-card-content">
               <h3 class="product-card-title">${p.title || "Unnamed Product"}</h3>
               <div class="product-card-price">
-                <span class="current-price">${priceDisplay}</span>
-                ${hasOldPrice ? `<span class="old-price">${oldPriceDisplay}</span>` : ""}
+                <span class="current-price" data-price-bdt="${salePrice}">${priceDisplay}</span>
+                ${hasOldPrice ? `<span class="old-price" data-old-price-bdt="${oldPrice}">${oldPriceDisplay}</span>` : ""}
               </div>
               ${dateRangeHTML}
               <div class="product-card-actions" style="flex-direction:column">
