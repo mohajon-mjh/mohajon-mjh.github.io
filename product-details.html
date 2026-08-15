@@ -170,3 +170,48 @@ if(html){var d=document.createElement("div");d.id="amzAttr";d.innerHTML=html;pb.
 if(w>30)clearInterval(t);},500);}
 main();})();
 </script>
+<script>/*amz-var-v5*/
+(function(){
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var id=new URLSearchParams(location.search).get("id");
+var TITLE="";
+function varBlock(){
+ if(document.getElementById("amzVar5"))return;
+ var anchor=document.getElementById("amzAttr")||document.querySelector(".price-box");
+ if(!anchor)return;
+ var thumbs=[].slice.call(document.querySelectorAll(".thumbs img"));
+ if(!thumbs.length)return;
+ var pe=document.querySelector(".price-big");var price=pe?pe.textContent.trim():"";
+ var d=document.createElement("div");d.id="amzVar5";
+ d.innerHTML='<div style="font-size:13px;margin:12px 0 6px">Colour: <b>'+thumbs.length+' options</b></div><div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px">'+thumbs.map(function(im,i){return '<div class="v5opt" data-i="'+i+'" style="min-width:78px;text-align:center;border:2px solid '+(i===0?"#007185":"#ddd")+';border-radius:8px;padding:4px;cursor:pointer;background:#fff"><img src="'+im.src+'" style="width:64px;height:64px;object-fit:cover;border-radius:4px"><div style="font-size:10px;color:#565959;margin-top:2px">'+price+'</div></div>';}).join("")+'</div>';
+ anchor.insertAdjacentElement("afterend",d);
+ [].slice.call(d.querySelectorAll(".v5opt")).forEach(function(el){el.onclick=function(){var i=+el.getAttribute("data-i");var t=document.querySelectorAll(".thumbs img")[i];if(t)t.click();[].slice.call(d.querySelectorAll(".v5opt")).forEach(function(x){x.style.borderColor="#ddd";});el.style.borderColor="#007185";};});
+}
+function variantChips(){
+ if(document.getElementById("amzVarChips"))return;
+ var anchor=document.getElementById("amzVar5")||document.getElementById("amzAttr")||document.querySelector(".price-box");
+ if(!anchor||!TITLE)return;
+ var t=TITLE.toLowerCase();
+ var m=(TITLE.match(/(\d+\s*\+\s*\d+\s*GB|\d+\s*GB|\d+\s*TB|\d+\s*inch)/gi)||[]).slice(0,4);
+ if(!m.length&&/phone|mobile|redmi|samsung|iphone|oppo|vivo|realme/.test(t))m=["4+64 GB","6+128 GB","8+256 GB"];
+ if(!m.length&&/jeans|pant|waist/.test(t))m=["30","32","34","36","38"];
+ if(!m.length)return;
+ var d=document.createElement("div");d.id="amzVarChips";
+ d.innerHTML='<div style="font-size:13px;margin:12px 0 6px">Style: <b>'+m[0]+'</b></div><div style="display:flex;gap:6px;flex-wrap:wrap">'+m.map(function(x,i){return '<div style="border:2px solid '+(i===0?"#007185":"#ddd")+';border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;background:#fff" onclick="var p=this.parentNode;for(var k=0;k<p.children.length;k++)p.children[k].style.borderColor=\'#ddd\';this.style.borderColor=\'#007185\'">'+x+'</div>';}).join("")+'</div>';
+ anchor.insertAdjacentElement("afterend",d);
+}
+function galFix(){
+ var g=document.querySelector(".gal");
+ if(g&&!document.getElementById("galFix5")){
+  var s=document.createElement("style");s.id="galFix5";
+  s.textContent=".gal{flex-direction:row!important}.thumbs{flex-direction:column!important;order:-1}.main-img{flex:1}";
+  document.head.appendChild(s);
+ }
+}
+var w=0;var t=setInterval(function(){w++;
+ try{varBlock();variantChips();galFix();}catch(e){}
+ if(w>40||(document.getElementById("amzVar5")&&document.getElementById("galFix5")))clearInterval(t);
+},600);
+(async function(){try{var P=await (await fetch(DB+"/products/"+id+".json")).json();if(P)TITLE=P.title||"";}catch(e){}})();
+})();
+</script>
