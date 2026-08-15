@@ -2833,3 +2833,94 @@ window.amzRender=async function(){
 };
 })();
 </script>
+<script>/*amazon-sync-v4*/
+(function(){
+var WORKER="https://mjh-proxy.mohajonmjh.workers.dev";
+var fb=null;
+async function DB(){if(fb)return fb;const fa=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");const fd=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");const app=fa.getApps().length?fa.getApp():fa.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajonmjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});fb={fd:fd,db:fd.getDatabase(app)};return fb;}
+async function sarRate(){try{const r=await fetch("https://open.er-api.com/v6/latest/USD");const j=await r.json();return +((j.rates.BDT||122)/(j.rates.SAR||3.75)).toFixed(2);}catch(e){return 32.5;}}
+var _rate=0,_rt=0;async function rate(){if(Date.now()-_rt>300000){_rate=await sarRate();_rt=Date.now();}return _rate;}
+function getSet(){try{return JSON.parse(localStorage.getItem("amzSet")||"{}");}catch(e){return{};}}
+function setSet(s){localStorage.setItem("amzSet",JSON.stringify(s));}
+var list=null,running=false,idx=0,done=0,fail=0;
+async function loadList(){
+ if(list)return list;
+ var m=await DB();
+ var prods=(await m.fd.get(m.fd.ref(m.db,"products"))).val()||{};
+ list=Object.entries(prods).map(function(e){return {id:e[0],title:String(e[1].title||e[1].name||"item"),price:+e[1].price||0};});
+ return list;
+}
+function log(html){var l=document.getElementById("amzLog2");if(l)l.innerHTML=html;}
+window.amzOpen=function(){
+ var d=document.getElementById("amzDrawer");
+ if(!d){d=document.createElement("div");d.id="amzDrawer";document.body.appendChild(d);}
+ d.style.cssText="position:fixed;top:0;right:0;width:500px;max-width:96vw;height:100vh;background:#131921;z-index:999999;overflow-y:auto;padding:14px;box-shadow:-4px 0 20px rgba(0,0,0,.6)";
+ var s=getSet();
+ d.innerHTML='<div style="display:flex;justify-content:space-between"><h3 style="color:#fff;margin:0">🛒 Amazon Price Sync</h3><button onclick="document.getElementById(\'amzDrawer\').style.display=\'none\'" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700">✕</button></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#FFD814">⚙️ Formula: (Amazon দাম × লাভ%) + Delivery</b><br>'+
+ '<label style="color:#ccc;font-size:12px">লাভ %: <input id="amzProfit" type="number" value="'+(s.profit||30)+'" style="width:70px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px;padding:4px"></label> '+
+ '<label style="color:#ccc;font-size:12px">Delivery ৳: <input id="amzDel" type="number" value="'+(s.delivery||60)+'" style="width:70px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px;padding:4px"></label> '+
+ '<button onclick="amzSaveSet()" style="background:#2196f3;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-weight:700">💾 Save</button></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#FFD814">🔗 Product খুঁজুন (নাম লিখুন)</b><br>'+
+ '<input id="amzSearch" placeholder="Product-এর নাম লিখুন..." oninput="amzFind()" style="width:100%;margin:6px 0;padding:8px;background:#1a242f;color:#7CFC00;border:1px solid #7CFC00;border-radius:4px">'+
+ '<div id="amzFound" style="max-height:150px;overflow-y:auto"></div>'+
+ '<input id="amzUrl" placeholder="Amazon URL (খালি রাখলে title দিয়ে auto search)" style="width:100%;margin:6px 0;padding:6px;background:#1a242f;color:#fff;border:1px solid #555;border-radius:4px">'+
+ '<button onclick="amzLink()" style="background:#FF9900;color:#111;border:none;border-radius:6px;padding:10px 14px;font-weight:800">💰 দাম Set করুন</button></div>'+
+ '<div style="background:#232f3e;border-radius:8px;padding:12px;margin:8px 0"><b style="color:#7CFC00">🚀 AUTO MODE — সব পণ্য একসাথে</b><br>'+
+ '<button onclick="amzStart()" style="background:linear-gradient(90deg,#7CFC00,#00c853);color:#111;border:none;border-radius:8px;padding:12px 18px;font-weight:900;margin-top:6px">▶️ AUTO START</button> '+
+ '<button onclick="amzStop()" style="background:#c0392b;color:#fff;border:none;border-radius:8px;padding:12px 18px;font-weight:900;margin-top:6px">⏹ STOP</button> '+
+ '<button onclick="amzReset()" style="background:#555;color:#fff;border:none;border-radius:8px;padding:12px 14px;font-weight:700;margin-top:6px">🔄 Reset</button>'+
+ '<div id="amzLog2" style="font-size:12px;color:#88ccff;margin-top:8px">⏳ Product list load হচ্ছে...</div></div>';
+ loadList().then(function(L){log("✅ "+L.length+" products ready — AUTO START চাপুন!");}).catch(function(e){log("❌ "+e.message);});
+};
+window.amzSaveSet=function(){var s=getSet();s.profit=+document.getElementById("amzProfit").value||30;s.delivery=+document.getElementById("amzDel").value||60;setSet(s);alert("✅ Saved!");};
+window.__amzPid="";
+window.amzFind=function(){
+ var q=(document.getElementById("amzSearch").value||"").toLowerCase();
+ var box=document.getElementById("amzFound");
+ if(q.length<2||!list){box.innerHTML="";return;}
+ var hits=list.filter(function(p){return p.title.toLowerCase().indexOf(q)>-1;}).slice(0,10);
+ box.innerHTML=hits.map(function(p){return '<div onclick="window.__amzPid=\''+p.id+'\';this.parentNode.querySelectorAll(\'div\').forEach(function(x){x.style.background=\'#1a242f\';});this.style.background=\'#0a5c1e\';document.getElementById(\'amzSearch\').value=\''+p.title.replace(/'/g,"")+'\' " style="background:#1a242f;color:#fff;padding:6px;margin:2px 0;border-radius:4px;cursor:pointer;font-size:12px">📦 '+p.title.slice(0,45)+' (৳'+p.price+')</div>';}).join("");
+};
+window.amzLink=async function(){
+ var pid=window.__amzPid;
+ if(!pid)return alert("আগে product খুঁজে বাছুন");
+ var p=list.find(function(x){return x.id===pid;});
+ var url=document.getElementById("amzUrl").value.trim()||("https://www.amazon.sa/s?k="+encodeURIComponent(p.title.slice(0,60)));
+ var s=getSet();var rt=await rate();
+ log("⏳ Amazon দাম পড়ছি: "+p.title.slice(0,30));
+ var final=null,sar=0;
+ try{var r=await fetch(WORKER+"?mode=amazon&url="+encodeURIComponent(url));var j=await r.json();if(j&&j.price>0){sar=j.price;final=Math.round(sar*rt*(1+(s.profit||30)/100))+(s.delivery||60);}}catch(e){}
+ if(!final&&p.price>0)final=Math.round(p.price*(1+(s.profit||30)/100))+(s.delivery||60);
+ if(!final)return log("❌ দাম পাইনি");
+ var m=await DB();
+ await m.fd.update(m.fd.ref(m.db,"products/"+pid),{price:final});
+ await m.fd.set(m.fd.ref(m.db,"amazonLinks/"+pid),{url:url,updatedAt:Date.now()});
+ log("✅ "+p.title.slice(0,30)+(sar?" ("+sar+" SAR)":"")+" → <b style='color:#7CFC00'>৳"+final+"</b>");
+};
+async function step(){
+ if(!running)return;
+ if(!list)await loadList();
+ if(idx>=list.length){running=false;log("🎉 সব শেষ! ✅"+done+" ❌"+fail);return;}
+ var p=list[idx];var m=await DB();var fd=m.fd,db=m.db;
+ var s=getSet();var rt=await rate();
+ var url="https://www.amazon.sa/s?k="+encodeURIComponent(p.title.slice(0,60));
+ var final=null,sar=0;
+ try{var r=await fetch(WORKER+"?mode=amazon&url="+encodeURIComponent(url));var j=await r.json();if(j&&j.price>0){sar=j.price;final=Math.round(sar*rt*(1+(s.profit||30)/100))+(s.delivery||60);}}catch(e){}
+ if(!final&&p.price>0)final=Math.round(p.price*(1+(s.profit||30)/100))+(s.delivery||60);
+ if(final){await fd.update(fd.ref(db,"products/"+p.id),{price:final});done++;}else fail++;
+ idx++;localStorage.setItem("amzIdx",idx);
+ log("⏳ "+idx+"/"+list.length+" | ✅"+done+" ❌"+fail+"<br>📦 "+p.title.slice(0,35)+" → <b style='color:#7CFC00'>৳"+final+"</b>"+(sar?" ("+sar+" SAR)":""));
+ setTimeout(step,1200);
+}
+window.amzStart=function(){if(running)return;running=true;idx=+(localStorage.getItem("amzIdx")||0);step();};
+window.amzStop=function(){running=false;log("⏹ Stopped | ✅"+done+" ❌"+fail);};
+window.amzReset=function(){localStorage.setItem("amzIdx",0);idx=0;done=0;fail=0;log("🔄 Reset");};
+function bind(){
+ var b=document.getElementById("amzSideBtn");
+ if(b&&!b.dataset.v4){b.dataset.v4="1";b.onclick=function(){window.amzOpen();};}
+ var f=document.getElementById("amzBtn");if(f)f.style.display="none";
+}
+for(var i=0;i<30;i++)setTimeout(bind,600*i+400);
+})();
+</script>
