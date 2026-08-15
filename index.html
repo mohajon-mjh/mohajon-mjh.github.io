@@ -2292,3 +2292,138 @@ updateMiniStats();
 setInterval(updateMiniStats, 5000);
 </script>
 
+<script type="module">/*currency-auto-update*/
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+const app = getApps().length ? getApp() : initializeApp({
+  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
+});
+const db = getDatabase(app);
+
+const CURRENCY_INFO = {
+  BDT: { symbol: "৳" },
+  USD: { symbol: "$" },
+  EUR: { symbol: "€" },
+  GBP: { symbol: "£" },
+  SAR: { symbol: "﷼" },
+  AED: { symbol: "د.إ" },
+  QAR: { symbol: "﷼" },
+  KWD: { symbol: "د.ك" },
+  BHD: { symbol: ".د.ب" },
+  OMR: { symbol: "﷼" },
+  MYR: { symbol: "RM" },
+  SGD: { symbol: "S$" },
+  INR: { symbol: "₹" },
+  PKR: { symbol: "₨" },
+  NPR: { symbol: "₨" },
+  LKR: { symbol: "₨" },
+  CNY: { symbol: "¥" },
+  JPY: { symbol: "¥" },
+  KRW: { symbol: "₩" },
+  THB: { symbol: "฿" },
+  IDR: { symbol: "Rp" },
+  PHP: { symbol: "₱" },
+  VND: { symbol: "₫" },
+  AUD: { symbol: "A$" },
+  NZD: { symbol: "NZ$" },
+  CAD: { symbol: "C$" },
+  CHF: { symbol: "Fr" },
+  SEK: { symbol: "kr" },
+  NOK: { symbol: "kr" },
+  DKK: { symbol: "kr" },
+  RUB: { symbol: "₽" },
+  TRY: { symbol: "₺" },
+  ZAR: { symbol: "R" },
+  EGP: { symbol: "£" },
+  NGN: { symbol: "₦" },
+  KES: { symbol: "KSh" },
+  BRL: { symbol: "R$" },
+  MXN: { symbol: "$" },
+  ARS: { symbol: "$" },
+  HKD: { symbol: "HK$" },
+  TWD: { symbol: "NT$" },
+  ILS: { symbol: "₪" },
+  JOD: { symbol: "د.ا" },
+  IQD: { symbol: "ع.د" },
+  IRR: { symbol: "﷼" },
+  AFN: { symbol: "؋" },
+  MMK: { symbol: "K" },
+  PLN: { symbol: "zł" },
+  UAH: { symbol: "₴" },
+  RON: { symbol: "lei" },
+  MAD: { symbol: "د.م." }
+};
+
+let currentRates = { BDT: 1, USD: 110, SAR: 29.3, EUR: 119, GBP: 139, AED: 30 };
+let ratesLoaded = false;
+
+function loadRates() {
+  onValue(ref(db, "settings/currencyRates"), (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      currentRates = { BDT: 1, ...data };
+    }
+    ratesLoaded = true;
+    updateAllPrices();
+    document.dispatchEvent(new CustomEvent("currencyRatesLoaded"));
+  });
+}
+loadRates();
+
+function getSelectedCurrency() {
+  return localStorage.getItem("selectedCurrency") || "BDT";
+}
+
+function formatPrice(priceBDT) {
+  const code = getSelectedCurrency();
+  const rate = currentRates[code] || 1;
+  const info = CURRENCY_INFO[code] || CURRENCY_INFO.BDT;
+  const converted = code === "BDT" ? (parseFloat(priceBDT) || 0) : (parseFloat(priceBDT) || 0) / rate;
+  return `${info.symbol}${converted.toFixed(2)}`;
+}
+
+function updateAllPrices() {
+  const priceElements = document.querySelectorAll('[data-price-bdt]');
+  priceElements.forEach(el => {
+    const bdt = parseFloat(el.getAttribute('data-price-bdt')) || 0;
+    el.textContent = formatPrice(bdt);
+  });
+  
+  const oldPriceElements = document.querySelectorAll('[data-old-price-bdt]');
+  oldPriceElements.forEach(el => {
+    const bdt = parseFloat(el.getAttribute('data-old-price-bdt')) || 0;
+    if (bdt > 0) el.textContent = formatPrice(bdt);
+  });
+}
+
+document.addEventListener("currencyChanged", () => {
+  updateAllPrices();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(updateAllPrices, 500);
+  setTimeout(updateAllPrices, 1500);
+  setTimeout(updateAllPrices, 3000);
+});
+
+window.MJHCurrency = {
+  CURRENCY_INFO,
+  getSelectedCurrency,
+  setSelectedCurrency: (code) => {
+    localStorage.setItem("selectedCurrency", code);
+    document.dispatchEvent(new CustomEvent("currencyChanged", { detail: { currency: code } }));
+    updateAllPrices();
+  },
+  formatPrice,
+  convertPrice: (priceBDT) => {
+    const code = getSelectedCurrency();
+    const rate = currentRates[code] || 1;
+    return code === "BDT" ? (parseFloat(priceBDT) || 0) : (parseFloat(priceBDT) || 0) / rate;
+  },
+  getRates: () => currentRates
+};
+</script>
