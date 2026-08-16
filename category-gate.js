@@ -133,7 +133,7 @@ function fbFill(key,gridSel,nodePath){
   Promise.all(pids.slice(0,30).map(function(pid){
    return get(ref(gdb,"products/"+pid)).then(function(ps){
     if(!ps.exists())return null;var v=ps.val();
-    return (v&&v.status!=="inactive"&&v.status!=="deleted"&&v.status!=="disabled")?Object.assign({id:pid},v):null;
+    return (v&&(v.status==="active"||!v.status||v.status===""))?Object.assign({id:pid},v):null;
    }).catch(function(){return null;});
   })).then(function(vals){
    var list=vals.filter(Boolean);
@@ -151,12 +151,12 @@ function fbRun(){
  var da=document.querySelector("#dotdCatsRow .cat.active");
  if(da){fbFill(da.getAttribute("data-cat")||"","#dealsGrid","dealsOfDayCategoryProducts");}
  var sa=document.querySelector("#specialCatsContainer .cat.active");
- if(sa){var sl=sa.getAttribute("data-slug")||sa.getAttribute("data-cat")||"";if(sl){fbFill(sl,"#specialCatCarousel","specialCategoryProducts");}else{scResolve((sa.textContent||"").trim(),function(id){if(id)fbFill(id,"#specialCatCarousel","specialCategoryProducts");});}}
+ if(sa){var sl=sa.getAttribute("data-slug")||sa.getAttribute("data-cat")||"";if(sl){fbFill(sl,"#specialCatCarousel","specialCategoryProducts");}else{get(ref(gdb,"settings/specialCategories")).then(function(s){var obj=s.val()||{};var nm=norm((sa.textContent||"").trim());for(var id in obj){var cn=norm(((obj[id]||{}).name||"").trim());if(cn&&nm.indexOf(cn)>-1){fbFill(obj[id].slug||id,"#specialCatCarousel","specialCategoryProducts");return;}}}).catch(function(){});}}
 }
-setTimeout(function(){var n=0;var iv=setInterval(function(){n++;fbRun();if(n>40)clearInterval(iv);},3000);},5000);
+fbRun();setTimeout(fbRun,1000);setTimeout(fbRun,2500);setTimeout(fbRun,5000);setTimeout(fbRun,8000);setTimeout(fbRun,12000);
 document.addEventListener("click",function(e){
  if(e.target.closest&&e.target.closest("#flashCatsRow .cat,#dotdCatsRow .cat,#specialCatsContainer .cat")){
-  FB_DONE={};setTimeout(fbRun,1500);setTimeout(fbRun,4000);
+  FB_DONE={};fbRun();setTimeout(fbRun,800);setTimeout(fbRun,2000);setTimeout(fbRun,4000);
  }
 });
 
