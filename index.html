@@ -1485,9 +1485,9 @@ async function loadSpecialCategoryProducts(slug, scroll = true){
   const scMapSnap = await get(ref(scDb, "settings/specialCategoryProducts/"+slug)).catch(()=>null);
   const scMap = (scMapSnap && scMapSnap.exists()) ? scMapSnap.val() : {};
   const scQuery = query(ref(scDb, "products"), orderByChild("categoryId"), equalTo(slug), limitToFirst(500));
-      onValue(scQuery, (snapshot) => {
+      onValue(scQuery, async (snapshot) => {
         const data = snapshot.val() || {};
-        const matched = Object.entries(data).filter(([id, p]) => p.status === "active");
+        let matched = Object.entries(data).filter(([id, p]) => p.status === "active"); const __have={}; matched.forEach(function(en){__have[en[0]]=1;}); for(const __pid in scMap){ if(!__have[__pid]){ try{ const __s=await get(ref(scDb,"products/"+__pid)); if(__s.exists()){ const __pv=__s.val(); if(__pv&&__pv.status==="active") matched.push([__pid,__pv]); } }catch(e2){} } }
 
         if (matched.length === 0) {
           scCarousel.innerHTML = "<p style='text-align:center;color:#888'>শীঘ্রই পণ্য যুক্ত হবে...</p>";
