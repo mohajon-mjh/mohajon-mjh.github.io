@@ -2245,7 +2245,7 @@ function setAdminUI(isA){
  });
  let ic=document.getElementById("adminQuick");
  if(!ic){ic=document.createElement("button");ic.id="adminQuick";ic.innerHTML="🛠️";ic.title="Admin Panel";
-  ic.style.cssText="position:fixed;top:120px;left:6px;z-index:9999;background:#131921;color:#FF9900;border:1px solid #FF9900;border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)";
+  ic.style.cssText="position:fixed;top:120px;left:6px;z-index:9999;background:#131921;color:#FF9900;border:1px solid #FF9900;border-radius:50%;width:64px;height:64px;font-size:28px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)";
   ic.onclick=function(){location.href="admin.html";};document.body.appendChild(ic);}
  ic.style.display=isA?"block":"none";
 }
