@@ -151,7 +151,7 @@
         }
         currentCategory = getCategoryFromURL();
         if (currentCategory && currentCategory !== 'all') {
-            loadCategoryProducts(currentCategory);
+            if(window.MJHCategoryGate){window.MJHCategoryGate.ready().then(function(){if(window.MJHCategoryGate.isOff(currentCategory)){window.MJHCategoryGate.showSoon(currentCategory);productsCache=[];hasMore=false;isLoading=false;dispatchLoaded(true);}else{loadCategoryProducts(currentCategory);}});}else{loadCategoryProducts(currentCategory);}
         } else {
             loadFirstPage();
         }
