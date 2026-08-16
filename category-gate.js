@@ -74,4 +74,4 @@ function buildLoc(){
  parent.appendChild(pill);
 }
 setTimeout(buildLoc,2500);
-window.MJHCategoryGate={ready:ready,isOff:isOff,showSoon:showSoon};
+window.MJHCategoryGate={ready:ready,isOff:isOff,showSoon:showSoon,norm:norm};

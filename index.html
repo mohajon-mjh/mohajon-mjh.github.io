@@ -908,7 +908,7 @@ function fsIsOfferActive(mapInfo){
 
 let fscCatsCache = {};
 
-function loadFlashCategoryProducts(catId){
+function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flashCatsRow .cat[data-cat="'+catId+'"]');var __nm=__bn?__bn.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("fsc:"+catId)||window.MJHCategoryGate.isOff("fscname:"+window.MJHCategoryGate.norm(__nm)))){flashSaleGrid.innerHTML='<p style="text-align:center;color:#888;padding:20px">🔜 Coming Soon...</p>';fsAllItems=[];return;}
   document.querySelectorAll("#flashCatsRow .cat").forEach(b => b.classList.remove("active"));
   const activeBtn = document.querySelector(`#flashCatsRow .cat[data-cat="${catId}"]`);
   if(activeBtn) activeBtn.classList.add("active");
@@ -930,7 +930,7 @@ function loadFlashCategoryProducts(catId){
         const data = pSnap.val();
         if(data.status !== "active") return null;
         const mapInfo = map[pid] || {};
-        if(!fsIsOfferActive(mapInfo)) return null;
+        /* date filter removed */
         return { id: pid, data, mapInfo };
       }catch(e){ return null; }
     }));
@@ -1370,7 +1370,7 @@ function dotdRenderNextBatch(){
   }
 }
 
-function loadDotdCategoryProducts(catId){
+function loadDotdCategoryProducts(catId){var __b2=document.querySelector('#dotdCatsRow .cat[data-cat="'+catId+'"]');var __n2=__b2?__b2.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("dotd:"+catId)||window.MJHCategoryGate.isOff("dotdname:"+window.MJHCategoryGate.norm(__n2)))){document.getElementById("dealsGrid").innerHTML='<p style="text-align:center;color:#888;padding:20px">🔜 Coming Soon...</p>';return;}
   document.querySelectorAll("#dotdCatsRow .cat").forEach(b => b.classList.remove("active"));
   const activeBtn = document.querySelector(`#dotdCatsRow .cat[data-cat="${catId}"]`);
   if(activeBtn) activeBtn.classList.add("active");
@@ -1393,7 +1393,7 @@ function loadDotdCategoryProducts(catId){
         const data = pSnap.val();
         if(data.status !== "active") return null;
         const mapInfo = map[pid] || {};
-        if(!dotdIsOfferActive(mapInfo)) return null;
+        /* date filter removed */
         return { id: pid, data, mapInfo };
       }catch(e){ return null; }
     }));
