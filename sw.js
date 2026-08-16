@@ -1,5 +1,5 @@
-/* mjh-sw-v4 : stall-proof smart cache */
-var CACHE="mjh-v4";
+/* mjh-sw-v5 : full-body cache, stall-proof, no corrupt cache ever */
+var CACHE="mjh-v5";
 self.addEventListener("install",function(e){self.skipWaiting();});
 self.addEventListener("activate",function(e){
  e.waitUntil((async function(){
@@ -19,13 +19,19 @@ self.addEventListener("fetch",function(e){
   e.respondWith((async function(){
    var cache=await caches.open(CACHE);
    try{
-    var net=await withTimeout(fetch(req,{cache:"no-store"}),6000);
-    if(net&&net.status===200){cache.put(req,net.clone());return net;}
-    throw new Error("bad");
+    var buf=await withTimeout((async function(){
+     var net=await fetch(req,{cache:"no-store"});
+     if(!net||net.status!==200)throw new Error("bad");
+     return await net.arrayBuffer();
+    })(),15000);
+    var ct=/\.css$/.test(url.pathname)?"text/css":(/\.js$/.test(url.pathname)?"text/javascript":"text/html");
+    var good=new Response(buf,{status:200,headers:{"Content-Type":ct}});
+    cache.put(req,good.clone());
+    return good;
    }catch(err){
     var hit=await cache.match(req);
     if(hit)return hit;
-    throw err;
+    return new Response("network error",{status:503});
    }
   })());
   return;
