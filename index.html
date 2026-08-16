@@ -1881,7 +1881,7 @@ window.csNotifyMe = csNotifyMe;
 
 onValue(ref(csDb, "futureProducts"), (snapshot)=>{
   const data = snapshot.val() || {};
-  const entries = Object.entries(data).filter(([id, item]) => !item.released && csIsOfferActive(item));
+  const entries = Object.entries(data).filter(([id, item]) => !item.released);
 
   if(entries.length === 0){
     csSection.style.display = "none";
