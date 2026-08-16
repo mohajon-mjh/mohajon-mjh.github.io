@@ -22,8 +22,8 @@ h2{font-size:16px;margin:0 0 10px}
 </style>
 </head>
 <body>
-<h1>🎛️ ক্যাটাগরি অন/অফ কন্ট্রোল</h1>
-<p style="font-size:13px;color:#555">OFF করলে কাস্টমার সেই ক্যাটাগরিতে ক্লিক করলে "Coming Soon..." পপআপ দেখবে। ON করলে পণ্য দেখা যাবে।</p>
+<h1>🎛️ সব ক্যাটাগরি ও সেকশন অন/অফ কন্ট্রোল</h1>
+<p style="font-size:13px;color:#555">OFF করলে হোমপেজে ওই ক্যাটাগরি/সেকশন লুকাবে, কাস্টমার ক্লিক করলে "Coming Soon..." পপআপ দেখবে। এডমিন প্যানেলের নিচের ডান বাটন থেকে এই পেজ খোলা যায়।</p>
 <div id="gate">লোড হচ্ছে...</div>
 <div id="list"></div>
 <script type="module">
@@ -32,73 +32,51 @@ import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0
 import{getDatabase,ref,get,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 const app=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
 const auth=getAuth(app),db=getDatabase(app);
-const GC=[["electronics","📱 Electronics"],["computers","💻 Computers"],["tv_appliances","📺 TV & Appliances"],["watches","⌚ Watches"],["men_fashion","👕 Men Fashion"],["women_fashion","👗 Women Fashion"],["mother_baby","👶 Mother & Baby"],["toys_games","🧸 Toys & Games"],["grocery","🛒 Grocery"],["spices","🌶️ Spices"],["food_beverages","🍔 Food & Beverages"],["beauty","💄 Beauty"],["health","💊 Health"],["home_kitchen","🏠 Home & Kitchen"],["automotive","🚗 Automotive"],["sports","⚽ Sports"],["pet_supplies","🐶 Pet Supplies"],["books","📚 Books"],["travel","✈️ Travel"],["gift_items","🎁 Gift Items"]];
-const SL=[["agriculture_food_beverage","Agriculture, Food & Beverage"],["appliances_home_appliances_large_small","Appliances"],["art_collectibles_crafts","Art & Collectibles"],["automotive_vehicle_parts_accessories","Automotive Parts"],["baby_products_baby_essentials","Baby Products"],["beauty_personal_care","Beauty & Personal Care"],["books_media_music","Books & Media"],["business_industrial_machinery","Business & Industrial"],["cameras_photo","Cameras & Photo"],["clothing_fashion_apparel_men_women_kids","Clothing & Fashion"],["computers_tablets_networking","Computers & Tablets"],["construction_building_materials","Construction"],["consumer_electronics","Consumer Electronics"],["electrical_equipment_supplies","Electrical"],["electronics_tv_audio_gaming","Electronics TV Audio"],["food_grocery","Food & Grocery"],["furniture_home_decor","Furniture & Decor"],["gardening_outdoor_living","Gardening"],["gifts_crafts","Gifts & Crafts"],["health_medical_supplies","Health & Medical"],["health_wellness","Health & Wellness"],["home_kitchen","Home & Kitchen"],["home_improvement_tools_hardware","Tools & Hardware"],["industrial_machinery_equipment","Industrial"],["jewelry_eyewear_watches","Jewelry & Watches"],["lighting_lamps","Lighting & Lamps"],["luggage_bags_cases","Luggage & Bags"],["office_school_supplies","Office & School"],["pet_supplies","Pet Supplies"],["renewable_energy","Renewable Energy"],["safety_security","Safety & Security"],["shoes_accessories","Shoes"],["smart_home_surveillance","Smart Home"],["sports_outdoors_fitness","Sports & Fitness"],["toys_games_hobbies","Toys & Hobbies"],["video_games_consoles","Video Games"],["vehicles_transportation","Vehicles"],["air_conditioners_refrigerators_washing_machines","AC & Fridge"],["mobile_phones_accessories","Mobile Phones"],["laptops_pcs","Laptops & PCs"],["headphones_speakers_audio","Headphones"],["makeup_skincare_fragrance","Makeup"],["furniture_sofas_beds_etc","Sofa & Beds"],["power_tools_hand_tools","Power Tools"],["drones_action_cameras","Drones"],["bicycles_scooters_electric_vehicles","Bicycles"]];
 let MAP={};
-onAuthStateChanged(auth,async u=>{
+const GC=[["electronics","📱 Electronics"],["computers","💻 Computers"],["tv_appliances","📺 TV & Appliances"],["watches","⌚ Watches"],["men_fashion","👕 Men Fashion"],["women_fashion","👗 Women Fashion"],["mother_baby","👶 Mother & Baby"],["toys_games","🧸 Toys & Games"],["grocery","🛒 Grocery"],["spices","🌶️ Spices"],["food_beverages","🍔 Food & Beverages"],["beauty","💄 Beauty"],["health","💊 Health"],["home_kitchen","🏠 Home & Kitchen"],["automotive","🚗 Automotive"],["sports","⚽ Sports"],["pet_supplies","🐶 Pet Supplies"],["books","📚 Books"],["travel","✈️ Travel"],["gift_items","🎁 Gift Items"]];
+const SEC=[["sec:trending","🔥 Trending Products সেকশন"],["sec:featured","⭐ Featured Products সেকশন"],["sec:dotd","🌟 Deals Of The Day সেকশন"],["sec:special","🎁 Special Categories সেকশন"],["sec:comingsoon","🔜 Coming Soon সেকশন"]];
+const SL=[["agriculture_food_beverage","Agriculture, Food & Beverage"],["appliances_home_appliances_large_small","Appliances"],["art_collectibles_crafts","Art & Collectibles"],["automotive_vehicle_parts_accessories","Automotive Parts"],["baby_products_baby_essentials","Baby Products"],["beauty_personal_care","Beauty & Personal Care"],["books_media_music","Books & Media"],["business_industrial_machinery","Business & Industrial"],["cameras_photo","Cameras & Photo"],["clothing_fashion_apparel_men_women_kids","Clothing & Fashion"],["computers_tablets_networking","Computers & Tablets"],["construction_building_materials","Construction"],["consumer_electronics","Consumer Electronics"],["electrical_equipment_supplies","Electrical"],["electronics_tv_audio_gaming","Electronics TV Audio"],["food_grocery","Food & Grocery"],["furniture_home_decor","Furniture & Decor"],["gardening_outdoor_living","Gardening"],["gifts_crafts","Gifts & Crafts"],["health_medical_supplies","Health & Medical"],["health_wellness","Health & Wellness"],["home_kitchen","Home & Kitchen"],["home_improvement_tools_hardware","Tools & Hardware"],["industrial_machinery_equipment","Industrial"],["jewelry_eyewear_watches","Jewelry & Watches"],["lighting_lamps","Lighting & Lamps"],["luggage_bags_cases","Luggage & Bags"],["office_school_supplies","Office & School"],["pet_supplies","Pet Supplies"],["renewable_energy","Renewable Energy"],["safety_security","Safety & Security"],["shoes_accessories","Shoes"],["smart_home_surveillance","Smart Home"],["sports_outdoors_fitness","Sports & Fitness"],["toys_games_hobbies","Toys & Hobbies"],["video_games_consoles","Video Games"],["vehicles_transportation","Vehicles"],["air_conditioners_refrigerators_washing_machines","AC & Fridge"],["mobile_phones_accessories","Mobile Phones"],["laptops_pcs","Laptops & PCs"],["headphones_speakers_audio","Headphones"],["makeup_skincare_fragrance","Makeup"],["furniture_sofas_beds_etc","Sofa & Beds"],["power_tools_hand_tools","Power Tools"],["drones_action_cameras","Drones"],["bicycles_scooters_electric_vehicles","Bicycles"]];
+function rowEl(key,name){
+ const on=MAP[key]!==false;
+ const d=document.createElement("div");d.className="row";
+ d.innerHTML='<span class="name">'+name+'</span><span style="display:flex;align-items:center"><span class="st">'+(on?"ON":"OFF")+'</span><label class="sw"><input type="checkbox" '+(on?"checked":"")+'><span class="sl"></span></label></span>';
+ d.querySelector("input").onchange=async function(e){
+  const v=e.target.checked;
+  try{await set(ref(db,"settings/categoryLive/"+key),v);d.querySelector(".st").textContent=v?"ON":"OFF";}catch(err){alert("সেভ ব্যর্থ: "+err.message);}
+ };
+ return d;
+}
+function grpStatic(title,arr){
+ const card=document.createElement("div");card.className="card";card.innerHTML="<h2>"+title+"</h2>";
+ arr.forEach(function(it){card.appendChild(rowEl(it[0],it[1]));});
+ document.getElementById("list").appendChild(card);
+}
+function grpObj(title,obj,pref){
+ if(!obj||Object.keys(obj).length===0)return;
+ const card=document.createElement("div");card.className="card";card.innerHTML="<h2>"+title+"</h2>";
+ Object.entries(obj).forEach(function(e){
+  const id=e[0],it=e[1]||{};
+  card.appendChild(rowEl(pref+id,(it.name||it.title||id)));
+ });
+ document.getElementById("list").appendChild(card);
+}
+onAuthStateChanged(auth,async function(u){
  if(!u){document.getElementById("gate").innerHTML='<p>লগইন নেই — <a href="login.html">লগইন করুন</a></p>';return;}
  const s=await get(ref(db,"users/"+u.uid));const r=(s.val()||{}).role;
  if(r!=="admin"&&r!=="superadmin"){document.getElementById("gate").innerHTML="<p>⛔ শুধুমাত্র এডমিনের জন্য</p>";return;}
  document.getElementById("gate").innerHTML="";
  const st=await get(ref(db,"settings/categoryLive"));MAP=st.val()||{};
- build("🌍 Global Categories",GC);
- build("📦 All Category Slugs",SL);
+ const f=await get(ref(db,"settings/flashSaleCategories")).catch(function(){return null;});
+ const d=await get(ref(db,"settings/dealsOfDayCategories")).catch(function(){return null;});
+ let sp=await get(ref(db,"settings/specialCategories")).catch(function(){return null;});
+ if(!sp||!sp.exists())sp=await get(ref(db,"settings/specialCats")).catch(function(){return null;});
+ grpObj("⚡ Flash Sale Categories",f?f.val():null,"fsc:");
+ grpObj("🌟 Deals of the Day",d?d.val():null,"dotd:");
+ grpObj("🎁 Special Categories",sp?sp.val():null,"sc:");
+ grpStatic("📄 হোমপেজ সেকশন",SEC);
+ grpStatic("🌍 Global Categories",GC);
+ grpStatic("📦 All Category Slugs",SL);
 });
-function build(title,arr){
- const card=document.createElement("div");card.className="card";card.innerHTML="<h2>"+title+"</h2>";
- arr.forEach(function(it){
-  const id=it[0],name=it[1];
-  const row=document.createElement("div");row.className="row";
-  const on=MAP[id]!==false;
-  row.innerHTML='<span class="name">'+name+'</span><span style="display:flex;align-items:center"><span class="st">'+(on?"ON":"OFF")+'</span><label class="sw"><input type="checkbox" '+(on?"checked":"")+'><span class="sl"></span></label></span>';
-  row.querySelector("input").onchange=async function(e){
-   await set(ref(db,"settings/categoryLive/"+id),e.target.checked);
-   row.querySelector(".st").textContent=e.target.checked?"ON":"OFF";
-  };
-  card.appendChild(row);
- });
- document.getElementById("list").appendChild(card);
-}
 </script>
 </body>
 </html>
-<script type="module">/*control-extra-v1*/
-import{getApps,getApp,initializeApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-import{getDatabase,ref,get,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-const app=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
-const auth=getAuth(app),db=getDatabase(app);
-let MAP={};
-function build(title,obj,pref){
- if(!obj)return;
- const card=document.createElement("div");card.className="card";card.innerHTML="<h2>"+title+"</h2>";
- Object.entries(obj).forEach(function(e){
-  const id=e[0],name=(e[1].name||e[1].title||id);
-  const row=document.createElement("div");row.className="row";
-  const on=MAP[pref+id]!==false;
-  row.innerHTML='<span class="name">'+name+'</span><span style="display:flex;align-items:center"><span class="st">'+(on?"ON":"OFF")+'</span><label class="sw"><input type="checkbox" '+(on?"checked":"")+'><span class="sl"></span></label></span>';
-  row.querySelector("input").onchange=async function(ev){await set(ref(db,"settings/categoryLive/"+pref+id),ev.target.checked);row.querySelector(".st").textContent=ev.target.checked?"ON":"OFF";};
-  card.appendChild(row);
- });
- document.getElementById("list").appendChild(card);
-}
-onAuthStateChanged(auth,async u=>{
- if(!u)return;
- const r=(await get(ref(db,"users/"+u.uid))).val()||{};
- if(r.role!=="admin"&&r.role!=="superadmin")return;
- let n=0;const w=setInterval(async()=>{
-  n++;if(n>25)clearInterval(w);
-  if(document.getElementById("list").children.length>=2){
-   clearInterval(w);
-   const st=await get(ref(db,"settings/categoryLive"));MAP=st.val()||{};
-   const f=await get(ref(db,"settings/flashSaleCategories"));
-   const d=await get(ref(db,"settings/dealsOfDayCategories"));
-   let s=await get(ref(db,"settings/specialCategories")).catch(()=>null);
-   if(!s||!s.exists())s=await get(ref(db,"settings/specialCats")).catch(()=>null);
-   build("⚡ Flash Sale Categories",f.exists()?f.val():null,"fsc:");
-   build("⭐ Deals of the Day",d.exists()?d.val():null,"dotd:");
-   build("🌟 Special Categories",s&&s.exists()?s.val():null,"sc:");
-  }
- },1000);
-});
-</script>
