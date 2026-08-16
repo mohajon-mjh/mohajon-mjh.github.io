@@ -1,4 +1,4 @@
-/*admin-live-toggles-v3*/
+/*admin-live-toggles-v4*/
 Promise.all([import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"),import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js")]).then(function(M){
 var A=M[0],D=M[1];
 var app=A.getApps().length?A.getApps()[0]:A.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
@@ -17,42 +17,38 @@ function mkSw(id){
  wrap.appendChild(st);wrap.appendChild(lab);
  return wrap;
 }
-function activePrefix(){
- var names={"Flash Sale":"fscname:","Deals of the Day":"dotdname:","Special Categories":"scname:"};
- var best=null;
- document.querySelectorAll("a,button,div,span").forEach(function(el){
-  if(best)return;
-  var t=(el.textContent||"").trim();
-  for(var k in names){
-   if(t===k||(t.indexOf(k)===0&&t.length<k.length+4)){
-    var m=(getComputedStyle(el).backgroundColor||"").match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if(m&&+m[3]>150&&+m[1]<120)best=names[k];
-   }
+function prefixFromRow(el){
+ for(var i=0;i<6&&el;i++){
+  var t=el.textContent||"";
+  if(t.length<4000){
+   if(t.indexOf("Flash Sale")>-1&&t.indexOf("নতুন")>-1)return "fscname:";
+   if(t.indexOf("Deals of the Day")>-1&&t.indexOf("নতুন")>-1)return "dotdname:";
+   if(t.indexOf("Special Category")>-1&&t.indexOf("নতুন")>-1)return "scname:";
   }
- });
- return best;
+  el=el.parentElement;
+ }
+ return null;
 }
 function findRow(btn){var el=btn.parentElement;for(var i=0;i<4&&el;i++){var t=(el.textContent||"").replace(/Edit/g,"").replace(/Delete/g,"").replace(/ON/g,"").replace(/OFF/g,"").trim();if(t.length>3)return el;el=el.parentElement;}return btn.parentElement;}
 function inject(){
  try{
- var pref=activePrefix();
- if(pref){
-  document.querySelectorAll("button").forEach(function(delBtn){
-   if((delBtn.textContent||"").indexOf("Delete")===-1)return;
-   var rowEl=findRow(delBtn);
-   if(!rowEl||rowEl.querySelector(".ltg"))return;
-   var name=(rowEl.textContent||"").replace(/Edit/g,"").replace(/Delete/g,"").replace(/ON/g,"").replace(/OFF/g,"").trim();
-   if(name.length<3)return;
-   var sw=mkSw(pref+norm(name));
-   var editBtn=null;
-   rowEl.querySelectorAll("button").forEach(function(b){if((b.textContent||"").indexOf("Edit")>-1&&!editBtn)editBtn=b;});
-   if(editBtn)editBtn.parentElement.insertBefore(sw,editBtn);else rowEl.appendChild(sw);
-  });
- }
+ document.querySelectorAll("button").forEach(function(delBtn){
+  if((delBtn.textContent||"").indexOf("Delete")===-1)return;
+  var rowEl=findRow(delBtn);
+  if(!rowEl||rowEl.querySelector(".ltg"))return;
+  var pref=prefixFromRow(delBtn);
+  if(!pref)return;
+  var name=(rowEl.textContent||"").replace(/Edit/g,"").replace(/Delete/g,"").replace(/ON/g,"").replace(/OFF/g,"").trim();
+  if(name.length<3)return;
+  var sw=mkSw(pref+norm(name));
+  var editBtn=null;
+  rowEl.querySelectorAll("button").forEach(function(b){if((b.textContent||"").indexOf("Edit")>-1&&!editBtn)editBtn=b;});
+  if(editBtn)editBtn.parentElement.insertBefore(sw,editBtn);else rowEl.appendChild(sw);
+ });
  var SEC={"Trending Products":"sec:trending","Featured Products":"sec:featured","Deals of the Day":"sec:dotd","Coming Soon":"sec:comingsoon","Special Categories":"sec:special"};
  document.querySelectorAll("a,button").forEach(function(el){
   var t=(el.textContent||"").trim();
-  for(var k in SEC){if(t.indexOf(k)>-1&&t.length<k.length+6&&!el.querySelector(".ltg"))el.appendChild(mkSw(SEC[k]));}
+  for(var k in SEC){if(t.indexOf(k)>-1&&t.length<k.length+8&&!el.querySelector(".ltg"))el.appendChild(mkSw(SEC[k]));}
  });
  }catch(e){}
 }
