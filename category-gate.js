@@ -1,6 +1,6 @@
-/*category-gate-v3*/
+/*category-gate-v4*/
 import {initializeApp,getApps,getApp} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import {getDatabase,ref,get} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import {getDatabase,ref,get,query,orderByChild,limitToFirst} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 const gApp=getApps().some(function(a){return a.name==="mjhMain";})?getApps().find(function(a){return a.name==="mjhMain";}):(getApps().length?getApps()[0]:initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"},"mjhMain"));
 const gdb=getDatabase(gApp);
 var MAP=null,waiters=[];
@@ -40,14 +40,43 @@ function hideOff(){
  function hideSec(off,sel){if(!off)return;var el=document.querySelector(sel);if(el){var sec=el.closest(".section")||el;sec.style.display="none";}}
  hideSec(isOff("sec:trending"),"#trendingProductsGrid");
  hideSec(isOff("sec:featured"),"#featuredProducts");
- hideSec(isOff("sec:dotd"),"#dealsGrid");
- hideSec(isOff("sec:special"),"#specialCatsContainer");
  hideSec(isOff("sec:comingsoon"),"#comingSoonSection");
  var fa=document.querySelector("#flashCatsRow .cat.active");
  if(fa&&fa.style.display==="none"){var all=document.querySelectorAll("#flashCatsRow .cat");for(var i=0;i<all.length;i++){if(all[i].style.display!=="none"){all[i].click();break;}}}
 }
 ready().then(function(){setTimeout(hideOff,1500);setTimeout(hideOff,4500);});
 setTimeout(function(){document.querySelectorAll(".stock-badge,.discount-badge,.save-badge").forEach(function(b){if(!b.closest(".product-card")&&!b.closest(".card"))b.remove();});},3000);
+var AF_START=Date.now(),POOL=null,F2={};
+function cGet(k){try{var r=JSON.parse(localStorage.getItem("afc_"+k)||"null");if(r&&Date.now()-r.t<900000)return r.v;}catch(e){}return null;}
+function cSet(k,v){try{localStorage.setItem("afc_"+k,JSON.stringify({t:Date.now(),v:v}));}catch(e){}}
+async function pool(){
+ if(POOL)return POOL;
+ var c=cGet("pool");if(c){POOL=c;return POOL;}
+ try{var s=await get(query(ref(gdb,"products"),orderByChild("createdAt"),limitToFirst(60)));var o=s.val()||{};POOL=Object.keys(o).map(function(k){return Object.assign({id:k},o[k]);}).filter(function(p){return p&&p.status==="active";});POOL.sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);});cSet("pool",POOL);}catch(e){POOL=[];}
+ return POOL;
+}
+var fmt=function(v){return window.MJHCurrency&&window.MJHCurrency.formatPrice?window.MJHCurrency.formatPrice(v):"৳"+((+v||0).toFixed(0));};
+function card(p){var id=p.id,price=+p.price||0;var old=p.discountPrice&&+p.discountPrice>price?+p.discountPrice:0;var disc=old?Math.round((1-price/old)*100):(parseInt(p.discountPercent)||0);var stock=parseInt(p.stock)||0;var img=(p.images&&p.images.main)||"";if(!img&&p.images){var vs=Object.values(p.images);for(var i=0;i<vs.length;i++){if(typeof vs[i]==="string"&&vs[i].indexOf("http")===0){img=vs[i];break;}}}if(!img)img="https://dummyimage.com/300x300/eeeeee/555&text=MJH";
+var badge=stock<=0?'<span class="stock-badge out-of-stock">Out of Stock</span>':(stock<=5?'<span class="stock-badge low-stock">Low Stock</span>':'<span class="stock-badge in-stock">In Stock</span>');
+var c=document.createElement("div");c.className="product-card";c.style.cursor="pointer";
+c.innerHTML='<div class="product-card-image">'+badge+(disc>0?'<span class="discount-badge">-'+disc+'%</span>':'')+'<img src="'+img+'" loading="lazy" onerror="this.onerror=null;this.src=\'https://dummyimage.com/300x300/eeeeee/555&text=MJH\';"></div><div class="product-card-content"><h3 class="product-card-title">'+(p.title||p.name||"Product")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span>'+(old?'<span class="old-price">'+fmt(old)+'</span>':'')+'</div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart" style="width:100%">🛒 Add to Cart</button><button class="btn-buy-now" style="width:100%;background:#f59e0b;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer">⚡ Buy Now</button></div></div>';
+c.onclick=function(){location.href="product-details.html?id="+encodeURIComponent(id);};
+c.querySelector(".btn-add-to-cart").onclick=function(e){e.stopPropagation();if(typeof addCart==="function")addCart(id,p.title||p.name,price);e.target.textContent="Added ✓";setTimeout(function(){e.target.textContent="🛒 Add to Cart";},1200);};
+c.querySelector(".btn-buy-now").onclick=function(e){e.stopPropagation();if(typeof addCart==="function")addCart(id,p.title||p.name,price);location.href="cart.html";};
+return c;}
+function empty2(g){if(!g)return false;var t=g.textContent||"";if(/এখনো কোনো|শীঘ্রই পণ্য|লোড করতে সমস্যা/.test(t))return true;if(/লোড হচ্ছে/.test(t))return (Date.now()-AF_START)>12000;return t.trim()==="";}
+function fillG(g,l){g.innerHTML="";l.slice(0,30).forEach(function(p){g.appendChild(card(p));});}
+async function fillSec(){
+ var tg=document.getElementById("trendingProductsGrid");
+ var fp=document.getElementById("featuredProducts");
+ var nT=tg&&empty2(tg)&&!F2.t;
+ var nP=fp&&empty2(fp)&&!F2.f;
+ if(!nT&&!nP)return;
+ var pl=await pool();
+ if(nT){F2.t=1;fillG(tg,pl);}
+ if(nP){F2.f=1;fillG(fp,pl.slice().sort(function(a,b){return (+b.rating||0)-(+a.rating||0);}));}
+}
+setTimeout(function(){var n=0;var iv=setInterval(function(){n++;fillSec();if(n>15)clearInterval(iv);},4000);},6000);
 var LOCS=[["BD","🇧🇩 Bangladesh","BDT"],["SA","🇸🇦 Saudi Arabia","SAR"],["AE","🇦🇪 UAE","AED"],["IN","🇮🇳 India","INR"],["PK","🇵🇰 Pakistan","PKR"],["MY","🇲🇾 Malaysia","MYR"],["GB","🇬🇧 United Kingdom","GBP"],["US","🇺🇸 United States","USD"]];
 function autoLoc(){try{var tz=(Intl.DateTimeFormat().resolvedOptions().timeZone||"").toLowerCase();if(tz.indexOf("dhaka")>-1)return "BD";if(tz.indexOf("riyadh")>-1)return "SA";if(tz.indexOf("dubai")>-1)return "AE";if(tz.indexOf("kolkata")>-1)return "IN";if(tz.indexOf("karachi")>-1)return "PK";if(tz.indexOf("kuala")>-1)return "MY";if(tz.indexOf("london")>-1)return "GB";if(tz.indexOf("york")>-1)return "US";}catch(e){}return "BD";}
 function buildLoc(){
