@@ -137,7 +137,7 @@ function fbFill(key,gridSel,nodePath){
    }).catch(function(){return null;});
   })).then(function(vals){
    var list=vals.filter(Boolean);
-   if(list.length){gridEl.innerHTML="";list.forEach(function(p){gridEl.appendChild(fbCard(p));});}
+   if(list.length){gridEl.innerHTML="";var __rc=0;var __next=function(){var oldA=gridEl.querySelector(".scroll-arrow-card");if(oldA)oldA.remove();var chunk=list.slice(__rc,__rc+30);chunk.forEach(function(p){gridEl.appendChild(fbCard(p));});__rc+=chunk.length;if(__rc<list.length){var ar=document.createElement("div");ar.className="scroll-arrow-card";ar.style.cssText="display:flex;align-items:center;justify-content:center;padding:14px;background:#f0f0f0;border-radius:8px;cursor:pointer;font-weight:700;color:#131921;margin-top:10px";ar.innerHTML="আরও দেখুন <span style=\"margin-left:8px;font-size:20px\">→</span>";ar.addEventListener("click",function(){__next();});gridEl.appendChild(ar);}};__next();}
    else{FB_DONE[key]=0;}
   });
  }).catch(function(){FB_DONE[key]=0;});
