@@ -1,16 +1,9 @@
-/*admin-live-toggles-v5*/
+/*admin-live-toggles-v6*/
 Promise.all([import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"),import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js")]).then(function(M){
 var A=M[0],D=M[1];
 var app=A.getApps().length?A.getApps()[0]:A.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
 var db=D.getDatabase(app);
-var MAP={},NN={};
-Promise.all([D.get(D.ref(db,"settings/categoryLive")),D.get(D.ref(db,"settings/flashSaleCategories")),D.get(D.ref(db,"settings/dealsOfDayCategories")),D.get(D.ref(db,"settings/specialCategories")).catch(function(){return null;}),D.get(D.ref(db,"settings/specialCats")).catch(function(){return null;})]).then(function(ss){
- MAP=ss[0].val()||{};
- function add(pref,obj){if(!obj)return;for(var id in obj){var nm=((obj[id]||{}).name||(obj[id]||{}).title||"").trim();if(nm)NN[norm(nm)]=pref+id;}}
- add("fsc:",ss[1].val());add("dotd:",ss[2].val());add("sc:",ss[3]?ss[3].val():null);add("sc:",ss[4]?ss[4].val():null);
- inject();setTimeout(inject,2500);setTimeout(inject,6000);
- document.addEventListener("click",function(){setTimeout(inject,700);});
-});
+var MAP={},NN={},started=false;
 function norm(s){return (s||"").toLowerCase().replace(/[^a-z0-9]/g,"");}
 function toast(msg){var t=document.createElement("div");t.textContent=msg;t.style.cssText="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111;color:#4ade80;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:700;z-index:99999;box-shadow:0 4px 14px rgba(0,0,0,.4)";document.body.appendChild(t);setTimeout(function(){t.remove();},2000);}
 function mkSw(id){
@@ -68,4 +61,18 @@ function inject(){
  });
  }catch(e){}
 }
+function start(){if(started)return;started=true;inject();setTimeout(inject,2500);setTimeout(inject,6000);document.addEventListener("click",function(){setTimeout(inject,700);});}
+D.get(D.ref(db,"settings/categoryLive")).then(function(s){MAP=s.val()||{};}).catch(function(){MAP={};}).then(function(){
+ return Promise.all([
+  D.get(D.ref(db,"settings/flashSaleCategories")).catch(function(){return null;}),
+  D.get(D.ref(db,"settings/dealsOfDayCategories")).catch(function(){return null;}),
+  D.get(D.ref(db,"settings/specialCategories")).catch(function(){return null;}),
+  D.get(D.ref(db,"settings/specialCats")).catch(function(){return null;})
+ ]).then(function(ss){
+  function add(pref,snap){if(!snap||!snap.val)return;var obj=snap.val()||{};for(var id in obj){var nm=((obj[id]||{}).name||(obj[id]||{}).title||"").trim();if(nm)NN[norm(nm)]=pref+id;}}
+  add("fsc:",ss[0]);add("dotd:",ss[1]);add("sc:",ss[2]);add("sc:",ss[3]);
+  start();
+ }).catch(function(){start();});
+});
+setTimeout(start,5000);
 }).catch(function(e){console.error(e);});
