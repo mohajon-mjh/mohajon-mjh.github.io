@@ -115,6 +115,25 @@ function parsePrices(text){
  }
  return out;
 }
+function parsePrices(text){
+ var out=[],re=/৳\s*([\d,\.]+)/g,m,last=0;
+ while((m=re.exec(text))){
+  var seg=text.slice(last,m.index);
+  var name=seg.replace(/[—–]/g," ").replace(/^[\d,\.]+/,"").replace(/\s+/g," ").trim();
+  out.push({n:norm(name),p:parseFloat(m[1].replace(/,/g,"")),used:false});
+  last=re.lastIndex;
+ }
+ if(!out.length){
+  re=/—\s*([\d,\.]+)/g;last=0;
+  while((m=re.exec(text))){
+   var seg2=text.slice(last,m.index);
+   var nm2=seg2.replace(/[—–]/g," ").replace(/^[\d,\.]+/,"").replace(/\s+/g," ").trim();
+   out.push({n:norm(nm2),p:parseFloat(m[1].replace(/,/g,"")),used:false});
+   last=re.lastIndex;
+  }
+ }
+ return out;
+}
 function savePrices(){
  var text=(document.getElementById("ssPrices").value||"");
  var pairs=parsePrices(text),ord=[];
@@ -131,7 +150,7 @@ function savePrices(){
   else if(ord.length){it.price=ord[oi++];}
  });
  renderList();
- toast("✅ দাম সেভ: "+matched+" টি নাম মিলেছে");
+ toast("✅ দাম সেভ v2: "+matched+" টি নাম মিলেছে | মোট: "+pairs.length+" জোড়া");
 }
 function onFiles(){
  var fs=Array.prototype.slice.call(this.files,0,28-items.length);
