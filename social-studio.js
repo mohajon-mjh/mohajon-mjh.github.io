@@ -96,26 +96,42 @@ function openStudio(){
  };
  renderList();
 }
+function parsePrices(text){
+ var out=[],re=/৳\s*([\d,\.]+)/g,m,last=0;
+ while((m=re.exec(text))){
+  var seg=text.slice(last,m.index);
+  var name=seg.replace(/[—–]/g," ").replace(/^[\d,\.]+/,"").replace(/\s+/g," ").trim();
+  out.push({n:norm(name),p:parseFloat(m[1].replace(/,/g,"")),used:false});
+  last=re.lastIndex;
+ }
+ if(!out.length){
+  re=/—\s*([\d,\.]+)/g;last=0;
+  while((m=re.exec(text))){
+   var seg2=text.slice(last,m.index);
+   var nm2=seg2.replace(/[—–]/g," ").replace(/^[\d,\.]+/,"").replace(/\s+/g," ").trim();
+   out.push({n:norm(nm2),p:parseFloat(m[1].replace(/,/g,"")),used:false});
+   last=re.lastIndex;
+  }
+ }
+ return out;
+}
 function savePrices(){
- var lines=(document.getElementById("ssPrices").value||"").split("\n").map(function(s){return s.trim();}).filter(Boolean);
- var pairs=[],ord=[];
- lines.forEach(function(ln){
-  var p=numFrom(ln);if(p===null)return;
-  var namePart=/[—–]/.test(ln)?ln.split(/[—–]/)[0]:ln.replace(/\d.*$/,"");
-  var n=norm(namePart);
-  if(n&&n.length>=4)pairs.push({n:n,p:p,used:false});else ord.push(p);
- });
+ var text=(document.getElementById("ssPrices").value||"");
+ var pairs=parsePrices(text),ord=[];
+ if(!pairs.length){
+  text.split(/[\n,]+/).forEach(function(ln){var p=numFrom(ln);if(p!==null)ord.push(p);});
+ }
  var oi=0,matched=0;
  items.forEach(function(it){
   var nm=norm(it.name),found=null;
   for(var i=0;i<pairs.length;i++){
-   if(!pairs[i].used&&nm.length>=4&&(pairs[i].n===nm||pairs[i].n.indexOf(nm)>-1||nm.indexOf(pairs[i].n)>-1)){found=pairs[i];break;}
+   if(!pairs[i].used&&nm.length>=4&&pairs[i].n.length>=4&&(pairs[i].n===nm||pairs[i].n.indexOf(nm)>-1||nm.indexOf(pairs[i].n)>-1)){found=pairs[i];break;}
   }
   if(found){found.used=true;it.price=found.p;matched++;}
   else if(ord.length){it.price=ord[oi++];}
  });
  renderList();
- toast("✅ দাম সেভ: "+matched+" টি নাম মিলেছে"+(ord.length?", বাকি ক্রমে":""));
+ toast("✅ দাম সেভ: "+matched+" টি নাম মিলেছে");
 }
 function onFiles(){
  var fs=Array.prototype.slice.call(this.files,0,28-items.length);
