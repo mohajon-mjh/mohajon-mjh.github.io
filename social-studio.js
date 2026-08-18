@@ -1,9 +1,9 @@
-/* mjh-bulk-studio-v5 */
+/* mjh-bulk-studio-v6 */
 (function(){
 var LINKS={fb:"https://www.facebook.com/share/1DPYY5nJUc/",fbPage:"https://www.facebook.com/share/19RaTzdDW5/",tiktok:"https://www.tiktok.com/@jsa.media.studio",insta:"https://www.instagram.com/jsamediastudio",yt:"https://www.youtube.com/@JSAMediaStudio",dm:"https://www.dailymotion.com/user/jsamediastudi",snap:"https://www.snapchat.com/add/jsaaimediastudi",site:"https://mohajon-mjh.github.io",wa:"+966550171314"};
-var items=[],catSlug="",secPath=null,secCleared=false,blobUrl=null,blobObj=null,adminTokens=null,CLOUD=null,PRESET=null;
+var items=[],catSlug="",secPath=null,secCleared=false,blobUrl=null,blobObj=null,tokensIdx=[],tokensAdm=[],CLOUD=null,PRESET=null,musicBuf=null;
 function el(t,h){var d=document.createElement(t);if(h)d.innerHTML=h;return d;}
-function toast(msg){var t=el("div",msg);t.style.cssText="position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#111;color:#4ade80;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:700;z-index:999999;border:1px solid #16a34a;max-width:90%";document.body.appendChild(t);setTimeout(function(){t.remove();},3000);}
+function toast(msg){var t=el("div",msg);t.style.cssText="position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#111;color:#4ade80;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:700;z-index:999999;border:1px solid #16a34a;max-width:90%";document.body.appendChild(t);setTimeout(function(){t.remove();},3500);}
 function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"");}
 function numFrom(line){var m=String(line).replace(/,/g,"").match(/\d+(\.\d+)?/g);if(!m)return null;return parseFloat(m[m.length-1]);}
 function addBtn(){
@@ -14,11 +14,13 @@ function addBtn(){
  document.body.appendChild(b);
 }
 function loadTokens(){
+ fetch("index.html").then(function(r){return r.text();}).then(function(t){
+  tokensIdx=(t.match(/settings\/[A-Za-z_\/]+/g)||[]).map(function(s){return s.replace(/\/+$/,"");});
+ });
  fetch("admin.html").then(function(r){return r.text();}).then(function(t){
-  adminTokens=(t.match(/settings\/[A-Za-z_\/]+/g)||[]).map(function(s){return s.replace(/\/+$/,"");});
+  tokensAdm=(t.match(/settings\/[A-Za-z_\/]+/g)||[]).map(function(s){return s.replace(/\/+$/,"");});
   var cm=t.match(/v1_1\/([A-Za-z0-9_-]+)\//);if(cm)CLOUD=cm[1];
   var pm=t.match(/upload_preset["']?\s*[:=]\s*["']([A-Za-z0-9_]+)/);if(pm)PRESET=pm[1];
-  if(CLOUD&&PRESET)console.log("Cloudinary ready:",CLOUD,PRESET);
  });
 }
 function sectionPathFor(v){
@@ -29,10 +31,12 @@ function sectionPathFor(v){
  else if(s.indexOf("deal")>-1)word="deal";
  else if(s.indexOf("coming")>-1)word="coming";
  var slug=v.toLowerCase().trim().replace(/\s+/g,"_");
- if(adminTokens&&adminTokens.length){
-  if(word){for(var i=0;i<adminTokens.length;i++){var k=adminTokens[i];if(k.toLowerCase().indexOf(word)>-1&&k.indexOf("globalCategory")===-1&&k.split("/").length===3)return k;}}
-  for(var j=0;j<adminTokens.length;j++){if(adminTokens[j]==="settings/globalCategoryProducts")return "settings/globalCategoryProducts/"+slug;}
+ var all=tokensIdx.concat(tokensAdm);
+ if(word){
+  for(var i=0;i<tokensIdx.length;i++){var k=tokensIdx[i];if(k.toLowerCase().indexOf(word)>-1&&k.indexOf("globalCategory")===-1&&k.split("/").length===3)return k;}
+  for(var j=0;j<tokensAdm.length;j++){var k2=tokensAdm[j];if(k2.toLowerCase().indexOf(word)>-1&&k2.indexOf("globalCategory")===-1&&k2.split("/").length===3)return k2;}
  }
+ for(var g=0;g<all.length;g++){if(all[g]==="settings/globalCategoryProducts")return "settings/globalCategoryProducts/"+slug;}
  if(word==="trend")return "settings/trendingProducts";
  if(word==="feature")return "settings/featuredProducts";
  if(word==="deal")return "settings/dealsOfDayCategoryProducts";
@@ -55,7 +59,7 @@ function openStudio(){
  var m=el("div");m.id="ssModal";
  m.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:99999;overflow:auto;padding:12px";
  m.innerHTML='<div style="max-width:820px;margin:auto;background:#111;color:#fff;border-radius:14px;padding:14px;font-size:13px">'
- +'<h2 style="margin:0 0 10px">📱 Bulk Product + Social Studio v5</h2>'
+ +'<h2 style="margin:0 0 10px">📱 Bulk Product + Social Studio v6</h2>'
  +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><input id="ssFiles" type="file" accept="image/*" multiple style="flex:1;min-width:160px">'
  +'<button id="ssMarkAll" style="background:#2563eb;color:#fff;border:none;padding:9px 10px;border-radius:8px;font-weight:700">✅ সিলেক্ট মার্ক অল</button>'
  +'<button id="ssDelAll" style="background:#dc2626;color:#fff;border:none;padding:9px 10px;border-radius:8px;font-weight:700">🗑️ ডিলিট মার্ক অল</button>'
@@ -72,8 +76,10 @@ function openStudio(){
  +'<button id="ssVMake" style="background:#16a34a;color:#fff;border:none;padding:9px 10px;border-radius:8px;font-weight:700">🎬 ভিডিও মেক</button>'
  +'<button id="ssVLive" style="background:#0ea5e9;color:#fff;border:none;padding:9px 10px;border-radius:8px;font-weight:700">📺 ভিডিও লাইভ</button>'
  +'<button id="ssVShare" style="background:#f59e0b;color:#fff;border:none;padding:9px 10px;border-radius:8px;font-weight:700">📤 শেয়ার</button>'
- +'<button id="ssVPost" style="background:#dc2626;color:#fff;border:none;padding:9px 10px;border-radius:8px;font-weight:700">📢 পোস্ট</button>'
- +'<label style="color:#fff;font-size:12px;margin-left:6px"><input id="ssMusic" type="checkbox" checked> 🎵 মিউজিক</label></div><div id="ssPostLinks" style="margin-top:6px"></div></div>'
+ +'<button id="ssVPost" style="background:#dc2626;color:#fff;border:none;padding:9px 10px;border-radius:8px;font-weight:700">📢 পোস্ট</button></div>'
+ +'<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center"><select id="ssMusicSel" style="padding:7px;background:#111;color:#fff;border:1px solid #374151;border-radius:6px"><option value="upbeat">🎵 আপবিট পপ (কপিরাইট ফ্রি)</option><option value="energy">⚡ এনার্জেটিক বিট</option><option value="soft">🎹 সফট পিয়ানো</option><option value="dance">🥁 ড্যান্স বিট</option><option value="none">🔇 মিউজিক নেই</option></select>'
+ +'<label style="color:#fff;font-size:11px">অথবা নিজের রয়্যালটি-ফ্রি mp3: <input id="ssMusicFile" type="file" accept="audio/*" style="max-width:160px"></label></div>'
+ +'<div id="ssPostLinks" style="margin-top:6px"></div></div>'
  +'<div id="ssProg" style="margin:8px 0;color:#facc15"></div>'
  +'<video id="ssVideo" controls style="width:100%;max-height:380px;display:none;border-radius:10px"></video>'
  +'<h3 style="margin:12px 0 6px">🛍️ পণ্য লিস্ট (<span id="ssCount">0</span>/28)</h3><div id="ssList"></div>'
@@ -94,13 +100,17 @@ function openStudio(){
   if(!v){toast("❌ ক্যাটাগরি লিখুন");return;}
   catSlug=v.toLowerCase().replace(/\s+/g,"_");
   secPath=sectionPathFor(v);secCleared=false;
-  toast("✅ ক্যাটাগরি সেভ → "+secPath);
+  toast("✅ ক্যাটাগরি → "+secPath);
  };
  document.getElementById("ssSocial").onclick=function(){var p=document.getElementById("ssSocPanel");p.style.display=p.style.display==="none"?"block":"none";};
  document.getElementById("ssVMark").onclick=function(){items.forEach(function(it){it.mark=true;});renderList();toast("✅ ভিডিওর জন্য সব মার্ক");};
  document.getElementById("ssVMake").onclick=makeVideo;
  document.getElementById("ssVLive").onclick=function(){var v=document.getElementById("ssVideo");if(v.src){v.style.display="block";v.play();}else toast("❌ আগে ভিডিও বানান");};
  document.getElementById("ssVShare").onclick=shareVideo;
+ document.getElementById("ssMusicFile").onchange=function(){
+  var f=this.files[0];if(!f){musicBuf=null;return;}
+  var r=new FileReader();r.onload=function(e){musicBuf=e.target.result;toast("🎵 আপনার mp3 লোড হয়েছে");};r.readAsArrayBuffer(f);
+ };
  document.getElementById("ssVPost").onclick=function(){
   var box=document.getElementById("ssPostLinks");box.innerHTML="";
   var enc=encodeURIComponent(caption()),u=encodeURIComponent(LINKS.site);
@@ -141,10 +151,14 @@ function savePrices(){
    if(!pairs[i].used&&nm.length>=4&&pairs[i].n.length>=4&&(pairs[i].n===nm||pairs[i].n.indexOf(nm)>-1||nm.indexOf(pairs[i].n)>-1)){found=pairs[i];break;}
   }
   if(found){found.used=true;it.price=found.p;matched++;}
-  else if(ord.length){it.price=ord[oi++];}
  });
+ if(matched===0&&pairs.length){
+  items.forEach(function(it,i){if(pairs[i]){it.price=pairs[i].p;}});
+  ord=pairs.map(function(p){return p.p;});
+ }
+ else if(ord.length){items.forEach(function(it){if(!it.price&&ord.length)it.price=ord.shift();});}
  renderList();
- toast("✅ দাম সেভ v2: "+matched+" টি নাম মিলেছে | মোট: "+pairs.length+" জোড়া");
+ toast("✅ দাম v6: মিল="+matched+" জোড়া="+pairs.length+(matched===0&&pairs.length?" (ক্রমে বসল)":""));
 }
 function onFiles(){
  var fs=Array.prototype.slice.call(this.files,0,28-items.length);
@@ -215,10 +229,7 @@ function saveItem(i){
  var it=items[i];
  var imgP=Promise.resolve(null);
  if(it.data.indexOf("data:")===0){
-  imgP=upCloud(it.data).then(function(url){
-   if(url)return url;
-   return shrink(it.data,500,0.6);
-  });
+  imgP=upCloud(it.data).then(function(url){if(url)return url;return shrink(it.data,500,0.6);});
  }
  return Promise.all([fb(),imgP]).then(function(R){
   var F=R[0],imgUrl=R[1];
@@ -226,7 +237,7 @@ function saveItem(i){
   return F.D.set(ref,prodObj(it,imgUrl)).then(function(){
    it.saved=true;it.pid=ref.key;
    if(secPath)F.D.set(F.D.ref(F.db,secPath+"/"+ref.key),true);
-   toast("✅ সেভ: "+it.name+(imgUrl&&imgUrl.indexOf("http")===0?" (☁️)":""));
+   toast("✅ সেভ: "+it.name+(secPath?" → "+secPath.split("/").pop():""));
   });
  }).catch(function(){toast("❌ সেভ ব্যর্থ: "+it.name);});
 }
@@ -236,7 +247,7 @@ function saveMarked(){
  var chain=Promise.resolve();
  if(secPath&&!secCleared){secCleared=true;chain=chain.then(function(){return fb().then(function(F){return F.D.set(F.D.ref(F.db,secPath),null);});});}
  mk.forEach(function(it){chain=chain.then(function(){return saveItem(items.indexOf(it));});});
- chain.then(function(){renderList();toast("✅ সব পণ্য সেভ হয়েছে! হোমপেজে দেখুন");});
+ chain.then(function(){renderList();toast("✅ সব পণ্য সেভ! "+(secPath?secPath.split("/").pop():"")+" → হোমপেজে দেখুন");});
 }
 function fixHeavy(){
  toast("⏳ ভারী পণ্য খোঁজা হচ্ছে...");
@@ -246,43 +257,50 @@ function fixHeavy(){
    var fixed=0,done=0;
    function next(id){
     fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/products/"+id+".json").then(function(r){return r.json();}).then(function(p){
-     var fin=function(){done++;if(done===keys.length)toast("✅ ফিক্স সম্পন্ন: "+fixed+" টি পণ্য হালকা হয়েছে");else next(keys[done]);};
+     var fin=function(){done++;if(done===keys.length)toast("✅ ফিক্স সম্পন্ন: "+fixed+" টি হালকা");else next(keys[done]);};
      if(p&&p.images&&p.images.main&&String(p.images.main).indexOf("data:")===0){
       upCloud(p.images.main).then(function(url){
        var apply=function(v){return F.D.set(F.D.ref(F.db,"products/"+id+"/images/main"),v).then(function(){fixed++;fin();});};
        if(url)apply(url);else shrink(p.images.main,500,0.6).then(apply);
       });
      }else fin();
-    }).catch(function(){done++;if(done<keys.length)next(keys[done]);else toast("✅ ফিক্স সম্পন্ন: "+fixed+" টি");});
+    }).catch(function(){done++;if(done<keys.length)next(keys[done]);else toast("✅ ফিক্স: "+fixed);});
    }
    if(keys.length)next(keys[0]);else toast("❌ কিছু পাওয়া যায়নি");
   });
  });
 }
 function caption(){return "🛍️ Mohajon MJH-এ নতুন কালেকশন!\n✅ "+items.length+"টি পণ্য — সেরা দামে!\n\n🛒 অর্ডার: "+LINKS.site+"\n📲 WhatsApp: "+LINKS.wa+"\n\n#mohajonmjh #onlineshopping #bangladesh #saudiarabia #jsamediastudio";}
-function scheduleMusic(actx,dest,dur){
+function scheduleMusic(actx,dest,style,dur){
  var master=actx.createGain();master.gain.value=0.16;master.connect(dest);
+ var t0=actx.currentTime+0.1;
  var scale=[261.63,293.66,329.63,392.0,440.0,523.25,587.33,659.26];
- var pat=[0,2,4,7,5,4,2,0,3,5,7,5,4,2,1,2];
- var step=0.24,t0=actx.currentTime+0.1;
- for(var t=0;t<dur;t+=step){
-  var si=Math.floor(t/step);
-  var f=scale[pat[si%pat.length]];
+ var cfg={upbeat:{step:0.24,wave:"triangle",pat:[0,2,4,7,5,4,2,0,3,5,7,5,4,2,1,2],bass:4},
+ energy:{step:0.18,wave:"square",pat:[0,0,3,0,5,0,3,0,7,0,5,0,3,0,2,0],bass:2},
+ soft:{step:0.5,wave:"sine",pat:[0,4,7,4,2,5,4,2],bass:8},
+ dance:{step:0.2,wave:"sawtooth",pat:[0,3,5,3,7,5,3,0,2,4,6,4,7,6,4,2],bass:1}}[style]||{step:0.24,wave:"triangle",pat:[0,2,4,7,5,4,2,0],bass:4};
+ for(var t=0;t<dur;t+=cfg.step){
+  var si=Math.floor(t/cfg.step);
+  var f=scale[cfg.pat[si%cfg.pat.length]];
   var o=actx.createOscillator(),g=actx.createGain();
-  o.type="triangle";o.frequency.value=f;
+  o.type=cfg.wave;o.frequency.value=f;
   g.gain.setValueAtTime(0.0001,t0+t);
-  g.gain.exponentialRampToValueAtTime(0.5,t0+t+0.02);
-  g.gain.exponentialRampToValueAtTime(0.001,t0+t+step*0.9);
-  o.connect(g);g.connect(master);
-  o.start(t0+t);o.stop(t0+t+step);
-  if(si%4===0){
+  g.gain.exponentialRampToValueAtTime(cfg.wave==="square"?0.22:0.5,t0+t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.001,t0+t+cfg.step*0.9);
+  o.connect(g);g.connect(master);o.start(t0+t);o.stop(t0+t+cfg.step);
+  if(si%cfg.bass===0){
    var b=actx.createOscillator(),bg=actx.createGain();
    b.type="sine";b.frequency.value=f/2;
    bg.gain.setValueAtTime(0.0001,t0+t);
    bg.gain.exponentialRampToValueAtTime(0.35,t0+t+0.03);
-   bg.gain.exponentialRampToValueAtTime(0.001,t0+t+step*3);
-   b.connect(bg);bg.connect(master);
-   b.start(t0+t);b.stop(t0+t+step*3);
+   bg.gain.exponentialRampToValueAtTime(0.001,t0+t+cfg.step*3);
+   b.connect(bg);bg.connect(master);b.start(t0+t);b.stop(t0+t+cfg.step*3);
+  }
+  if(style==="dance"&&si%2===0){
+   var k=actx.createOscillator(),kg=actx.createGain();
+   k.type="sine";k.frequency.setValueAtTime(150,t0+t);k.frequency.exponentialRampToValueAtTime(45,t0+t+0.12);
+   kg.gain.setValueAtTime(0.5,t0+t);kg.gain.exponentialRampToValueAtTime(0.001,t0+t+0.15);
+   k.connect(kg);kg.connect(master);k.start(t0+t);k.stop(t0+t+0.16);
   }
  }
 }
@@ -295,45 +313,59 @@ function makeVideo(){
  var vs=cv.captureStream(30);
  var tracks=vs.getVideoTracks();
  var actx=null;
- if(document.getElementById("ssMusic").checked&&window.AudioContext){
+ var sel=document.getElementById("ssMusicSel").value;
+ var startRec=function(){
+  var mime=(window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported("video/mp4"))?"video/mp4":"video/webm";
+  var rec=new MediaRecorder(new MediaStream(tracks),{mimeType:mime});
+  var chunks=[];rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data);};
+  rec.onstop=function(){
+   blobObj=new Blob(chunks,{type:mime});blobUrl=URL.createObjectURL(blobObj);
+   var v=document.getElementById("ssVideo");v.src=blobUrl;v.style.display="block";
+   document.getElementById("ssProg").textContent="✅ ভিডিও রেডি (🎵 মিউজিক সহ)! 📤 শেয়ার / 📢 পোস্ট";
+   toast("✅ ৫৯ সেকেন্ডের ভিডিও + মিউজিক তৈরি!");
+  };
+  var t0=null;rec.start(500);
+  function frame(ts){
+   if(t0===null)t0=ts;
+   var t=(ts-t0)/1000;
+   if(t>=59){rec.stop();return;}
+   var idx=Math.min(L.length-1,Math.floor(t/per)),it=L[idx];
+   ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);
+   var im=it.img,r=Math.max(W/im.width,H/im.height),w=im.width*r,h=im.height*r;
+   ctx.drawImage(im,(W-w)/2,(H-h)/2,w,h);
+   var g=ctx.createLinearGradient(0,H-380,0,H);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,.92)");
+   ctx.fillStyle=g;ctx.fillRect(0,H-380,W,380);
+   ctx.textAlign="center";ctx.fillStyle="#f59e0b";ctx.font="bold 42px sans-serif";ctx.fillText("MOHAJON MJH",W/2,66);
+   ctx.textAlign="left";ctx.fillStyle="#fff";ctx.font="bold 38px sans-serif";
+   var words=String(it.name).split(/\s+/),line="",y=H-280;
+   words.forEach(function(wd){var tt=line?line+" "+wd:wd;if(ctx.measureText(tt).width>W-80&&line){ctx.fillText(line,40,y);y+=46;line=wd;}else line=tt;});
+   if(line)ctx.fillText(line,40,y);
+   ctx.fillStyle="#4ade80";ctx.font="bold 54px sans-serif";ctx.fillText("৳"+(it.price||0),40,y+66);
+   if(it.pct){ctx.fillStyle="#dc2626";ctx.beginPath();ctx.arc(W-90,140,60,0,7);ctx.fill();ctx.fillStyle="#fff";ctx.font="bold 34px sans-serif";ctx.textAlign="center";ctx.fillText("-"+it.pct+"%",W-90,152);}
+   ctx.textAlign="left";ctx.fillStyle="#facc15";ctx.font="bold 28px sans-serif";ctx.fillText("WhatsApp: "+LINKS.wa,40,H-36);
+   ctx.textAlign="right";ctx.fillStyle="rgba(255,255,255,.8)";ctx.font="22px sans-serif";ctx.fillText((idx+1)+"/"+L.length,W-30,56);
+   document.getElementById("ssProg").textContent="⏳ রেকর্ড: "+Math.round(t)+" / 59 সেকেন্ড...";
+   requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+ };
+ if(sel!=="none"&&window.AudioContext){
   actx=new AudioContext();
   var dest=actx.createMediaStreamDestination();
-  scheduleMusic(actx,dest,60);
-  tracks=tracks.concat(dest.stream.getAudioTracks());
- }
- var mime=(window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported("video/mp4"))?"video/mp4":"video/webm";
- var rec=new MediaRecorder(new MediaStream(tracks),{mimeType:mime});
- var chunks=[];rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data);};
- rec.onstop=function(){
-  blobObj=new Blob(chunks,{type:mime});blobUrl=URL.createObjectURL(blobObj);
-  var v=document.getElementById("ssVideo");v.src=blobUrl;v.style.display="block";
-  document.getElementById("ssProg").textContent="✅ ভিডিও রেডি (🎵 মিউজিক সহ)! 📤 শেয়ার / 📢 পোস্ট চাপুন";
-  toast("✅ ৫৯ সেকেন্ডের ভিডিও + মিউজিক তৈরি!");
- };
- var t0=null;rec.start(500);
- function frame(ts){
-  if(t0===null)t0=ts;
-  var t=(ts-t0)/1000;
-  if(t>=59){rec.stop();return;}
-  var idx=Math.min(L.length-1,Math.floor(t/per)),it=L[idx];
-  ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);
-  var im=it.img,r=Math.max(W/im.width,H/im.height),w=im.width*r,h=im.height*r;
-  ctx.drawImage(im,(W-w)/2,(H-h)/2,w,h);
-  var g=ctx.createLinearGradient(0,H-380,0,H);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,.92)");
-  ctx.fillStyle=g;ctx.fillRect(0,H-380,W,380);
-  ctx.textAlign="center";ctx.fillStyle="#f59e0b";ctx.font="bold 42px sans-serif";ctx.fillText("MOHAJON MJH",W/2,66);
-  ctx.textAlign="left";ctx.fillStyle="#fff";ctx.font="bold 38px sans-serif";
-  var words=String(it.name).split(/\s+/),line="",y=H-280;
-  words.forEach(function(wd){var tt=line?line+" "+wd:wd;if(ctx.measureText(tt).width>W-80&&line){ctx.fillText(line,40,y);y+=46;line=wd;}else line=tt;});
-  if(line)ctx.fillText(line,40,y);
-  ctx.fillStyle="#4ade80";ctx.font="bold 54px sans-serif";ctx.fillText("৳"+(it.price||0),40,y+66);
-  if(it.pct){ctx.fillStyle="#dc2626";ctx.beginPath();ctx.arc(W-90,140,60,0,7);ctx.fill();ctx.fillStyle="#fff";ctx.font="bold 34px sans-serif";ctx.textAlign="center";ctx.fillText("-"+it.pct+"%",W-90,152);}
-  ctx.textAlign="left";ctx.fillStyle="#facc15";ctx.font="bold 28px sans-serif";ctx.fillText("WhatsApp: "+LINKS.wa,40,H-36);
-  ctx.textAlign="right";ctx.fillStyle="rgba(255,255,255,.8)";ctx.font="22px sans-serif";ctx.fillText((idx+1)+"/"+L.length,W-30,56);
-  document.getElementById("ssProg").textContent="⏳ রেকর্ড: "+Math.round(t)+" / 59 সেকেন্ড...";
-  requestAnimationFrame(frame);
- }
- requestAnimationFrame(frame);
+  if(musicBuf){
+   actx.decodeAudioData(musicBuf.slice(0)).then(function(buf){
+    var src=actx.createBufferSource();src.buffer=buf;
+    var g=actx.createGain();g.gain.value=0.5;src.connect(g);g.connect(dest);
+    src.start(actx.currentTime+0.1);
+    tracks=tracks.concat(dest.stream.getAudioTracks());
+    startRec();
+   }).catch(function(){scheduleMusic(actx,dest,sel,60);tracks=tracks.concat(dest.stream.getAudioTracks());startRec();});
+  }else{
+   scheduleMusic(actx,dest,sel,60);
+   tracks=tracks.concat(dest.stream.getAudioTracks());
+   startRec();
+  }
+ }else startRec();
 }
 function shareVideo(){
  if(!blobObj){toast("❌ আগে ভিডিও মেক চাপুন");return;}
