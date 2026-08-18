@@ -1224,7 +1224,7 @@ const dealsDb = getDatabase(dealsApp);
 
 let dotdAllItems = [];
 let dotdRenderedCount = 0;
-const dotdBatchSize = 30;
+const dotdBatchSize = 20;
 
 function dealsIsWished(id){
   const list = JSON.parse(localStorage.getItem("wishlist") || "[]");
@@ -1789,7 +1789,7 @@ onValue(featuredQuery,(snapshot)=>{
     return;
   }
   let ftRendered = 0;
-  const FT_LIMIT = 30;
+  const FT_LIMIT = 20;
   function ftRemoveArrow(){ const a = box.querySelector(".scroll-arrow-card"); if(a) a.remove(); }
   function ftAddArrow(){
     ftRemoveArrow();
@@ -1904,7 +1904,7 @@ onValue(ref(csDb, "futureProducts"), (snapshot)=>{
 
   entries.sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0));
 
-  const CS_LIMIT = 30;
+  const CS_LIMIT = 20;
   let csRendered = 0;
 
   function csRemoveArrow(){
@@ -2576,5 +2576,67 @@ function scan(){
 }
 var n=0;var iv=setInterval(function(){n++;scan();if(n>25)clearInterval(iv);},2000);
 setTimeout(scan,1500);setTimeout(scan,5000);setTimeout(scan,9000);setTimeout(scan,14000);
+})();
+</script>
+
+<script>/*mjhGlobalCat20*/
+(function(){
+ var LIMIT=20;
+ function cardsOf(g){var out=[],ch=g.children;for(var i=0;i<ch.length;i++){if(ch[i].classList&&ch[i].classList.contains("product-card"))out.push(ch[i]);}return out;}
+ function run(){
+  var g=document.getElementById("globalCatCarousel");
+  if(!g)return;
+  var cards=cardsOf(g);
+  if(cards.length<=LIMIT)return;
+  if(g.getAttribute("data-g20")===String(cards.length))return;
+  g.setAttribute("data-g20",String(cards.length));
+  for(var i=0;i<cards.length;i++)cards[i].style.display=i<LIMIT?"":"none";
+  var old=g.querySelector(".mjh-gc-ar");if(old)old.remove();
+  var a=document.createElement("div");a.className="mjh-gc-ar";
+  a.innerHTML="<span>→</span>";
+  a.style.cssText="flex:0 0 56px;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;background:#fff;border-radius:10px;margin-left:6px;border:1px solid #e5e7eb;";
+  a.onclick=function(){
+   var hid=cardsOf(g).filter(function(c){return c.style.display==="none";});
+   for(var i=0;i<hid.length&&i<LIMIT;i++)hid[i].style.display="";
+   var rest=cardsOf(g).filter(function(c){return c.style.display==="none";});
+   if(!rest.length)a.remove();
+   g.scrollBy({left:400,behavior:"smooth"});
+  };
+  g.appendChild(a);
+ }
+ var n=0;var iv=setInterval(function(){n++;run();if(n>25)clearInterval(iv);},2000);
+ setTimeout(run,1500);setTimeout(run,5000);setTimeout(run,9000);
+})();
+</script>
+<script>/*mjhCatPage20*/
+(function(){
+ var LIMIT=20;
+ var IDS=["categoryProductsGrid","productGrid","productsGrid","mainGrid"];
+ function cardsOf(g){var out=[],ch=g.children;for(var i=0;i<ch.length;i++){if(ch[i].classList&&ch[i].classList.contains("product-card"))out.push(ch[i]);}return out;}
+ function run(){
+  IDS.forEach(function(id){
+   var g=document.getElementById(id);
+   if(!g)return;
+   var cards=cardsOf(g);
+   if(cards.length<=LIMIT)return;
+   if(g.getAttribute("data-cp20")===String(cards.length))return;
+   g.setAttribute("data-cp20",String(cards.length));
+   for(var i=0;i<cards.length;i++)cards[i].style.display=i<LIMIT?"":"none";
+   var old=g.querySelector(".mjh-cp-ar");if(old)old.remove();
+   var a=document.createElement("div");a.className="mjh-cp-ar";
+   a.innerHTML="<span>→</span>";
+   a.style.cssText="flex:0 0 56px;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;background:#fff;border-radius:10px;margin-left:6px;border:1px solid #e5e7eb;";
+   a.onclick=function(){
+    var hid=cardsOf(g).filter(function(c){return c.style.display==="none";});
+    for(var i=0;i<hid.length&&i<LIMIT;i++)hid[i].style.display="";
+    var rest=cardsOf(g).filter(function(c){return c.style.display==="none";});
+    if(!rest.length)a.remove();
+    g.scrollBy({left:400,behavior:"smooth"});
+   };
+   g.appendChild(a);
+  });
+ }
+ var n=0;var iv=setInterval(function(){n++;run();if(n>25)clearInterval(iv);},2000);
+ setTimeout(run,1500);setTimeout(run,5000);setTimeout(run,9000);
 })();
 </script>
