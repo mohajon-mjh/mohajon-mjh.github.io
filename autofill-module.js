@@ -45,8 +45,7 @@ async function tick(){
  const pool=await getPool();
  const fg=document.getElementById("flashSaleProductsGrid");
  if(fg&&isEmptyGrid(fg)&&!filled.flash){filled.flash=1;let l=pool.filter(p=>(+p.discountPrice||0)>(+p.price||0)&&(+p.price||0)>0);if(!l.length)l=pool;fillGrid(fg,l);}
- const tg=document.getElementById("trendingProductsGrid");
- if(tg&&isEmptyGrid(tg)&&!filled.trend){filled.trend=1;fillGrid(tg,pool);}
+ /*trending-autofill-off*/
  const dg=document.getElementById("dealsGrid");
  if(dg&&isEmptyGrid(dg)){const m=dotdMode();if(!filled["d:"+m]){filled["d:"+m]=1;let l=pool.slice();if(m==="best")l.sort((a,b)=>(+b.reviews||0)-(+a.reviews||0));else if(m==="top")l.sort((a,b)=>(+b.rating||0)-(+a.rating||0));fillGrid(dg,l);}}
  const fp=document.getElementById("featuredProducts");

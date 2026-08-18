@@ -73,7 +73,7 @@ async function fillSec(){
  var nP=fp&&empty2(fp)&&!F2.f;
  if(!nT&&!nP)return;
  var pl=await pool();
- if(nT){F2.t=1;fillG(tg,pl);}
+ /*trending-gate-off*/
  if(nP){F2.f=1;fillG(fp,pl.slice().sort(function(a,b){return (+b.rating||0)-(+a.rating||0);}));}
 }
 setTimeout(function(){var n=0;var iv=setInterval(function(){n++;fillSec();if(n>15)clearInterval(iv);},4000);},6000);
