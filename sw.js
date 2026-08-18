@@ -1,5 +1,4 @@
-/* mjh-sw-v6 : no cache for index */
-var CACHE="mjh-v6";
+/* mjh-sw-v6 : no cache */
 self.addEventListener("install",function(e){self.skipWaiting();});
 self.addEventListener("activate",function(e){
  e.waitUntil((async function(){
