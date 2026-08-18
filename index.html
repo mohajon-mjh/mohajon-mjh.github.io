@@ -1141,7 +1141,7 @@ function renderTrendingCard(id, data){
 }
 
 const trendingGrid = document.getElementById("trendingProductsGrid");
-const TR_STRIP_LIMIT = 30;
+const TR_STRIP_LIMIT = 20;
 let trAllItems = [];
 let trRenderedCount = 0;
 
@@ -2496,4 +2496,43 @@ setTimeout(async function(){
   console.log("TRENDING OVERRIDE:",list.length,"products");
  }catch(e){console.error(e);}
 },3500);
+</script>
+
+<script>/*mjhStripArrows-v1*/
+(function(){
+ var LIMIT=20;
+ function cardsOf(g){return Array.prototype.slice.call(g.children).filter(function(c){return c.classList.contains("product-card");});}
+ function addArrow(g){
+  var old=g.querySelector(".mjh-more");if(old)old.remove();
+  var hidden=cardsOf(g).filter(function(c){return c.style.display==="none";});
+  if(!hidden.length)return;
+  var a=document.createElement("div");
+  a.className="mjh-more";
+  a.innerHTML="<span>→</span>";
+  a.style.cssText="flex:0 0 56px;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;background:#fff;border-radius:10px;margin-left:6px;border:1px solid #e5e7eb;";
+  a.addEventListener("click",function(){
+   var h2=cardsOf(g).filter(function(c){return c.style.display==="none";});
+   h2.slice(0,LIMIT).forEach(function(c){c.style.display="";});
+   var rest=cardsOf(g).filter(function(c){return c.style.display==="none";});
+   if(!rest.length)a.remove();
+   g.scrollBy({left:400,behavior:"smooth"});
+  });
+  g.appendChild(a);
+ }
+ function ensure(g){
+  if(g.id==="trendingProductsGrid")return;
+  var cards=cardsOf(g);
+  if(cards.length<=LIMIT){var oa=g.querySelector(".mjh-more");if(oa&&cards.length>0)oa.remove();return;}
+  if(g.dataset.mjhSig===String(cards.length))return;
+  g.dataset.mjhSig=String(cards.length);
+  cards.forEach(function(c,i){c.style.display=i<LIMIT?"":"none";});
+  addArrow(g);
+ }
+ function run(){
+  var gs=document.querySelectorAll(".trending-scroll-wrapper");
+  for(var i=0;i<gs.length;i++)ensure(gs[i]);
+ }
+ var n=0;var iv=setInterval(function(){n++;run();if(n>20)clearInterval(iv);},2000);
+ setTimeout(run,1500);setTimeout(run,5000);setTimeout(run,9000);
+})();
 </script>
