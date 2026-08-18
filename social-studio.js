@@ -379,3 +379,37 @@ function shareVideo(){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",addBtn);else setTimeout(addBtn,1500);
 })();
+/* v7.1: force reset trending */
+(function(){
+ var oldOpen=openStudio;
+ window.openStudio=function(){
+  oldOpen();
+  setTimeout(function(){
+   var box=document.querySelector("#ssModal > div");
+   if(box&&!document.getElementById("ssResetTrend")){
+    var b=document.createElement("button");
+    b.id="ssResetTrend";
+    b.textContent="🔄 Trending রিসেট করুন";
+    b.style.cssText="width:100%;margin:8px 0;padding:10px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer";
+    b.onclick=function(){
+     if(!confirm("সব পুরনো Trending পণ্য মুছে আপনার নতুনগুলো বসাব?"))return;
+     toast("⏳ পুরনো Trending মুছে ফেলা হচ্ছে...");
+     fb().then(function(F){
+      return F.D.get(F.D.ref(F.db,"products")).then(function(snap){
+       var s=snap.val()||{},tasks=[];
+       Object.keys(s).forEach(function(id){
+        if(s[id]&&s[id].isTrending!==undefined){
+         tasks.push(F.D.update(F.D.ref(F.db,"products/"+id),{isTrending:null}));
+        }
+       });
+       return Promise.all(tasks);
+      });
+     }).then(function(){
+      toast("✅ পুরনো সব মুছে গেছে — এখন সেভ মার্ক অল চাপুন");
+     });
+    };
+    box.insertBefore(b,box.querySelector("#ssClose"));
+   }
+  },500);
+ };
+})();
