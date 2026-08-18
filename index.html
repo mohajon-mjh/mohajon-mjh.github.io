@@ -1175,8 +1175,9 @@ onValue(trQuery, (snapshot) => {
   trAllItems = [];
   trRenderedCount = 0;
   snapshot.forEach(child => {
-    if(child.val().status === "active"){
-      trAllItems.push({ id: child.key, data: child.val() });
+    const v=child.val();
+    if(v && v.status === "active" && v.isTrending === true){
+      trAllItems.push({ id: child.key, data: v });
     }
   });
   if(trAllItems.length === 0){
