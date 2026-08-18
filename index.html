@@ -869,7 +869,7 @@ function renderFlashSaleCard(id, data, mapInfo){
 // (পুরনো লেবেল লোডিং সরানো হয়েছে, এখন ক্যাটাগরি নাম ডাইনামিক)
 
 const flashSaleGrid = document.getElementById("flashSaleProductsGrid");
-const FS_STRIP_LIMIT = 30;
+const FS_STRIP_LIMIT = 20;
 let fsAllItems = [];
 let fsRenderedCount = 0;
 let fsGlobalDiscount = 0;
@@ -1506,7 +1506,7 @@ async function loadSpecialCategoryProducts(slug, scroll = true){
         }
 
         scCarousel.innerHTML = "";
-        const SC_STRIP_LIMIT = 30;
+        const SC_STRIP_LIMIT = 20;
         let scRenderedCount = 0;
 
         function scRemoveArrow(){
@@ -2484,7 +2484,7 @@ setTimeout(async function(){
   const grid=document.getElementById("trendingProductsGrid");
   if(!grid)return;
   grid.innerHTML="";
-  list.slice(0,30).forEach(function(e){
+  list.slice(0,20).forEach(function(e){
    const id=e[0],v=e[1];
    const img=(v.images&&v.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
    const price=window.MJHCurrency?window.MJHCurrency.formatPrice(+v.price||0):"৳"+(+v.price||0);
