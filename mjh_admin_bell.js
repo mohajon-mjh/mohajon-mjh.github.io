@@ -1,0 +1,110 @@
+const fs=require("fs");
+const CHUNK=`
+<style id="mjhBellCSS">
+.notif-bell-v2{position:fixed;top:120px;right:6px;z-index:9999;cursor:pointer;background:#131921;border:1px solid #FF9900;border-radius:50%;width:64px;height:64px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.notif-bell-v2 .bell-icon{font-size:30px;line-height:1}
+.notif-bell-v2 .bell-badge{position:absolute;top:-4px;right:-4px;background:#e74c3c;color:#fff;font-size:13px;font-weight:900;border-radius:50%;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid #131921}
+.notif-panel-v2{display:none;position:fixed;top:190px;right:6px;background:#1a1a1a;border:1px solid #333;border-radius:12px;width:380px;max-height:70vh;overflow:hidden;z-index:9998;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.notif-panel-v2.active{display:block}
+.notif-head{padding:14px 16px;background:#222;border-bottom:1px solid #333}
+.notif-head h3{margin:0;color:#fff;font-size:16px;font-weight:700}
+.notif-cats{display:flex;border-bottom:1px solid #333;background:#1f1f1f;overflow-x:auto}
+.notif-cat{flex:1;padding:10px 6px;text-align:center;font-size:11px;color:#888;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;min-width:64px}
+.notif-cat.active{color:#fff;border-bottom-color:#FFD814;background:#252525}
+.notif-cat .cc{display:inline-block;background:#444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:3px;font-weight:700}
+.notif-cat.active .cc{background:#FFD814;color:#000}
+.notif-body{max-height:calc(70vh - 110px);overflow-y:auto}
+.notif-empty{padding:30px;text-align:center;color:#666;font-size:14px}
+.notif-item{padding:12px 14px;border-bottom:1px solid #2a2a2a;border-left:4px solid #555}
+.notif-item .ni-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.notif-item .ni-icon{font-size:18px}
+.notif-item .ni-title{flex:1;color:#fff;font-size:13px;font-weight:600}
+.notif-item .ni-time{font-size:10px;color:#888}
+.notif-item .ni-desc{font-size:12px;color:#bbb;margin-bottom:8px}
+.notif-item .ni-actions{display:flex;gap:6px;flex-wrap:wrap}
+.ni-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;border:none;cursor:pointer}
+.ni-btn.ok{background:#22c55e;color:#fff}.ni-btn.no{background:#ef4444;color:#fff}
+@media(max-width:500px){.notif-panel-v2{width:calc(100vw - 20px)}}
+</style>
+<script type="module" id="mjhBellGate">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,onValue,update,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+const ADMIN_EMAIL="mohajonmjh@gmail.com";
+const app=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app),auth=getAuth(app);
+const BELL_HTML='<div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div><div class="notif-panel-v2" id="notifPanelV2"><div class="notif-head"><h3>🔔 Admin Notifications</h3></div><div class="notif-cats"><div class="notif-cat active" data-cat="all">সব <span class="cc" id="cc-all">0</span></div><div class="notif-cat" data-cat="orders">🛒 <span class="cc" id="cc-orders">0</span></div><div class="notif-cat" data-cat="sellers">🏪 <span class="cc" id="cc-sellers">0</span></div><div class="notif-cat" data-cat="commission">🤝 <span class="cc" id="cc-commission">0</span></div><div class="notif-cat" data-cat="delivery">🚚 <span class="cc" id="cc-delivery">0</span></div><div class="notif-cat" data-cat="courier">📦 <span class="cc" id="cc-courier">0</span></div></div><div class="notif-body" id="notifBodyV2"><div class="notif-empty">লোড হচ্ছে...</div></div></div>';
+const DAY30=30*86400000;let O={},SA={},CA={},D={},CO={},cat="all",started=false,isAdmin=false;
+function ensureUI(){
+ document.querySelectorAll(".notif-bell-wrap").forEach(e=>e.remove());
+ if(!document.getElementById("notifBellV2"))document.body.insertAdjacentHTML("beforeend",BELL_HTML);
+}
+function ago(t){const s=Math.floor((Date.now()-t)/1000);if(s<60)return s+"s";if(s<3600)return Math.floor(s/60)+"m";if(s<86400)return Math.floor(s/3600)+"h";return Math.floor(s/86400)+"d";}
+function gather(){const now=Date.now(),it=[];
+Object.entries(O).forEach(([id,o])=>{if((o.createdAt||0)<now-DAY30)return;it.push({cat:"orders",id,t:o.createdAt,icon:"🛒",title:"নতুন অর্ডার — ৳"+(o.total||0),desc:((o.shippingAddress||{}).name||"")});});
+Object.entries(SA).forEach(([id,s])=>{if((s.createdAt||0)<now-DAY30||s.status!=="pending")return;it.push({cat:"sellers",id,t:s.createdAt,icon:"🏪",title:"সেলার আবেদন",desc:s.storeName||"",act:[["approveS","Approve","ok"],["rejectS","Reject","no"]]});});
+Object.entries(CA).forEach(([id,c])=>{if((c.createdAt||0)<now-DAY30||c.status!=="pending")return;it.push({cat:"commission",id,t:c.createdAt,icon:"🤝",title:"কমিশন এজেন্ট",desc:c.name||"",act:[["approveC","Approve","ok"],["rejectC","Reject","no"]]});});
+Object.entries(D).forEach(([id,d])=>{if((d.createdAt||0)<now-DAY30||d.status==="delivered")return;it.push({cat:"delivery",id,t:d.createdAt,icon:"🚚",title:"ডেলিভারি pending",desc:d.orderId||id,act:[["markDeliv","Delivered","ok"]]});});
+Object.entries(CO).forEach(([id,c])=>{if((c.createdAt||0)<now-DAY30)return;it.push({cat:"courier",id,t:c.createdAt,icon:"📦",title:"কুরিয়ার",desc:c.service||""});});
+it.sort((a,b)=>b.t-a.t);return it;}
+function render(){if(!isAdmin)return;const all=gather(),c={orders:0,sellers:0,commission:0,delivery:0,courier:0};
+all.forEach(i=>c[i.cat]++);c.all=all.length;
+["all","orders","sellers","commission","delivery","courier"].forEach(k=>{const e=document.getElementById("cc-"+k);if(e)e.textContent=c[k];});
+const bd=document.getElementById("bellBadgeV2");if(bd){bd.textContent=c.all;bd.style.display=c.all?"flex":"none";}
+const body=document.getElementById("notifBodyV2");if(!body)return;
+const sh=cat==="all"?all:all.filter(i=>i.cat===cat);
+body.innerHTML=sh.length?sh.slice(0,60).map(i=>'<div class="notif-item"><div class="ni-top"><span class="ni-icon">'+i.icon+'</span><span class="ni-title">'+i.title+'</span><span class="ni-time">'+ago(i.t)+'</span></div><div class="ni-desc">'+i.desc+'</div>'+(i.act?'<div class="ni-actions">'+i.act.map(a=>'<button class="ni-btn '+a[2]+'" data-k="'+a[0]+'" data-id="'+i.id+'">'+a[1]+'</button>').join("")+'</div>':"")+'</div>').join(""):'<div class="notif-empty">কিছু নেই</div>';}
+document.addEventListener("click",function(ev){
+const b=ev.target.closest("#notifBellV2");if(b){ev.stopPropagation();const p=document.getElementById("notifPanelV2");p.classList.toggle("active");render();return;}
+const t=ev.target.closest(".notif-cat");if(t){document.querySelectorAll(".notif-cat").forEach(x=>x.classList.remove("active"));t.classList.add("active");cat=t.dataset.cat;render();return;}
+const btn=ev.target.closest(".ni-btn");if(btn){const k=btn.dataset.k,id=btn.dataset.id;
+if(k==="approveS")update(ref(db,"sellerApps/"+id),{status:"approved"});
+if(k==="rejectS")update(ref(db,"sellerApps/"+id),{status:"rejected"});
+if(k==="approveC")update(ref(db,"commissionAgents/"+id),{status:"approved"});
+if(k==="rejectC")update(ref(db,"commissionAgents/"+id),{status:"rejected"});
+if(k==="markDeliv")update(ref(db,"deliveries/"+id),{status:"delivered"});
+setTimeout(render,500);return;}
+if(!ev.target.closest(".notif-panel-v2")){const p=document.getElementById("notifPanelV2");if(p)p.classList.remove("active");}
+},true);
+function start(){if(started)return;started=true;
+onValue(ref(db,"orders"),s=>{O=s.val()||{};render();});
+onValue(ref(db,"sellerApps"),s=>{SA=s.val()||{};render();});
+onValue(ref(db,"commissionAgents"),s=>{CA=s.val()||{};render();}).catch(()=>{});
+onValue(ref(db,"deliveries"),s=>{D=s.val()||{};render();}).catch(()=>{});
+onValue(ref(db,"courierOrders"),s=>{CO=s.val()||{};render();}).catch(()=>{});}
+function setBoth(isA){
+ isAdmin=isA;ensureUI();
+ let ic=document.getElementById("adminQuick");
+ if(isA){
+  if(!ic){ic=document.createElement("button");ic.id="adminQuick";ic.innerHTML="🛠️";ic.title="Admin Panel";
+   ic.style.cssText="position:fixed;top:120px;left:6px;z-index:9999;background:#131921;color:#FF9900;border:1px solid #FF9900;border-radius:50%;width:64px;height:64px;font-size:28px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)";
+   ic.onclick=function(){location.href="admin.html";};document.body.appendChild(ic);}
+  ic.style.display="block";
+ }else if(ic){ic.style.display="none";}
+ const bell=document.getElementById("notifBellV2"),panel=document.getElementById("notifPanelV2");
+ if(bell)bell.style.display=isA?"flex":"none";
+ if(!isA&&panel)panel.classList.remove("active");
+ if(isA)start();
+ render();
+}
+onAuthStateChanged(auth,async u=>{
+ if(!u){setBoth(false);return;}
+ const emailOk=(u.email||"").toLowerCase()===ADMIN_EMAIL;
+ let roleOk=false;
+ try{const s=await get(ref(db,"users/"+u.uid));const r=(s.val()||{}).role;roleOk=(r==="admin"||r==="superadmin");}catch(e){}
+ setBoth(emailOk||roleOk);
+});
+document.addEventListener("click",function(e){
+ const t=e.target&&e.target.closest?e.target.closest("button,a"):null;
+ if(t&&/logout|log out|sign out|লগ আউট/i.test(t.textContent||"")){signOut(auth).catch(()=>{});}
+},true);
+</script>`;
+["index.html","admin.html"].forEach(f=>{
+if(!fs.existsSync(f))return;
+let h=fs.readFileSync(f,"utf8");
+h=h.replace(/<style id="mjhBellCSS">[\s\S]*?<\/style>/g,"");
+h=h.replace(/<script type="module" id="mjhBellGate">[\s\S]*?<\/script>/g,"");
+h=h+"\n"+CHUNK;
+fs.writeFileSync(f,h);
+console.log("✅",f);
+});
