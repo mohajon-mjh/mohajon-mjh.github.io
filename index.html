@@ -2299,16 +2299,12 @@ function setAdminUI(isA){
   ic.onclick=function(){location.href="admin.html";};document.body.appendChild(ic);}
  ic.style.display=isA?"block":"none";
 }
-let __boot=true;
 onAuthStateChanged(auth,async u=>{
- if(!u){localStorage.removeItem("mjhAdminOk");__boot=true;setBoth(false);return;}
+ if(!u){setBoth(false);return;}
  const emailOk=(u.email||"").toLowerCase()===ADMIN_EMAIL;
  let roleOk=false;
  try{const s=await get(ref(db,"users/"+u.uid));const r=(s.val()||{}).role;roleOk=(r==="admin"||r==="superadmin");}catch(e){}
- const isA=emailOk||roleOk;
- if(!isA){setBoth(false);return;}
- if(__boot){__boot=false;if(localStorage.getItem("mjhAdminOk")==="1"){setBoth(true);}else{setBoth(false);}}
- else{localStorage.setItem("mjhAdminOk","1");setBoth(true);}
+ setBoth(emailOk||roleOk);
 });
 document.addEventListener("click",function(e){
  const t=e.target&&e.target.closest?e.target.closest("button,a"):null;
