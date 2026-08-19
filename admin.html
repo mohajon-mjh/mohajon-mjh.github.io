@@ -51,13 +51,13 @@ h2{margin-top:0}
   height:100vh;
   overflow-y:auto;
 }
-.notif-bell-wrap{position:fixed;top:10px;right:10px;cursor:pointer;font-size:22px;z-index:1001;background:#1a1a1a;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.notif-badge{position:absolute;top:-8px;right:-10px;background:#e74c3c;color:#fff;font-size:11px;font-weight:bold;border-radius:50%;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
-.notif-dropdown{display:none;position:absolute;top:45px;right:0;background:#222;border:1px solid #444;border-radius:8px;width:280px;max-height:350px;overflow-y:auto;z-index:1000;box-shadow:0 5px 20px rgba(0,0,0,.4)}
-.notif-dropdown.active{display:block}
-.notif-item{padding:12px;border-bottom:1px solid #333;font-size:13px;color:#eee;cursor:pointer}
-.notif-item:hover{background:#2a2a2a}
-.notif-empty{padding:15px;text-align:center;color:#888;font-size:13px}
+
+
+
+
+
+
+
 .admin-tabs h2{
   font-size:16px;
   padding:0 15px 10px 15px;
@@ -85,22 +85,135 @@ h2{margin-top:0}
 @media(max-width:700px){
   .admin-wrap{flex-direction:column}
   .admin-tabs{width:100%;height:auto;position:relative;display:flex;overflow-x:auto;padding:8px}
-  .notif-bell-wrap{position:fixed;top:10px;right:10px;cursor:pointer;font-size:22px;z-index:1001;background:#1a1a1a;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.notif-badge{position:absolute;top:-8px;right:-10px;background:#e74c3c;color:#fff;font-size:11px;font-weight:bold;border-radius:50%;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
-.notif-dropdown{display:none;position:absolute;top:45px;right:0;background:#222;border:1px solid #444;border-radius:8px;width:280px;max-height:350px;overflow-y:auto;z-index:1000;box-shadow:0 5px 20px rgba(0,0,0,.4)}
-.notif-dropdown.active{display:block}
-.notif-item{padding:12px;border-bottom:1px solid #333;font-size:13px;color:#eee;cursor:pointer}
-.notif-item:hover{background:#2a2a2a}
-.notif-empty{padding:15px;text-align:center;color:#888;font-size:13px}
+  
+
+
+
+
+
+
 .admin-tabs h2{display:none}
   .tab-btn{width:auto;white-space:nowrap;border-left:none;border-bottom:3px solid transparent}
   .tab-btn.active{border-left:none;border-bottom:3px solid #2980b9}
 }
 </style>
 <link rel="stylesheet" href="css/global-menu.css">
-<style>button:disabled{color:#111!important;background:#d8d8d8!important;border:1px solid #888!important;opacity:1!important;font-weight:700;text-shadow:none!important}</style></head>
+<style>button:disabled{color:#111!important;background:#d8d8d8!important;border:1px solid #888!important;opacity:1!important;font-weight:700;text-shadow:none!important}</style><style>/*notifV2-css*/
+.notif-bell-v2{position:fixed;top:14px;right:14px;cursor:pointer;z-index:1100;background:#111;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.5);border:2px solid #333;transition:transform .15s}
+.notif-bell-v2:hover{transform:scale(1.08)}
+.notif-bell-v2 .bell-icon{font-size:30px;line-height:1}
+.notif-bell-v2 .bell-badge{position:absolute;top:-4px;right:-4px;background:#e74c3c;color:#fff;font-size:13px;font-weight:900;border-radius:50%;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid #111}
+.notif-panel-v2{display:none;position:fixed;top:80px;right:14px;background:#1a1a1a;border:1px solid #333;border-radius:12px;width:380px;max-height:75vh;overflow:hidden;z-index:1099;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.notif-panel-v2.active{display:block}
+.notif-head{padding:14px 16px;background:#222;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center}
+.notif-head h3{margin:0;color:#fff;font-size:16px;font-weight:700}
+.notif-head .mark-all{background:transparent;border:1px solid #555;color:#aaa;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer}
+.notif-head .mark-all:hover{background:#333;color:#fff}
+.notif-cats{display:flex;border-bottom:1px solid #333;background:#1f1f1f;overflow-x:auto}
+.notif-cat{flex:1;padding:10px 8px;text-align:center;font-size:11px;color:#888;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;min-width:70px}
+.notif-cat.active{color:#fff;border-bottom-color:#FFD814;background:#252525}
+.notif-cat .cc{display:inline-block;background:#444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:3px;font-weight:700}
+.notif-cat.active .cc{background:#FFD814;color:#000}
+.notif-body{max-height:calc(75vh - 110px);overflow-y:auto}
+.notif-empty{padding:30px;text-align:center;color:#666;font-size:14px}
+.notif-item{padding:12px 14px;border-bottom:1px solid #2a2a2a;border-left:4px solid #555;cursor:pointer;transition:background .1s}
+.notif-item:hover{background:#252525}
+.notif-item .ni-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.notif-item .ni-icon{font-size:18px}
+.notif-item .ni-title{flex:1;color:#fff;font-size:13px;font-weight:600}
+.notif-item .ni-time{font-size:10px;color:#888}
+.notif-item .ni-desc{font-size:12px;color:#bbb;margin-bottom:8px}
+.notif-item .ni-actions{display:flex;gap:6px;flex-wrap:wrap}
+.notif-item .ni-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:opacity .1s}
+.notif-item .ni-btn:hover{opacity:.85}
+.ni-btn.ok{background:#22c55e;color:#fff}
+.ni-btn.no{background:#ef4444;color:#fff}
+.ni-btn.view{background:#3b82f6;color:#fff}
+.ni-btn.ship{background:#f59e0b;color:#fff}
+.cat-orders{border-left-color:#FFD814}
+.cat-sellers{border-left-color:#3b82f6}
+.cat-commission{border-left-color:#22c55e}
+.cat-delivery{border-left-color:#f59e0b}
+.cat-courier{border-left-color:#a855f7}
+@media(max-width:500px){
+ .notif-panel-v2{width:calc(100vw - 28px);right:14px}
+ .notif-cat{font-size:10px;min-width:60px;padding:8px 4px}
+}
+</style>
+<style id="bellV2CSS">
+.notif-bell-v2{position:fixed;top:14px;right:14px;cursor:pointer;z-index:1100;background:#111;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.5);border:2px solid #333;transition:transform .15s}
+.notif-bell-v2:hover{transform:scale(1.08)}
+.notif-bell-v2 .bell-icon{font-size:30px;line-height:1}
+.notif-bell-v2 .bell-badge{position:absolute;top:-4px;right:-4px;background:#e74c3c;color:#fff;font-size:13px;font-weight:900;border-radius:50%;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid #111}
+.notif-panel-v2{display:none;position:fixed;top:80px;right:14px;background:#1a1a1a;border:1px solid #333;border-radius:12px;width:380px;max-height:75vh;overflow:hidden;z-index:1099;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.notif-panel-v2.active{display:block}
+.notif-head{padding:14px 16px;background:#222;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center}
+.notif-head h3{margin:0;color:#fff;font-size:16px;font-weight:700}
+.notif-head .mark-all{background:transparent;border:1px solid #555;color:#aaa;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer}
+.notif-head .mark-all:hover{background:#333;color:#fff}
+.notif-cats{display:flex;border-bottom:1px solid #333;background:#1f1f1f;overflow-x:auto}
+.notif-cat{flex:1;padding:10px 8px;text-align:center;font-size:11px;color:#888;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;min-width:70px}
+.notif-cat.active{color:#fff;border-bottom-color:#FFD814;background:#252525}
+.notif-cat .cc{display:inline-block;background:#444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:3px;font-weight:700}
+.notif-cat.active .cc{background:#FFD814;color:#000}
+.notif-body{max-height:calc(75vh - 110px);overflow-y:auto}
+.notif-empty{padding:30px;text-align:center;color:#666;font-size:14px}
+.notif-item{padding:12px 14px;border-bottom:1px solid #2a2a2a;border-left:4px solid #555;cursor:pointer;transition:background .1s}
+.notif-item:hover{background:#252525}
+.notif-item .ni-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.notif-item .ni-icon{font-size:18px}
+.notif-item .ni-title{flex:1;color:#fff;font-size:13px;font-weight:600}
+.notif-item .ni-time{font-size:10px;color:#888}
+.notif-item .ni-desc{font-size:12px;color:#bbb;margin-bottom:8px}
+.notif-item .ni-actions{display:flex;gap:6px;flex-wrap:wrap}
+.notif-item .ni-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:opacity .1s}
+.notif-item .ni-btn:hover{opacity:.85}
+.ni-btn.ok{background:#22c55e;color:#fff}
+.ni-btn.no{background:#ef4444;color:#fff}
+.ni-btn.view{background:#3b82f6;color:#fff}
+.ni-btn.ship{background:#f59e0b;color:#fff}
+.cat-orders{border-left-color:#FFD814}
+.cat-sellers{border-left-color:#3b82f6}
+.cat-commission{border-left-color:#22c55e}
+.cat-delivery{border-left-color:#f59e0b}
+.cat-courier{border-left-color:#a855f7}
+@media(max-width:500px){
+.notif-panel-v2{width:calc(100vw - 28px);right:14px}
+.notif-cat{font-size:10px;min-width:60px;padding:8px 4px}
+}
+</style>
+</head>
 
 <body>
+<div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div>
+<div class="notif-panel-v2" id="notifPanelV2">
+<div class="notif-head"><h3>🔔 Admin Notifications</h3><button class="mark-all" id="markAllV2">Mark all read</button></div>
+<div class="notif-cats">
+<div class="notif-cat active" data-cat="all">সব <span class="cc" id="cc-all">0</span></div>
+<div class="notif-cat" data-cat="orders">🛒 অর্ডার <span class="cc" id="cc-orders">0</span></div>
+<div class="notif-cat" data-cat="sellers">🏪 সেলার <span class="cc" id="cc-sellers">0</span></div>
+<div class="notif-cat" data-cat="commission">🤝 কমিশন <span class="cc" id="cc-commission">0</span></div>
+<div class="notif-cat" data-cat="delivery">🚚 ডেলিভারি <span class="cc" id="cc-delivery">0</span></div>
+<div class="notif-cat" data-cat="courier">📦 কুরিয়ার <span class="cc" id="cc-courier">0</span></div>
+</div>
+<div class="notif-body" id="notifBodyV2"><div class="notif-empty">লোড হচ্ছে...</div></div>
+</div>
+<div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div>
+<div class="notif-panel-v2" id="notifPanelV2">
+ <div class="notif-head">
+  <h3>🔔 Admin Notifications</h3>
+  <button class="mark-all" id="markAllV2">Mark all read</button>
+ </div>
+ <div class="notif-cats">
+  <div class="notif-cat active" data-cat="all">সব <span class="cc" id="cc-all">0</span></div>
+  <div class="notif-cat" data-cat="orders">🛒 অর্ডার <span class="cc" id="cc-orders">0</span></div>
+  <div class="notif-cat" data-cat="sellers">🏪 সেলার <span class="cc" id="cc-sellers">0</span></div>
+  <div class="notif-cat" data-cat="commission">🤝 কমিশন <span class="cc" id="cc-commission">0</span></div>
+  <div class="notif-cat" data-cat="delivery">🚚 ডেলিভারি <span class="cc" id="cc-delivery">0</span></div>
+  <div class="notif-cat" data-cat="courier">📦 কুরিয়ার <span class="cc" id="cc-courier">0</span></div>
+ </div>
+ <div class="notif-body" id="notifBodyV2"><div class="notif-empty">লোড হচ্ছে...</div></div>
+</div>
 <script type="module">/*adminGuard-v1*/
 import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
@@ -136,7 +249,7 @@ onAuthStateChanged(auth,async u=>{
       <option value="NPR">₨ NPR</option>
       <option value="MYR">RM MYR</option>
     </select>
-    <div class="notif-bell-wrap" id="notifBell">🔔<span class="notif-badge" id="notifBadge" style="display:none">0</span><div class="notif-dropdown" id="notifDropdown"><div class="notif-empty">লোড হচ্ছে...</div></div></div>
+    
     <button class="tab-btn active" data-tab="overview">📊 Overview</button>
     <a href="become-seller.html" style="display:block;color:#ccc;padding:12px 15px;text-decoration:none;border-left:3px solid transparent">🏪 Become a Seller</a>
     <a href="seller-dashboard.html" style="display:block;color:#ccc;padding:12px 15px;text-decoration:none;border-left:3px solid transparent">📊 Seller Dashboard</a>
@@ -1325,7 +1438,7 @@ if(!document.getElementById("helpOverlay")){
  document.body.appendChild(ov);
 }
 setTimeout(()=>{[...document.querySelectorAll("button")].forEach(b=>{if(/^❓\s*\d+$/.test((b.textContent||"").trim()))b.remove();});},1500);
-function findBell(){return [...document.querySelectorAll("button,div,span")].find(e=>(e.textContent||"").indexOf("🔔")>=0&&(e.textContent||"").length<=15);}
+
 window.loadHelpF=async()=>{
  document.getElementById("helpListF").innerHTML="লোড হচ্ছে...";
  const t=await get(ref(db,"supportTickets"));
@@ -1342,7 +1455,7 @@ window.loadHelpF=async()=>{
  const fresh=await get(ref(db,"supportTickets"));
  const all2=Object.entries(fresh.val()||{}).filter(([id,x])=>(x.subject||"").indexOf("HELP")===0).sort((a,b)=>b[1].createdAt-a[1].createdAt);
  const n=all2.filter(([id,x])=>x.status!=="closed").length;
- const b=findBell();if(b&&n>0&&(b.textContent||"").indexOf("❓")<0)b.innerHTML+=" <b style='color:#7CFC00'>❓"+n+"</b>";
+ 
  document.getElementById("helpListF").innerHTML=all2.map(([id,x])=>{
   return '<div style="background:#232f3e;padding:12px;border-radius:8px;margin:8px 0"><b style="color:#FF9900">'+x.subject+'</b> | <b style="color:'+(x.status==="closed"?"#7CFC00":"#FF9900")+'">'+x.status+'</b><br>'+
   (x.message||"").split("\n").map(l=>'<div style="font-size:13px;margin:3px 0;color:'+(l.indexOf("🛠️")===0?"#7CFC00":l.indexOf("🤖")===0?"#88ccff":"#fff")+'">'+l+'</div>').join("")+
@@ -1936,34 +2049,8 @@ window.__runAuto3=async()=>{
 setInterval(()=>{const b=document.getElementById("autoPriceBtn");if(b&&b.dataset.v2&&!b.dataset.v3){b.dataset.v3="1";b.onclick=window.__runAuto3;}},1000);
 </script>
 
-<style>/*notifAll-v1-css*/#notifBell{top:2px !important;right:56px !important;}</style>
-<script type="module">/*notifAll-v1*/
-import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import{getDatabase,ref,onValue}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
-const db=getDatabase(app);
-const DAY30=30*86400000;
-let O={},T={},S={},W={};
-function render(){
- const now=Date.now();const items=[];
- Object.entries(O).forEach(([id,o])=>{if((o.createdAt||0)>now-DAY30)items.push({t:o.createdAt,icon:"📦",txt:"নতুন অর্ডার — ৳"+(o.total||0)+" | "+(((o.shippingAddress||{}).name)||""),c:"#FFD814"});});
- Object.entries(T).forEach(([id,x])=>{if((x.createdAt||0)>now-DAY30)items.push({t:x.createdAt,icon:"❓",txt:"Help ticket — "+(x.subject||""),c:"#7CFC00"});});
- Object.entries(S).forEach(([id,s])=>{if((s.createdAt||0)>now-DAY30)items.push({t:s.createdAt,icon:"🏪",txt:"Seller আবেদন — "+(s.storeName||""),c:"#88ccff"});});
- Object.entries(W).forEach(([id,w])=>{if((w.createdAt||0)>now-DAY30)items.push({t:w.createdAt,icon:"💸",txt:"Withdraw request — ৳"+(w.amount||0),c:"#ff9999"});});
- items.sort((a,b)=>b.t-a.t);
- const dd=document.getElementById("notifDropdown");
- if(dd)dd.innerHTML=items.slice(0,50).map(i=>'<div class="notif-item" style="border-left:3px solid '+i.c+'">'+i.icon+' '+i.txt+'<br><small style="color:#888">'+new Date(i.t).toLocaleString("bn-BD")+'</small></div>').join("")||'<div class="notif-empty">কোনো notification নেই</div>';
- const bd=document.getElementById("notifBadge");
- if(bd){bd.textContent=items.length;bd.style.display=items.length?"flex":"none";}
-}
-onValue(ref(db,"orders"),s=>{O=s.val()||{};render();});
-onValue(ref(db,"supportTickets"),s=>{T=s.val()||{};render();});
-onValue(ref(db,"sellerApps"),s=>{S=s.val()||{};render();});
-onValue(ref(db,"withdrawRequests"),s=>{W=s.val()||{};render();}).catch(()=>{});
-onValue(ref(db,"withdrawals"),s=>{W=Object.assign(W,s.val()||{});render();}).catch(()=>{});
-document.getElementById("notifBell")&&document.getElementById("notifBell").addEventListener("click",()=>setTimeout(render,200),true);
-setInterval(render,10000);
-</script>
+
+
 
 <script type="module">/*pathao-v1*/
 import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
