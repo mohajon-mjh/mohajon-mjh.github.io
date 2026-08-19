@@ -2883,3 +2883,34 @@ document.addEventListener("click",function(e){
  if(t&&/logout|log out|sign out|লগ আউট/i.test(t.textContent||"")){signOut(auth).catch(()=>{});}
 },true);
 </script>
+
+<script>/*mjhLoaderWatchdog*/
+(function(){
+ var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
+ function stuck(id){var g=document.getElementById(id);return g&&g.textContent.indexOf("লোড হচ্ছে")>-1&&g.querySelectorAll(".product-card").length===0;}
+ function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"৳"+(+v||0).toFixed(0);}
+ function card(id,p){var price=+p.price||0;var img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";var c=document.createElement("div");c.className="product-card";c.style.cursor="pointer";c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" loading="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(p.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';c.addEventListener("click",function(){location.href="product-details.html?id="+id;});return c;}
+ async function j(u){try{var r=await fetch(BASE+u+".json");return await r.json();}catch(e){return null;}}
+ async function loadFlash(){
+  if(!stuck("flashSaleProductsGrid"))return;
+  var cats=await j("/settings/flashSaleCategories")||{};
+  var first=Object.entries(cats).sort(function(a,b){return (a[1].order||0)-(b[1].order||0);})[0];
+  if(!first)return;
+  var map=await j("/settings/flashSaleCategoryProducts/"+first[0])||{};
+  var ids=Object.keys(map).slice(0,20),rows=[];
+  for(var i=0;i<ids.length;i++){var p=await j("/products/"+ids[i]);if(p&&p.status==="active")rows.push([ids[i],p]);}
+  var g=document.getElementById("flashSaleProductsGrid");
+  if(rows.length&&g&&stuck("flashSaleProductsGrid")){g.innerHTML="";rows.forEach(function(r){g.appendChild(card(r[0],r[1]));});}
+ }
+ async function loadGlobal(){
+  if(!stuck("globalCatCarousel"))return;
+  var map=await j("/settings/globalCategoryProducts/electronics")||{};
+  var ids=Object.keys(map).slice(0,20),rows=[];
+  for(var i=0;i<ids.length;i++){var p=await j("/products/"+ids[i]);if(p&&p.status==="active")rows.push([ids[i],p]);}
+  var w=document.getElementById("globalCatCarousel");
+  if(rows.length&&w&&stuck("globalCatCarousel")){w.innerHTML="";rows.forEach(function(r){w.appendChild(card(r[0],r[1]));});}
+ }
+ function check(){loadFlash();loadGlobal();}
+ setTimeout(check,6000);setTimeout(check,12000);setTimeout(check,20000);
+})();
+</script>
