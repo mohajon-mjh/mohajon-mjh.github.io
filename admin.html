@@ -3188,3 +3188,58 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 </script>
 
 <script src="social-studio.js"></script>
+
+<style id="bellPosFix">.notif-bell-v2{top:120px !important;right:6px !important}.notif-panel-v2{top:190px !important;right:6px !important}</style>
+<script type="module" id="bellFinalV3">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,onValue,update,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+const app=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db=getDatabase(app),auth=getAuth(app);
+const DAY30=30*86400000;let O={},SA={},CA={},D={},CO={},cat="all",started=false;
+function ago(t){const s=Math.floor((Date.now()-t)/1000);if(s<60)return s+"s";if(s<3600)return Math.floor(s/60)+"m";if(s<86400)return Math.floor(s/3600)+"h";return Math.floor(s/86400)+"d";}
+function gather(){const now=Date.now(),it=[];
+Object.entries(O).forEach(([id,o])=>{if((o.createdAt||0)<now-DAY30)return;it.push({cat:"orders",id,t:o.createdAt,icon:"🛒",title:"নতুন অর্ডার — ৳"+(o.total||0),desc:((o.shippingAddress||{}).name||"")});});
+Object.entries(SA).forEach(([id,s])=>{if((s.createdAt||0)<now-DAY30||s.status!=="pending")return;it.push({cat:"sellers",id,t:s.createdAt,icon:"🏪",title:"সেলার আবেদন",desc:s.storeName||"",act:[["approveS","Approve","ok"],["rejectS","Reject","no"]]});});
+Object.entries(CA).forEach(([id,c])=>{if((c.createdAt||0)<now-DAY30||c.status!=="pending")return;it.push({cat:"commission",id,t:c.createdAt,icon:"🤝",title:"কমিশন এজেন্ট",desc:c.name||"",act:[["approveC","Approve","ok"],["rejectC","Reject","no"]]});});
+Object.entries(D).forEach(([id,d])=>{if((d.createdAt||0)<now-DAY30||d.status==="delivered")return;it.push({cat:"delivery",id,t:d.createdAt,icon:"🚚",title:"ডেলিভারি pending",desc:d.orderId||id,act:[["markDeliv","Delivered","ok"]]});});
+Object.entries(CO).forEach(([id,c])=>{if((c.createdAt||0)<now-DAY30)return;it.push({cat:"courier",id,t:c.createdAt,icon:"📦",title:"কুরিয়ার",desc:c.service||""});});
+it.sort((a,b)=>b.t-a.t);return it;}
+function render(){const all=gather(),c={orders:0,sellers:0,commission:0,delivery:0,courier:0};
+all.forEach(i=>c[i.cat]++);c.all=all.length;
+["all","orders","sellers","commission","delivery","courier"].forEach(k=>{const e=document.getElementById("cc-"+k);if(e)e.textContent=c[k];});
+const bd=document.getElementById("bellBadgeV2");if(bd){bd.textContent=c.all;bd.style.display=c.all?"flex":"none";}
+const body=document.getElementById("notifBodyV2");if(!body)return;
+const sh=cat==="all"?all:all.filter(i=>i.cat===cat);
+body.innerHTML=sh.length?sh.slice(0,60).map(i=>'<div class="notif-item"><div class="ni-top"><span class="ni-icon">'+i.icon+'</span><span class="ni-title">'+i.title+'</span><span class="ni-time">'+ago(i.t)+'</span></div><div class="ni-desc">'+i.desc+'</div>'+(i.act?'<div class="ni-actions">'+i.act.map(a=>'<button class="ni-btn '+a[2]+'" data-k="'+a[0]+'" data-id="'+i.id+'">'+a[1]+'</button>').join("")+'</div>':"")+'</div>').join(""):'<div class="notif-empty">কিছু নেই</div>';}
+document.addEventListener("click",function(ev){
+const b=ev.target.closest("#notifBellV2");if(b){ev.stopPropagation();document.getElementById("notifPanelV2").classList.toggle("active");render();return;}
+const t=ev.target.closest(".notif-cat");if(t){document.querySelectorAll(".notif-cat").forEach(x=>x.classList.remove("active"));t.classList.add("active");cat=t.dataset.cat;render();return;}
+const btn=ev.target.closest(".ni-btn");if(btn){const k=btn.dataset.k,id=btn.dataset.id;
+if(k==="approveS")update(ref(db,"sellerApps/"+id),{status:"approved"});
+if(k==="rejectS")update(ref(db,"sellerApps/"+id),{status:"rejected"});
+if(k==="approveC")update(ref(db,"commissionAgents/"+id),{status:"approved"});
+if(k==="rejectC")update(ref(db,"commissionAgents/"+id),{status:"rejected"});
+if(k==="markDeliv")update(ref(db,"deliveries/"+id),{status:"delivered"});
+setTimeout(render,500);return;}
+if(!ev.target.closest(".notif-panel-v2")){const p=document.getElementById("notifPanelV2");if(p)p.classList.remove("active");}
+},true);
+function start(){if(started)return;started=true;
+onValue(ref(db,"orders"),s=>{O=s.val()||{};render();});
+onValue(ref(db,"sellerApps"),s=>{SA=s.val()||{};render();});
+onValue(ref(db,"commissionAgents"),s=>{CA=s.val()||{};render();}).catch(()=>{});
+onValue(ref(db,"deliveries"),s=>{D=s.val()||{};render();}).catch(()=>{});
+onValue(ref(db,"courierOrders"),s=>{CO=s.val()||{};render();}).catch(()=>{});}
+/* 🛠️ আইকনের EXACT same নিয়ম */
+onAuthStateChanged(auth,async u=>{
+const bell=document.getElementById("notifBellV2"),panel=document.getElementById("notifPanelV2");
+if(!bell)return;
+if(!u){bell.style.display="none";if(panel)panel.classList.remove("active");return;}
+try{
+const s=await get(ref(db,"users/"+u.uid));
+const r=(s.val()||{}).role;
+if(r==="admin"||r==="superadmin"){bell.style.display="flex";start();}
+else{bell.style.display="none";if(panel)panel.classList.remove("active");}
+}catch(e){bell.style.display="none";}
+});
+</script>
