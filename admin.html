@@ -1499,10 +1499,12 @@ function addBtn(){
 for(const t of [600,1600,3200])setTimeout(addBtn,t);
 // loader
 async function loadOD(){
+ try{
  const ords=(await get(ref(db,"orders"))).val()||{};
  const list=Object.entries(ords).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
  let html="";
  for(const [id,o] of list){
+  try{
   const sa=o.shippingAddress||{};const items=Object.values(o.items||{});
   const custCode=(o.buyerId||"").slice(-6).toUpperCase();
   const phoneRaw=sa.phone||"";const phone=phoneRaw.replace(/[^0-9+]/g,"");
@@ -1558,8 +1560,10 @@ async function loadOD(){
    (items.length?'<h4 style="color:#FFD814;margin:12px 0 6px">🛒 অর্ডারকৃত পণ্য ('+items.length+' টি)</h4>'+itemsHtml:'')+
    (totalSaved>0?'<div style="background:#2d4a2d;border-radius:8px;padding:10px;margin-top:10px;text-align:center;font-weight:900;color:#7CFC00;font-size:15px">🎉 এই অর্ডারে কাস্টমার মোট সেভ করেছেন: ৳'+totalSaved+'</div>':'')+
   '</div>';
+  }catch(e){html+='<div style="background:#401515;color:#ff8888;padding:10px;border-radius:8px;margin:8px 0">❌ Order '+id.slice(-6)+': '+e.message+'</div>';}
  }
  document.getElementById("odList").innerHTML=html||"কোনো অর্ডার নেই";
+ }catch(e){document.getElementById("odList").innerHTML='<div style="color:#ff8888;padding:12px">❌ '+e.message+'</div>';}
 }
 window.updateOrderStatus=async(oid,st)=>{if(!st)return;const m=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");await m.update(ref(db,"orders/"+oid),{status:st,updatedAt:Date.now()});alert("✅ Status updated: "+st);loadOD();};
 window.loadOD=loadOD;
