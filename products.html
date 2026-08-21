@@ -313,30 +313,7 @@ document.getElementById("catBanner").innerText = "Category: " + category;
 }
 </script>
 
-<script>/*fullSearch-v2*/
-(function(){
- var full=null,timer=null;
- var inp=document.getElementById("searchInput");if(!inp)return;
- function show(list){
-  var grid=document.getElementById("productGrid");if(!grid||!window.createProductCard)return;
-  grid.innerHTML="";
-  if(!list.length){grid.innerHTML='<div class="loading-placeholder">No products found</div>';}
-  else list.slice(0,200).forEach(function(x){grid.appendChild(createProductCard(x));});
-  var c=document.getElementById("product-count");if(c)c.textContent=list.length+" items";
- }
- inp.addEventListener("input",function(){
-  clearTimeout(timer);
-  var q=inp.value.trim().toLowerCase();
-  if(q.length<2)return;
-  timer=setTimeout(function(){
-   (full?Promise.resolve(full):new Promise(function(res){window.db.ref("products").once("value",function(s){full=s.val()||{};res(full);});})).then(function(data){
-    var list=Object.keys(data).map(function(id){return Object.assign({id:id},data[id]);}).filter(function(x){return x.status==="active"&&(x.title||"").toLowerCase().indexOf(q)>-1;});
-    show(list);
-   });
-  },400);
- });
-})();
-</script>
+
 
 <script>
 (function(){
@@ -391,6 +368,7 @@ document.getElementById("catBanner").innerText = "Category: " + category;
 })();
 </script>
 
+<script src="smart-search.js?v=2"></script>
 </body>
 </html>
 
