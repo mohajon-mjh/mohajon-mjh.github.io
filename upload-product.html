@@ -64,7 +64,9 @@ button{width:100%;padding:12px;background:#ff9900;border:0;font-size:18px}
 <input id="name" placeholder="Product Name">
 <input id="price" placeholder="Price">
 <input id="stock" placeholder="Stock Quantity">
-<input id="image" placeholder="Image URL">
+<input id="image" placeholder="Image URL (অথবা নিচে ছবি বাছুন)">
+<input type="file" id="imageFile" accept="image/*">
+<small id="imgStatus" style="color:#666">📷 ছবি বাছলেই Cloudinary-তে auto upload হবে</small>
 <select id="weight">
 <option>20g</option>
 <option>50g</option>
@@ -122,6 +124,10 @@ onAuthStateChanged(auth,(user)=>{
 <script src="cart.js"></script>
 <script src="wishlist.js"></script>
 <script src="js/global-menu.js?v=2"></script>
+<script src="cloudinary.js"></script>
+<script>
+document.getElementById("imageFile").addEventListener("change",async function(){var f=this.files[0];if(!f)return;var st=document.getElementById("imgStatus");if(!window.MJHCloud||!MJHCloud.ready()){st.textContent="⚠️ cloudinary.js-এ config বসান";return;}st.textContent="⏳ Cloudinary-তে upload হচ্ছে...";try{var r=await MJHCloud.upload(f);document.getElementById("image").value=r.url;st.textContent="✅ ছবি upload হয়েছে — URL auto বসে গেছে!";}catch(e){st.textContent="❌ "+e.message;}});
+</script>
 </body>
 
 </html>
