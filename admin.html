@@ -1505,29 +1505,63 @@ async function loadOD(){
  for(const [id,o] of list){
   const sa=o.shippingAddress||{};const items=Object.values(o.items||{});
   const custCode=(o.buyerId||"").slice(-6).toUpperCase();
-  let itemsHtml="";
+  const phoneRaw=sa.phone||"";const phone=phoneRaw.replace(/[^0-9+]/g,"");
+  const addr=sa.address||"";const name=sa.name||"";
+  const copyText=("নাম: "+name+" | ঠিকানা: "+addr+" | ফোন: "+phoneRaw).replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;");
+  const btnS="display:inline-block;padding:8px 14px;border-radius:6px;font-weight:700;margin:3px;font-size:13px;text-decoration:none;border:none;cursor:pointer;color:#fff";
+  const callBtn=phone?'<a href="tel:'+phone+'" style="'+btnS+';background:#27ae60">📞 কল করুন</a>':"";
+  const waBtn=phone?'<a href="https://wa.me/'+phone.replace(/[^0-9]/g,"")+'" target="_blank" style="'+btnS+';background:#25D366">💬 WhatsApp</a>':"";
+  const copyBtn='<button type="button" onclick="navigator.clipboard.writeText(\''+copyText+'\');this.textContent=\'✅ কপি হয়েছে\';setTimeout(()=>this.textContent=\'📋 ঠিকানা কপি\',2000)" style="'+btnS+';background:#2196f3">📋 ঠিকানা কপি</button>';
+  const statusSel='<select onchange="updateOrderStatus(\''+id+'\',this.value)" style="background:#1a242f;color:#fff;border:1px solid #555;padding:8px;border-radius:6px;font-weight:700;margin:3px;font-size:13px"><option value="">🔄 Status আপডেট করুন</option><option value="processing">🟡 Processing</option><option value="shipped">🚚 Shipped</option><option value="delivered">✅ Delivered</option><option value="cancelled">❌ Cancelled</option></select>';
+  let itemsHtml="";let totalSaved=0;
   for(const i of items){
    const pid=i.productId||i.id||"";
    let prod=null;if(pid){prod=(await get(ref(db,"products/"+pid))).val();}
    const img=i.image||i.img||(prod&&prod.images?Object.values(prod.images)[0]:(prod&&prod.image)||"");
    const pcode=pid.slice(-6).toUpperCase();
-   itemsHtml+='<div style="display:flex;gap:10px;background:#1a242f;border-radius:8px;padding:8px;margin:6px 0;align-items:center">'+
-   (img?'<img src="'+img+'" style="width:52px;height:52px;object-fit:cover;border-radius:6px">':'<div style="width:52px;height:52px;background:#333;border-radius:6px;text-align:center;line-height:52px">📦</div>')+
-   '<div style="flex:1;font-size:12px"><b style="color:#fff">'+(i.title||prod&&prod.title||"-")+'</b> ×'+(i.qty||1)+'<br>'+
-   '🔖 পণ্য কোড: <b style="color:#FFD814">'+(pcode||"-")+'</b> | 👤+🔖: <b>'+custCode+'-'+(pcode||"")+'</b><br>'+
-   '💰 দাম: ৳'+(i.price||prod&&prod.price||"-")+(prod&&prod.discountPercent?' | 🏷️ অফার: <b style="color:#7CFC00">-'+prod.discountPercent+'%</b>':'')+
-   (prod&&prod.startDate?'<br>📅 Start: '+dt(prod.startDate)+' → End: '+dt(prod.endDate):'')+'</div></div>';
+   const title=i.title||(prod&&prod.title)||"অজানা পণ্য";
+   const qty=i.qty||1;
+   const price=+(i.price||(prod&&prod.price)||0);
+   const desc=(prod&&prod.description)||"";
+   const category=(prod&&prod.category)||"";
+   const discPct=prod&&prod.discountPercent?+prod.discountPercent:0;
+   const oldPrice=prod&&prod.oldPrice?+prod.oldPrice:(discPct>0?Math.round(price/(1-discPct/100)):0);
+   const saved=oldPrice>price?Math.round((oldPrice-price)*qty):0;
+   if(saved>0)totalSaved+=saved;
+   const discSrc=(prod&&(prod.discountSource||prod.offerSource))||((discPct>0)?"Flash Sale / Category Offer":"");
+   const discStart=prod&&prod.startDate?dt(prod.startDate):"";
+   const discEnd=prod&&prod.endDate?dt(prod.endDate):"";
+   itemsHtml+='<div style="background:#1a242f;border:1px solid #333;border-radius:10px;padding:12px;margin:8px 0">'+
+    '<div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">'+
+    '<div style="text-align:center;cursor:pointer" onclick="window.open(\''+img+'\',\'_blank\')">'+
+    (img?'<img src="'+img+'" style="width:120px;height:120px;object-fit:cover;border-radius:8px;border:2px solid #FFD814;display:block">':'<div style="width:120px;height:120px;background:#333;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:50px">📦</div>')+
+    '<small style="color:#88ccff;font-size:10px">🔍 বড় করে দেখুন</small></div>'+
+    '<div style="flex:1;min-width:200px">'+
+    '<h4 style="color:#FFD814;margin:0 0 6px;font-size:16px">🛍️ '+title+'</h4>'+
+    (category?'<span style="display:inline-block;background:#444;color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;margin-bottom:6px">📂 '+category+'</span> ':'')+
+    '<div style="font-size:13px;color:#ddd;margin:4px 0">🔖 পণ্য কোড: <b style="color:#FFD814">'+pcode+'</b> | 👤+🔖: <b>'+custCode+'-'+pcode+'</b> | পরিমাণ: <b>'+qty+' টি</b></div>'+
+    '<div style="font-size:15px;color:#fff;margin:6px 0">💰 দাম: <b style="color:#7CFC00;font-size:17px">৳'+price+'</b> × '+qty+' = <b>৳'+(price*qty)+'</b>'+
+    (discPct>0?' <span style="color:#888;text-decoration:line-through">৳'+oldPrice+'</span> <span style="background:#c0392b;color:#fff;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700">-'+discPct+'%</span>':'')+'</div>'+
+    (saved>0?'<div style="background:#2d4a2d;border-left:3px solid #7CFC00;padding:8px;border-radius:4px;font-size:12px;margin:6px 0"><b style="color:#7CFC00">💵 কাস্টমার সেভ করেছেন: ৳'+saved+'</b><br><span style="color:#88ccff">🏷️ ডিসকাউন্ট সোর্স: <b>'+discSrc+'</b></span>'+(discStart?'<br><span style="color:#888">📅 মেয়াদ: '+discStart+(discEnd?' → '+discEnd:'')+'</span>':'')+'</div>':'')+
+    (desc?'<div style="font-size:11px;color:#999;border-top:1px solid #333;padding-top:6px;margin-top:6px">'+desc.substring(0,140)+(desc.length>140?'...':'')+'</div>':'')+
+    '</div></div></div>';
   }
-  html+='<div style="background:#232f3e;border-radius:10px;padding:12px;margin:10px 0;border-left:4px solid '+(SC[o.status]||"#888")+'">'+
-  '<b style="color:#FFD814">Order #'+id.slice(-6)+'</b> | Status: <b style="color:'+(SC[o.status]||"#fff")+'">'+(o.status||"placed")+'</b> | Total: <b>৳'+(o.total||0)+'</b><br>'+
-  '📅 অর্ডার ডেট: '+dt(o.createdAt)+' | 🚚 ডেলিভারি ডেট: '+dt((sa.expectedAt||o.expectedAt))+(sa.delayCount?' <span style="color:#ff5555">(+'+sa.delayCount+' সপ্তাহ দেরি)</span>':'')+'<br>'+
-  '👤 কাস্টমার: '+(sa.name||"-")+' | কোড: <b style="color:#88ccff">'+custCode+'</b> | 📞 '+(sa.phone||"-")+'<br>📍 '+(sa.address||"-")+'<br>'+
-  '💳 Buy সিস্টেম: <b>'+((sa.payMethod||o.payMethod||"-"))+'</b>'+(sa.bkashPay?' | bKash trx: <b style="color:#7CFC00">'+sa.bkashPay+'</b>':'')+(sa.advTrx?' | Advance trx: '+sa.advTrx:'')+((o.payment||"").indexOf("CARD")===0||((sa.payMethod||"").toLowerCase().indexOf("card")>-1)?' | 🏦 Card/Bank':'')+'<br>'+
-  (sa.note?'💬 মেসেজ: '+sa.note+'<br>':'')+
-  itemsHtml+'</div>';
+  html+='<div style="background:#232f3e;border-radius:12px;padding:14px;margin:12px 0;border-left:5px solid '+(SC[o.status]||"#888")+';box-shadow:0 2px 8px rgba(0,0,0,.3)">'+
+   '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">'+
+   '<div><b style="color:#FFD814;font-size:16px">Order #'+id.slice(-6).toUpperCase()+'</b> <span style="background:'+(SC[o.status]||"#555")+';color:#fff;padding:3px 10px;border-radius:12px;font-size:12px">'+(o.status||"placed")+'</span></div>'+
+   '<div style="color:#7CFC00;font-weight:900;font-size:18px">Total: ৳'+(o.total||0)+'</div></div>'+
+   '<div style="font-size:12px;color:#aaa;margin-bottom:10px">📅 অর্ডার: '+dt(o.createdAt)+(sa.expectedAt?' | 🚚 ডেলিভারি: '+dt(sa.expectedAt):'')+(sa.delayCount?' <span style="color:#ff5555">(+'+sa.delayCount+' সপ্তাহ দেরি)</span>':'')+'</div>'+
+   '<div style="background:#1a242f;border-radius:8px;padding:12px;margin:10px 0"><h4 style="color:#88ccff;margin:0 0 8px">👤 কাস্টমার তথ্য</h4>'+
+   '<div style="font-size:14px;line-height:1.9;color:#fff"><b>নাম:</b> '+name+' <span style="color:#88ccff">[কোড: '+custCode+']</span><br><b>ফোন:</b> <a href="tel:'+phone+'" style="color:#7CFC00">'+phoneRaw+'</a><br><b>ঠিকানা:</b> '+addr+'<br><b>পেমেন্ট:</b> '+(sa.payMethod||o.payMethod||"-")+(sa.bkashPay?' | bKash trx: <b style="color:#7CFC00">'+sa.bkashPay+'</b>':'')+(sa.advTrx?' | Advance trx: '+sa.advTrx:'')+(sa.note?'<br><b>💬 মেসেজ:</b> '+sa.note:'')+'</div>'+
+   '<div style="margin-top:12px;padding-top:10px;border-top:1px solid #333"><div style="margin-bottom:6px;color:#FFD814;font-weight:700">📦 ডেলিভারি অ্যাকশন:</div>'+callBtn+waBtn+copyBtn+statusSel+
+   '<div style="font-size:11px;color:#888;margin-top:8px">📌 ধাপ: ১) কল/WhatsApp-এ অর্ডার confirm → ২) পণ্য pack → ৩) courier/নিজে deliver → ৪) Status → Delivered ✅</div></div></div>'+
+   (items.length?'<h4 style="color:#FFD814;margin:12px 0 6px">🛒 অর্ডারকৃত পণ্য ('+items.length+' টি)</h4>'+itemsHtml:'')+
+   (totalSaved>0?'<div style="background:#2d4a2d;border-radius:8px;padding:10px;margin-top:10px;text-align:center;font-weight:900;color:#7CFC00;font-size:15px">🎉 এই অর্ডারে কাস্টমার মোট সেভ করেছেন: ৳'+totalSaved+'</div>':'')+
+  '</div>';
  }
  document.getElementById("odList").innerHTML=html||"কোনো অর্ডার নেই";
 }
+window.updateOrderStatus=async(oid,st)=>{if(!st)return;const m=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");await m.update(ref(db,"orders/"+oid),{status:st,updatedAt:Date.now()});alert("✅ Status updated: "+st);loadOD();};
 window.loadOD=loadOD;
 onValue(ref(db,"orders"),()=>{if(ov.style.display==="block")loadOD();});
 </script>
