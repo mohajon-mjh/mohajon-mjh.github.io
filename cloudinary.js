@@ -1,5 +1,5 @@
 /* MJH Cloudinary v1 */
-window.MJH_CLOUD={cloudName:"fd70754d",uploadPreset:"mohajon-mjh",apiKey:"524311149847226",apiSecret:"uA0CZzRcHCky1k4Ftg9Zl76PIF8"};
+window.MJH_CLOUD={cloudName:"your_actual_cloud_name",uploadPreset:"your_actual_preset",apiKey:"your_actual_key",apiSecret:"your_actual_secret"};
 (async function(){
  async function sha1hex(s){const b=await crypto.subtle.digest("SHA-1",new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
  window.MJHCloud={
