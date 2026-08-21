@@ -337,6 +337,60 @@ document.getElementById("catBanner").innerText = "Category: " + category;
  });
 })();
 </script>
+
+<script>
+(function(){
+ function init(){
+  console.log("🛍️ products.html init start");
+  console.log("  window.db:",!!window.db);
+  console.log("  window.createProductCard:",typeof window.createProductCard);
+  console.log("  window.ProductsLoader:",!!window.ProductsLoader);
+  console.log("  DOM productGrid:",!!document.getElementById("productGrid"));
+  
+  if(!window.db){
+   console.error("❌ Firebase not ready");
+   return setTimeout(init,500);
+  }
+  if(!window.ProductsLoader){
+   console.error("❌ ProductsLoader not ready");
+   return setTimeout(init,500);
+  }
+  
+  // initial load trigger
+  try{
+   window.ProductsLoader.loadProducts();
+   console.log("✅ Initial load triggered");
+  }catch(e){
+   console.error("❌ Load error:",e);
+  }
+  
+  // fallback: ৩ সেকেন্ড পর grid খালি থাকলে direct fetch
+  setTimeout(function(){
+   var grid=document.getElementById("productGrid");
+   if(grid && grid.children.length===0){
+    console.log("⚠️ Grid empty after 3s, fallback fetch...");
+    window.db.ref("products").once("value").then(function(snap){
+     var data=snap.val()||{};
+     var list=Object.keys(data).map(function(id){return Object.assign({id:id},data[id]);}).filter(function(p){return p.status==="active";});
+     console.log("✅ Fallback loaded:",list.length,"products");
+     if(list.length>0 && window.createProductCard){
+      grid.innerHTML="";
+      list.slice(0,50).forEach(function(p){grid.appendChild(window.createProductCard(p));});
+      var c=document.getElementById("product-count");
+      if(c) c.textContent=list.length+" items";
+     }
+    });
+   }
+  },3000);
+ }
+ if(document.readyState==="loading"){
+  document.addEventListener("DOMContentLoaded",init);
+ }else{
+  init();
+ }
+})();
+</script>
+
 </body>
 </html>
 

@@ -234,6 +234,7 @@
         });
     }
 
+    window.createProductCard = createProductCard;
     window.renderProducts = renderProducts;
     window.applyFilters = applyFilters;
 })();
