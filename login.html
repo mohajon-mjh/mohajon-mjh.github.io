@@ -21,9 +21,8 @@ footer{text-align:center;font-size:11px;color:#555;margin:26px 0}
  <h1>Sign in or create account</h1>
  <label>Enter mobile number or email</label>
  <input id="ident" placeholder="+966 / +88 / +1 / 01XXXXXXXXX or email">
- <button class="ybtn" onclick="step1()">Continue</button>
-<button type="button" onclick="googleSignIn()" style="display:block;width:100%;margin-top:12px;background:#fff;border:1px solid #ddd;border-radius:20px;padding:11px;font-size:14px;font-weight:600;cursor:pointer">🌎 Sign in with Google</button>
- <p class="small">By continuing, you agree to Mohajon-MJH's <a class="link">Conditions of Use</a> and <a class="link">Privacy Notice</a>.</p>
+ <button class="ybtn" onclick="step1()">Continue</button><button type="button" onclick="googleSignIn()" style="display:block;width:100%;margin-top:12px;background:#fff;border:1px solid #ddd;border-radius:20px;padding:11px;font-size:14px;font-weight:600;cursor:pointer">✅ Continue with Google (Official OAuth)</button>
+<div class="info" style="background:#e8f4fd;border:1px solid #b3d7f2;margin-bottom:10px"><b>🔒 নিরাপত্তা তথ্য:</b><br>Mohajon MJH <b>কখনো</b> আপনার Google password চায় না। "Continue with Google" চাপলে Google-এর <b>অফিসিয়াল লগইন উইন্ডো</b> খুলবে, সেখানে আপনি Google-কে সরাসরি password দেন।</div><p class="small">By continuing, you agree to Mohajon MJH's <a class="link" href="terms.html">Terms of Use</a> and <a class="link" href="privacy.html">Privacy Notice</a>.</p>
  <a class="link">Need help?</a>
 </div>
 
@@ -43,8 +42,7 @@ footer{text-align:center;font-size:11px;color:#555;margin:26px 0}
  <p class="info">ℹ️ Passwords must be at least 6 characters.</p>
  <label>Re-enter password</label><div style="position:relative"><input id="cPass2" type="password"><button type="button" onclick="togglePwd(this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:18px;cursor:pointer">👁</button></div>
  <button class="ybtn" onclick="createEmail()">Continue</button>
-<button type="button" onclick="googleSignIn()" style="display:block;width:100%;margin-top:12px;background:#fff;border:1px solid #ddd;border-radius:20px;padding:11px;font-size:14px;font-weight:600;cursor:pointer">🌎 Sign in with Google</button>
- <hr><p class="small"><b>Already a customer?</b><br><a class="link" onclick="show(4)">Sign in instead</a></p>
+<hr><p class="small"><b>Already a customer?</b><br><a class="link" onclick="show(4)">Sign in instead</a></p>
 </div>
 
 <div class="card" id="sPass" style="display:none">
@@ -52,8 +50,7 @@ footer{text-align:center;font-size:11px;color:#555;margin:26px 0}
  <p class="small" id="pIdent"></p>
  <label>Your password</label><div style="position:relative"><input id="pPass" type="password"><button type="button" onclick="togglePwd(this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:18px;cursor:pointer">👁</button></div>
  <button class="ybtn" onclick="signinEmail()">Continue</button>
-<button type="button" onclick="googleSignIn()" style="display:block;width:100%;margin-top:12px;background:#fff;border:1px solid #ddd;border-radius:20px;padding:11px;font-size:14px;font-weight:600;cursor:pointer">🌎 Sign in with Google</button>
- <p class="small"><a class="link" onclick="show(3)">New? Create account</a></p>
+<p class="small"><a class="link" onclick="show(3)">New? Create account</a></p>
 </div>
 
 <div class="card" id="sOtp" style="display:none">
@@ -62,7 +59,7 @@ footer{text-align:center;font-size:11px;color:#555;margin:26px 0}
  <label>Enter security code</label>
  <input id="otpCode" placeholder="6-digit code" maxlength="6" inputmode="numeric">
  <button class="ybtn" onclick="verifyOtp()">Create your Mohajon-MJH account</button>
- <p class="small">By creating an account, you agree to our <a class="link">Conditions of Use</a>.</p>
+ <p class="small">By creating an account, you agree to our <a class="link" href="terms.html">Terms of Use</a> and <a class="link" href="privacy.html">Privacy Notice</a>.</p>
  <a class="link" onclick="resendOtp()">Resend code</a>
 </div>
 
@@ -70,11 +67,10 @@ footer{text-align:center;font-size:11px;color:#555;margin:26px 0}
  <h1>Welcome! What's your name?</h1>
  <label>Your name</label><input id="nName" placeholder="First and last name">
  <button class="ybtn" onclick="saveName()">Continue</button>
-<button type="button" onclick="googleSignIn()" style="display:block;width:100%;margin-top:12px;background:#fff;border:1px solid #ddd;border-radius:20px;padding:11px;font-size:14px;font-weight:600;cursor:pointer">🌎 Sign in with Google</button>
 </div>
 
 <div id="recaptcha"></div>
-<footer>Conditions of Use • Privacy Notice • Help<br>© 2026 Mohajon-MJH Marketplace</footer>
+<footer><a class="link" href="terms.html">Terms of Use</a> • <a class="link" href="privacy.html">Privacy Notice</a> • <a class="link" href="index.html#help">Help</a><br>© 2026 Mohajon MJH International Marketplace — Official Site</footer>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
