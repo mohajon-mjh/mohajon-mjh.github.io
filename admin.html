@@ -3383,4 +3383,38 @@ document.addEventListener("click",function(e){
  const t=e.target&&e.target.closest?e.target.closest("button,a"):null;
  if(t&&/logout|log out|sign out|লগ আউট/i.test(t.textContent||"")){signOut(auth).catch(()=>{});}
 },true);
+</script><script type="module">/*syncClean-v2*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,get,remove}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app2=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const db2=getDatabase(app2);
+const NODES2=["flashSaleCategoryProducts","dealsOfDayCategoryProducts","specialCategoryProducts","globalCategoryProducts"];
+function addSCBtn2(){
+ if(document.getElementById("scBtn"))return;
+ const anchor=document.getElementById("mpBtn")||document.getElementById("odBtn")||[...document.querySelectorAll("button")].find(b=>/Logout/.test(b.textContent||""));
+ if(!anchor)return setTimeout(addSCBtn2,1000);
+ const b=document.createElement("button");b.id="scBtn";b.type="button";
+ b.innerHTML="🧹 SYNC & CLEAN (পুরনো পণ্য মুছুন)";
+ b.style.cssText="background:linear-gradient(90deg,#ff6b6b,#c0392b);color:#fff;border:none;border-radius:6px;padding:10px 14px;font-weight:800;cursor:pointer;margin:6px 0;width:100%;box-shadow:0 0 12px rgba(192,57,43,.6)";
+ b.onclick=syncClean2;
+ anchor.parentNode.insertBefore(b,anchor.nextSibling);
+}
+for(const t of [1000,2500,4500,7000])setTimeout(addSCBtn2,t);
+async function syncClean2(){
+ if(!confirm("যে পণ্য products-এ নেই বা active নেই, সেগুলো সব section থেকে মুছবেন?"))return;
+ const live=(await get(ref(db2,"products"))).val()||{};
+ let removed=0;
+ for(const n of NODES2){
+  const val=(await get(ref(db2,"settings/"+n))).val()||{};
+  for(const cat of Object.keys(val)){
+   const items=val[cat]||{};
+   for(const k of Object.keys(items)){
+    const pid=(items[k]&&items[k].id)?items[k].id:k;
+    if(!live[pid]||live[pid].status!=="active"){await remove(ref(db2,"settings/"+n+"/"+cat+"/"+k));removed++;}
+   }
+  }
+ }
+ alert("✅ "+removed+"টা পুরনো পণ্য সব section থেকে মুছে গেছে!");
+}
+window.syncClean2=syncClean2;
 </script>
