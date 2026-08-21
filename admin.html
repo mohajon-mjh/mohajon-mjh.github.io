@@ -1483,7 +1483,7 @@ const SC={pending:"#FF9900",processing:"#2196f3",sourcing:"#2196f3",inbound:"#21
 // overlay
 const ov=document.createElement("div");ov.id="odOverlay";
 ov.style.cssText="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99998;overflow:auto";
-ov.innerHTML='<div style="max-width:800px;margin:16px auto;background:#131921;border-radius:12px;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="color:#fff;margin:0">📋 কাস্টমার অর্ডার ডিটেইল</h3><button onclick="document.getElementById(\'odOverlay\').style.display=\'none\'" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700">✕ বন্ধ</button></div><div id="odList" style="margin-top:10px">লোড হচ্ছে...</div></div>';
+ov.innerHTML='<div style="max-width:800px;margin:16px auto;background:#131921;border-radius:12px;padding:14px"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="color:#fff;margin:0">📋 কাস্টমার অর্ডার ডিটেইল</h3><button onclick="document.getElementById(\'odOverlay\').style.display=\'none\'" style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-weight:700">✕ বন্ধ</button></div><input id="odSearch" oninput="odFilter(this.value)" placeholder="🔍 পণ্য / কাস্টমার / অর্ডার নম্বর খুঁজুন..." style="width:100%;box-sizing:border-box;padding:10px;margin-top:10px;border-radius:8px;border:1px solid #555;background:#1a242f;color:#fff;font-size:14px"><div id="odList" style="margin-top:10px">লোড হচ্ছে...</div></div>';
 document.body.appendChild(ov);
 // sidebar button
 function addBtn(){
@@ -1539,7 +1539,7 @@ async function loadOD(){
     (img?'<img src="'+img+'" style="width:120px;height:120px;object-fit:cover;border-radius:8px;border:2px solid #FFD814;display:block">':'<div style="width:120px;height:120px;background:#333;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:50px">📦</div>')+
     '<small style="color:#88ccff;font-size:10px">🔍 বড় করে দেখুন</small></div>'+
     '<div style="flex:1;min-width:200px">'+
-    '<h4 style="color:#FFD814;margin:0 0 6px;font-size:16px">🛍️ '+title+'</h4>'+
+    '<h4 style="margin:0 0 6px;font-size:16px">🛍️ <a href="product-details.html?id='+pid+'" target="_blank" style="color:#FFD814;text-decoration:underline">'+title+'</a><br><a href="product-details.html?id='+pid+'" target="_blank" style="font-size:11px;color:#88ccff">🔗 সাইটে পণ্য দেখুন</a></h4>'+
     (category?'<span style="display:inline-block;background:#444;color:#fff;padding:3px 8px;border-radius:4px;font-size:11px;margin-bottom:6px">📂 '+category+'</span> ':'')+
     '<div style="font-size:13px;color:#ddd;margin:4px 0">🔖 পণ্য কোড: <b style="color:#FFD814">'+pcode+'</b> | 👤+🔖: <b>'+custCode+'-'+pcode+'</b> | পরিমাণ: <b>'+qty+' টি</b></div>'+
     '<div style="font-size:15px;color:#fff;margin:6px 0">💰 দাম: <b style="color:#7CFC00;font-size:17px">৳'+price+'</b> × '+qty+' = <b>৳'+(price*qty)+'</b>'+
@@ -1565,6 +1565,7 @@ async function loadOD(){
  document.getElementById("odList").innerHTML=html||"কোনো অর্ডার নেই";
  }catch(e){document.getElementById("odList").innerHTML='<div style="color:#ff8888;padding:12px">❌ '+e.message+'</div>';}
 }
+window.odFilter=function(q){q=(q||"").toLowerCase();document.querySelectorAll("#odList > div").forEach(function(d){d.style.display=(!q||d.textContent.toLowerCase().indexOf(q)>-1)?"":"none";});};
 window.updateOrderStatus=async(oid,st)=>{if(!st)return;const m=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");await m.update(ref(db,"orders/"+oid),{status:st,updatedAt:Date.now()});alert("✅ Status updated: "+st);loadOD();};
 window.loadOD=loadOD;
 onValue(ref(db,"orders"),()=>{if(ov.style.display==="block")loadOD();});
