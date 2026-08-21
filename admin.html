@@ -1221,7 +1221,8 @@ window.loadSellerProducts=async()=>{
 };
 window.approveProd=async(id)=>{try{await update(ref(db,"products/"+id),{status:"active",updatedAt:Date.now()});alert("✅ Live হয়েছে");loadSellerProducts();}catch(e){alert("❌ "+e.message);}};
 window.rejectProd=async(id)=>{try{await update(ref(db,"products/"+id),{status:"rejected",updatedAt:Date.now()});alert("❌ Rejected");loadSellerProducts();}catch(e){alert("❌ "+e.message);}};
-window.deleteProd=async(id)=>{if(!confirm("পণ্যটি সম্পূর্ণ মুছে ফেলবেন?"))return;try{await remove(ref(db,"products/"+id));alert("🗑️ Deleted");loadSellerProducts();}catch(e){alert("❌ "+e.message);}};
+window.deleteProd=async(id)=>{if(!confirm("পণ্যটি সম্পূর্ণ মুছে ফেলবেন?"))return;try{await remove(ref(db,"products/"+id));await purgeCopies(id);alert("🗑️ Deleted — সব section থেকে মুছে গেছে");loadSellerProducts();}catch(e){alert("❌ "+e.message);}};
+async function purgeCopies(id){const nodes=["flashSaleCategoryProducts","dealsOfDayCategoryProducts","specialCategoryProducts","globalCategoryProducts"];for(const n of nodes){try{const val=(await get(ref(db,"settings/"+n))).val()||{};for(const cat of Object.keys(val)){const items=val[cat]||{};for(const k of Object.keys(items)){if(k===id||(items[k]&&items[k].id===id)){await remove(ref(db,"settings/"+n+"/"+cat+"/"+k));}}}}catch(e){}}}
 
 // ===== Seller Application Approve (fixed) =====
 window.approveSellApp=async(uid)=>{try{

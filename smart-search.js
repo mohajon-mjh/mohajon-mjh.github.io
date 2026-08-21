@@ -1,6 +1,7 @@
 (function(){
 "use strict";
 var DBURL="https://mohajon-mjh-default-rtdb.firebaseio.com/products.json";
+var CK="mjh_pcache",CT="mjh_pcache_t";
 var grid=null,inp=null,ALL=[];
 var MAP={"প্রজেক্টর":"projector","প্রোজেক্টর":"projector","হেডফোন":"headphone","ইয়ারফোন":"earphone","ইয়ারবাড":"earbuds","ঘড়ি":"watch","স্মার্টওয়াচ":"smart watch","পাওয়ার ব্যাংক":"power bank","পাওয়ার":"power","মোবাইল":"phone","ফোন":"phone","গাড়ি":"car","কার":"car","লাইট":"light","বাল্ব":"bulb","কুকার":"cooker","ফ্রাইয়ার":"fryer","স্ট্রলার":"stroller","শার্ট":"shirt","টিশার্ট":"tshirt","প্যান্ট":"pant","জুতা":"shoe","ব্যাগ":"bag","ক্যামেরা":"camera","স্পিকার":"speaker","চার্জার":"charger","কেবল":"cable","হোল্ডার":"holder","ড্যাশক্যাম":"dashcam","ট্যাবলেট":"tablet","ল্যাপটপ":"laptop","টিভি":"tv","ফ্রিজ":"refrigerator","রেফ্রিজারেটর":"refrigerator","চেয়ার":"chair","টেবিল":"table","সোফা":"sofa","ল্যাম্প":"lamp","পেইন্টিং":"painting","ছবি":"painting","বই":"book","তাসবিহ":"tasbih","জায়নামাজ":"prayer mat","সিরাম":"serum","ক্রিম":"cream","ট্রিমার":"trimmer","শেভার":"shaver","সোলার":"solar","জিম":"gym","বেঞ্চ":"bench","গ্লাভস":"gloves","কিচেন":"kitchen","চপার":"chopper","কেটলি":"kettle","রাইস":"rice","هاتف":"phone","ساعة":"watch","سماعات":"headphone","شاحن":"charger","كاميرا":"camera","بروجكتر":"projector","مصباح":"light"};
 function norm(s){return String(s||"").toLowerCase();}
@@ -35,6 +36,28 @@ function render(){
  else list.slice(0,200).forEach(function(p){grid.appendChild(window.createProductCard(p));});
  var c=document.getElementById("product-count");if(c)c.textContent=list.length+" items";
 }
+function slim(p){return {id:p.id,title:p.title,description:String(p.description||"").slice(0,200),category:p.category,categoryId:p.categoryId,brand:p.brand,price:p.price,discountPrice:p.discountPrice,oldPrice:p.oldPrice,stock:p.stock,status:p.status,weight:p.weight,images:p.images,image:p.image};}
+function afterLoad(){
+ console.log("✅ smart-search loaded",ALL.length,"products");
+ var params=new URLSearchParams(location.search);
+ var q=params.get("search")||params.get("q")||"";
+ if(inp&&q)inp.value=q;
+ render();
+}
+function load(){
+ try{
+  var t=+localStorage.getItem(CT)||0;
+  if(Date.now()-t<300000){
+   var c=JSON.parse(localStorage.getItem(CK)||"null");
+   if(c&&c.length){ALL=c;console.log("⚡ cache hit");afterLoad();return;}
+  }
+ }catch(e){}
+ fetch(DBURL).then(function(r){return r.json();}).then(function(data){
+  ALL=Object.keys(data||{}).map(function(id){var p=data[id]||{};p.id=id;return p;});
+  try{localStorage.setItem(CK,JSON.stringify(ALL.map(slim)));localStorage.setItem(CT,String(Date.now()));}catch(e){}
+  afterLoad();
+ }).catch(function(e){if(grid)grid.innerHTML='<div class="loading-placeholder">❌ '+e.message+'</div>';});
+}
 function init(){
  grid=document.getElementById("productGrid");
  inp=document.getElementById("searchInput");
@@ -43,16 +66,6 @@ function init(){
  (function waitCard(){
   if(window.createProductCard||w>20){load();}else{w++;setTimeout(waitCard,250);}
  })();
- function load(){
-  fetch(DBURL).then(function(r){return r.json();}).then(function(data){
-   ALL=Object.keys(data||{}).map(function(id){var p=data[id]||{};p.id=id;return p;});
-   console.log("✅ smart-search loaded",ALL.length,"products");
-   var params=new URLSearchParams(location.search);
-   var q=params.get("search")||params.get("q")||"";
-   if(inp&&q)inp.value=q;
-   render();
-  }).catch(function(e){if(grid)grid.innerHTML='<div class="loading-placeholder">❌ '+e.message+'</div>';});
- }
  if(inp){var t;inp.addEventListener("input",function(){clearTimeout(t);t=setTimeout(render,300);});}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
