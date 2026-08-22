@@ -39,7 +39,17 @@ window.initPaymentAdmin = async function() {
       payments = defaultPayments;
     }
 
-    renderPaymentList(payments);
+    const metaSnap = await get(ref(db, "settings/paymentsMeta")).catch(()=>null);
+    const meta = (metaSnap && metaSnap.val()) || {};
+    const PRETTY = {bank:"Bank Transfer",bankBranch:"Bank Branch",bankHolder:"Account Holder",bankName:"Bank Name",bankNumber:"Account Number",bkash:"bKash",nagad:"Nagad",paypal:"PayPal",rocket:"Rocket"};
+    const view = {};
+    for (const k in payments) {
+      const v = payments[k];
+      if (typeof v === "string") {
+        view[k] = { name: (meta[k]&&meta[k].name)||PRETTY[k]||k, icon:"💳", number:v, details:"", order:0, active: meta[k] ? meta[k].active!==false : true };
+      } else { view[k] = v; }
+    }
+    renderPaymentList(view);
   } catch (error) {
     container.innerHTML = `<p style="color:red">❌ এরর: ${error.message}</p>`;
   }
@@ -170,7 +180,12 @@ window.savePayment = async function() {
 
 window.toggleActive = async function(key, newStatus) {
   try {
-    await update(ref(db), { [`settings/payments/${key}/active`]: newStatus });
+    const cur = (await get(ref(db, "settings/payments/"+key))).val();
+    if (cur && typeof cur === "object") {
+      await update(ref(db), { ["settings/payments/"+key+"/active"]: newStatus });
+    } else {
+      await set(ref(db, "settings/paymentsMeta/"+key), { active: newStatus });
+    }
     window.initPaymentAdmin();
   } catch (error) {
     alert("❌ এরর: " + error.message);
