@@ -139,6 +139,7 @@ function cardValid(){
   return null;
 }
 
+function pnum(k){try{var s=JSON.parse(localStorage.getItem("paySettings")||"{}");var v=s[k];if(!v)return "";return typeof v==="string"?v:(v.number||v.details||"");}catch(e){return "";}}
 function payOn(k){try{var s=JSON.parse(localStorage.getItem("paySettings")||"{}");var v=s[k];return !(v&&v.active===false);}catch(e){return true;}}
 function render(){
  const paySettings=JSON.parse(localStorage.getItem("paySettings")||"{}");
@@ -168,11 +169,11 @@ function render(){
    </div>
    <p class="small" style="margin:8px 0 0">🔒 Your card info is secure — we only store last 4 digits.</p>
   </div>`;
-  if(paySettings.bkash)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="bkash" onchange="paySel('bkash')"> 📱 bKash <span style="color:#007185;font-size:11px">(${paySettings.bkash})</span></label>`;
-  if(paySettings.nagad)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="nagad" onchange="paySel('nagad')"> 📱 Nagad <span style="color:#007185;font-size:11px">(${paySettings.nagad})</span></label>`;
-  if(paySettings.rocket)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="rocket" onchange="paySel('rocket')"> 📱 Rocket <span style="color:#007185;font-size:11px">(${paySettings.rocket})</span></label>`;
+  if(paySettings.bkash)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="bkash" onchange="paySel('bkash')"> 📱 bKash <span style="color:#007185;font-size:11px">(${pnum("bkash")})</span></label>`;
+  if(paySettings.nagad)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="nagad" onchange="paySel('nagad')"> 📱 Nagad <span style="color:#007185;font-size:11px">(${pnum("nagad")})</span></label>`;
+  if(paySettings.rocket)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="rocket" onchange="paySel('rocket')"> 📱 Rocket <span style="color:#007185;font-size:11px">(${pnum("rocket")})</span></label>`;
   if(paySettings.bank)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="bank" onchange="paySel('bank')"> 🏦 Bank Transfer <span style="color:#007185;font-size:11px">(Account details)</span></label>`;
-  if(paySettings.paypal)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="paypal" onchange="paySel('paypal')"> 🌐 PayPal <span style="color:#007185;font-size:11px">(${paySettings.paypal})</span></label>`;
+  if(paySettings.paypal)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="paypal" onchange="paySel('paypal')"> 🌐 PayPal <span style="color:#007185;font-size:11px">(${pnum("paypal")})</span></label>`;
   payHtml+=`<div id="mobilePay" style="display:none;background:#fff9e6;border:1px solid #f0d060;border-radius:8px;padding:12px;margin:8px 0"><p style="font-size:13px;margin:0 0 6px"><b id="mpTitle"></b></p><p style="font-size:13px;margin:0 0 6px">📱 Send Money to: <b id="mpNum" style="color:#B12704"></b></p><p style="font-size:12px;color:#565959;margin:0 0 8px">Write your name in reference. Enter Transaction ID below:</p><input id="mpTrx" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="trxID (e.g. 8A7B9C2D1E3F)"></div>`;
   document.getElementById("payContent").innerHTML=payHtml;
  // review

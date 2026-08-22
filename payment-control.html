@@ -31,3 +31,19 @@ if (document.readyState === 'loading') {
 </script>
 </body>
 </html>
+<script type="module">/*pay-normalize-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,get,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const appN=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const dbN=getDatabase(appN);
+const PRETTY={bank:"Bank Transfer",bankBranch:"Bank Branch",bankHolder:"Account Holder",bankName:"Bank Name",bankNumber:"Account Number",bkash:"bKash",nagad:"Nagad",paypal:"PayPal",rocket:"Rocket"};
+setTimeout(async()=>{try{
+ const cur=(await get(ref(dbN,"settings/payments"))).val()||{};
+ for(const k of Object.keys(cur)){
+  const v=cur[k];
+  if(typeof v==="string"){
+   await set(ref(dbN,"settings/payments/"+k),{name:PRETTY[k]||k,icon:"💳",number:v,details:"",active:true,order:0});
+  }
+ }
+}catch(e){}},2500);
+</script>
