@@ -3404,3 +3404,26 @@ document.addEventListener("click",function(e){
     window.initPaymentAdmin();
   }
 </script>
+<script>/*dock-right-buttons-v1*/
+(function(){
+ function move(){
+  var logout=document.getElementById("admin-logout-btn");
+  if(!logout)return;
+  var keys=["Social Media Post","এড বন্ধ","এড চালু","দাম অটো","ক্যাটাগরি অন/অফ"];
+  keys.forEach(function(k){
+   var els=[].slice.call(document.querySelectorAll("button,a"));
+   for(var i=0;i<els.length;i++){
+    var b=els[i];var t=(b.textContent||"").trim();
+    if(t.indexOf(k)>-1&&t.length<40){
+     b.style.position="static";b.style.bottom="auto";b.style.right="auto";b.style.left="auto";b.style.top="auto";
+     b.style.width="100%";b.style.margin="4px 0";b.style.zIndex="1";b.style.boxShadow="none";b.style.borderRadius="8px";
+     if(b.parentNode!==logout.parentNode){logout.parentNode.insertBefore(b,logout);}
+     break;
+    }
+   }
+  });
+ }
+ for(var i=1;i<=24;i++)setTimeout(move,i*500);
+ setInterval(move,6000);
+})();
+</script>
