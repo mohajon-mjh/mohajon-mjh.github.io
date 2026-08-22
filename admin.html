@@ -3597,3 +3597,31 @@ setTimeout(async()=>{try{
  setInterval(fold,5000);
 })();
 </script>
+<script>/*seller-fold-v2*/
+(function(){
+ function pos(){
+  var sub=document.getElementById("sellerSubmenu");
+  var main=document.querySelector('nav.admin-tabs [data-tab="allsellers"]');
+  if(!sub||!main)return;
+  var d=sub.style.display;
+  sub.style.cssText="position:fixed;left:228px;width:235px;max-width:calc(100vw - 235px);max-height:75vh;overflow-y:auto;background:#151a21;border:1px solid #FFD814;border-radius:10px;padding:8px;z-index:9998;box-shadow:0 8px 24px rgba(0,0,0,.7);margin:0";
+  sub.style.display=d||"none";
+  var r=main.getBoundingClientRect();
+  var top=Math.max(60,Math.min(r.top,window.innerHeight-380));
+  sub.style.top=top+"px";
+ }
+ function init(){
+  var sub=document.getElementById("sellerSubmenu");
+  var main=document.querySelector('nav.admin-tabs [data-tab="allsellers"]');
+  if(!sub||!main)return;
+  if(sub.dataset.v2)return;
+  sub.dataset.v2="1";
+  main.addEventListener("click",function(){setTimeout(pos,30);});
+  sub.addEventListener("click",function(e){
+   if(e.target.closest("button,a")){setTimeout(function(){sub.style.display="none";main.innerHTML="👥 সব Seller ▸";},150);}
+  });
+ }
+ for(var i=1;i<=20;i++)setTimeout(function(){init();pos();},i*600);
+ setInterval(function(){init();pos();},5000);
+})();
+</script>
