@@ -139,6 +139,7 @@ function cardValid(){
   return null;
 }
 
+function payOn(k){try{var s=JSON.parse(localStorage.getItem("paySettings")||"{}");var v=s[k];return !(v&&v.active===false);}catch(e){return true;}}
 function render(){
  const paySettings=JSON.parse(localStorage.getItem("paySettings")||"{}");
  const c=state.contact;
@@ -153,8 +154,8 @@ function render(){
  <button class="white-pill" style="width:auto;padding:9px 20px" onclick="openPickup()">📍 Find a pickup location nearby</button>`;}
  document.getElementById("addrContent").innerHTML=ac;
  // payment
- let payHtml=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="cod" checked onchange="paySel('cod')"> 💵 Cash on Delivery</label>
-  <label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="card" onchange="paySel('card')"> 💳 Debit / Credit Card <span style="color:#565959;font-size:11px">(Visa • Mastercard)</span></label>
+ let payHtml=`${payOn("cod")?`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="cod" checked onchange="paySel('cod')"> 💵 Cash on Delivery</label>`:""}
+  ${payOn("card")?`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="card" ${payOn("cod")?"":"checked"} onchange="paySel('card')"> 💳 Debit / Credit Card <span style="color:#565959;font-size:11px">(Visa • Mastercard)</span></label>`:""}
   <div id="cardForm" style="display:none;background:#f7f7f7;border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0">
    <label style="font-size:12px;font-weight:700">Cardholder name</label>
    <input id="ccName" style="width:100%;padding:8px;margin:4px 0 10px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="Name on card">

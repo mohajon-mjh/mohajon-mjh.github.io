@@ -3448,3 +3448,14 @@ document.addEventListener("click",function(e){
  for(var i=1;i<=10;i++)setTimeout(addBtn,i*600);
 })();
 </script>
+<script type="module">/*pay-add-cod-card-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,get,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const appP=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const dbP=getDatabase(appP);
+setTimeout(async()=>{try{
+ const cur=(await get(ref(dbP,"settings/payments"))).val()||{};
+ if(!cur.cod)await set(ref(dbP,"settings/payments/cod"),{name:"Cash on Delivery",icon:"💵",number:"",details:"ডেলিভারির সময় পেমেন্ট",active:true,order:0});
+ if(!cur.card)await set(ref(dbP,"settings/payments/card"),{name:"Debit / Credit Card (Visa • Mastercard)",icon:"💳",number:"",details:"Visa • Mastercard",active:true,order:1});
+}catch(e){}},2000);
+</script>
