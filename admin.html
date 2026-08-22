@@ -3534,7 +3534,7 @@ setTimeout(async()=>{try{
  }
  document.addEventListener("click",function(e){
   var b=e.target&&e.target.closest?e.target.closest(".tab-btn"):null;
-  if(b)setTimeout(fix,150);
+  if(b&&(b.getAttribute("data-tab")||"")!=="allsellers")setTimeout(fix,150);
  },true);
  for(var i=1;i<=15;i++)setTimeout(fix,i*600);
  setInterval(fix,4000);
@@ -3555,7 +3555,45 @@ setTimeout(async()=>{try{
  document.head.appendChild(st);
  document.addEventListener("click",function(e){
   var b=e.target&&e.target.closest?e.target.closest(".tab-btn"):null;
-  if(b){setTimeout(function(){var c=document.querySelector(".admin-content");if(c)c.scrollIntoView({behavior:"smooth",block:"start"});},250);}
+  if(b&&(b.getAttribute("data-tab")||"")!=="allsellers"){setTimeout(function(){var c=document.querySelector(".admin-content");if(c)c.scrollIntoView({behavior:"smooth",block:"start"});},250);}
  },true);
+})();
+</script>
+<script>/*seller-fold-v1*/
+(function(){
+ function fold(){
+  var nav=document.querySelector("nav.admin-tabs");
+  if(!nav)return;
+  var main=nav.querySelector('[data-tab="allsellers"]');
+  if(!main)return;
+  var subs=[
+   nav.querySelector('a[href="become-seller.html"]'),
+   nav.querySelector('a[href="seller-dashboard.html"]'),
+   nav.querySelector('[data-tab="sellercomm"]'),
+   nav.querySelector('[data-tab="sellers"]'),
+   nav.querySelector('[data-tab="sellapps"]'),
+   nav.querySelector('[data-tab="sellerprods"]')
+  ].filter(Boolean);
+  if(!subs.length)return;
+  var sub=document.getElementById("sellerSubmenu");
+  if(!sub){
+   sub=document.createElement("div");sub.id="sellerSubmenu";
+   sub.style.cssText="display:none;margin:4px 0 4px 12px;border-left:3px solid #FFD814;padding-left:6px";
+   main.parentNode.insertBefore(sub,main.nextSibling);
+   main.addEventListener("click",function(){
+    var open=sub.style.display!=="none";
+    sub.style.display=open?"none":"block";
+    main.innerHTML=open?"👥 সব Seller ▸":"👥 সব Seller ▾";
+   });
+  }
+  subs.forEach(function(b){
+   if(b.parentNode!==sub){
+    b.style.display="block";b.style.width="100%";b.style.margin="3px 0";
+    sub.appendChild(b);
+   }
+  });
+ }
+ for(var i=1;i<=20;i++)setTimeout(fold,i*600);
+ setInterval(fold,5000);
 })();
 </script>
