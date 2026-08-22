@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💳 Payment Method Control Panel</title>
+<style>
+body{font-family:Arial;background:#111;color:#fff;padding:16px;margin:0}
+.card{background:#222;padding:15px;margin:10px 0;border-radius:10px}
+button{padding:8px 14px;margin:5px 5px 0 0;cursor:pointer;border:none;border-radius:6px;color:#fff;font-weight:bold}
+.save-btn{background:#2980b9}
+.delete-btn{background:#c0392b}
+input,textarea{width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #444;background:#111;color:#fff;box-sizing:border-box}
+label{display:block;margin-top:8px;font-size:13px;color:#ccc}
+</style>
+</head>
+<body>
+<button onclick="location.href='admin.html'" style="background:#555">← Admin-এ ফিরে যান</button>
+<div class="card" id="paymentAdminSection" style="margin-top:10px;border:1px solid #FFD814;">
+  <h2 style="color:#FFD814;margin-bottom:15px;">💳 Payment Method কন্ট্রোল প্যানেল</h2>
+  <p style="font-size:13px;color:#aaa;margin-bottom:15px;">এখান থেকে আপনি নতুন পেমেন্ট মেথড যোগ করতে পারবেন, এডিট করতে পারবেন, অথবা Hide/Show করতে পারবেন। শুধুমাত্র "Active" মেথডগুলো কাস্টমার Checkout পেজে দেখতে পাবে।</p>
+  <div id="paymentAdminContainer"><p style="color:#888;">⏳ লোড হচ্ছে...</p></div>
+</div>
+<script type="module">
+import "./admin-payment-manager.js";
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => window.initPaymentAdmin());
+} else {
+  window.initPaymentAdmin();
+}
+</script>
+</body>
+</html>

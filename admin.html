@@ -3386,24 +3386,7 @@ document.addEventListener("click",function(e){
 },true);
 </script><script src="allcat.js"></script>
 
-<!-- ===== PAYMENT METHOD ADMIN SECTION ===== -->
-<div class="card" id="paymentAdminSection" style="display:none;margin-top:30px; border: 1px solid #FFD814;">
-  <h2 style="color:#FFD814; margin-bottom:15px;">💳 Payment Method কন্ট্রোল প্যানেল</h2>
-  <p style="font-size:13px; color:#aaa; margin-bottom:15px;">এখান থেকে আপনি নতুন পেমেন্ট মেথড যোগ করতে পারবেন, এডিট করতে পারবেন, অথবা Hide/Show করতে পারবেন। শুধুমাত্র "Active" মেথডগুলো কাস্টমার Checkout পেজে দেখতে পাবে।</p>
-  <div id="paymentAdminContainer">
-    <p style="color:#888;">⏳ লোড হচ্ছে...</p>
-  </div>
-</div>
 
-<script type="module">
-  import "./admin-payment-manager.js";
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => window.initPaymentAdmin());
-  } else {
-    window.initPaymentAdmin();
-  }
-</script>
 <script>/*dock-right-buttons-v1*/
 (function(){
  function move(){
@@ -3427,27 +3410,6 @@ document.addEventListener("click",function(e){
  setInterval(move,6000);
 })();
 </script>
-<script>/*pay-toggle-v3*/
-(function(){
- function addBtn(){
-  if(document.getElementById("payToggleBtn"))return;
-  var logout=document.getElementById("admin-logout-btn");
-  if(!logout)return setTimeout(addBtn,800);
-  var b=document.createElement("button");
-  b.type="button";b.id="payToggleBtn";
-  b.innerHTML="💳 Payment Method Control Panel";
-  b.style.cssText="display:block;width:100%;margin:4px 0;background:linear-gradient(90deg,#f39c12,#e67e22);color:#fff;border:none;border-radius:8px;padding:12px 14px;font-weight:800;text-align:left;font-size:13px;cursor:pointer";
-  b.onclick=function(){
-   var p=document.getElementById("paymentAdminSection");
-   if(!p)return;
-   if(p.style.display==="none"){p.style.display="block";setTimeout(function(){p.scrollIntoView({behavior:"smooth",block:"start"});},80);}
-   else{p.style.display="none";}
-  };
-  logout.parentNode.insertBefore(b,logout);
- }
- for(var i=1;i<=10;i++)setTimeout(addBtn,i*600);
-})();
-</script>
 <script type="module">/*pay-add-cod-card-v1*/
 import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import{getDatabase,ref,get,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
@@ -3458,4 +3420,20 @@ setTimeout(async()=>{try{
  if(!cur.cod)await set(ref(dbP,"settings/payments/cod"),{name:"Cash on Delivery",icon:"💵",number:"",details:"ডেলিভারির সময় পেমেন্ট",active:true,order:0});
  if(!cur.card)await set(ref(dbP,"settings/payments/card"),{name:"Debit / Credit Card (Visa • Mastercard)",icon:"💳",number:"",details:"Visa • Mastercard",active:true,order:1});
 }catch(e){}},2000);
+</script>
+<script>/*pay-toggle-v4*/
+(function(){
+ function addBtn(){
+  if(document.getElementById("payToggleBtn"))return;
+  var logout=document.getElementById("admin-logout-btn");
+  if(!logout)return setTimeout(addBtn,800);
+  var b=document.createElement("button");
+  b.type="button";b.id="payToggleBtn";
+  b.innerHTML="💳 Payment Method Control Panel";
+  b.style.cssText="display:block;width:100%;margin:4px 0;background:linear-gradient(90deg,#f39c12,#e67e22);color:#fff;border:none;border-radius:8px;padding:12px 14px;font-weight:800;text-align:left;font-size:13px;cursor:pointer";
+  b.onclick=function(){location.href="payment-control.html";};
+  logout.parentNode.insertBefore(b,logout);
+ }
+ for(var i=1;i<=10;i++)setTimeout(addBtn,i*600);
+})();
 </script>
