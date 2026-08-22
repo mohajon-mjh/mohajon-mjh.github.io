@@ -3427,3 +3427,44 @@ document.addEventListener("click",function(e){
  setInterval(move,6000);
 })();
 </script>
+<script>/*pay-panel-dock-v1*/
+(function(){
+ var panel=null,btn=null;
+ function findPanel(){
+  if(panel&&document.contains(panel))return panel;
+  var els=document.querySelectorAll("h1,h2,h3,h4,b,span,div");
+  for(var i=0;i<els.length;i++){
+   var t=(els[i].textContent||"").trim();
+   if(t.indexOf("Payment Method")>-1&&t.indexOf("Control Panel")>-1&&t.length<60){
+    var el=els[i];
+    for(var up=0;up<6&&el;up++){
+     if(el.querySelector&&el.querySelector("button")&&(el.textContent||"").indexOf("Delete")>-1){panel=el;return panel;}
+     el=el.parentElement;
+    }
+   }
+  }
+  return null;
+ }
+ function setup(){
+  var logout=document.getElementById("admin-logout-btn");
+  if(!logout)return;
+  var p=findPanel();
+  if(p&&!p.dataset.docked){p.dataset.docked="1";p.style.display="none";}
+  if(!btn||!document.contains(btn)){
+   btn=document.createElement("button");
+   btn.type="button";
+   btn.innerHTML="💳 Payment Method Control Panel";
+   btn.style.cssText="display:block;width:100%;margin:4px 0;background:linear-gradient(90deg,#f39c12,#e67e22);color:#fff;border:none;border-radius:8px;padding:12px 14px;font-weight:800;text-align:left;font-size:13px;cursor:pointer";
+   btn.onclick=function(){
+    var p2=findPanel();
+    if(!p2)return alert("Panel পাওয়া যায়নি");
+    if(p2.style.display==="none"){p2.style.display="block";setTimeout(function(){p2.scrollIntoView({behavior:"smooth",block:"start"});},100);}
+    else{p2.style.display="none";}
+   };
+   logout.parentNode.insertBefore(btn,logout);
+  }
+ }
+ for(var i=1;i<=24;i++)setTimeout(setup,i*500);
+ setInterval(setup,6000);
+})();
+</script>
