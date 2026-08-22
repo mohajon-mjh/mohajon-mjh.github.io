@@ -3459,3 +3459,64 @@ setTimeout(async()=>{try{
 }catch(e){}},2500);
 </script>
 <script src="notes-manager.js"></script>
+<script>/*sidebar-custom-v1*/
+(function(){
+ var PAL=["linear-gradient(90deg,#f39c12,#e67e22)","linear-gradient(90deg,#3498db,#2980b9)","linear-gradient(90deg,#27ae60,#229954)","linear-gradient(90deg,#e74c3c,#c0392b)","linear-gradient(90deg,#9b59b6,#8e44ad)","linear-gradient(90deg,#16a085,#1abc9c)","linear-gradient(90deg,#e91e63,#c2185b)","linear-gradient(90deg,#3f51b5,#303f9f)","linear-gradient(90deg,#ff5722,#e64a19)","linear-gradient(90deg,#009688,#00796b)"];
+ function hiddenGet(){try{return JSON.parse(localStorage.getItem("mjhHiddenBtns")||"[]");}catch(e){return[];}}
+ function hiddenSet(a){localStorage.setItem("mjhHiddenBtns",JSON.stringify(a));}
+ var editMode=false;
+ function run(){
+  var nav=document.querySelector("nav.admin-tabs")||document.querySelector(".admin-tabs");
+  if(!nav)return;
+  var tg=document.getElementById("btnManageToggle");
+  if(!tg){
+   tg=document.createElement("button");tg.id="btnManageToggle";tg.type="button";
+   tg.style.cssText="display:block;width:100%;margin:4px 0;background:linear-gradient(90deg,#8e44ad,#6c3483);color:#fff;border:none;border-radius:8px;padding:10px;font-weight:800;cursor:pointer";
+   tg.onclick=function(){editMode=!editMode;run();};
+   nav.insertBefore(tg,nav.firstChild);
+  }
+  tg.textContent=editMode?"🎛️ ম্যানেজ বন্ধ করুন":"🎛️ বাটন ম্যানেজ";
+  var rs=document.getElementById("btnRestoreAll");
+  if(editMode&&!rs){
+   rs=document.createElement("button");rs.id="btnRestoreAll";rs.type="button";
+   rs.innerHTML="🔄 সব লুকানো বাটন ফিরিয়ে আন";
+   rs.style.cssText="display:block;width:100%;margin:4px 0;background:#16a085;color:#fff;border:none;border-radius:8px;padding:10px;font-weight:800;cursor:pointer";
+   rs.onclick=function(){hiddenSet([]);location.reload();};
+   tg.parentNode.insertBefore(rs,tg.nextSibling);
+  }
+  if(rs)rs.style.display=editMode?"block":"none";
+  var hidden=hiddenGet();
+  var btns=nav.querySelectorAll("button");
+  var ci=0;
+  for(var j=0;j<btns.length;j++){
+   var b=btns[j];
+   if(b.id==="btnManageToggle"||b.id==="btnRestoreAll")continue;
+   var t=(b.textContent||"").replace(/✕/g,"").trim();
+   var isLogout=/logout|লগ আউট|সাইন আউট/i.test(t)||b.id==="admin-logout-btn";
+   if(!isLogout&&hidden.indexOf(t)>-1){b.style.display="none";continue;}
+   if(!isLogout&&b.style.display==="none"&&hidden.indexOf(t)===-1)b.style.display="block";
+   if(!isLogout&&!b.dataset.colored&&b.style.background===""&&b.style.backgroundColor===""){
+    b.style.background=PAL[ci%PAL.length];b.style.color="#fff";b.dataset.colored="1";
+   }
+   ci++;
+   if(editMode&&!isLogout&&!b.querySelector(".bxDel")){
+    var x=document.createElement("span");x.className="bxDel";x.textContent="✕";
+    x.style.cssText="float:right;background:#c0392b;border-radius:50%;width:20px;height:20px;line-height:20px;text-align:center;font-size:12px;font-weight:900;cursor:pointer";
+    (function(bb,tt){x.onclick=function(ev){ev.stopPropagation();var arr=hiddenGet();if(arr.indexOf(tt)===-1)arr.push(tt);hiddenSet(arr);bb.style.display="none";};})(b,t);
+    b.appendChild(x);
+   }
+   if(!editMode){var xx=b.querySelector(".bxDel");if(xx)xx.remove();}
+  }
+  var lo=document.getElementById("admin-logout-btn");
+  if(!lo){for(var k=0;k<btns.length;k++){if(/logout|লগ আউট/i.test((btns[k].textContent||""))){lo=btns[k];break;}}}
+  if(lo&&!lo.dataset.moved){
+   lo.dataset.moved="1";
+   lo.parentNode.appendChild(lo);
+   lo.style.background="linear-gradient(90deg,#c0392b,#922b21)";
+   lo.style.color="#fff";lo.style.padding="14px";lo.style.fontSize="14px";
+  }
+ }
+ for(var i=1;i<=20;i++)setTimeout(run,i*600);
+ setInterval(run,3000);
+})();
+</script>
