@@ -3520,3 +3520,26 @@ setTimeout(async()=>{try{
  setInterval(run,3000);
 })();
 </script>
+<script>/*layout-fix-v1*/
+(function(){
+ function fix(){
+  var nav=document.querySelector("nav.admin-tabs");
+  var nm=document.getElementById("notesManager");
+  var content=document.querySelector(".admin-content");
+  if(nav&&nm&&nm.parentNode===nav&&content)content.appendChild(nm);
+  if(nm&&content&&nm.parentNode===content){
+   var act=document.querySelector(".tab-btn.active");
+   nm.style.display=(act&&act.getAttribute("data-tab")==="notepad")?"block":"none";
+  }
+ }
+ document.addEventListener("click",function(e){
+  var b=e.target&&e.target.closest?e.target.closest(".tab-btn"):null;
+  if(b)setTimeout(fix,150);
+ },true);
+ for(var i=1;i<=15;i++)setTimeout(fix,i*600);
+ setInterval(fix,4000);
+ var st=document.createElement("style");
+ st.textContent="@media(max-width:900px){nav.admin-tabs{position:static!important;height:auto!important;overflow:visible!important}.admin-wrap{min-height:auto!important}}";
+ document.head.appendChild(st);
+})();
+</script>
