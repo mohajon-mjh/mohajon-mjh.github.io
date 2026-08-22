@@ -3385,3 +3385,22 @@ document.addEventListener("click",function(e){
  if(t&&/logout|log out|sign out|লগ আউট/i.test(t.textContent||"")){signOut(auth).catch(()=>{});}
 },true);
 </script><script src="allcat.js"></script>
+
+<!-- ===== PAYMENT METHOD ADMIN SECTION ===== -->
+<div class="card" id="paymentAdminSection" style="margin-top:30px; border: 1px solid #FFD814;">
+  <h2 style="color:#FFD814; margin-bottom:15px;">💳 Payment Method কন্ট্রোল প্যানেল</h2>
+  <p style="font-size:13px; color:#aaa; margin-bottom:15px;">এখান থেকে আপনি নতুন পেমেন্ট মেথড যোগ করতে পারবেন, এডিট করতে পারবেন, অথবা Hide/Show করতে পারবেন। শুধুমাত্র "Active" মেথডগুলো কাস্টমার Checkout পেজে দেখতে পাবে।</p>
+  <div id="paymentAdminContainer">
+    <p style="color:#888;">⏳ লোড হচ্ছে...</p>
+  </div>
+</div>
+
+<script type="module">
+  import "./admin-payment-manager.js";
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => window.initPaymentAdmin());
+  } else {
+    window.initPaymentAdmin();
+  }
+</script>

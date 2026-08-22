@@ -252,15 +252,59 @@ render();
 </script><script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
 
 <script>
-/* payment settings loader (cache-safe) */
+/* DYNAMIC PAYMENT SETTINGS LOADER (Cache-safe & Active Only) */
 (function(){
   function load(){
     fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/payments.json")
     .then(function(r){return r.ok?r.json():{};})
-    .then(function(p){
-      localStorage.setItem("paySettings",JSON.stringify(p||{}));
+    .then(function(payments){
+      localStorage.setItem("paySettings",JSON.stringify(payments||{}));
+      
+      /* Dynamically render ONLY active payment methods */
+      const payContent = document.getElementById("payContent");
+      if(payContent && payments){
+        let payHtml = "";
+        const sortedKeys = Object.keys(payments).sort((a,b) => (payments[a].order||0) - (payments[b].order||0));
+        
+        sortedKeys.forEach(function(key){
+          const p = payments[key];
+          if(p && p.active){ /* ONLY SHOW ACTIVE METHODS */
+            payHtml += "<label style="display:block;font-size:13px;margin:6px 0">";
+            payHtml += "<input type="radio" name="pay" value=""+key+"" onchange="paySel(""+key+"")"> ";
+            payHtml += (p.icon||"💳")+" "+p.name;
+            if(p.number) payHtml += " <span style="color:#007185;font-size:11px">("+p.number+")</span>";
+            payHtml += "</label>";
+          }
+        });
+        
+        /* Add Card Form Placeholder (will be shown/hidden by paySel) */
+        payHtml += "<div id="cardForm" style="display:none;background:#f7f7f7;border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0">";
+        payHtml += "<label style="font-size:12px;font-weight:700">Cardholder name</label>";
+        payHtml += "<input id="ccName" style="width:100%;padding:8px;margin:4px 0 10px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="Name on card">";
+        payHtml += "<label style="font-size:12px;font-weight:700">Card number</label>";
+        payHtml += "<input id="ccNum" inputmode="numeric" style="width:100%;padding:8px;margin-bottom:2px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="1234 5678 9012 3456" oninput="fmtCard(this)">";
+        payHtml += "<span id="ccBrand" style="font-size:12px;font-weight:700;color:#1a1f71"></span>";
+        payHtml += "<div style="display:flex;gap:10px;margin-top:8px">";
+        payHtml += "<div style="flex:1"><label style="font-size:12px;font-weight:700">Expiry</label><input id="ccExp" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="MM/YY" oninput="fmtExp(this)"></div>";
+        payHtml += "<div style="flex:1"><label style="font-size:12px;font-weight:700">CVV</label><input id="ccCvv" type="password" inputmode="numeric" maxlength="4" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="•••"></div>";
+        payHtml += "</div>";
+        payHtml += "<p class="small" style="margin:8px 0 0">🔒 Your card info is secure.</p></div>";
+        
+        /* Mobile Payment Details Box */
+        payHtml += "<div id="mobilePay" style="display:none;background:#fff9e6;border:1px solid #f0d060;border-radius:8px;padding:12px;margin:8px 0">";
+        payHtml += "<p style="font-size:13px;margin:0 0 6px"><b id="mpTitle"></b></p>";
+        payHtml += "<p style="font-size:13px;margin:0 0 6px">📱 Send Money to: <b id="mpNum" style="color:#B12704"></b></p>";
+        payHtml += "<p style="font-size:12px;color:#565959;margin:0 0 8px">Write your name in reference. Enter Transaction ID below:</p>";
+        payHtml += "<input id="mpTrx" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="trxID (e.g. 8A7B9C2D1E3F)">";
+        payHtml += "</div>";
+        
+        payContent.innerHTML = payHtml;
+      }
       if(typeof render==="function"){try{render();}catch(e){}}
     }).catch(function(){});
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",load);else load();
+})();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",load);else load();
 })();
