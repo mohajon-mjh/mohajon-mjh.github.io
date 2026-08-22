@@ -3543,3 +3543,19 @@ setTimeout(async()=>{try{
  document.head.appendChild(st);
 })();
 </script>
+<script>/*scroll-fix-v2*/
+(function(){
+ var st=document.createElement("style");
+ st.textContent="@media(max-width:900px){"+
+ "html,body{height:auto!important;overflow:auto!important;overflow-x:hidden!important}"+
+ ".admin-wrap{display:block!important;min-height:auto!important}"+
+ "nav.admin-tabs{position:static!important;width:100%!important;height:auto!important;max-height:none!important;overflow:visible!important}"+
+ ".admin-content{width:100%!important;max-width:100%!important;padding:10px!important}"+
+ "}";
+ document.head.appendChild(st);
+ document.addEventListener("click",function(e){
+  var b=e.target&&e.target.closest?e.target.closest(".tab-btn"):null;
+  if(b){setTimeout(function(){var c=document.querySelector(".admin-content");if(c)c.scrollIntoView({behavior:"smooth",block:"start"});},250);}
+ },true);
+})();
+</script>
