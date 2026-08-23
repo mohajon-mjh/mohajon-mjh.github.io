@@ -220,7 +220,7 @@ function checkAllFlags(p){
     var t=p.isTrending===true||p.trending===true||p.trending===1||p.isTrending===1;
     return{featured:f,trending:t};
   }
-  function loadFlag(S){if(!window.__synced)window.__synced={};if(!window.__synced[S.flag]){window.__synced[S.flag]=true;fetch("https://mohajon-mjh.github.io/all_products.json").then(function(r){return r.json();}).then(function(st){var up={};Object.keys(st||{}).forEach(function(id){var p=st[id]||{};var hit=(S.flag==="isFeatured"&&(p.isFeatured===true||p.isFeatured==="true"))||(S.flag==="isTrending"&&(p.isTrending===true||p.isTrending==="true"));if(hit)up["products/"+id+"/"+S.flag]=true;});if(Object.keys(up).length){fd.update(fd.ref(db),up).then(function(){console.log("✅ sync:",Object.keys(up).length);});}}).catch(function(){});}
+  function loadFlag(S){if(false){fetch("https://mohajon-mjh.github.io/all_products.json").then(function(r){return r.json();}).then(function(st){var up={};Object.keys(st||{}).forEach(function(id){var p=st[id]||{};var hit=(S.flag==="isFeatured"&&(p.isFeatured===true||p.isFeatured==="true"))||(S.flag==="isTrending"&&(p.isTrending===true||p.isTrending==="true"));if(hit)up["products/"+id+"/"+S.flag]=true;});if(Object.keys(up).length){fd.update(fd.ref(db),up).then(function(){console.log("✅ sync:",Object.keys(up).length);});}}).catch(function(){});}
  var m=$("mainArea");
  m.innerHTML='<h3>'+S.name+' — পণ্য</h3><div class="bar"><input id="fq" placeholder="🔍 পণ্য খুঁজে যোগ করুন" style="flex:1;min-width:140px"><button class="btn" style="background:#2980b9" id="fGo">🔍 খুঁজুন</button></div><div id="fFound"></div><div class="bar"><input type="file" id="ffFile" accept="image/*" style="flex:1"><input id="ffTitle" placeholder="নতুন পণ্যের নাম" style="flex:1;min-width:120px"><input id="ffPrice" type="number" placeholder="দাম ৳" style="width:90px"><input id="ffStock" type="number" placeholder="stock" style="width:70px"><button class="btn" style="background:#27ae60" id="ffSave">➕ নতুন পণ্য Save</button></div><div class="bar"><label style="color:#fff;font-size:12px"><input type="checkbox" id="fMkAll"> ☑️ মার্ক অল</label><button class="btn" style="background:#c0392b" id="fDel">🗑️ সিলেক্টেড সরাবেন</button></div><div id="fList">⏳ লোড হচ্ছে...</div>';
  function load(){fd.get(fd.ref(db,"products")).then(function(s){var all=s.val()||{};var rows=[];Object.keys(all).forEach(function(id){if(all[id]&&((S.flag==='isFeatured'&&checkAllFlags(all[id]).featured)||(S.flag==='isTrending'&&checkAllFlags(all[id]).trending)))rows.push({id:id,p:all[id]});});
@@ -375,5 +375,6 @@ setInterval(bindFlagFile,1500);
  setTimeout(init,500);
 })();
 </script>
+<script>/*forceMultipleFiles*/setInterval(function(){document.querySelectorAll('input[type="file"]').forEach(function(f){f.multiple=true;});},800);</script>
 </body>
 </html>
