@@ -1933,8 +1933,10 @@ function renderFeatCard(id, p){
   return card;
 }
 
-const featuredQuery = query(ref(db,"products"), orderByChild("isFeatured"), equalTo(true), limitToFirst(500));
-onValue(featuredQuery,(snapshot)=>{
+get(ref(db,"products")).then(function(snapRaw){
+  const _d=snapRaw.val()||{};const _f={};Object.keys(_d).forEach(function(id){var p=_d[id]||{};if(p.isFeatured===true||p.featured===true||p.isFeatured==="true")_f[id]=p;});
+  const snapshot={val:function(){return _f;}};
+  (function(){
   const data = snapshot.val() || {};
   const items = Object.entries(data).filter(([id, p]) => p.status === "active");
   box.innerHTML = "";
@@ -1961,7 +1963,8 @@ onValue(featuredQuery,(snapshot)=>{
     if(ftRendered < items.length) ftAddArrow();
   }
   ftRenderNext();
-}, { onlyOnce: true });
+  })();
+}).catch(function(e){console.error("feat err",e);});
 </script>
 
 <div class="section" id="comingSoonSection" style="display:none">
@@ -2753,8 +2756,9 @@ console.log("currency-fix-v2 ready");
  var LIMIT=10;
  function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"৳"+v;}
  function load(){
-  fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products.json?orderBy="isTrending"&equalTo=true')
+  fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products.json')
   .then(function(r){return r.json();})
+  .then(function(all){var o={};Object.keys(all||{}).forEach(function(id){var p=all[id]||{};if(p.isTrending===true||p.trending===true||p.isTrending==="true")o[id]=p;});return o;})
   .then(function(o){
    var g=document.getElementById("trendingProductsGrid");
    if(!g||!o)return;

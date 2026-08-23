@@ -222,9 +222,9 @@ function checkAllFlags(p){
   }
   function loadFlag(S){
  var m=$("mainArea");
- m.innerHTML='<h3>'+S.name+' — পণ্য</h3><div class="bar"><input id="fq" placeholder="🔍 পণ্য খুঁজে যোগ করুন" style="flex:1;min-width:140px"><button class="btn" style="background:#2980b9" id="fGo">🔍 খুঁজুন</button></div><div id="fFound"></div><div class="bar"><label style="color:#fff;font-size:12px"><input type="checkbox" id="fMkAll"> ☑️ মার্ক অল</label><button class="btn" style="background:#c0392b" id="fDel">🗑️ সিলেক্টেড সরাবেন</button></div><div id="fList">⏳ লোড হচ্ছে...</div>';
+ m.innerHTML='<h3>'+S.name+' — পণ্য</h3><div class="bar"><input id="fq" placeholder="🔍 পণ্য খুঁজে যোগ করুন" style="flex:1;min-width:140px"><button class="btn" style="background:#2980b9" id="fGo">🔍 খুঁজুন</button></div><div id="fFound"></div><div class="bar"><input type="file" id="ffFile" accept="image/*" style="flex:1"><input id="ffTitle" placeholder="নতুন পণ্যের নাম" style="flex:1;min-width:120px"><input id="ffPrice" type="number" placeholder="দাম ৳" style="width:90px"><input id="ffStock" type="number" placeholder="stock" style="width:70px"><button class="btn" style="background:#27ae60" id="ffSave">➕ নতুন পণ্য Save</button></div><div class="bar"><label style="color:#fff;font-size:12px"><input type="checkbox" id="fMkAll"> ☑️ মার্ক অল</label><button class="btn" style="background:#c0392b" id="fDel">🗑️ সিলেক্টেড সরাবেন</button></div><div id="fList">⏳ লোড হচ্ছে...</div>';
  function load(){fd.get(fd.ref(db,"products")).then(function(s){var all=s.val()||{};var rows=[];Object.keys(all).forEach(function(id){if(all[id]&&((S.flag==='isFeatured'&&checkAllFlags(all[id]).featured)||(S.flag==='isTrending'&&checkAllFlags(all[id]).trending)))rows.push({id:id,p:all[id]});});
-  if(!rows.length){$("fList").innerHTML='<p style="color:#888">কোনো পণ্য নেই — উপরে খুঁজে ➕ যোগ করুন</p>';return;}
+  if(!rows.length){fetch("https://mohajon-mjh.github.io/all_products.json").then(function(r){return r.json();}).then(function(st){var up={};Object.keys(st||{}).forEach(function(id){var p=st[id]||{};var hit=(S.flag==="isFeatured"&&(p.isFeatured===true||p.isFeatured==="true"))||(S.flag==="isTrending"&&(p.isTrending===true||p.isTrending==="true"));if(hit&&all[id])up["products/"+id+"/"+S.flag]=true;});if(Object.keys(up).length){fd.update(fd.ref(db),up).then(function(){toast("✅ "+Object.keys(up).length+"টা পণ্য sync হয়েছে");ALL=null;load();});}else{$("fList").innerHTML='<p style="color:#888">কোনো পণ্য নেই — উপরে খুঁজে ➕ যোগ করুন</p>';}return;}).catch(function(){$("fList").innerHTML='<p style="color:#888">কোনো পণ্য নেই — উপরে খুঁজে ➕ যোগ করুন</p>';});return;}
   $("fList").innerHTML=rows.map(function(r){return '<div class="row" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><span style="display:flex;align-items:center;gap:8px"><input type="checkbox" class="fChk" data-id="'+r.id+'"><b style="color:#fff;font-size:13px">'+esc(r.p.title||r.id)+'</b><small style="color:#888">৳'+(r.p.price||0)+'</small></span><button class="btn" style="background:#c0392b" data-fr="'+r.id+'">🗑️ সরাবেন</button></div>';}).join("");});}
  load();
  $("fMkAll").onchange=function(e){document.querySelectorAll(".fChk").forEach(function(c){c.checked=e.target.checked;});};
@@ -253,6 +253,24 @@ function loadCS(){
   if(db2){if(!confirm("মুছবেন?"))return;fd.remove(fd.ref(db,"futureProducts/"+db2.dataset.csd)).then(function(){toast("✅ মুছে গেছে");load();});}
  };}
 });
+function bindFlagFile(){
+ var sv=$("ffSave");if(!sv||sv.dataset.bound)return;sv.dataset.bound="1";
+ sv.onclick=function(){
+  var S=getS();if(!S)return;
+  var t=($("ffTitle").value||"").trim();var pr=+($("ffPrice").value||0);var st=+($("ffStock").value||10);
+  if(!t)return toast("❌ নাম দিন","#c0392b");
+  var f=$("ffFile").files&&$("ffFile").files[0];
+  function fin(url){
+   var id="p_"+Date.now().toString(36)+Math.random().toString(36).substr(2,4);
+   var obj={title:t,price:pr,stock:st,status:"active",createdAt:Date.now(),images:{main:url||""}};
+   obj[S.flag]=true;
+   fd.set(fd.ref(db,"products/"+id),obj).then(function(){toast("✅ যোগ হয়েছে — home-এ দেখাবে");ALL=null;loadFlag(S);});
+  }
+  if(f){var rd=new FileReader();rd.onload=function(){var img=new Image();img.onload=function(){var c=document.createElement("canvas");var w=400,h2=Math.round(400*img.height/img.width)||400;c.width=w;c.height=h2;var cx=c.getContext("2d");cx.fillStyle="#fff";cx.fillRect(0,0,w,h2);cx.drawImage(img,0,0,w,h2);fin(c.toDataURL("image/jpeg",0.72));};img.src=rd.result;};rd.readAsDataURL(f);}
+  else fin("");
+ };
+}
+setInterval(bindFlagFile,1500);
 })();
 </script>
 <script src="hp-enhance.js"></script>
