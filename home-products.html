@@ -160,6 +160,7 @@ function loadCS(){
   if(eb){fd.get(fd.ref(db,"futureProducts/"+eb.dataset.cse)).then(function(s){var p=s.val()||{};var nn=prompt("নতুন নাম:",p.title||"");if(nn===null)return null;var np=prompt("নতুন দাম:",p.expectedPrice||0);if(np===null)return null;return fd.update(fd.ref(db,"futureProducts/"+eb.dataset.cse),{title:nn.trim()||p.title,expectedPrice:+np||0});}).then(function(r){if(r){toast("✅ সেভ হয়েছে");load();}});}
   if(db2){if(!confirm("মুছবেন?"))return;fd.remove(fd.ref(db,"futureProducts/"+db2.dataset.csd)).then(function(){toast("✅ মুছে গেছে");load();});}
  };}
+});
 })();
 </script>
 </body>
