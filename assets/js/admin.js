@@ -5611,7 +5611,7 @@ flagManager({ p: "feat", flag: "isFeatured", tab: "featured" });
       }catch(err){ alert("❌ " + err.message); }
     };
   }
-  function init(){ ["tr","feat"].forEach(P => { wireDateApply(P); wireBulkSave(P); }); }
+  function init(){ ["tr","feat","cs","fsc","gc","dotd","sc"].forEach(P => { wireDateApply(P); wireBulkSave(P); }); }
   document.addEventListener("click", (e) => {
     const b = e.target.closest ? e.target.closest(".tab-btn") : null;
     if(b && (b.dataset.tab === "trending" || b.dataset.tab === "featured")) setTimeout(init, 400);
