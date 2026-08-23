@@ -2759,7 +2759,8 @@ console.log("currency-fix-v2 ready");
   fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products.json')
   .then(function(r){return r.json();})
   .then(function(all){var o={};Object.keys(all||{}).forEach(function(id){var p=all[id]||{};if(p.isTrending===true||p.trending===true||p.isTrending==="true")o[id]=p;});return o;})
-  .then(function(o){
+  .then(function(raw){
+   var o={};Object.keys(raw||{}).forEach(function(id){var p=raw[id]||{};if(p.isTrending===true||p.trending===true||p.isTrending==="true")o[id]=p;});
    var g=document.getElementById("trendingProductsGrid");
    if(!g||!o)return;
    var items=Object.entries(o).filter(function(e){return e[1]&&e[1].status==="active";});
