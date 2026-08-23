@@ -3625,3 +3625,18 @@ setTimeout(async()=>{try{
  setInterval(function(){init();pos();},5000);
 })();
 </script>
+<script>/*home-products-btn*/
+(function(){
+ function add(){
+  if(document.getElementById("hpBtn"))return;
+  var lo=document.getElementById("admin-logout-btn");
+  if(!lo)return setTimeout(add,800);
+  var b=document.createElement("button");b.type="button";b.id="hpBtn";
+  b.innerHTML="🏠 Home Page Products";
+  b.style.cssText="display:block;width:100%;margin:4px 0;background:linear-gradient(90deg,#00b894,#00cec9);color:#fff;border:none;border-radius:8px;padding:12px 14px;font-weight:800;text-align:left;font-size:13px;cursor:pointer";
+  b.onclick=function(){location.href="home-products.html";};
+  lo.parentNode.insertBefore(b,lo);
+ }
+ for(var i=1;i<=10;i++)setTimeout(add,i*600);
+})();
+</script>
