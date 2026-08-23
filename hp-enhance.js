@@ -60,7 +60,7 @@ setInterval(function(){
  var X=window.HPX;if(!X)return;
  var S=null;window.HP_SECTIONS.forEach(function(s){if(s.key===X.sec())S=s;});
  var on=!!S&&(!!X.cat()||!S.hasCats);
- if(on){ensurePanel();var p=$("hpSmartPanel");if(p)p.style.display="";}
+ if(on){ensurePanel();var p=$("hpSmartPanel");if(p)p.style.display="";var ff=$("ffFile");if(ff&&ff.closest(".bar"))ff.closest(".bar").style.display="none";}
  else{var p2=$("hpSmartPanel");if(p2)p2.style.display="none";}
 },1000);
 })();

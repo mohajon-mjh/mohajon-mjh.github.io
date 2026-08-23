@@ -373,6 +373,7 @@ setInterval(bindFlagFile,1500);
  }
  setInterval(init,1000);
  setTimeout(init,500);
+window.HPX={fd:function(){return fd;},db:function(){return db;},sec:function(){return CURSEC;},cat:function(){return CURCAT;},reload:function(){var S=null;window.HP_SECTIONS.forEach(function(s){if(s.key===CURSEC)S=s;});if(!S)return;if(S.hasCats&&CURCAT)loadProds(S);else if(S.hasCats)renderCats(S);else if(S.cs)loadCS();else loadFlag(S);}};
 })();
 </script>
 <script>/*forceMultipleFiles*/setInterval(function(){document.querySelectorAll('input[type="file"]').forEach(function(f){f.multiple=true;});},800);</script>
