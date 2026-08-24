@@ -14,6 +14,7 @@ input,textarea{background:#111;color:#eee;border:1px solid #444;border-radius:4p
 .thumb{width:46px;height:46px;object-fit:cover;border-radius:6px;background:#232f3e}
 .thumb{width:46px;height:46px;object-fit:cover;border-radius:6px;background:#232f3e}
 .thumb{width:46px;height:46px;object-fit:cover;border-radius:6px;background:#232f3e}
+.thumb{width:46px;height:46px;object-fit:cover;border-radius:6px;background:#232f3e}
 </style></head><body>
 <div class="wrap">
 <div class="side">
@@ -39,6 +40,7 @@ var SECTIONS=[
 {key:"cs",name:"🔮 Coming Soon",hasCats:0,cs:1}
 ];
 var CURSEC=null,CURCAT=null,ALL=null,MODE="own",pending=[];
+var PLACEHOLDER="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='46' height='46'><rect width='46' height='46' fill='%23232f3e'/></svg>";
 var PLACEHOLDER="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='46' height='46'><rect width='46' height='46' fill='%23232f3e'/></svg>";
 var PLACEHOLDER="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='46' height='46'><rect width='46' height='46' fill='%23232f3e'/></svg>";
 function $(id){return document.getElementById(id);}
@@ -78,7 +80,7 @@ async function openProducts(s){
  "<div id='addSec' style='display:none'><p style='color:#aaa;font-size:13px'>গ্যালারি/স্টোরেজ থেকে একাধিক ছবি সিলেক্ট করুন (.png ফাইলনাম অনুযায়ী নাম অটো) — অথবা ছবি ছাড়াই নিচে দাম লিস্ট paste করলেও পণ্য তৈরি হবে</p>"+
  "<div class='bar'><input type='file' id='addFiles' accept='image/*' multiple style='flex:1'></div>"+
  "<div class='bar'><div style='flex:1'>প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)<textarea id='addPaste' rows='4' style='width:100%'></textarea></div><button class='btn' id='addPasteApply'>✅ প্রাইস বসান (নাম মিলিয়ে)</button></div>"+
- "<div class='bar'><button class='btn' id='saveAll'>💾 সিলেক্টেড সব Save</button><span id='saveSt'></span></div></div>"+
+ "</div>"+
  "<div class='bar' id='searchBox' style='display:none'><input id='searchInp' placeholder='🔍 প্রোডাক্ট নাম...' style='flex:1'></div>"+
  "<div class='bar'><label><input type='checkbox' id='selAll'> সব সিলেক্ট করুন</label> % <input id='bulkDisc' type='number' style='width:60px'> <button class='btn' id='bulkApply'>✅ সিলেক্টেডে % বসান</button><button class='btn' id='bulkSave'>💾 সিলেক্টেড Save</button><button class='btn' style='background:#c0392b' id='bulkDel'>🗑️ সিলেক্টেড রিমুভ</button></div>"+
  "<div class='bar'>শুরুর তারিখ <input id='bStart' style='width:110px' placeholder='dd-mm-yyyy'> শেষের তারিখ <input id='bEnd' style='width:110px' placeholder='dd-mm-yyyy'> <button class='btn' id='bDate'>📅 সিলেক্টেডে তারিখ বসান</button><span id='bSt'></span></div>"+
@@ -92,12 +94,12 @@ async function openProducts(s){
  $("searchInp").oninput=function(){loadList(s);};
  $("selAll").onchange=function(e){document.querySelectorAll(".pChk,.aChk").forEach(function(c){c.checked=e.target.checked;});toast(e.target.checked?"✅ সব সিলেক্ট হলো":"সিলেক্ট মুছে গেলো");};
  $("bulkApply").onclick=async function(){var d=+$("bulkDisc").value||0;var up={};var n=0;document.querySelectorAll(".pChk:checked").forEach(function(c){var card=c.closest(".pCard");card.querySelector(".pDisc").value=d;var pr=+card.querySelector(".pPrice").value||0;card.querySelector(".pCur").value=calc(pr,d);var nt=card.querySelector(".pNote");if(nt)nt.innerHTML=noteTxt(pr,d);up["products/"+c.dataset.id+"/discountPercent"]=d;n++;});await update(ref(db),up);ALL=null;toast("✅ "+n+"টার % বসল");};
- $("bulkSave").onclick=async function(){var n=0;for(var c of document.querySelectorAll(".pChk:checked")){var card=c.closest(".pCard");var up={price:+card.querySelector(".pPrice").value||0,discountPercent:+card.querySelector(".pDisc").value||0,startDate:card.querySelector(".pStart").value,endDate:card.querySelector(".pEnd").value,updatedAt:Date.now()};await update(ref(db,"products/"+c.dataset.id),up);if(s.hasCats)await update(ref(db,s.prodPath+"/"+CURCAT+"/"+c.dataset.id),{startDate:up.startDate,endDate:up.endDate});n++;}ALL=null;toast("✅ "+n+"টা Save");};
+ $("bulkSave").onclick=async function(){var n=0,err=0,last="";var cs=[].slice.call(document.querySelectorAll(".aChk:checked"));for(var k=0;k<cs.length;k++){var p=pending[+cs[k].dataset.i];if(p){try{await saveOne(s,p);n++;}catch(e){err++;last=e&&e.message?e.message:String(e);console.error(e);}}}pending=pending.filter(function(p){return !p.checked;});renderAdd();var ps=[].slice.call(document.querySelectorAll(".pChk:checked"));for(var k2=0;k2<ps.length;k2++){var card=ps[k2].closest(".pCard");var up={price:+card.querySelector(".pPrice").value||0,discountPercent:+card.querySelector(".pDisc").value||0,startDate:card.querySelector(".pStart").value,endDate:card.querySelector(".pEnd").value,updatedAt:Date.now()};try{await update(ref(db,"products/"+ps[k2].dataset.id),up);if(s.hasCats)await update(ref(db,s.prodPath+"/"+CURCAT+"/"+ps[k2].dataset.id),{startDate:up.startDate,endDate:up.endDate});n++;}catch(e){err++;last=e&&e.message?e.message:String(e);console.error(e);}}ALL=null;if(n)toast("✅ "+n+"টা পণ্য Save হয়েছে — home-এ দেখুন");if(err)toast("❌ "+err+"টা ব্যর্থ: "+last,"#c0392b");if(!n&&!err)toast("❌ কোনো পণ্য সিলেক্ট নেই","#c0392b");loadList(s);};
  $("bulkDel").onclick=async function(){var ids=[].slice.call(document.querySelectorAll(".pChk:checked")).map(function(c){return c.dataset.id;});if(!ids.length)return toast("❌ সিলেক্ট নেই","#c0392b");if(!confirm(ids.length+"টা ডিলিট?"))return;var up={};ids.forEach(function(id){up["products/"+id]=null;up["futureProducts/"+id]=null;if(s.hasCats)up[s.prodPath+"/"+CURCAT+"/"+id]=null;});await update(ref(db),up);ALL=null;toast("✅ ডিলিট");loadList(s);};
  $("bDate").onclick=async function(){var st=$("bStart").value,en=$("bEnd").value;var up={};var n=0;document.querySelectorAll(".pChk:checked").forEach(function(c){var card=c.closest(".pCard");card.querySelector(".pStart").value=st;card.querySelector(".pEnd").value=en;up["products/"+c.dataset.id+"/startDate"]=st;up["products/"+c.dataset.id+"/endDate"]=en;if(s.hasCats){up[s.prodPath+"/"+CURCAT+"/"+c.dataset.id+"/startDate"]=st;up[s.prodPath+"/"+CURCAT+"/"+c.dataset.id+"/endDate"]=en;}n++;});await update(ref(db),up);toast("✅ "+n+"টার তারিখ বসল");};
  $("addFiles").onchange=function(e){[].slice.call(e.target.files).forEach(function(f){pending.push({title:smartTitle(f.name),price:0,stock:10,file:f,checked:true,thumb:URL.createObjectURL(f)});});renderAdd();toast("✅ "+pending.length+"টা ফাইল লোড");};
  $("addPasteApply").onclick=async function(){var lines=$("addPaste").value.split("\n").map(function(l){return l.trim();}).filter(Boolean);var parsed=lines.map(parseLine).filter(function(q){return q.name&&q.price>0;});var used={};var n=0;pending.forEach(function(p){var best=null,bs=0,bi=-1;parsed.forEach(function(q,qi){var sc=score(p.title,q.name);if(sc>bs){bs=sc;best=q;bi=qi;}});if(best&&bs>=0.5){p.price=best.price;used[bi]=1;n++;}});parsed.forEach(function(q,qi){if(!used[qi])pending.push({title:q.name,price:q.price,stock:10,file:null,checked:true,thumb:PLACEHOLDER});});var up={};var mm=0;document.querySelectorAll("#pList .pCard").forEach(function(card){var t2=card.querySelector("b").textContent;var best=null,bs=0;parsed.forEach(function(q){var sc=score(t2,q.name);if(sc>bs){bs=sc;best=q;}});if(best&&bs>=0.5){var id=card.querySelector(".pPrice").dataset.id;card.querySelector(".pPrice").value=best.price;var dc=+card.querySelector(".pDisc").value||0;card.querySelector(".pCur").value=calc(best.price,dc);var nt=card.querySelector(".pNote");if(nt)nt.innerHTML=noteTxt(best.price,dc);up["products/"+id+"/price"]=best.price;mm++;}});if(mm)await update(ref(db),up);ALL=null;renderAdd();toast("✅ দাম বসল: নতুন "+n+"টা + আগের পণ্য "+mm+"টা");};
- $("saveAll").onclick=async function(){var sel=pending.filter(function(p){return p.checked;});if(!sel.length)return toast("❌ খালি","#c0392b");var n=0;for(var p of sel){await saveOne(s,p);n++;$("saveSt").textContent="⏳ "+n+"/"+sel.length;}pending=[];renderAdd();ALL=null;toast("✅ "+n+"টা Save হয়েছে — home-এ দেখুন");loadList(s);};
+ $("saveAll").onclick=async function(){};
  loadList(s);
 }
 async function saveOne(s,p){
@@ -137,7 +139,7 @@ function renderAdd(){
  L.onchange=function(e){var t=e.target;if(t.classList.contains("aChk")){var p=pending[+t.dataset.i];if(p)p.checked=t.checked;}};
  L.onclick=function(e){
   var b=e.target.closest("[data-x]");if(b){pending.splice(+b.dataset.x,1);renderAdd();toast("🗑️ বাদ দেওয়া হলো");return;}
-  var sv=e.target.closest("[data-save1]");if(sv){var idx=+sv.dataset.save1;var pp=pending[idx];if(pp){saveOne(S(),pp).then(function(){pending.splice(idx,1);ALL=null;renderAdd();toast("✅ Save হয়েছে — home-এ দেখুন");loadList(S());});}return;}
+  var sv=e.target.closest("[data-save1]");if(sv){var idx=+sv.dataset.save1;var pp=pending[idx];if(pp){saveOne(S(),pp).then(function(){pending.splice(idx,1);ALL=null;renderAdd();toast("✅ পণ্য Save হয়েছে");loadList(S());}).catch(function(e){console.error(e);toast("❌ ব্যর্থ: "+(e&&e.message?e.message:String(e)),"#c0392b");});}return;}
   var tt=e.target.closest(".aTitle");if(tt){var qq=pending[+tt.dataset.i];if(qq){var nn=prompt("নতুন নাম:",qq.title);if(nn){qq.title=nn;renderAdd();}}}
  };
 }
@@ -179,7 +181,7 @@ function renderRows(s,items){
  L.oninput=function(e){var t=e.target;if(t.classList.contains("pPrice")||t.classList.contains("pDisc")){var card=t.closest(".pCard");var pr=+card.querySelector(".pPrice").value||0;var dc=+card.querySelector(".pDisc").value||0;var cu=calc(pr,dc);card.querySelector(".pCur").value=cu;card.querySelector(".pNote").innerHTML=dc>0?("৳"+pr+" → ৳"+cu+" (Save ৳"+(pr-cu)+")"):("৳"+cu+" (কোনো ডিসকাউন্ট নেই)");}};
  L.onclick=async function(e){
   var sv=e.target.closest("[data-save]");
-  if(sv){var id=sv.dataset.save;var card=sv.closest(".pCard");var up={price:+card.querySelector(".pPrice").value||0,discountPercent:+card.querySelector(".pDisc").value||0,startDate:card.querySelector(".pStart").value,endDate:card.querySelector(".pEnd").value,updatedAt:Date.now()};await update(ref(db,"products/"+id),up);if(s.hasCats)await update(ref(db,s.prodPath+"/"+CURCAT+"/"+id),{startDate:up.startDate,endDate:up.endDate});ALL=null;toast("✅ Save");return;}
+  if(sv){var id=sv.dataset.save;var card=sv.closest(".pCard");var up={price:+card.querySelector(".pPrice").value||0,discountPercent:+card.querySelector(".pDisc").value||0,startDate:card.querySelector(".pStart").value,endDate:card.querySelector(".pEnd").value,updatedAt:Date.now()};try{await update(ref(db,"products/"+id),up);if(s.hasCats)await update(ref(db,s.prodPath+"/"+CURCAT+"/"+id),{startDate:up.startDate,endDate:up.endDate});ALL=null;toast("✅ পণ্য Save হয়েছে");}catch(e){console.error(e);toast("❌ ব্যর্থ: "+(e&&e.message?e.message:String(e)),"#c0392b");}return;}
   var dl=e.target.closest("[data-del]");
   if(dl){if(confirm("পণ্য সম্পূর্ণ মুছবেন?")){var up2={};up2["products/"+dl.dataset.del]=null;up2["futureProducts/"+dl.dataset.del]=null;if(s.hasCats)up2[s.prodPath+"/"+CURCAT+"/"+dl.dataset.del]=null;await update(ref(db),up2);ALL=null;toast("✅ মুছে গেছে");loadList(s);}return;}
  };
