@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /admin.html
+Disallow: /home-products.html
 
 Sitemap: https://mohajon-mjh.github.io/sitemap.xml
