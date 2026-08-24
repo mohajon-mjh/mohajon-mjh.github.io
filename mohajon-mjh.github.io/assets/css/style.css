@@ -1,0 +1,66 @@
+
+/* ===== MEGA MENU ===== */
+.mega-btn{
+  font-size:24px;
+  cursor:pointer;
+  padding:10px;
+}
+
+.mega-menu{
+  position:fixed;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100vh;
+  background:#111;
+  color:#fff;
+  transition:0.3s;
+  z-index:9999;
+  overflow:auto;
+}
+
+.mega-menu.show{
+  left:0;
+}
+
+.mega-header{
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
+  background:#222;
+}
+
+.mega-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+  padding:20px;
+}
+
+.mega-item{
+  background:#222;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+}
+
+.mega-item img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+  border-radius:8px;
+}
+
+.mega-item a{
+  color:#fff;
+  text-decoration:none;
+  display:block;
+  margin-top:8px;
+}
+
+@media(min-width:768px){
+  .mega-grid{
+    grid-template-columns:repeat(4,1fr);
+  }
+}
+

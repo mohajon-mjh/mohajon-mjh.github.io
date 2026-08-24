@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <title>Become a Seller - Mohajon MJH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body{
+      font-family: Arial;
+      background:#f4f4f4;
+      padding:20px;
+    }
+    .box{
+      max-width:500px;
+      margin:auto;
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,0,0,0.1);
+    }
+    h2{ text-align:center; }
+    label{
+      display:block;
+      margin-top:14px;
+      font-weight:bold;
+      font-size:14px;
+    }
+    input, textarea, select, button{
+      width:100%;
+      padding:10px;
+      margin-top:6px;
+      box-sizing:border-box;
+      border:1px solid #ccc;
+      border-radius:6px;
+      font-size:15px;
+    }
+    input[readonly]{
+      background:#f0f0f0;
+      color:#555;
+    }
+    button{
+      background:#28a745;
+      color:white;
+      border:none;
+      cursor:pointer;
+      margin-top:18px;
+      font-weight:bold;
+    }
+    button:disabled{
+      background:gray;
+      cursor:not-allowed;
+    }
+    .msg{
+      text-align:center;
+      margin-top:10px;
+      font-weight:bold;
+    }
+    .msg.error{ color:red; }
+    .msg.success{ color:green; }
+    .hidden{ display:none; }
+    .terms-box{
+      background:#f9f9f9;
+      border:1px solid #ddd;
+      border-radius:6px;
+      padding:12px;
+      margin-top:16px;
+      font-size:13px;
+      line-height:1.6;
+      max-height:180px;
+      overflow-y:auto;
+    }
+    .terms-box h4{
+      margin-top:0;
+    }
+    .agree-row{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+      margin-top:12px;
+    }
+    .agree-row input{
+      width:auto;
+      margin-top:2px;
+    }
+    .agree-row label{
+      margin-top:0;
+      font-weight:normal;
+      font-size:13px;
+    }
+    .verify-box{
+      background:#fff3cd;
+      border:1px solid #ffe69c;
+      border-radius:8px;
+      padding:16px;
+      margin-top:16px;
+      text-align:center;
+    }
+    .verify-box button{
+      background:#0d6efd;
+      margin-top:12px;
+    }
+  </style>
+<link rel="stylesheet" href="css/global-menu.css"></head>
+
+<body>
+<div id="menuBtn" class="hamburger">☰</div>
+<nav id="sideMenu" class="side-menu">
+<h3>Categories</h3>
+<ul id="categoryList"></ul>
+</nav>
+
+<div class="box">
+  <h2>🏪 Become a Seller</h2>
+  <p id="statusInfo"></p>
+
+  <div id="verify-box" class="verify-box hidden">
+    <p>📧 আবেদন করতে হলে আগে আপনার ইমেইল ভেরিফাই করতে হবে।</p>
+    <p style="font-size:13px;color:#555">আপনার ইমেইলে (<span id="user-email"></span>) একটি ভেরিফিকেশন লিংক পাঠানো হয়েছে। ইমেইল চেক করুন (Spam ফোল্ডারও দেখুন)। লিংকে ক্লিক করলেই সরাসরি এই পেজে ফিরিয়ে আনবে।</p>
+    <button id="resend-btn" type="button">ভেরিফিকেশন লিংক আবার পাঠান</button>
+    <button id="recheck-btn" type="button" style="background:#28a745">✅ ভেরিফাই করেছি, রিফ্রেশ করুন</button>
+  </div>
+
+  <form id="seller-request-form" class="hidden">
+
+    <label>ইমেইল / জিমেইল *</label>
+    <input type="email" id="seller-email" readonly>
+
+    <label>আপনার পূর্ণ নাম *</label>
+    <input type="text" id="owner-name" placeholder="আপনার পূর্ণ নাম" required>
+
+    <label>মোবাইল নম্বর *</label>
+    <input type="tel" id="phone" placeholder="01XXXXXXXXX" required>
+
+    <label>দোকানের নাম *</label>
+    <input type="text" id="store-name" placeholder="আপনার দোকানের নাম" required>
+
+    <label>দোকান/ব্যবসার সম্পূর্ণ ঠিকানা *</label>
+    <textarea id="address" placeholder="বাসা/হোল্ডিং, রোড, এলাকা" required></textarea>
+
+    <label>জেলা / শহর (Location) *</label>
+    <input type="text" id="location" placeholder="যেমন: ঢাকা, চট্টগ্রাম" required>
+
+    <label>প্রয়োজনীয় ডকুমেন্ট নাম্বার (NID/Trade License - ঐচ্ছিক)</label>
+    <textarea id="store-docs" placeholder="NID নাম্বার / ট্রেড লাইসেন্স নাম্বার (থাকলে দিন)"></textarea>
+    <div class="terms-box">
+      <h4>📜 কমিশন ও চুক্তির শর্তাবলী</h4>
+      <p><strong>১. কমিশন:</strong> প্রতিটি বিক্রিত পণ্যের উপর Admin কর্তৃক নির্ধারিত হারে কমিশন কর্তন করা হবে। কমিশনের হার ক্যাটাগরিভেদে ভিন্ন হতে পারে এবং Seller Dashboard-এ উল্লেখ থাকবে।</p>
+      <p><strong>২. পণ্য অনুমোদন:</strong> আপলোডকৃত প্রতিটি পণ্য Admin panel থেকে অনুমোদনের পরই সাইটে প্রদর্শিত হবে।</p>
+      <p><strong>৩. পেমেন্ট/Withdraw:</strong> বিক্রয়লব্ধ অর্থ কমিশন কর্তনের পর নির্ধারিত সময় অন্তর Seller-এর Wallet-এ যোগ হবে এবং Withdraw অপশনের মাধ্যমে উত্তোলনযোগ্য হবে।</p>
+      <p><strong>৪. দায়বদ্ধতা:</strong> পণ্যের মান, বিবরণ ও ডেলিভারি সংক্রান্ত সঠিকতার দায়িত্ব সম্পূর্ণভাবে Seller-এর।</p>
+      <p><strong>৫. নিয়ম ভঙ্গ:</strong> শর্ত ভঙ্গ, ভুয়া তথ্য বা প্রতারণামূলক কার্যকলাপের জন্য Admin কর্তৃক Seller একাউন্ট স্থগিত/বাতিল করা হতে পারে।</p>
+    </div>
+
+    <div class="agree-row">
+      <input type="checkbox" id="agree-terms" required>
+      <label for="agree-terms">আমি উপরোক্ত কমিশন ও চুক্তির শর্তাবলী পড়েছি এবং সম্মত আছি।</label>
+    </div>
+
+    <button type="submit">আবেদন জমা দিন</button>
+  </form>
+
+  <div id="msg" class="msg"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getDatabase, ref, push, set, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+    authDomain: "mohajon-mjh.firebaseapp.com",
+    databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+    projectId: "mohajon-mjh",
+    storageBucket: "mohajon-mjh.firebasestorage.app",
+    messagingSenderId: "526105903976",
+    appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd",
+    measurementId: "G-RX6CCQZHSH"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  const statusInfo = document.getElementById("statusInfo");
+  const form = document.getElementById("seller-request-form");
+  const msgEl = document.getElementById("msg");
+  const verifyBox = document.getElementById("verify-box");
+  const userEmailSpan = document.getElementById("user-email");
+  const resendBtn = document.getElementById("resend-btn");
+  const recheckBtn = document.getElementById("recheck-btn");
+  const sellerEmailInput = document.getElementById("seller-email");
+
+  function verifyActionCodeSettings(){
+    return {
+      url: "https://mohajon-mjh.github.io/verify-email.html?continueUrl=" + encodeURIComponent("become-seller.html"),
+      handleCodeInApp: true
+    };
+  }
+
+  let currentUser = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){
+      statusInfo.textContent = "আবেদন করতে হলে আগে লগইন করুন।";
+      msgEl.innerHTML = `<a href="login.html?role=seller">👤 Login করুন</a>`;
+      return;
+    }
+    currentUser = user;
+
+    await user.reload();
+
+    if(!user.emailVerified){
+      statusInfo.textContent = "";
+      userEmailSpan.textContent = user.email;
+      verifyBox.classList.remove("hidden");
+      form.classList.add("hidden");
+      return;
+    }
+
+    verifyBox.classList.add("hidden");
+    sellerEmailInput.value = user.email;
+
+    try{
+      const sellerSnap = await get(ref(db, `sellers/${user.uid}`));
+      if(sellerSnap.exists()){
+        const s = sellerSnap.val();
+        if(s.status === "approved"){
+          statusInfo.textContent = "আপনি ইতিমধ্যে একজন অনুমোদিত seller ✅";
+          msgEl.innerHTML = `<a href="seller-dashboard.html">আপনার ড্যাশবোর্ডে যান →</a>`;
+          return;
+        } else {
+          statusInfo.textContent = `আপনার আবেদনের অবস্থা: ${s.status}`;
+          return;
+        }
+      }
+
+      statusInfo.textContent = "আপনার দোকানের তথ্য দিয়ে seller হওয়ার আবেদন করুন।";
+      form.classList.remove("hidden");
+    }catch(err){
+      statusInfo.textContent = "সমস্যা হয়েছে: " + err.message;
+    }
+  });
+
+  resendBtn.onclick = async () => {
+    resendBtn.disabled = true;
+    resendBtn.textContent = "পাঠানো হচ্ছে...";
+    try{
+      await sendEmailVerification(currentUser, verifyActionCodeSettings());
+      alert("✅ ভেরিফিকেশন লিংক আবার পাঠানো হয়েছে। ইমেইল চেক করুন।");
+    }catch(err){
+      alert("Error: " + err.message);
+    }
+    resendBtn.disabled = false;
+    resendBtn.textContent = "ভেরিফিকেশন লিংক আবার পাঠান";
+  };
+
+  recheckBtn.onclick = async () => {
+    recheckBtn.disabled = true;
+    recheckBtn.textContent = "চেক করা হচ্ছে...";
+    await currentUser.reload();
+    if(currentUser.emailVerified){
+      location.reload();
+    }else{
+      alert("এখনও ভেরিফাই হয়নি। ইমেইলের লিংকে ক্লিক করার পর আবার চেষ্টা করুন।");
+      recheckBtn.disabled = false;
+      recheckBtn.textContent = "✅ ভেরিফাই করেছি, রিফ্রেশ করুন";
+    }
+  };
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if(!currentUser.emailVerified){
+      msgEl.textContent = "আগে ইমেইল ভেরিফাই করুন।";
+      msgEl.className = "msg error";
+      return;
+    }
+
+    const ownerName = document.getElementById("owner-name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const storeName = document.getElementById("store-name").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const location = document.getElementById("location").value.trim();
+    const docs = document.getElementById("store-docs").value.trim();
+    const agreed = document.getElementById("agree-terms").checked;
+
+    if(!ownerName || !phone || !storeName || !address || !location){
+      msgEl.textContent = "সবগুলো আবশ্যিক (*) ফিল্ড পূরণ করুন।";
+      msgEl.className = "msg error";
+      return;
+    }
+
+    if(!/^01[0-9]{9}$/.test(phone)){
+      msgEl.textContent = "সঠিক মোবাইল নম্বর দিন (যেমন: 01XXXXXXXXX)।";
+      msgEl.className = "msg error";
+      return;
+    }
+
+    if(!agreed){
+      msgEl.textContent = "চুক্তির শর্তাবলীতে সম্মত হতে হবে।";
+      msgEl.className = "msg error";
+      return;
+    }
+
+    const btn = form.querySelector("button");
+    btn.disabled = true;
+    btn.textContent = "জমা হচ্ছে...";
+
+    try{
+      const newReq = push(ref(db,"sellerRequests"));
+      const reqData = {
+        uid: currentUser.uid,
+        email: currentUser.email,
+        ownerName: ownerName,
+        phone: phone,
+        storeName: storeName,
+        address: address,
+        location: location,
+        agreementAccepted: true,
+        status: "pending",
+        createdAt: Date.now()
+      };
+      if(docs) reqData.documents = docs;
+
+      await set(newReq, reqData);
+
+      msgEl.textContent = "✅ আবেদন সফলভাবে জমা হয়েছে। Admin অনুমোদনের অপেক্ষায় আছে।";
+      msgEl.className = "msg success";
+      form.classList.add("hidden");
+    }catch(err){
+      msgEl.textContent = "Error: " + err.message;
+      msgEl.className = "msg error";
+      btn.disabled = false;
+      btn.textContent = "আবেদন জমা দিন";
+    }
+  });
+</script>
+
+<script src="js/global-menu.js?v=2"></script>
+</body>
+</html>

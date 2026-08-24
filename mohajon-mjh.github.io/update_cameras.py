@@ -1,0 +1,158 @@
+import json
+
+price_desc = {
+    "360_camera": (25000, "360 Camera — a camera capable of capturing full spherical photos and video."),
+    "action_camera": (12000, "Action Camera — a compact, durable camera designed for capturing adventure footage."),
+    "air_blower": (450, "Air Blower — a tool used to remove dust from camera sensors and lenses."),
+    "audio_recorder": (5500, "Audio Recorder — a portable device used to capture high-quality audio."),
+    "background_stand": (3500, "Background Stand — a support frame used to hold photography backdrops."),
+    "ball_head": (2500, "Ball Head — a tripod mount that allows flexible camera positioning."),
+    "barcode_scanner_camera": (3500, "Barcode Scanner Camera — a camera-based device used to scan and read barcodes."),
+    "batteries_power": (450, "Batteries & Power — a general range of camera battery and power products."),
+    "battery_charger": (1800, "Battery Charger — a device used to recharge camera batteries."),
+    "binoculars": (3500, "Binoculars — an optical device used for magnified viewing at a distance."),
+    "binoculars_optics": (3500, "Binoculars & Optics — a general range of optical viewing equipment."),
+    "body_cap": (250, "Body Cap — a protective cap used to cover a camera's lens mount."),
+    "boom_arm": (2500, "Boom Arm — an adjustable arm used to position microphones or lights."),
+    "bridge_camera": (35000, "Bridge Camera — a camera combining DSLR-style controls with a fixed zoom lens."),
+    "camera_accessories": (700, "Camera Accessories — a general range of accessories for photography equipment."),
+    "camera_backpack": (3500, "Camera Backpack — a padded backpack designed to safely carry camera gear."),
+    "camera_bag": (1800, "Camera Bag — a padded bag designed to protect and carry camera equipment."),
+    "camera_battery": (1500, "Camera Battery — a rechargeable battery designed for camera power."),
+    "camera_cage": (5500, "Camera Cage — a protective rig used to mount accessories on a camera."),
+    "camera_cleaning_kit": (900, "Camera Cleaning Kit — a set of tools used to clean lenses and camera bodies."),
+    "camera_drone": (55000, "Camera Drone — an unmanned aerial vehicle equipped with a camera for aerial photography."),
+    "camera_grip": (2500, "Camera Grip — an ergonomic handle used to stabilize and support a camera."),
+    "camera_lenses": (12000, "Camera Lenses — interchangeable lenses used to capture various photographic perspectives."),
+    "camera_microphone": (3500, "Camera Microphone — an external microphone designed to improve camera audio."),
+    "camera_monitor_mount": (1800, "Camera Monitor Mount — a mount used to attach an external monitor to a camera rig."),
+    "camera_rain_cover": (900, "Camera Rain Cover — a protective cover that shields cameras from rain and moisture."),
+    "camera_skin": (900, "Camera Skin — a protective decorative wrap designed for camera bodies."),
+    "camera_slider": (6500, "Camera Slider — a track system used to create smooth camera movement shots."),
+    "camera_strap": (900, "Camera Strap — a strap used to carry a camera securely around the neck or shoulder."),
+    "cameras": (35000, "Cameras — a general range of photography cameras."),
+    "cameras_photo": (1500, "Cameras & Photo — a general range of camera and photography equipment."),
+    "card_reader": (700, "Card Reader — a device used to transfer files from memory cards to a computer."),
+    "cfexpress_card": (8500, "CFexpress Card — a high-speed memory card used in professional cameras."),
+    "cine_lens": (55000, "Cine Lens — a specialized lens designed for cinematic video production."),
+    "clamp": (900, "Clamp — an adjustable mounting tool used to secure camera accessories."),
+    "color_calibration_card": (900, "Color Calibration Card — a reference card used to achieve accurate color balance."),
+    "compact_digital_camera": (18000, "Compact Digital Camera — a small, portable camera designed for everyday photography."),
+    "cpl_filter": (1500, "CPL Filter — a polarizing filter used to reduce glare and enhance colors."),
+    "disposable_camera": (900, "Disposable Camera — a single-use film camera designed for casual photography."),
+    "document_camera": (8500, "Document Camera — a camera used to project and capture physical documents."),
+    "drone_battery": (5500, "Drone Battery — a rechargeable battery designed to power camera drones."),
+    "drone_carrying_case": (2500, "Drone Carrying Case — a protective case designed for transporting drones."),
+    "drone_charger": (1800, "Drone Charger — a device used to recharge drone batteries."),
+    "drone_propellers": (900, "Drone Propellers — replacement blades used for drone flight."),
+    "drones_aerial_photography": (55000, "Drones & Aerial Photography — a general range of drone equipment for aerial photography."),
+    "dslr_camera": (55000, "DSLR Camera — a digital single-lens reflex camera designed for professional photography."),
+    "dslr_camera_lens": (18000, "DSLR Camera Lens — an interchangeable lens designed for DSLR cameras."),
+    "dual_battery_charger": (2500, "Dual Battery Charger — a charger capable of charging two camera batteries at once."),
+    "dummy_battery": (900, "Dummy Battery — a device used to power a camera continuously from an external source."),
+    "external_hard_drive": (4500, "External Hard Drive — a portable storage device used for saving photo and video files."),
+    "film_camera": (8500, "Film Camera — a traditional camera that captures images on photographic film."),
+    "filter_kit": (2500, "Filter Kit — a set of camera lens filters for varied photography effects."),
+    "filters": (1200, "Filters — optical attachments used to modify light entering the camera lens."),
+    "fisheye_lens": (12000, "Fisheye Lens — a wide-angle lens that creates a distinctive curved perspective."),
+    "flash_diffuser": (700, "Flash Diffuser — an accessory used to soften light from a camera flash."),
+    "flash_light_speedlite": (5500, "Flash Light (Speedlite) — an external flash unit used for camera lighting."),
+    "flexible_tripod": (1500, "Flexible Tripod — a bendable tripod designed for versatile camera positioning."),
+    "fluid_head": (5500, "Fluid Head — a tripod head designed for smooth panning and tilting video shots."),
+    "gimbal_stabilizer": (12000, "Gimbal Stabilizer — a motorized mount used to stabilize camera footage."),
+    "gray_card": (450, "Gray Card — a reference card used for accurate exposure and white balance."),
+    "green_screen": (3500, "Green Screen — a background used for chroma key video compositing."),
+    "hdmi_capture_card": (3500, "HDMI Capture Card — a device used to capture video output for streaming or recording."),
+    "instant_camera": (5500, "Instant Camera — a camera that prints physical photos immediately after capture."),
+    "instant_camera_case": (900, "Instant Camera Case — a protective case designed for instant cameras."),
+    "instant_film": (900, "Instant Film — photographic film designed for instant print cameras."),
+    "instant_photo_accessories": (700, "Instant Photo Accessories — a general range of accessories for instant cameras."),
+    "intervalometer": (2200, "Intervalometer — a device used to trigger a camera at set intervals for time-lapse photography."),
+    "lavalier_microphone": (2500, "Lavalier Microphone — a small clip-on microphone used for hands-free audio recording."),
+    "led_video_light": (3500, "LED Video Light — a lighting panel used to illuminate video and photo shoots."),
+    "lens_adapter": (1800, "Lens Adapter — an accessory used to mount a lens onto an incompatible camera body."),
+    "lens_cap": (250, "Lens Cap — a protective cover used to shield a camera lens."),
+    "lens_cleaning_cloth": (150, "Lens Cleaning Cloth — a soft cloth used to clean camera lenses."),
+    "lens_cleaning_solution": (350, "Lens Cleaning Solution — a liquid formula used to clean camera lenses."),
+    "lens_hood": (500, "Lens Hood — an attachment used to reduce glare and protect the lens."),
+    "light_stand": (1800, "Light Stand — an adjustable stand used to position photography lights."),
+    "lighting_equipment": (5500, "Lighting Equipment — a general range of photography and video lighting gear."),
+    "macro_lens": (18000, "Macro Lens — a specialized lens designed for extreme close-up photography."),
+    "memory_storage": (900, "Memory Storage — a general range of storage devices for photos and videos."),
+    "microphones_audio": (2500, "Microphones & Audio — a general range of audio recording equipment."),
+    "microsd_card": (900, "MicroSD Card — a compact memory card used in cameras and drones."),
+    "mini_tripod": (900, "Mini Tripod — a compact tripod designed for portable camera support."),
+    "mirrorless_camera": (65000, "Mirrorless Camera — a compact digital camera without an internal mirror mechanism."),
+    "monocular": (2500, "Monocular — a compact optical device used for magnified single-eye viewing."),
+    "monopod": (1800, "Monopod — a single-legged support used to stabilize a camera."),
+    "nd_filter": (1500, "ND Filter — a neutral density filter used to reduce light entering the lens."),
+    "nd_filters_for_drone": (1500, "ND Filters for Drone — neutral density filters designed for drone cameras."),
+    "night_vision_device": (12000, "Night Vision Device — an optical device used for viewing in low-light conditions."),
+    "photo_album": (700, "Photo Album — a book designed for storing and displaying printed photographs."),
+    "photo_frames": (500, "Photo Frames — decorative frames designed for displaying photographs."),
+    "photo_paper": (450, "Photo Paper — specialty paper designed for high-quality photo printing."),
+    "photo_printer": (12000, "Photo Printer — a printer designed specifically for producing photographic prints."),
+    "photo_tent_light_box": (2500, "Photo Tent Light Box — a portable enclosure used for even product photography lighting."),
+    "photography_backdrop": (1800, "Photography Backdrop — a background used for studio photography setups."),
+    "portable_ssd": (6500, "Portable SSD — a compact, high-speed storage drive for photo and video files."),
+    "portrait_lens": (18000, "Portrait Lens — a lens optimized for capturing flattering portrait photography."),
+    "power_bank_for_camera": (1800, "Power Bank for Camera — a portable battery pack used to charge camera equipment."),
+    "prime_lens": (15000, "Prime Lens — a fixed focal length lens known for sharpness and low-light performance."),
+    "reflector": (900, "Reflector — a photography accessory used to bounce and diffuse light."),
+    "ring_light": (2500, "Ring Light — a circular light source used for even, shadow-free illumination."),
+    "sandbag": (450, "Sandbag — a weighted bag used to stabilize light stands and tripods."),
+    "sd_card": (900, "SD Card — a memory card used to store photos and videos in cameras."),
+    "selfie_stick": (700, "Selfie Stick — an extendable rod used to take photos from a wider angle."),
+    "shotgun_microphone": (3500, "Shotgun Microphone — a directional microphone used for focused audio capture."),
+    "shutter_remote": (700, "Shutter Remote — a device used to trigger a camera's shutter remotely."),
+    "softbox": (3500, "Softbox — a lighting accessory used to diffuse and soften studio light."),
+    "spotting_scope": (8500, "Spotting Scope — a compact telescope used for detailed long-distance viewing."),
+    "star_filter": (1200, "Star Filter — a lens filter used to create starburst effects on light sources."),
+    "studio_equipment": (5500, "Studio Equipment — a general range of professional photography studio gear."),
+    "studio_light": (5500, "Studio Light — a lighting fixture designed for controlled studio photography."),
+    "telephoto_lens": (25000, "Telephoto Lens — a lens designed to capture distant subjects with magnification."),
+    "teleprompter": (12000, "Teleprompter — a device used to display scripted text while recording video."),
+    "telescope": (12000, "Telescope — an optical instrument used for viewing distant celestial objects."),
+    "tripod": (2500, "Tripod — a three-legged stand used to stabilize a camera."),
+    "tripods_supports": (2500, "Tripods & Supports — a general range of camera stabilization equipment."),
+    "umbrella_light_kit": (3500, "Umbrella Light Kit — a lighting setup using umbrellas to diffuse studio light."),
+    "underwater_camera": (18000, "Underwater Camera — a waterproof camera designed for underwater photography."),
+    "usb_charger": (450, "USB Charger — a charging adapter used to power camera batteries via USB."),
+    "uv_filter": (900, "UV Filter — a protective lens filter used to reduce UV haze and shield the lens."),
+    "variable_nd_filter": (2500, "Variable ND Filter — an adjustable neutral density filter for controlling exposure."),
+    "video_monitor": (8500, "Video Monitor — an external screen used for accurate video framing and focus."),
+    "video_production_equipment": (8500, "Video Production Equipment — a general range of gear for professional video production."),
+    "video_switcher": (25000, "Video Switcher — a device used to switch between multiple video sources live."),
+    "webcam": (2500, "Webcam — a camera designed for video calls and live streaming."),
+    "wide_angle_lens": (15000, "Wide Angle Lens — a lens designed to capture a broader field of view."),
+    "windshield_deadcat": (700, "Windshield (Deadcat) — a wind protection cover used on microphones for outdoor recording."),
+    "wireless_microphone": (5500, "Wireless Microphone — a microphone system that transmits audio without cables."),
+    "xqd_card": (8500, "XQD Card — a high-speed memory card used in professional cameras."),
+    "zoom_lens": (18000, "Zoom Lens — a lens with an adjustable focal length for flexible framing."),
+}
+
+path = "data/products-placeholder.json"
+with open(path, "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+updated = 0
+skipped = []
+for sku, prod in data.items():
+    if prod.get("categoryId") == "cameras_photo":
+        img = prod["images"]["main"].split("/")[-1].replace(".png", "")
+        if img in price_desc:
+            price, desc = price_desc[img]
+            title = " ".join(w.capitalize() for w in img.split("_"))
+            prod["title"] = title
+            prod["price"] = price
+            prod["description"] = desc
+            prod["status"] = "active"
+            updated += 1
+        else:
+            skipped.append((sku, img))
+
+with open(path, "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+
+print(f"Updated: {updated}")
+print(f"Skipped: {skipped}")

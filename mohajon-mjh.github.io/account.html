@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Account - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial;background:#EAEDED}.wrap{max-width:700px;margin:14px auto;padding:0 10px}.card{background:#fff;border-radius:8px;padding:16px;margin-bottom:14px}.btn{background:#FFD814;border:1px solid #FCD200;border-radius:16px;padding:8px 16px;font-weight:600;cursor:pointer}.lbl{color:#565959;font-size:12px}.ord{border-top:1px solid #eee;padding-top:8px;margin-top:8px;font-size:13px}</style></head><body>
+<header style="background:#131921;color:#fff;padding:10px 16px"><a href="index.html" style="color:#fff;font-weight:700;text-decoration:none">🛍️ Mohajon-MJH</a></header>
+<div class="wrap">
+<h2>👤 My Account</h2>
+<div class="card"><div class="lbl">Name</div><b id="pName">-</b><div class="lbl" style="margin-top:8px">Phone</div><b id="pPhone">-</b></div>
+<div class="card"><div class="lbl">Default Address</div><div id="pAddr" style="font-size:13px;margin:6px 0">-</div><button class="btn" onclick="location.href='checkout.html'">✏️ Change Address</button></div>
+<div class="card"><h3 style="margin-top:0">📦 My Orders</h3><div id="list">লোড হচ্ছে...</div></div>
+<button class="btn" onclick="localStorage.removeItem('mjhUser');location.href='login.html'">🚪 Logout</button>
+</div>
+<script>
+try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u){pName.textContent=u.name||"-";pPhone.textContent=u.phone||"-";}}catch(e){}
+try{const a=JSON.parse(localStorage.getItem("defaultAddress")||"null");if(a)pAddr.textContent=a.name+", "+(a.street||"")+", "+(a.area||"")+" | "+a.phone;}catch(e){}
+const IDS=JSON.parse(localStorage.getItem("myOrders")||"[]").reverse();
+(async()=>{
+ if(!IDS.length){list.innerHTML="এখনো কোনো অর্ডার নেই";return;}
+ const A=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
+ const D=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
+ const U=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js");
+ const app=A.getApps().length?A.getApp():A.initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+ const auth=U.getAuth(app);if(!auth.currentUser){try{await U.signInAnonymously(auth);}catch(e){}}
+ const db=D.getDatabase(app);
+ const rows=await Promise.all(IDS.map(async id=>{try{const s=await D.get(D.ref(db,"orders/"+id));return{id,o:s.val()};}catch(e){return null;}}));
+ list.innerHTML=rows.filter(x=>x&&x.o).map(({id,o})=>`<div class="ord"><b>#${id.slice(-8)}</b> — ৳${o.total} — <span style="color:${o.status==="delivered"?"#007600":o.status==="cancelled"?"#c0392b":"#B12704"}">${o.status}</span><br>📅 ${new Date(o.createdAt).toLocaleDateString()}</div>`).join("")||"লোড করা যায়নি";
+})();
+</script></body></html>

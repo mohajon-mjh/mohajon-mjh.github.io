@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💳 Payment Method Control Panel</title>
+<style>
+body{font-family:Arial;background:#111;color:#fff;padding:16px;margin:0}
+.card{background:#222;padding:15px;margin:10px 0;border-radius:10px}
+button{padding:8px 14px;margin:5px 5px 0 0;cursor:pointer;border:none;border-radius:6px;color:#fff;font-weight:bold}
+.save-btn{background:#2980b9}
+.delete-btn{background:#c0392b}
+input,textarea{width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #444;background:#111;color:#fff;box-sizing:border-box}
+label{display:block;margin-top:8px;font-size:13px;color:#ccc}
+</style>
+</head>
+<body>
+<button onclick="location.href='admin.html'" style="background:#555">← Admin-এ ফিরে যান</button>
+<div class="card" id="paymentAdminSection" style="margin-top:10px;border:1px solid #FFD814;">
+  <h2 style="color:#FFD814;margin-bottom:15px;">💳 Payment Method কন্ট্রোল প্যানেল</h2>
+  <p style="font-size:13px;color:#aaa;margin-bottom:15px;">এখান থেকে আপনি নতুন পেমেন্ট মেথড যোগ করতে পারবেন, এডিট করতে পারবেন, অথবা Hide/Show করতে পারবেন। শুধুমাত্র "Active" মেথডগুলো কাস্টমার Checkout পেজে দেখতে পাবে।</p>
+  <div id="paymentAdminContainer"><p style="color:#888;">⏳ লোড হচ্ছে...</p></div>
+</div>
+<script type="module">
+import "./admin-payment-manager.js";
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => window.initPaymentAdmin());
+} else {
+  window.initPaymentAdmin();
+}
+</script>
+</body>
+</html>
+<script type="module">/*pay-normalize-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,get,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const appN=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const dbN=getDatabase(appN);
+const PRETTY={bank:"Bank Transfer",bankBranch:"Bank Branch",bankHolder:"Account Holder",bankName:"Bank Name",bankNumber:"Account Number",bkash:"bKash",nagad:"Nagad",paypal:"PayPal",rocket:"Rocket"};
+setTimeout(async()=>{try{
+ const cur=(await get(ref(dbN,"settings/payments"))).val()||{};
+ for(const k of Object.keys(cur)){
+  const v=cur[k];
+  if(typeof v==="string"){
+   await set(ref(dbN,"settings/payments/"+k),{name:PRETTY[k]||k,icon:"💳",number:v,details:"",active:true,order:0});
+  }
+ }
+}catch(e){}},2500);
+</script>
+<script type="module">/*paypage-auth-v2*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signInWithEmailAndPassword}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const appA=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",authDomain:"mohajon-mjh.firebaseapp.com",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const authA=getAuth(appA);
+function showLogin(){
+ if(document.getElementById("payLoginBox"))return;
+ const f=document.createElement("div");f.id="payLoginBox";
+ f.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px";
+ f.innerHTML='<div style="background:#1a242f;border:1px solid #FFD814;border-radius:12px;padding:20px;max-width:340px;width:100%">'+
+ '<h3 style="color:#FFD814;margin:0 0 12px">🔐 Admin Login</h3>'+
+ '<input id="payEmail" type="email" placeholder="আপনার জিমেইল" style="width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #444;background:#111;color:#fff;box-sizing:border-box">'+
+ '<input id="payPass" type="password" placeholder="আপনার পাসওয়ার্ড" style="width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #444;background:#111;color:#fff;box-sizing:border-box">'+
+ '<button id="payLoginBtn" style="width:100%;padding:12px;margin-top:8px;background:#27ae60;color:#fff;border:none;border-radius:6px;font-weight:800">Login</button>'+
+ '<p id="payLoginMsg" style="color:#ff6b6b;font-size:12px;margin-top:8px"></p></div>';
+ document.body.appendChild(f);
+ document.getElementById("payLoginBtn").onclick=async()=>{
+  const em=document.getElementById("payEmail").value.trim();
+  const pw=document.getElementById("payPass").value;
+  try{await signInWithEmailAndPassword(authA,em,pw);const b=document.getElementById("payLoginBox");if(b)b.remove();}
+  catch(e){document.getElementById("payLoginMsg").textContent="❌ "+e.message;}
+ };
+}
+onAuthStateChanged(authA,async u=>{
+ if(!u){showLogin();return;}
+ try{
+  const r=(await get(ref(getDatabase(appA),"users/"+u.uid+"/role"))).val();
+  if(r==="admin"||r==="superadmin"){const b=document.getElementById("payLoginBox");if(b)b.remove();}
+  else showLogin();
+ }catch(e){showLogin();}
+});
+</script>

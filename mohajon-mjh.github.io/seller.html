@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seller Portal - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial;background:#131921;color:#fff}.top{background:#232f3e;padding:12px 16px;display:flex;align-items:center;gap:12px}.tabs{display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px;background:#1a242f}.tab{background:#37475a;border:none;color:#fff;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px}.tab.on{background:#FF9900;color:#111;font-weight:700}.wrap{max-width:900px;margin:14px auto;padding:0 12px}.card{background:#232f3e;border-radius:8px;padding:16px;margin-bottom:14px}.stat{display:flex;gap:12px;flex-wrap:wrap}.sbox{flex:1;min-width:120px;background:#37475a;border-radius:8px;padding:12px;text-align:center}.sbox b{display:block;font-size:20px;color:#FF9900}.row{border-top:1px solid #37475a;padding:10px 0;font-size:13px}.btn{background:#FF9900;border:none;color:#111;padding:8px 14px;border-radius:6px;font-weight:700;cursor:pointer}.inp{width:100%;padding:8px;margin:4px 0;border:1px solid #555;border-radius:6px;background:#1a242f;color:#fff;box-sizing:border-box}select.btn{background:#37475a;color:#fff}</style></head><body>
+<div class="top"><b style="color:#FF9900">🏪 Seller Portal</b><span id="storeName"></span><a href="index.html" style="color:#fff;margin-left:auto;font-size:13px">🛍️ Shop</a></div>
+<div class="tabs">
+ <button class="tab on" data-t="dash">📊 Dashboard</button>
+ <button class="tab" data-t="inv">📦 Inventory</button>
+ <button class="tab" data-t="ord">🧾 Orders</button>
+ <button class="tab" data-t="pay">💰 Earnings</button>
+ <button class="tab" data-t="rev">⭐ Reviews</button>
+ <button class="tab" data-t="set">⚙️ Settings</button>
+ <button class="tab" data-t="guide">📖 Guide</button>
+ <button class="tab" data-t="msg">💬 Messages</button>
+</div>
+<div class="wrap" id="content">লোড হচ্ছে...</div>
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get,query,orderByChild,equalTo,update,set,push}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+let uid=null,seller=null,myProducts={},myOrders={},wallet=null,txns={};
+const $=id=>document.getElementById(id);
+const fmt=v=>"৳"+Number(v||0).toFixed(2);
+onAuthStateChanged(auth,async u=>{
+ if(!u){location.href="login.html";return;}
+ if(u.isAnonymous){document.getElementById("content").innerHTML='<div class="card"><h3>🔐 Seller login দরকার</h3><p style="font-size:13px">Seller Portal ব্যবহার করতে seller/admin account দিয়ে login করুন।</p><button class="btn" onclick="location.href=\'login.html\'">👤 Login</button></div>';return;}
+ uid=u.uid;
+ await loadAll();
+ render("dash");
+});
+async function loadAll(){
+ try{const s=await get(ref(db,"sellers/"+uid));seller=s.val();}catch(e){}
+ $("storeName").textContent=seller?("— "+seller.storeName):"";
+ try{const p=await get(query(ref(db,"products"),orderByChild("sellerId"),equalTo(uid)));myProducts=p.val()||{};}catch(e){}
+ try{const sa=await get(ref(db,"sellerApps/"+uid));const cut=(sa.val()&&sa.val().createdAt)||0;if(cut){Object.keys(myProducts).forEach(k=>{if((myProducts[k].createdAt||0)<cut)delete myProducts[k];});}}catch(e){}
+ try{const o=await get(query(ref(db,"orders"),orderByChild("sellerId"),equalTo(uid)));myOrders=o.val()||{};}catch(e){}
+ try{const w=await get(ref(db,"wallets/"+uid));wallet=w.val();}catch(e){}
+ try{const t=await get(query(ref(db,"transactions"),orderByChild("userId"),equalTo(uid)));txns=t.val()||{};}catch(e){}
+}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");render(b.dataset.t);});
+function render(t){
+ if(t==="msg"){(async()=>{const c=document.getElementById("content");
+  if(!seller||seller.status!=="approved"){c.innerHTML='<div class="card">❌ শুধুমাত্র approved seller-রা message করতে পারবে</div>';return;}
+  const chatId="admin_"+uid;let rows="";
+  try{const m=await get(ref(db,"messages/"+chatId));rows=Object.values(m.val()||{}).sort((x,y)=>x.createdAt-y.createdAt).map(x=>'<div class="row"><b>'+(x.senderId===uid?"আপনি":"🛠️ Admin")+':</b> '+x.text+'</div>').join("");}catch(e){}
+  c.innerHTML='<div class="card"><h3>💬 Admin-এর সাথে Messages</h3>'+rows+'<div style="display:flex;gap:6px;margin-top:8px"><input class="inp" id="smTxt" placeholder="Message লিখুন"><button class="btn" onclick="window.__sm()">📨</button></div></div>';
+  window.__sm=async()=>{const t=document.getElementById("smTxt").value.trim();if(!t)return;
+   await set(ref(db,"chat/"+chatId),{participants:{},updatedAt:Date.now()}).catch(()=>{});
+   await update(ref(db,"chat/"+chatId),{["participants."+uid]:true,updatedAt:Date.now()}).catch(()=>{});
+   await set(push(ref(db,"messages/"+chatId)),{senderId:uid,text:t,createdAt:Date.now()});render("msg");};
+ })();return;}
+
+ if(t==="guide"){c.innerHTML=`<div class="card"><h3>📖 Seller Guide (Amazon/Daraz-এর মতো)</h3>
+ <div class="row">1️⃣ Admin approval-এর পর product add করুন (ছবি, বিস্তারিত, সঠিক দাম)</div>
+ <div class="row">2️⃣ Admin approve করলে product live হবে</div>
+ <div class="row">3️⃣ Order এলে দ্রুত pack করে ২৪-৪৮ ঘণ্টায় ship করুন</div>
+ <div class="row">4️⃣ Orders tab-এ status update করুন (processing→shipped→delivered)</div>
+ <div class="row">5️⃣ Delivered হলে টাকা আপনার wallet-এ আসবে</div>
+ <div class="row">6️⃣ Earnings tab থেকে withdraw request দিন</div>
+ <div class="row">7️⃣ ভালো rating রাখুন (দ্রুত delivery + মানসম্মত পণ্য) → বেশি বিক্রি</div></div>`;return;}
+ 
+ const c=$("content");
+ if(t==="dash"){
+  const orders=Object.values(myOrders);
+  const sales=orders.filter(o=>o.status==="delivered").reduce((a,o)=>a+(o.total||0),0);
+  const prods=Object.keys(myProducts).length;
+  c.innerHTML=`<div class="card"><h3>📊 Seller Dashboard</h3><div class="stat">
+   <div class="sbox"><b>${orders.length}</b>Orders</div>
+   <div class="sbox"><b>${fmt(sales)}</b>Total Sales</div>
+   <div class="sbox"><b>${prods}</b>Products</div>
+   <div class="sbox"><b>${fmt(wallet?wallet.balance:0)}</b>Balance</div>
+   <div class="sbox"><b>${seller?seller.rating||"-":"-"}</b>Rating</div>
+  </div></div>
+  <div class="card"><h3>🏪 Store Info</h3><div class="row">Name: <b>${seller?seller.storeName:"-"}</b></div><div class="row">Status: <b>${seller?seller.status:"-"}</b></div><div class="row">Commission: <b>${seller?seller.commissionRate||0:0}%</b></div></div>`;
+ }
+ if(t==="inv"){
+  let rows=Object.entries(myProducts).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).map(([id,p])=>`<div class="row"><b>${p.title||p.name}</b> — ${fmt(p.price)} — Stock: ${p.stock||0} — ${p.status}<br><button class="btn" onclick="window.__stock('${id}',10)">+10 Stock</button> <button class="btn" onclick="window.__stock('${id}',-10)">-10 Stock</button></div>`).join("");
+  c.innerHTML=`<div class="card"><h3>➕ Add Product</h3>
+<input class="inp" id="pTitle" placeholder="পণ্যের নাম *" oninput="document.getElementById('pCatHint').textContent='📂 '+(window.autoCat?window.autoCat(this.value):'')">
+<span id="pCatHint" style="font-size:11px;color:#7CFC00"></span>
+<input class="inp" id="pDesc" placeholder="বিবরণ">
+<input class="inp" id="pPrice" type="number" placeholder="দাম (৳) *">
+<input class="inp" id="pDisc" type="number" placeholder="Discount %">
+<input class="inp" id="pStart" placeholder="Offer start (8-8-2026)">
+<input class="inp" id="pEnd" placeholder="Offer end">
+<input class="inp" id="pStock" type="number" placeholder="Stock" value="10">
+<input class="inp" id="pImg" placeholder="Image URL (অথবা নিচে ছবি দিন)">
+<input type="file" accept="image/*" onchange="window.__pImg(this)"><img id="pPrev" style="display:none;max-width:120px;border-radius:8px;margin:4px 0">
+<input class="inp" id="pSup" placeholder="Supplier (ঐচ্ছিক, শুধু admin দেখবে)">
+<button class="btn" style="width:100%" onclick="window.__addProd()">➕ Product Add করুন</button></div>
+<div class="card"><h3>🤖 AI Bulk Add — একসাথে অনেক পণ্য</h3><p style="font-size:12px">কয়েকটা ছবি একসাথে select করুন — AI প্রতিটার নাম, দাম, ক্যাটাগরি auto দিয়ে product বানাবে!</p><input type="file" accept="image/*" multiple onchange="window.__bulkAI(this)"><div id="bulkLog" style="font-size:12px;margin-top:6px"></div></div><div class="card"><h3>📦 Inventory (${Object.keys(myProducts).length})</h3>${Object.keys(myProducts).length>50?'<p style="font-size:12px;color:#FF9900">⚠️ Admin account-এ login — তাই সব পণ্য দেখাচ্ছে। আলাদা seller account-এ শুধু নিজেরগুলো দেখাবে।</p>':''}<input class="inp" placeholder="🔍 পণ্য খুঁজুন..." oninput="document.querySelectorAll('#invRows .row').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(this.value.toLowerCase())?'block':'none')"><div id="invRows">${rows||"কোনো product নেই"}</div></div>
+  `;
+ }
+ if(t==="ord"){
+  let rows=Object.entries(myOrders).map(([id,o])=>`<div class="row"><b>#${id.slice(-6)}</b> — ${fmt(o.total)} — ${o.status}<br><select class="btn" id="st_${id}"><option>processing</option><option>shipped</option><option>delivered</option></select> <button class="btn" onclick="window.__ship('${id}')">Update</button></div>`).join("");
+  c.innerHTML=`<div class="card"><h3>🧾 My Orders (${Object.keys(myOrders).length})</h3>${rows||"কোনো order নেই"}</div>`;
+ }
+ if(t==="pay"){
+  let rows=Object.values(txns).map(x=>`<div class="row">${x.type==="credit"?"🟢":"🔴"} ${fmt(x.amount)} — ${x.type}</div>`).join("");
+  c.innerHTML=`<div class="card"><h3>💰 Earnings</h3><div class="stat"><div class="sbox"><b>${fmt(wallet?wallet.balance:0)}</b>Balance</div></div></div>
+  <div class="card"><h3>💸 Withdraw</h3><input class="inp" id="wAmt" type="number" placeholder="Amount"><input class="inp" id="wBank" placeholder="Bank details"><button class="btn" onclick="window.__wd()">Request Withdraw</button></div>
+  <div class="card"><h3>📜 Transactions</h3>${rows||"কোনো transaction নেই"}</div>`;
+ }
+ if(t==="rev"){c.innerHTML=`<div class="card"><h3>⭐ Reviews</h3><div class="row">Customer reviews এখানে দেখাবে</div></div>`;}
+ if(t==="set"){c.innerHTML=`<div class="card"><h3>⚙️ Store Settings</h3><div class="row">Store: <b>${seller?seller.storeName:"-"}</b></div><div class="row">Owner UID: ${uid}</div></div>`;}
+}
+window.__stock=async(id,d)=>{const p=myProducts[id];await update(ref(db,"products/"+id),{stock:Math.max(0,(p.stock||0)+d)});myProducts[id].stock=Math.max(0,(p.stock||0)+d);render("inv");};
+window.__pImg=function(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const cv=document.createElement("canvas");const sc=Math.min(1,600/Math.max(img.width,img.height));cv.width=img.width*sc;cv.height=img.height*sc;cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);window.pImgData=cv.toDataURL("image/jpeg",0.7);document.getElementById("pPrev").src=window.pImgData;document.getElementById("pPrev").style.display="block";if(window.__ai)window.__ai(document.getElementById("pPrev"),"p");};img.src=e.target.result;};r.readAsDataURL(f);};
+window.__addProd=async()=>{if(window.__suspended)return alert("⚠️ Account suspended! Admin-এর সাথে যোগাযোগ করুন।");if(window.__dueAmt>0)return alert("⚠️ Commission due আছে! আগে পরিশোধ করুন।");try{const t=$("pTitle").value,pr=+$("pPrice").value,st=+$("pStock").value,img=$("pImg").value,sup=$("pSup").value;if(!t||!pr)return alert("নাম ও দাম দিন");
+ const im=window.pImgData||img;
+ await set(push(ref(db,"products")),{sellerId:uid,title:t,description:$("pDesc").value||"",price:pr,stock:st||0,categoryId:(window.autoCat?window.autoCat(t):"general"),status:"pending",createdAt:Date.now(),updatedAt:Date.now(),discountPercent:+$("pDisc").value||0,startDate:$("pStart").value||"",endDate:$("pEnd").value||"",supplier:sup||null,images:im?{main:im}:null});
+ window.pImgData=null;alert("✅ Product submitted — admin approve করলে live হবে");await loadAll();render("inv");}catch(e){alert("❌ "+e.message);}};
+window.__ship=async(id)=>{const st=$("st_"+id).value;await update(ref(db,"orders/"+id),{status:st,updatedAt:Date.now()});alert("✅ Status: "+st);loadAll().then(()=>render("ord"));};
+window.__wd=async()=>{const a=+$("wAmt").value,b=$("wBank").value;if(!a)return alert("Amount দিন");await set(push(ref(db,"withdrawRequests")),{userId:uid,amount:a,bankDetails:b,status:"pending",createdAt:Date.now()});alert("✅ Withdraw request sent");};
+</script><script>/*auto-ai-v1*/window.autoCat=function(t){t=(t||"").toLowerCase();var M=[["electronics",["router","wifi","phone","laptop","tv","charger","headphone","camera","speaker","tablet","monitor"]],["groceries",["rice","wheat","potato","onion","garlic","ginger","oil","sugar","salt","tea","fish","meat","egg","milk","fruit","vegetable"]],["fashion",["shirt","pant","dress","saree","shoe","sandal","jacket","cap"]],["home-kitchen",["chair","table","pan","pot","knife","plate","stove","blender","fan","light"]],["health-beauty",["soap","shampoo","cream","perfume","toothpaste"]]];for(var i=0;i<M.length;i++){for(var j=0;j<M[i][1].length;j++){if(t.indexOf(M[i][1][j])>-1)return M[i][0];}}return "general";};</script>
+<script>/*dueLock-v1*/
+import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(async m=>{
+ const {getDatabase,ref,get,query,orderByChild,equalTo}=m;
+ const apps=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
+ const db=getDatabase(apps.getApps().length?apps.getApp():apps.initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"}));
+ window.__dueCheck=async(uid)=>{
+  try{const t=await get(query(ref(db,"commissions"),orderByChild("sellerId"),equalTo(uid)));
+   let due=0;Object.values(t.val()||{}).forEach(x=>due+=x.amount||0);window.__dueAmt=due;
+   const el=document.getElementById("dueBox");if(el)el.innerHTML=due>0?'<div style="background:#5a1a1a;color:#ffb3b3;border-radius:8px;padding:10px;margin:8px 0;font-size:13px">⚠️ <b>Commission due: ৳'+due.toFixed(0)+'</b> — bKash 0171317668288-এ পরিশোধ করে admin-কে জানান। Due থাকলে নতুন product যোগ করা যাবে না।</div>':'';}catch(e){}
+ };
+ window.__orderChats=async(uid)=>{
+  try{const o=await get(query(ref(db,"orders"),orderByChild("sellerId"),equalTo(uid)));
+   const ords=Object.entries(o.val()||{});const out=[];
+   for(const [oid,o] of ords){const chatId="c_"+o.buyerId+"_"+oid;
+    const ch=await get(ref(db,"chat/"+chatId)).catch(()=>null);
+    if(ch&&ch.exists()){const msgs=await get(ref(db,"messages/"+chatId));
+     out.push({oid,o,rows:Object.values(msgs.val()||{}).sort((a,b)=>a.createdAt-b.createdAt)});}
+   }
+   const el=document.getElementById("chatBox");if(el)el.innerHTML=out.length?out.map(x=>'<div style="background:#1a242f;border-radius:8px;padding:10px;margin:6px 0"><b>Order #'+x.oid.slice(-6)+'</b>'+x.rows.map(mm=>'<div style="font-size:12px;margin:3px 0"><b>'+(mm.senderId===uid?"আপনি":"👤")+':</b> '+mm.text+'</div>').join("")+'<div style="display:flex;gap:6px;margin-top:6px"><input id="cr_'+x.oid+'" placeholder="Reply..." style="flex:1;padding:6px;background:#232f3e;color:#fff;border:1px solid #555;border-radius:6px"><button onclick="window.__creply(\''+x.oid+'\',\''+x.o.buyerId+'\')" style="background:#FF9900;border:none;border-radius:6px;padding:6px 10px;font-weight:700">📨</button></div></div>').join(""):'<p style="font-size:12px">কোনো customer message নেই</p>';}catch(e){}
+ };
+ window.__creply=async(oid,buyerId)=>{
+  const apps2=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
+  const inp=document.getElementById("cr_"+oid);const t=inp.value.trim();if(!t)return;
+  const auth2=(await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js")).getAuth();
+  await apps2.set(apps2.push(ref(db,"messages/"+("c_"+buyerId+"_"+oid))),{senderId:auth2.currentUser.uid,text:t,createdAt:Date.now()});
+  window.__orderChats(auth2.currentUser.uid);
+ };
+});
+</script></html>

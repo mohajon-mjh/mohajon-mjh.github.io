@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="bn"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Product - Mohajon-MJH</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#EAEDED;color:#0F1111;font-size:14px}
+a{color:#007185;text-decoration:none}
+header{background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:16px}
+header a{color:#fff;text-decoration:none;font-size:14px}
+.wrap{max-width:1400px;margin:0 auto;padding:14px}
+.crumb{font-size:12px;color:#565959;margin-bottom:10px}
+.main{background:#fff;border-radius:8px;padding:20px;display:grid;grid-template-columns:380px 1fr 280px;gap:24px}
+@media(max-width:1024px){.main{grid-template-columns:1fr}}
+.gal{display:flex;gap:10px}
+.main-img{width:360px;max-width:100%;border-radius:8px;background:#f7f7f7;display:flex;align-items:center;justify-content:center;min-height:300px}
+.main-img img{max-width:100%;max-height:420px;border-radius:6px}
+.thumbs{display:flex;flex-direction:column;gap:6px}
+.thumbs img{width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #ddd}
+.thumbs img.on,.thumbs img:hover{border-color:#e77600}
+@media(max-width:640px){.gal{flex-direction:column-reverse}.thumbs{flex-direction:row;overflow-x:auto}.main-img{width:100%}}
+.brand{font-size:14px;color:#007185;margin-bottom:6px}
+h1{font-size:22px;font-weight:400;line-height:1.3;margin:4px 0 8px}
+.rating-bar{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:13px}
+.stars{color:#FFA41C;font-size:16px;letter-spacing:1px}
+.count{color:#007185}
+.sep{border:none;border-top:1px solid #eee;margin:14px 0}
+.price-box{background:#F7F7F7;border-radius:6px;padding:14px;margin:10px 0}
+.price-big{font-size:28px;font-weight:400}
+.old-price{text-decoration:line-through;color:#565959;font-size:13px;margin-left:8px}
+.disc-badge{background:#CC0C39;color:#fff;padding:2px 8px;border-radius:3px;font-size:12px;font-weight:700;margin-right:6px}
+.save-txt{color:#007600;font-size:13px;font-weight:600}
+.price-sar{font-size:13px;color:#565959;margin-top:4px}
+.highlights h3,.desc h3{font-size:16px;margin:14px 0 10px;font-weight:700}
+.highlights ul{margin:0;padding-left:22px;line-height:1.7;font-size:13px}
+.desc p{font-size:13px;line-height:1.7;color:#333}
+.buybox{border:1px solid #d5d9d9;border-radius:8px;padding:16px;height:fit-content}
+.bb-price{font-size:24px;font-weight:700;color:#B12704;margin-bottom:4px}
+.bb-delivery{background:#F0FFF4;border-radius:6px;padding:10px;margin:10px 0}
+.bb-delivery .free{color:#007600;font-weight:600;font-size:15px}
+.bb-delivery .date{font-size:13px;margin-top:2px}
+.bb-stock{color:#007600;font-size:16px;font-weight:600;margin:10px 0}
+.bb-stock.low{color:#C7511F}
+.bb-stock.out{color:#B12704}
+.bb-qty{margin:14px 0;display:flex;align-items:center;gap:10px}
+.bb-qty select{padding:6px 10px;border:1px solid #d5d9d9;border-radius:8px;background:#F0F2F2}
+.btn-y,.btn-o{width:100%;border-radius:20px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px}
+.btn-y{background:#FFD814;border:1px solid #FCD200}
+.btn-o{background:#FFA41C;border:1px solid #FF8F00}
+.trust{margin-top:10px;font-size:12px;color:#565959;line-height:1.7}
+.popup{position:fixed;top:20px;right:20px;background:#fff;border:1px solid #d5d9d9;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.2);padding:16px;z-index:9999;min-width:280px;display:none}
+.popup.show{display:block}
+.popup .ic{color:#007600;font-size:26px;margin-right:8px}
+.popup .btns{display:flex;gap:8px;margin-top:10px}
+.popup .btns button{flex:1;padding:8px;border-radius:8px;border:1px solid #d5d9d9;cursor:pointer;font-weight:600;font-size:13px}
+.popup .vc{background:#FFD814;border-color:#FCD200}
+.loading{text-align:center;padding:80px 20px;color:#565959}
+</style>
+
+<script src="auto-ads-enable.js"></script>
+
+<script src="manual-ads.js"></script>
+
+<script src="ad-cleanup.js"></script>
+
+<script src="social-bar.js"></script>
+</head>
+<body>
+<header>
+<a href="index.html" style="font-weight:700;font-size:18px">🛍️ Mohajon-MJH</a>
+<a href="my-orders.html">📦 My Orders</a>
+<a href="login.html" style="margin-left:auto">👤 Sign in</a>
+<a href="cart.html">🛒 Cart (<span id="cartCount">0</span>)</a>
+</header>
+<div class="wrap">
+<div class="crumb">Home › Products › <span id="crumbTitle">Product</span></div>
+<div id="content" class="loading">Loading product...</div>
+</div>
+<div class="popup" id="popup">
+<div><span class="ic">✓</span><b id="popTitle">Added to Cart</b></div>
+<p id="popMsg" style="font-size:13px;color:#565959;margin:8px 0 0"></p>
+<div class="btns">
+<button onclick="document.getElementById('popup').classList.remove('show')">Continue Shopping</button>
+<button class="vc" onclick="location.href='cart.html'">View Cart</button>
+</div>
+</div>
+<script>
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var id=new URLSearchParams(location.search).get("id");
+var SYM={BDT:"৳",SAR:"﷼",USD:"$",EUR:"€",GBP:"£",AED:"د.إ"};
+var RATES={BDT:1,SAR:0.0307,USD:0.0082,EUR:0.0075,GBP:0.0065,AED:0.03};
+function fmt(bdt,cur){var r=RATES[cur]||1;var n=(+bdt||0)*r;var s=SYM[cur]||"৳";return cur==="BDT"?s+n.toFixed(0):s+n.toFixed(2);}
+function cartCount(){var c=JSON.parse(localStorage.getItem("cart")||"[]");document.getElementById("cartCount").textContent=c.reduce(function(a,i){return a+(i.qty||1);},0);}
+cartCount();
+function addCart(P,qty){var c=JSON.parse(localStorage.getItem("cart")||"[]");var it=c.find(function(i){return i.id===P.id;});if(it){it.qty=(it.qty||1)+qty;}else{c.push({id:P.id,name:P.title,price:+P.price||0,qty:qty,sellerId:P.sellerId||"admin"});}localStorage.setItem("cart",JSON.stringify(c));cartCount();}
+function setImg(el,u){document.getElementById("mainImg").src=u;document.querySelectorAll(".thumbs img").forEach(function(t){t.classList.remove("on");});el.classList.add("on");}
+function stars(r){var f=Math.floor(r);return "★".repeat(f)+"☆".repeat(5-f);}
+function render(P){
+ if(!P){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">প্রোডাক্ট পাওয়া যায়নি</div>';return;}
+ P.id=id;
+ document.title=(P.title||"Product")+" - Mohajon-MJH";
+ var imgs=P.images?Object.values(P.images).filter(function(u){return typeof u==="string"&&u.indexOf("http")===0;}):[];
+ if(!imgs.length)imgs=["https://dummyimage.com/380x380/eeeeee/555&text=MJH"];
+ var price=+P.price||0,old=+P.discountPrice||0;
+ var hasOld=old>0&&old>price;
+ var disc=hasOld?Math.round((1-price/old)*100):0;
+ var rating=+P.rating||4.3,reviews=+P.reviews||2700;
+ var stock=+P.stock||100;
+ var cur=localStorage.getItem("selectedCurrency")||"BDT";
+ var del=new Date(Date.now()+14*864e5);
+ var dStr=del.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+ var freeDel=price>=2000;
+ var descLines=(P.description||"").split(/\n|\|/).map(function(s){return s.trim();}).filter(Boolean);
+ var highlights=descLines.slice(0,6);
+ var restDesc=descLines.slice(6).join("<br>");
+ var thumbsHtml=imgs.map(function(u,i){return '<img src="'+u+'" class="'+(i===0?"on":"")+'" onclick="setImg(this,\''+u+'\')">';}).join("");
+ var qtyHtml="";for(var i=1;i<=10;i++)qtyHtml+="<option>"+i+"</option>";
+ document.getElementById("content").className="";
+ document.getElementById("content").innerHTML='<div class="main">'+
+ '<div class="gal"><div class="thumbs">'+thumbsHtml+'</div><div class="main-img"><img id="mainImg" src="'+imgs[0]+'"></div></div>'+
+ '<div><div class="brand">'+(P.brand||"Mohajon MJH")+'</div><h1>'+(P.title||"Unnamed")+'</h1>'+
+ '<div class="rating-bar"><span class="stars">'+stars(rating)+'</span><span class="count">'+rating.toFixed(1)+' ('+reviews.toLocaleString()+' reviews)</span></div>'+
+ '<hr class="sep"><div class="price-box">'+(disc>0?'<span class="disc-badge">-'+disc+'%</span>':'')+'<span class="price-big">'+fmt(price,cur)+'</span>'+(hasOld?'<span class="old-price">'+fmt(old,cur)+'</span> <span class="save-txt">Save '+fmt(old-price,cur)+'</span>':'')+'<div class="price-sar">≈ '+fmt(price,"SAR")+' in Saudi Riyal</div></div>'+
+ '<div class="highlights"><h3>About this item</h3><ul>'+(highlights.length?highlights:["Mohajon MJH-এর অরিজিনাল প্রোডাক্ট","দ্রুত ডেলিভারি সারাদেশে","৭ দিনের সহজ রিটার্ন","Cash on Delivery available","নিরাপদ পেমেন্ট","সেরা মানের নিশ্চয়তা"]).map(function(l){return "<li>"+l+"</li>";}).join("")+'</ul></div>'+
+ (restDesc?'<div class="desc"><h3>Product Description</h3><p>'+restDesc+'</p></div>':'')+
+ '</div>'+
+ '<div class="buybox"><div class="bb-price">'+fmt(price,cur)+'</div>'+
+ '<div class="bb-delivery"><div class="free">'+(freeDel?"✅ FREE delivery":"🚚 Delivery ৳100")+'</div><div class="date">📦 '+dStr+'</div></div>'+
+ '<div class="bb-stock'+(stock<=5?" low":"")+'">'+(stock<=5?"Only "+stock+" left - order soon":"In Stock")+'</div>'+
+ '<div class="bb-qty"><label>Qty:</label><select id="qty">'+qtyHtml+'</select></div>'+
+ '<button class="btn-y" id="addBtn">🛒 Add to Cart</button><button class="btn-o" id="buyBtn">⚡ Buy Now</button>'+
+ '<div class="trust"><b>🔒 Secure transaction</b><br>💵 Cash on Delivery available<br>📦 Ships from Mohajon MJH<br>🔄 7-day easy return</div></div>'+
+ '</div>';
+ document.getElementById("crumbTitle").textContent=(P.title||"Product").slice(0,30);
+ document.getElementById("addBtn").onclick=function(){var q=+document.getElementById("qty").value;addCart(P,q);document.getElementById("popMsg").textContent=q+" × "+(P.title||"").slice(0,40);document.getElementById("popup").classList.add("show");setTimeout(function(){document.getElementById("popup").classList.remove("show");},3000);};
+ document.getElementById("buyBtn").onclick=function(){var q=+document.getElementById("qty").value;localStorage.setItem("buyNowItem",JSON.stringify({id:id,name:P.title,price:price,qty:q,sellerId:P.sellerId||"admin"}));location.href="buyflow.html?mode=buynow";};
+}
+(async function(){
+ try{var r=await fetch("https://open.er-api.com/v6/latest/USD");var j=await r.json();if(j&&j.rates&&j.rates.BDT){var B=j.rates.BDT;RATES={BDT:1,SAR:(j.rates.SAR||3.75)/B,USD:1/B,EUR:(j.rates.EUR||0.92)/B,GBP:(j.rates.GBP||0.79)/B,AED:(j.rates.AED||3.67)/B};}}catch(e){}
+ try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error loading product</div>';}
+})();
+</script>
+</body></html>
+<script>
+(function(){
+function go(){
+ if(!document.getElementById("mainImg"))return;
+ if(document.getElementById("amzIcons"))return;
+ var rb=document.querySelector(".rating-bar");
+ if(rb&&!document.getElementById("amzIcons")){var ic=document.createElement("div");ic.id="amzIcons";ic.style.cssText="display:flex;gap:6px;margin:14px 0";ic.innerHTML="<div style='flex:1;text-align:center'><div style='font-size:22px'>📦</div><div style='font-size:11px;color:#565959'>30 days Returnable</div></div><div style='flex:1;text-align:center'><div style='font-size:22px'>🚚</div><div style='font-size:11px;color:#565959'>Free Delivery</div></div><div style='flex:1;text-align:center'><div style='font-size:22px'>🏪</div><div style='font-size:11px;color:#565959'>Ships from MJH</div></div><div style='flex:1;text-align:center'><div style='font-size:22px'>🔒</div><div style='font-size:11px;color:#565959'>Secure payment</div></div>";rb.insertAdjacentElement("afterend",ic);}
+ var hl=document.querySelector(".highlights");
+ if(hl&&!document.getElementById("amzTable")){var t=document.createElement("div");t.id="amzTable";t.style.cssText="margin:16px 0";t.innerHTML="<h3 style='font-size:16px;margin:0 0 8px;font-weight:700'>Product details</h3><table style='width:100%;font-size:13px;border-collapse:collapse'><tr><td style='padding:7px 0;color:#565959;width:42%'>Material composition</td><td>Premium Quality</td></tr><tr><td style='padding:7px 0;color:#565959'>Care instructions</td><td>Hand wash only</td></tr><tr><td style='padding:7px 0;color:#565959'>Style</td><td>Modern Classic</td></tr><tr><td style='padding:7px 0;color:#565959'>Brand</td><td>Mohajon MJH</td></tr></table>";hl.insertAdjacentElement("beforebegin",t);}
+ var bb=document.querySelector(".buybox");
+ if(bb&&!document.getElementById("amzSellers")){var s=document.createElement("div");s.id="amzSellers";s.style.cssText="border:1px solid #d5d9d9;border-radius:8px;padding:12px;margin-top:12px;font-size:12px";s.innerHTML="<b>Other sellers on Mohajon-MJH</b><div style='margin-top:6px;color:#565959'>New (2) from <b style='color:#B12704'>"+document.querySelector(".bb-price").textContent+"</b> + FREE shipping</div>";bb.appendChild(s);}
+ var pr=document.querySelector(".price-big");if(pr){var sub=document.createElement("div");sub.style.cssText="font-size:12px;color:#565959;margin-top:4px";sub.textContent="Inclusive of all taxes";pr.insertAdjacentElement("afterend",sub);}
+}
+var n=0;var t=setInterval(function(){n++;try{go();}catch(e){}if(n>40||document.getElementById("amzIcons"))clearInterval(t);},500);
+})();
+</script>
+<script>/*amz-attr-v3*/
+(function(){
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var id=new URLSearchParams(location.search).get("id");
+function guess(t){t=(t||"").toLowerCase();var a={};
+if(/dress|kurta|shirt|pant|abaya|skirt|gown|anarkali|clothing|saree|kurti|fashion/.test(t))a.sizes="S,M,L,XL,XXL,3XL";
+if(/kg|food|rice|flour|oil|spice|tea|sugar|salt|feed|fertilizer|seed|honey|date|powder/.test(t))a.weight=((t.match(/([\d.]+)\s*kg/)||[])[1]||"1")+" kg";
+if(/headphone|phone|watch|earbud|charger|cable|lamp|speaker|trimmer|device|machine/.test(t)){a.pieces="1";a.weight=a.weight||"0.3 kg";}
+if(!a.sizes&&!a.weight)a.pieces="1";return a;}
+function chips(label,items){return '<div style="margin:10px 0"><div style="font-size:13px">'+label+':</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">'+items.map(function(x,i){return '<div style="border:2px solid '+(i===0?'#007185':'#ddd')+';border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;background:#fff" onclick="var p=this.parentNode;for(var k=0;k<p.children.length;k++)p.children[k].style.borderColor=\'#ddd\';this.style.borderColor=\'#007185\'">'+x+'</div>';}).join("")+'</div></div>';}
+function topBar(){if(document.getElementById("amzTop"))return;var h=document.querySelector("header");if(!h)return;var b=document.createElement("div");b.id="amzTop";b.innerHTML='<div style="background:#232F3E;padding:8px 14px;display:flex;gap:8px"><input id="amzQ" placeholder="Search Mohajon-MJH" style="flex:1;border:none;border-radius:6px 0 0 6px;padding:8px;font-size:14px"><button onclick="location.href=\'products.html?q=\'+encodeURIComponent(document.getElementById(\'amzQ\').value)" style="background:#FEBD69;border:none;border-radius:0 6px 6px 0;padding:8px 14px;cursor:pointer">🔍</button></div><div style="background:#131921;color:#fff;padding:6px 14px;display:flex;gap:16px;overflow-x:auto;font-size:12px;white-space:nowrap">'+["☰ All","Fashion","Electronics","Groceries","Beauty","Home & Kitchen","Sports","Books"].map(function(c){return '<span onclick="location.href=\'products.html?q='+encodeURIComponent(c.replace('☰ ',''))+'" style="cursor:pointer">'+c+'</span>';}).join("")+'</div>';h.insertAdjacentElement("afterend",b);}
+async function main(){topBar();if(!id)return;var P;try{P=await (await fetch(DB+"/products/"+id+".json")).json();}catch(e){return;}if(!P)return;
+var a={sizes:P.sizes||"",weight:P.weight||"",pieces:P.pieces||""};var g=guess(P.title);
+if(!a.sizes&&g.sizes)a.sizes=g.sizes;if(!a.weight&&g.weight)a.weight=g.weight;if(!a.pieces&&g.pieces)a.pieces=g.pieces;
+var w=0;var t=setInterval(function(){w++;var pb=document.querySelector(".price-box");
+if(pb&&!document.getElementById("amzAttr")){var html="";if(a.sizes)html+=chips("Size",a.sizes.split(","));if(a.weight)html+=chips("Weight",[a.weight]);if(a.pieces)html+=chips("Pieces",[a.pieces+" pc"]);
+if(html){var d=document.createElement("div");d.id="amzAttr";d.innerHTML=html;pb.insertAdjacentElement("afterend",d);}clearInterval(t);}
+if(w>30)clearInterval(t);},500);}
+main();})();
+</script>
+<script>/*amz-var-v5*/
+(function(){
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var id=new URLSearchParams(location.search).get("id");
+var TITLE="";
+function varBlock(){
+ if(document.getElementById("amzVar5"))return;
+ var anchor=document.getElementById("amzAttr")||document.querySelector(".price-box");
+ if(!anchor)return;
+ var thumbs=[].slice.call(document.querySelectorAll(".thumbs img"));
+ if(!thumbs.length)return;
+ var pe=document.querySelector(".price-big");var price=pe?pe.textContent.trim():"";
+ var auto=[{n:"Red",f:"hue-rotate(140deg) saturate(1.5)"},{n:"Blue",f:"hue-rotate(220deg) saturate(1.3)"},{n:"Purple",f:"hue-rotate(280deg) saturate(1.3)"},{n:"Yellow",f:"hue-rotate(70deg) saturate(1.6)"},{n:"Black",f:"grayscale(1) brightness(0.55)"}];
+ var all=thumbs.map(function(im,i){return {src:im.src,f:"",i:i,l:price};});
+ all=all.concat(auto.map(function(a){return {src:thumbs[0].src,f:a.f,i:-1,l:a.n};}));
+ var d=document.createElement("div");d.id="amzVar5";
+ d.innerHTML='<div style="font-size:13px;margin:12px 0 6px">Colour: <b>'+all.length+' options</b></div><div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px">'+all.map(function(o,i){return '<div class="v5opt" data-i="'+i+'" style="min-width:78px;text-align:center;border:2px solid '+(i===0?"#007185":"#ddd")+';border-radius:8px;padding:4px;cursor:pointer;background:#fff"><img src="'+o.src+'" style="width:64px;height:64px;object-fit:cover;border-radius:4px;filter:'+o.f+'"><div style="font-size:10px;color:#565959;margin-top:2px">'+o.l+'</div></div>';}).join("")+'</div>';
+ anchor.insertAdjacentElement("afterend",d);
+ [].slice.call(d.querySelectorAll(".v5opt")).forEach(function(el){el.onclick=function(){var i=+el.getAttribute("data-i");var o=all[i];[].slice.call(d.querySelectorAll(".v5opt")).forEach(function(x){x.style.borderColor="#ddd";});el.style.borderColor="#007185";var mi=document.getElementById("mainImg");if(o.i>=0){var t=document.querySelectorAll(".thumbs img")[o.i];if(t)t.click();if(mi)mi.style.filter="";}else if(mi){mi.style.filter=o.f;}};});
+}
+
+function variantChips(){
+ if(document.getElementById("amzVarChips"))return;
+ var anchor=document.getElementById("amzVar5")||document.getElementById("amzAttr")||document.querySelector(".price-box");
+ if(!anchor||!TITLE)return;
+ var t=TITLE.toLowerCase();
+ var m=(TITLE.match(/(\d+\s*\+\s*\d+\s*GB|\d+\s*GB|\d+\s*TB|\d+\s*inch)/gi)||[]).slice(0,4);
+ if(!m.length&&/phone|mobile|redmi|samsung|iphone|oppo|vivo|realme/.test(t))m=["4+64 GB","6+128 GB","8+256 GB"];
+ if(!m.length&&/jeans|pant|waist/.test(t))m=["30","32","34","36","38"];
+ if(!m.length)return;
+ var d=document.createElement("div");d.id="amzVarChips";
+ d.innerHTML='<div style="font-size:13px;margin:12px 0 6px">Style: <b>'+m[0]+'</b></div><div style="display:flex;gap:6px;flex-wrap:wrap">'+m.map(function(x,i){return '<div style="border:2px solid '+(i===0?"#007185":"#ddd")+';border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;background:#fff" onclick="var p=this.parentNode;for(var k=0;k<p.children.length;k++)p.children[k].style.borderColor=\'#ddd\';this.style.borderColor=\'#007185\'">'+x+'</div>';}).join("")+'</div>';
+ anchor.insertAdjacentElement("afterend",d);
+}
+function galFix(){
+ var g=document.querySelector(".gal");
+ if(g&&!document.getElementById("galFix5")){
+  var s=document.createElement("style");s.id="galFix5";
+  s.textContent=".gal{flex-direction:row!important}.thumbs{flex-direction:column!important;order:-1}.main-img{flex:1}";
+  document.head.appendChild(s);
+ }
+}
+var w=0;var t=setInterval(function(){w++;
+ try{varBlock();variantChips();galFix();}catch(e){}
+ if(w>40||(document.getElementById("amzVar5")&&document.getElementById("galFix5")))clearInterval(t);
+},600);
+(async function(){try{var P=await (await fetch(DB+"/products/"+id+".json")).json();if(P)TITLE=P.title||"";}catch(e){}})();
+})();
+</script>
+
+<script>/*product-schema*/
+(function(){
+ var url=location.href;
+ var m=url.match(/id=([^&]+)/);
+ if(!m)return;
+ fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/'+m[1]+'.json')
+ .then(r=>r.json())
+ .then(p=>{
+  if(!p||!p.title)return;
+  var ld={
+   "@context":"https://schema.org",
+   "@type":"Product",
+   "name":p.title,
+   "description":p.description||"",
+   "image":(p.images&&p.images.main)||"",
+   "brand":{"@type":"Brand","name":"MJH"},
+   "offers":{
+    "@type":"Offer",
+    "price":p.price||0,
+    "priceCurrency":"BDT",
+    "availability":"https://schema.org/InStock",
+    "url":url
+   }
+  };
+  if(p.rating)ld.aggregateRating={"@type":"AggregateRating","ratingValue":p.rating,"reviewCount":p.reviews||1};
+  var s=document.createElement("script");
+  s.type="application/ld+json";
+  s.textContent=JSON.stringify(ld);
+  document.head.appendChild(s);
+ });
+})();
+</script>

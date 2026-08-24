@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
+  <title>Grocery Fix Tool</title>
+<link rel="stylesheet" href="css/global-menu.css">
+</head>
+<body>
+<div id="menuBtn" class="hamburger">☰</div>
+<nav id="sideMenu" class="side-menu">
+<h3>Categories</h3>
+<ul id="categoryList"></ul>
+</nav>
+<h2>Running Firebase Update...</h2>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, child, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDj_LLHWBgKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// 1. CREATE CATEGORY FIRST
+await set(ref(db,"categories/grocery"),{
+  name:"Grocery",
+  image:"https://source.unsplash.com/300x200/?grocery",
+  link:"categories/grocery.html"
+});
+
+// 2. GET ALL PRODUCTS ONCE
+const snapshot = await get(ref(db,"products"));
+
+if(snapshot.exists()){
+
+  snapshot.forEach((child)=>{
+
+    update(ref(db,"products/"+child.key),{
+      category:"grocery"
+    });
+
+  });
+
+  document.body.innerHTML = "<h2>DONE ✔ All products set to Grocery</h2>";
+
+}else{
+
+  document.body.innerHTML = "<h2>No products found</h2>";
+
+}
+
+</script>
+
+<script src="js/global-menu.js?v=2"></script>
+</body>
+</html>

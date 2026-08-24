@@ -1,0 +1,111 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sell Your Products - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial;background:#f4f6f8}.top{background:#131921;color:#fff;padding:12px 16px;display:flex}.wrap{max-width:860px;margin:14px auto;padding:0 12px}.card{background:#fff;border-radius:10px;padding:16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}.big{font-size:22px;font-weight:900;color:#007600}.btn{background:#FFD814;border:1px solid #FCD200;border-radius:18px;padding:10px 16px;font-weight:700;cursor:pointer;margin:3px}.inp{width:100%;padding:9px;margin:4px 0;border:1px solid #999;border-radius:7px;box-sizing:border-box;font-size:14px}.lbl{font-size:12px;font-weight:700;color:#565959}.step{background:#eaf7ea;border-left:4px solid #007600;border-radius:6px;padding:10px;margin:6px 0;font-size:13px}.code{background:#111;color:#7CFC00;font-size:20px;font-weight:900;padding:10px 16px;border-radius:10px;display:inline-block;letter-spacing:2px}img.prev{max-width:140px;border-radius:8px;border:1px solid #ddd}</style></head><body>
+<div class="top"><b>🏪 Mohajon-MJH Seller</b><a href="index.html" style="color:#fff;margin-left:auto;font-size:13px;text-decoration:none">🛍️ Shop</a></div>
+<div class="wrap" id="content">লোড হচ্ছে...</div>
+<div id="recaptcha"></div>
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signOut,RecaptchaVerifier,signInWithPhoneNumber}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get,set,update}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","authDomain":"mohajon-mjh.firebaseapp.com","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+let uid=null,appData=null,imgData=null;
+const GUIDE=`<div class="card"><div class="big">🏪 যেভাবে নিজের পণ্য বিক্রি করবেন</div>
+<div class="step">1️⃣ Gmail/Phone verify করে Seller account খুলুন (নিচের ফর্ম)</div>
+<div class="step">2️⃣ আপনার প্রথম পণ্যের ছবি, দাম, discount, offer date দিন</div>
+<div class="step">3️⃣ Admin approve করলে 🆔 Seller ID Code পাবেন</div>
+<div class="step">4️⃣ Seller Portal-এ আরো পণ্য যোগ, order manage, earnings দেখুন</div>
+<div class="step">5️⃣ Delivered order-এর টাকা auto আপনার wallet-এ → withdraw করুন</div></div>`;
+onAuthStateChanged(auth,async u=>{
+ if(!u||u.isAnonymous){document.getElementById("content").innerHTML=`<div class="card"><div class="big">🔐 Login দরকার</div><button class="btn" onclick="location.href='login.html'">🌎 Sign in / Create account</button></div>`;return;}
+ uid=u.uid;
+ try{const s=await get(ref(db,"sellerApps/"+uid));appData=s.val();}catch(e){}
+ render();
+});
+function render(){
+ const c=document.getElementById("content");
+ if(appData&&appData.status==="approved"){c.innerHTML=`<div class="card"><div class="big">✅ আপনি Approved Seller!</div><p>আপনার 🆔 Seller ID:</p><div class="code">${appData.code||"SLR"}</div><br><br><button class="btn" onclick="location.href='seller.html'">📊 Seller Portal খুলুন →</button> <button class="btn" style="background:#fff" onclick="window.__newAcc()">🔄 নতুন/অন্য account দিয়ে আবেদন</button></div>`;return;}
+ if(appData&&appData.status==="pending"){c.innerHTML=GUIDE+`<div class="card"><div class="big">⏳ Approval চলছে</div><p>Store: <b>${appData.storeName}</b> | পণ্য: <b>${(appData.firstProduct||{}).title||"-"}</b></p><p style="font-size:13px">Admin approve করলে 🆔 ID code পাবেন।</p></div>`;return;}
+ c.innerHTML=GUIDE+`<div class="card"><div class="big">📝 Seller + প্রথম পণ্য ফর্ম</div>
+ <h3>🏪 Store তথ্য</h3>
+ <div class="lbl">Store নাম *</div><input class="inp" id="sName" placeholder="যেমন: Hossain Traders">
+ <div class="lbl">Store বিবরণ</div><input class="inp" id="sDesc">
+ <h3>👤 Owner বায়োডাটা</h3>
+ <div class="lbl">পূর্ণ নাম *</div><input class="inp" id="oName">
+ <div class="lbl">Email *</div><input class="inp" id="oEmail" value="${auth.currentUser.email||""}">
+ <div class="lbl">মোবাইল * (OTP)</div><div style="display:flex;gap:6px"><input class="inp" id="oPhone" placeholder="+8801XXXXXXXXX"><button class="btn" onclick="window.sendOtp()">📩 OTP</button></div>
+ <div class="lbl">ঠিকানা *</div><input class="inp" id="oAddr">
+ <div class="lbl">NID নম্বর * (KYC)</div><input class="inp" id="oNid">
+ <h3>💳 Payment তথ্য</h3>
+ <div class="lbl">bKash</div><input class="inp" id="pBkash"><div class="lbl">Account holder নাম</div><input class="inp" id="pAccName"><div class="lbl">ব্যাংক নাম</div><input class="inp" id="pBankName"><div class="lbl">Account নম্বর</div><input class="inp" id="pAccNum"><div class="lbl">Branch</div><input class="inp" id="pBranch">
+ <h3>📦 প্রথম পণ্য (ছবি সহ)</h3>
+ <div class="lbl">পণ্যের নাম * <span id="catHint" style="color:#007600"></span></div><input class="inp" id="gTitle" oninput="document.getElementById('catHint').textContent='📂 '+(window.autoCat?window.autoCat(this.value):'')">
+ <div class="lbl">বিবরণ</div><input class="inp" id="gDesc">
+ <div class="lbl">দাম (৳) *</div><input class="inp" id="gPrice" type="number">
+ <div class="lbl">Discount %</div><input class="inp" id="gDisc" type="number">
+ <div class="lbl">Offer start date</div><input class="inp" id="gStart" placeholder="8-8-2026">
+ <div class="lbl">Offer end date</div><input class="inp" id="gEnd" placeholder="12-8-2026">
+ <div class="lbl">Stock</div><input class="inp" id="gStock" type="number" value="10">
+ <div class="lbl">Category</div><input class="inp" id="gCat" value="general">
+ <div class="lbl">📷 পণ্যের ছবি * (gallery/computer থেকে)</div><input type="file" accept="image/*" onchange="window.pickImg(this)"><br><img id="prev" class="prev" style="display:none">
+ <button class="btn" style="width:100%;margin-top:12px" onclick="window.submitApp()">✅ Submit — Admin approval-এর জন্য</button></div>`;
+}
+window.pickImg=function(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const cv=document.createElement("canvas");const s=Math.min(1,600/Math.max(img.width,img.height));cv.width=img.width*s;cv.height=img.height*s;cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);imgData=cv.toDataURL("image/jpeg",0.7);document.getElementById("prev").src=imgData;document.getElementById("prev").style.display="block";if(window.__ai)window.__ai(document.getElementById("prev"));};img.src=e.target.result;};r.readAsDataURL(f);};
+window.sendOtp=async()=>{const ph=document.getElementById("oPhone").value.trim();if(!/^\+?[0-9]{11,15}$/.test(ph))return alert("সঠিক নম্বর দিন");if(!window.__rv){window.__rv=new RecaptchaVerifier(auth,"recaptcha",{size:"invisible"});}try{const v=await signInWithPhoneNumber(auth,ph,window.__rv);const code=prompt("📩 OTP দিন:");await v.confirm(code);alert("✅ Phone verified!");}catch(e){alert("⚠️ OTP unavailable — ছাড়াই চলবে");}};
+window.submitApp=async()=>{const g=id=>document.getElementById(id).value.trim();
+ if(!g("sName")||!g("oName")||!g("oPhone")||!g("oAddr")||!g("oNid")||!g("gTitle")||!g("gPrice")||!imgData)return alert("Store নাম, owner নাম, ফোন, ঠিকানা, NID, পণ্যের নাম, দাম ও ছবি আবশ্যক");
+ try{await set(ref(db,"sellerApps/"+uid),{uid,storeName:g("sName"),storeDesc:g("sDesc"),ownerName:g("oName"),email:g("oEmail"),phone:g("oPhone"),address:g("oAddr"),nid:g("oNid"),bkash:g("pBkash"),bank:"Name: "+g("pAccName")+" | Bank: "+g("pBankName")+" | A/C: "+g("pAccNum")+" | Branch: "+g("pBranch"),firstProduct:{title:g("gTitle"),desc:g("gDesc"),price:+g("gPrice"),discount:+g("gDisc")||0,start:g("gStart"),end:g("gEnd"),stock:+g("gStock")||0,cat:(g("gCat")&&g("gCat")!=="general")?g("gCat"):(window.autoCat?window.autoCat(g("gTitle")):"general"),image:imgData},status:"pending",createdAt:Date.now()});
+ alert("✅ Submitted! Admin approve করলে 🆔 Seller ID পাবেন");location.reload();}catch(e){alert("❌ "+e.message);}};
+</script>
+<script type="module">/*newAcc-override-v2*/
+import{getAuth,signOut}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","authDomain":"mohajon-mjh.firebaseapp.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+window.__newAcc=async()=>{try{await signOut(getAuth(app));location.href="login.html";}catch(e){alert(e.message);}};
+</script>
+
+<script>/*auto-ai-v1*/
+function loadScript(src){return new Promise(function(res,rej){var s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+window.autoCat=function(t){t=(t||"").toLowerCase();
+ var M=[["electronics",["router","wifi","phone","mobile","laptop","computer","tv","charger","headphone","earphone","camera","speaker","tablet","monitor","keyboard","mouse","bluetooth","smartwatch","watch","printer","console"]],
+ ["fashion",["shirt","tshirt","t-shirt","pant","dress","saree","sari","shoe","sandal","boot","jacket","hoodie","cap","hat","scarf","kurti","punjabi","panjabi","gown","frock","lungi"]],
+ ["groceries",["rice","paddy","wheat","corn","barley","oats","millet","lentil","dal","chickpea","gram","bean","seed","mustard","sesame","sunflower","groundnut","potato","onion","garlic","ginger","turmeric","vegetable","fruit","apple","banana","mango","orange","oil","ghee","sugar","salt","spice","chili","flour","tea","coffee","honey","fish","meat","chicken","beef","egg","milk"]],
+ ["health-beauty",["soap","shampoo","lotion","cream","perfume","attar","lipstick","makeup","toothpaste","razor","shaver","vitamin","sanitizer","detergent","cleaner","face wash"]],
+ ["home-kitchen",["chair","table","bed","sofa","pillow","blanket","curtain","pan","pot","knife","spoon","plate","cup","glass","bowl","stove","cooker","blender","mixer","grinder","fridge","freezer","oven","microwave","fan","bulb","lamp","light"]],
+ ["sports",["ball","bat","racket","gym","fitness","yoga","dumbbell","cycle","bicycle","skate","glove","jersey"]],
+ ["books",["book","novel","notebook","diary","pen","pencil","marker","ink"]],
+ ["automotive",["car","bike","motorcycle","engine","tire","tyre","battery","scooter","truck"]]];
+ for(var i=0;i<M.length;i++){for(var j=0;j<M[i][1].length;j++){if(t.indexOf(M[i][1][j])>-1)return M[i][0];}}
+ return "general";};
+var CATPRICE={electronics:2500,fashion:800,groceries:120,"health-beauty":500,"home-kitchen":900,sports:700,books:300,automotive:1500,general:500};
+window.__ai=function(imgEl){(async function(){
+ try{
+  if(!window.tf)await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js");
+  if(!window.mobilenet)await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js");
+  var model=await window.mobilenet.load({version:2,alpha:0.5});
+  var preds=await model.classify(imgEl,3);
+  var label=preds[0].className.split(",")[0].trim();
+  var labels=preds.map(function(p){return p.className.split(",")[0];}).join(", ");
+  var cat=window.autoCat(labels);
+  if(!document.getElementById("gTitle").value)document.getElementById("gTitle").value=label;
+  document.getElementById("gCat").value=cat;
+  document.getElementById("catHint").textContent="📂 "+cat;
+  if(!document.getElementById("gPrice").value)document.getElementById("gPrice").value=CATPRICE[cat]||500;
+  if(!document.getElementById("gDesc").value)document.getElementById("gDesc").value="🤖 "+label+" — উচ্চমানের পণ্য, বাজারের সেরা দামে অর্ডার করুন।";
+  alert("🤖 AI শনাক্ত করেছে: "+label+"\nনাম, দাম, বিবরণ ও ক্যাটাগরি auto-fill হয়েছে!");
+ }catch(e){console.log("AI skip:",e.message);}
+})();};
+</script>
+</body>
+<script>/*payAny-v1*/
+window.__payOK=function(){
+ var ok=false;
+ [].slice.call(document.querySelectorAll("input,select,textarea")).forEach(function(el){
+  var k=((el.id||"")+" "+(el.name||"")+" "+(el.placeholder||"")).toLowerCase();
+  if(/bkash|bKash|nagad|নগদ|rocket|রকেট|account|bank|ব্যাংক/.test(k)&&el.value&&el.value.trim())ok=true;
+ });
+ return ok;
+};
+</script>
+</html>

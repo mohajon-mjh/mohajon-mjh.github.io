@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Courier Pickup - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial;background:#f4f6f8}.wrap{max-width:640px;margin:14px auto;padding:0 10px}.card{background:#fff;border-radius:10px;padding:14px;margin:10px 0}.btn{background:#FFD814;border:1px solid #FCD200;border-radius:20px;padding:10px 16px;font-weight:700;cursor:pointer;margin:3px}.inp{width:100%;padding:9px;margin:4px 0;border:1px solid #999;border-radius:7px;box-sizing:border-box}</style></head><body>
+<header style="background:#131921;color:#fff;padding:12px 16px"><a href="seller.html" style="color:#fff;text-decoration:none">← Seller Portal</a> | 🚚 Courier Pickup</header>
+<div class="wrap">
+<div class="card"><h3>🚚 Request Courier Pickup</h3>
+<select id="courier" class="inp" onchange="window.__intl()">
+<option value="pathao">🇧 Pathao (ঢাকা ৳60-80)</option>
+<option value="redx">🇧🇩 RedX (৳60-140)</option>
+<option value="steadfast">🇧 Steadfast (Sonagazi branch ৳50-120)</option>
+<option value="ecourier">🟢 eCourier (Full Online ৳60-120)</option>
+<option value="sundarban">🇧🇩 Sundarban (Sonagazi agency ৳50-100)</option>
+<option value="continental">🇧🇩 Continental (Sonagazi ৳60-120)</option>
+<option value="saparibahan">🇧🇩 S.A Paribahan (Feni ৳50-100)</option>
+<option value="dhl">🌍 DHL Express (intl ৳2500+/kg)</option>
+<option value="aramex">🌍 Aramex (intl ৳2000+/kg)</option>
+<option value="fedex">🌍 FedEx (intl ৳2200+/kg)</option>
+<option value="ups">🌍 UPS (intl ৳2300+/kg)</option>
+</select>
+<input class="inp" id="oid" placeholder="Order ID">
+<input class="inp" id="pname" placeholder="Customer name">
+<input class="inp" id="pphone" placeholder="Customer phone">
+<input class="inp" id="paddr" placeholder="Delivery address">
+<div id="intlBox" style="display:none"><input class="inp" id="pcountry" placeholder="Country (যেমন: Saudi Arabia)"><input class="inp" id="pzip" placeholder="Postal code"></div>
+<input class="inp" id="pweight" type="number" placeholder="Weight (kg)" value="1">
+<input class="inp" id="pamt" type="number" placeholder="COD amount (৳)">
+<div id="rate" style="font-size:12px;color:#007600;margin:4px 0"></div>
+<button class="btn" style="width:100%" onclick="window.__reqPickup()">🚚 Request Pickup</button></div>
+
+<div class="card"><h3>👤 BD Agent Info (Pickup Address)</h3>
+<p style="font-size:12px;color:#888">Courier pickup address আপনার BD agent-এর হতে হবে</p>
+<input class="inp" id="agentName" placeholder="Agent name (যেমন: মোহাম্মদ ভাই)">
+<input class="inp" id="agentPhone" placeholder="Agent BD phone">
+<input class="inp" id="agentAddr" placeholder="Agent full address (Sonagazi, Feni)">
+<button class="btn" style="width:100%" onclick="window.__saveAgent()">💾 Save Agent Info</button>
+</div>
+<script>
+window.__saveAgent=()=>{
+ localStorage.setItem("mjh_agent",JSON.stringify({name:document.getElementById("agentName").value,phone:document.getElementById("agentPhone").value,addr:document.getElementById("agentAddr").value}));
+ alert("✅ Agent info saved!");
+};
+const ag=JSON.parse(localStorage.getItem("mjh_agent")||"{}");
+if(ag.name){["agentName","agentPhone","agentAddr"].forEach(id=>{const k=id.replace("agent","").toLowerCase();document.getElementById(id).value=ag[k]||"";});}
+</script>
+<div class="card"><h3>📦 My Pickup Requests</h3><div id="picks">লোড হচ্ছে...</div></div>
+</div>
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get,set,push,update,query,orderByChild,equalTo}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);let uid=null;
+const INTL=["dhl","aramex","fedex","ups"];
+const RATES={pathao:[60,80],redx:[60,140],steadfast:[50,120],ecourier:[60,120],sundarban:[50,100],continental:[60,120],saparibahan:[50,100],dhl:[2500,3200],aramex:[2000,2800],fedex:[2200,3000],ups:[2300,3100]};
+window.__intl=()=>{const c=document.getElementById("courier").value;document.getElementById("intlBox").style.display=INTL.includes(c)?"block":"none";const w=+document.getElementById("pweight").value||1;const r=RATES[c];document.getElementById("rate").textContent="📊 আনুমানিক charge: ৳"+(r[0]*w)+" - ৳"+(r[1]*w)+(INTL.includes(c)?" (international)":" (local)");};
+onAuthStateChanged(auth,async u=>{if(!u){location.href="login.html";return;}uid=u.uid;loadPicks();});
+async function loadPicks(){
+ const snap=await get(query(ref(db,"supportTickets"),orderByChild("userId"),equalTo(uid)));
+ const rows=Object.entries(snap.val()||{}).filter(([id,t])=>t.subject==="COURIER").map(([id,t])=>{let m={};try{m=JSON.parse(t.message);}catch(e){}
+  return '<div style="background:#f4f6f8;border-radius:8px;padding:10px;margin:6px 0">🚚 '+m.courier+' | Order #'+(m.orderId||"").slice(-6)+' | ৳'+m.amt+' | Status: <b>'+t.status+'</b>'+(m.tracking?' | Tracking: '+m.tracking:'')+'</div>';}).join("");
+ document.getElementById("picks").innerHTML=rows||"কোনো request নেই";
+}
+window.__reqPickup=async()=>{
+ const g=id=>document.getElementById(id).value.trim();
+ if(!g("oid")||!g("pname")||!g("pphone")||!g("paddr")||!g("pamt"))return alert("সব field পূরণ করুন");
+ const c=g("courier");
+ const info={courier:c,orderId:g("oid"),name:g("pname"),phone:g("pphone"),addr:g("paddr"),amt:+g("pamt"),weight:+g("pweight").value||1,country:g("pcountry")||"Bangladesh",zip:g("pzip")};
+ let auto="manual";
+ try{
+  const cfg=(await get(ref(db,"settings/courierConfig/"+c))).val();
+  if(cfg&&cfg.auto){
+   const res=await fetch("https://us-central1-mohajon-mjh.cloudfunctions.net/bookCourier",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({sellerId:uid},info))});
+   const j=await res.json();
+   if(j&&j.tracking){info.tracking=j.tracking;auto="auto ✅";await update(ref(db,"orders/"+g("oid")+"/shippingAddress"),{trackingNo:j.tracking}).catch(()=>{});}
+  }
+ }catch(e){auto="manual (auto unavailable)";}
+ await set(push(ref(db,"supportTickets")),{userId:uid,subject:"COURIER",message:JSON.stringify(info),status:auto==="auto ✅"?"pending":"open",createdAt:Date.now()});
+ alert("✅ Pickup requested! Mode: "+auto);loadPicks();
+};
+</script></body></html>

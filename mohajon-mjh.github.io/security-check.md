@@ -1,0 +1,5 @@
+- prevent stock negative
+- validate order items
+- sanitize user input
+- prevent duplicate order submission
+- limit seller write access

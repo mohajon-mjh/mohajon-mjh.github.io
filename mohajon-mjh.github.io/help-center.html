@@ -1,0 +1,35 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Help Center - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial;background:#f4f6f8}.wrap{max-width:640px;margin:14px auto;padding:0 10px}.card{background:#fff;border-radius:10px;padding:14px;margin:10px 0}.inp{width:100%;padding:10px;margin:4px 0;border:1px solid #999;border-radius:7px;box-sizing:border-box}.btn{background:linear-gradient(90deg,#FFD814,#FF9900);border:none;border-radius:20px;padding:11px 18px;font-weight:900;cursor:pointer;width:100%}</style></head><body>
+<header style="background:#131921;color:#fff;padding:12px 16px"><a href="index.html" style="color:#fff;text-decoration:none">← Home</a> | ❓ Help Center</header>
+<div class="wrap">
+<div class="card"><h3>❓ সচরাচর জিজ্ঞাসা</h3>
+<b>🚚 ডেলিভারি কত দিনে?</b> — ১৪ দিনের মধ্যে। Track Order-এ live status দেখুন।<br><br>
+<b>💳 Payment কীভাবে?</b> — COD অথবা bKash (0171317668288)।<br><br>
+<b>🔄 Return?</b> — পণ্যতে সমস্যা থাকলে ৭ দিনের মধ্যে জানান।<br></div>
+<div class="card"><h3>📨 সমস্যা জানান</h3><div id="formBox"></div></div>
+<div class="card"><h3>📋 আমার Ticket সমূহ</h3><div id="myTickets">লোড হচ্ছে...</div></div>
+</div>
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get,set,push,update,query,orderByChild,equalTo,onValue}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+const oid=new URLSearchParams(location.search).get("o")||"";
+onAuthStateChanged(auth,u=>{
+ if(!u){document.getElementById("formBox").innerHTML='<p>সমস্যা জানাতে <a href="login.html" style="color:#FF9900;font-weight:700">Login করুন</a></p>';document.getElementById("myTickets").innerHTML="";return;}
+ document.getElementById("formBox").innerHTML='<input class="inp" id="hOrder" placeholder="Order ID (যদি থাকে)" value="'+oid+'"><select class="inp" id="hCat"><option>Delivery</option><option>Payment</option><option>Product</option><option>Return</option><option>Other</option></select><textarea class="inp" id="hMsg" rows="3" placeholder="আপনার সমস্যা লিখুন..."></textarea><button class="btn" onclick="window.__sendHelp()">📨 Send</button>';
+ onValue(query(ref(db,"supportTickets"),orderByChild("userId"),equalTo(u.uid)),snap=>{
+  const ts=Object.entries(snap.val()||{}).sort((a,b)=>b[1].createdAt-a[1].createdAt);
+  document.getElementById("myTickets").innerHTML=ts.map(([id,t])=>'<div style="background:#f4f6f8;border-radius:8px;padding:10px;margin:6px 0"><b>'+t.subject+'</b> <span style="color:'+(t.status==="closed"?"#007600":"#FF9900")+'">('+t.status+')</span><br>'+ (t.message||"").split("\n").map(l=>'<div style="font-size:13px;margin:3px 0">'+l+'</div>').join("")+'<div style="display:flex;gap:6px;margin-top:6px"><input class="inp" id="cr_'+id+'" placeholder="আরো কিছু লিখুন..." style="margin:0"><button style="background:#FF9900;border:none;border-radius:8px;padding:8px 12px;font-weight:700" onclick="window.__custReply(\''+id+'\')">📨</button></div></div>').join("")||"কোনো ticket নেই";
+ });
+ window.__custReply=async(id)=>{const v=document.getElementById("cr_"+id).value.trim();if(!v)return;const cur=(await get(ref(db,"supportTickets/"+id))).val();await update(ref(db,"supportTickets/"+id),{message:cur.message+"\n👤: "+v});};
+});
+window.__sendHelp=async()=>{
+ const u=auth.currentUser;const msg=document.getElementById("hMsg").value.trim();if(!msg)return alert("সমস্যা লিখুন");
+ const cat=document.getElementById("hCat").value;const o=document.getElementById("hOrder").value.trim();
+ await set(push(ref(db,"supportTickets")),{userId:u.uid,subject:"HELP|"+cat+(o?"|"+o.slice(-6):""),message:"👤: "+msg,status:"open",createdAt:Date.now()});
+ alert("✅ পাঠানো হয়েছে! ২৪ ঘণ্টার মধ্যে উত্তর পাবেন");
+ document.getElementById("hMsg").value="";
+};
+</script></body></html>

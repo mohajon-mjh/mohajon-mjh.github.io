@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Secure Checkout - Mohajon-MJH</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#EAEDED}
+header{background:#131921;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+header a{color:#fff;text-decoration:none;font-weight:700;font-size:16px}
+.wrap{max-width:760px;margin:12px auto;padding:0 10px}
+.yellow-pill{display:block;width:100%;background:#FFD814;border:1px solid #FCD200;border-radius:20px;padding:10px;font-size:14px;font-weight:600;cursor:pointer}
+.white-pill{display:block;width:100%;background:#fff;border:1px solid #bbb;border-radius:20px;padding:10px;font-size:13px;cursor:pointer;margin-top:8px}
+.sumbox{background:#fff;border-radius:8px;padding:12px 16px;margin:12px 0;font-size:13px}
+.srow{display:flex;justify-content:space-between;margin:4px 0}
+.srow.total{font-weight:700;font-size:16px;border-top:1px solid #eee;padding-top:8px;margin-top:8px;color:#B12704}
+.box{background:#fff;border-radius:8px;padding:14px 16px;margin:12px 0}
+.box h3{margin:0 0 4px;font-size:15px}
+.small{font-size:12px;color:#565959;margin:0 0 10px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;overflow:auto}
+.mbox{max-width:560px;margin:26px auto;background:#fbfbfb;border-radius:10px;padding-bottom:14px}
+.mhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f0f0f0;font-weight:700;border-radius:10px 10px 0 0}
+.mhead button{background:none;border:none;font-size:18px;cursor:pointer}
+.mbody{padding:6px 18px}
+.mbody input,.mbody select,.mbody textarea{width:100%;padding:9px;margin:4px 0 12px;border:1px solid #888;border-radius:7px;font-size:14px;box-sizing:border-box;background:#fff}
+label.f{font-size:13px;font-weight:700}
+.pick{background:#fff;border:1px solid #ddd;border-left:4px solid transparent;border-radius:8px;padding:12px;margin:10px 0}
+.pick h4{margin:0 0 4px;font-size:14px}
+.pick p{margin:2px 0;font-size:12px;color:#333}
+.green{color:#007600}.link{color:#007185;cursor:pointer;font-size:13px;text-decoration:none}
+</style></head>
+<body>
+<header><a href="index.html">🛍️ Mohajon-MJH</a><span style="font-size:14px">Secure checkout ⌄</span><a href="login.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">👤 <span class="hiName">Sign in</span></a><a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:10px">🛒 Cart</a></header>
+<div class="wrap">
+ <button class="yellow-pill" id="deliverBtn" onclick="openAddr()">Deliver to this address</button>
+ <div class="sumbox">
+  <div class="srow"><span>Items:</span><span id="sItems">--</span></div>
+  <div class="srow"><span>Shipping &amp; handling:</span><span id="sShip">--</span></div>
+  <div class="srow"><span>Estimated tax to be collected:</span><span>৳0.00</span></div>
+  <div class="srow total"><span>Order total:</span><span id="sTotal">--</span></div>
+ </div>
+ <div class="box"><h3>1️⃣ Add delivery or pickup address</h3><p class="small">Enter your address to see delivery options</p><div id="addrContent"></div></div>
+ <div class="box"><h3>2️⃣ Payment method</h3><div id="payContent"></div></div>
+ <div class="box"><h3>3️⃣ Review items and shipping</h3><div id="revContent"></div></div>
+ <button class="yellow-pill" style="font-size:15px;padding:12px" id="placeBtn">Place your order ✅</button>
+ <p class="small" style="text-align:center;margin:10px">By placing your order, you agree to Mohajon-MJH's conditions of use & privacy notice.</p>
+</div>
+
+<!-- ===== ADDRESS MODAL ===== -->
+<div class="modal" id="addrModal"><div class="mbox">
+ <div class="mhead"><span>Add an address</span><button onclick="closeAddr()">✕</button></div>
+ <div class="mbody">
+  <h2 style="font-size:18px">Enter a new shipping address</h2>
+  <label class="f">Country/Region</label>
+  <select id="aCountry" onchange="applyCountry(this)">
+   <option value="+880" selected>বাংলাদেশ</option><option value="+966">সৌদি আরব</option>
+   <option value="+971">সংযুক্ত আরব আমিরাত</option><option value="+974">কাতার</option>
+   <option value="+965">কুয়েত</option><option value="+968">ওমান</option>
+   <option value="+973">বাহরাইন</option><option value="+60">মালয়েশিয়া</option>
+   <option value="+91">ভারত</option><option value="+92">পাকিস্তান</option>
+   <option value="+90">তুরস্ক</option><option value="+44">যুক্তরাজ্য</option>
+   <option value="+1">যুক্তরাষ্ট্র</option><option value="+61">অস্ট্রেলিয়া</option>
+   <option value="+63">ফিলিপাইন</option><option value="+62">ইন্দোনেশিয়া</option>
+  </select>
+  <label class="f">Full name (First and Last name)</label>
+  <input id="aName" placeholder="আপনার নাম">
+  <label class="f">Phone number</label>
+  <input id="aPhone" placeholder="+8801XXXXXXXXX বা 01XXXXXXXXX">
+  <p class="small" style="margin-top:-8px">May be used to assist delivery</p>
+  <label class="f">Street address</label>
+  <input id="aStreet" placeholder="বাসা, রোড, এলাকা">
+  <label class="f">Unit or suite number</label>
+  <input id="aUnit" placeholder="Apt, suite, unit, building, floor (optional)">
+  <div style="display:flex;gap:8px">
+   <div style="flex:1"><label class="f">City</label><input id="aCity" placeholder="শহর"></div>
+   <div style="flex:1"><label class="f">State/জেলা</label>
+    <input id="aArea" list="bdDistricts" placeholder="জেলা লিখো (যেমন: ফেনী)"><datalist id="bdDistricts"><option>ঢাকা</option><option>চট্টগ্রাম</option><option>রাজশাহী</option><option>খুলনা</option><option>বরিশাল</option><option>সিলেট</option><option>রংপুর</option><option>ময়মনসিংহ</option><option>ফেনী</option><option>কুমিল্লা</option><option>ব্রাহ্মণবাড়িয়া</option><option>চাঁদপুর</option><option>লক্ষ্মীপুর</option><option>নোয়াখালী</option><option>কক্সবাজার</option><option>খাগড়াছড়ি</option><option>রাঙামাটি</option><option>বান্দরবান</option><option>যশোর</option><option>ঝিনাইদহ</option><option>মাগুরা</option><option>নড়াইল</option><option>কুষ্টিয়া</option><option>চুয়াডাঙ্গা</option><option>মেহেরপুর</option><option>ঝালকাঠি</option><option>পিরোজপুর</option><option>ভোলা</option><option>পটুয়াখালী</option><option>বরগুনা</option><option>চাঁপাইনবাবগঞ্জ</option><option>নাটোর</option><option>নওগাঁ</option><option>পাবনা</option><option>সিরাজগঞ্জ</option><option>বগুড়া</option><option>জয়পুরহাট</option><option>দিনাজপুর</option><option>ঠাকুরগাঁও</option><option>পঞ্চগড়</option><option>নীলফামারী</option><option>লালমনিরহাট</option><option>কুড়িগ্রাম</option><option>গাইবান্ধা</option><option>শেরপুর</option><option>জামালপুর</option><option>নেত্রকোনা</option><option>কিশোরগঞ্জ</option><option>হবিগঞ্জ</option><option>মৌলভীবাজার</option><option>সুনামগঞ্জ</option><option>গোপালগঞ্জ</option><option>শরীয়তপুর</option><option>মাদারীপুর</option><option>রাজবাড়ী</option><option>ফরিদপুর</option><option>মানিকগঞ্জ</option><option>মুন্সিগঞ্জ</option><option>নরসিংদী</option><option>টাঙ্গাইল</option><option>গাজীপুর</option><option>নারায়ণগঞ্জ</option><option>সাতক্ষীরা</option><option>বাগেরহাট</option></datalist></div>
+   <div style="flex:0.7"><label class="f">ZIP</label><input id="aZip" placeholder="1207"></div>
+  </div>
+  <label style="font-size:13px"><input type="checkbox" id="aDefault" checked style="width:auto"> Make this my default address</label>
+  <label class="f" style="display:block;margin-top:8px">Delivery instructions (optional)</label>
+  <textarea id="aNote" rows="2" placeholder="Add preferences, notes, access codes and more"></textarea>
+  <button class="yellow-pill" style="width:auto;padding:10px 26px" onclick="saveAddr()">Use this address</button>
+ </div>
+</div></div>
+
+<!-- ===== PICKUP MODAL ===== -->
+<div class="modal" id="pickupModal"><div class="mbox">
+ <div class="mhead"><span>Select a pickup location</span><button onclick="closePickup()">✕</button></div>
+ <div class="mbody">
+  <p class="small">Select your country of delivery: <b>বাংলাদেশ</b></p>
+  <div id="pickupList"></div>
+ </div>
+</div></div>
+
+<script>
+const DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+const fmt=v=>"৳"+Number(v||0).toFixed(2);
+let cart=JSON.parse(localStorage.getItem("cart")||"[]");
+const mode=new URLSearchParams(location.search).get("mode");
+if(mode==="buynow"){const b=JSON.parse(localStorage.getItem("buyNowItem")||"null");cart=b?[b]:[];}
+let state={contact:JSON.parse(localStorage.getItem("defaultAddress")||"null"),pickup:null,deliveryType:null,pay:"cod"};
+if(state.contact&&state.contact.street)state.deliveryType="home";
+const subtotal=cart.reduce((a,i)=>a+i.price*(i.qty||1),0);
+const d3=new Date(Date.now()+13*864e5),d4=new Date(Date.now()+14*864e5);
+const fdate=d=>d.getDate()+"-"+(d.getMonth()+1)+"-"+d.getFullYear();
+const PICKUPS=[
+ {name:"MJH Counter – Gulshan 1",addr:"House 12, Road 5, Gulshan 1, Dhaka 1212",area:"ঢাকা"},
+ {name:"MJH Locker – Bashundhara City",addr:"Level 3, Block B, Bashundhara City, Panthapath",area:"ঢাকা"},
+ {name:"MJH Counter – Jamuna Future Park",addr:"Level 2, Block A, Jamuna Future Park, Kuril",area:"ঢাকা"},
+ {name:"MJH Point – Uttara Sector 7",addr:"House 22, Sector 7, Uttara, Dhaka 1230",area:"ঢাকা"},
+ {name:"MJH Locker – New Market",addr:"Shop 118, New Market, Azimpur, Dhaka 1205",area:"ঢাকা"},
+ {name:"MJH Counter – GEC Circle",addr:"GEC Tower, Chittagong 4000",area:"চট্টগ্রাম"}
+];
+function shipCharge(){return state.deliveryType==="pickup"?0:(subtotal>=2000?0:100);}
+
+function paySel(v){
+  const cf=document.getElementById("cardForm");if(cf)cf.style.display=(v==="card")?"block":"none";
+  const mp=document.getElementById("mobilePay");
+  if(["bkash","nagad","rocket","bank","paypal"].includes(v)&&mp){
+    mp.style.display="block";
+    const ps=JSON.parse(localStorage.getItem("paySettings")||"{}");
+    const titles={bkash:"bKash",nagad:"Nagad",rocket:"Rocket",bank:"Bank Transfer",paypal:"PayPal"};
+    document.getElementById("mpTitle").textContent=titles[v];
+    const num=v==="bank"?(ps.bank||"Account details"):(v==="paypal"?(ps.paypal||"email"):(ps[v]||""));
+    document.getElementById("mpNum").textContent=num;
+  }else if(mp){mp.style.display="none";}
+}
+function fmtCard(el){let d=el.value.replace(/\D/g,"").slice(0,16);el.value=d.replace(/(.{4})/g,"$1 ").trim();
+  const b=document.getElementById("ccBrand");if(b)b.textContent=d[0]==="4"?"VISA":(d[0]==="5"?"Mastercard":(d.slice(0,2)==="34"||d.slice(0,2)==="37"?"AMEX":(d[0]==="6"?"Discover":"")));}
+function fmtExp(el){let d=el.value.replace(/\D/g,"").slice(0,4);if(d.length>2)d=d.slice(0,2)+"/"+d.slice(2);el.value=d;}
+function luhn(n){let s=0,a=false;for(let i=n.length-1;i>=0;i--){let x=+n[i];if(a){x*=2;if(x>9)x-=9;}s+=x;a=!a;}return s%10===0;}
+function cardValid(){
+  const num=(document.getElementById("ccNum").value||"").replace(/\s/g,"");
+  const exp=document.getElementById("ccExp").value,cvv=document.getElementById("ccCvv").value,name=document.getElementById("ccName").value.trim();
+  if(!name)return"কার্ডে নাম লিখুন";
+  if(num.length<13||!luhn(num))return"সঠিক কার্ড নম্বর দিন";
+  const m=exp.match(/^(0[1-9]|1[0-2])\/(\d{2})$/);if(!m)return"সঠিক expiry (MM/YY)";
+  const ey=+m[2],em=+m[1],now=new Date(),cy=now.getFullYear()%100,cm=now.getMonth()+1;
+  if(ey<cy||(ey===cy&&em<cm))return"কার্ডের মেয়াদ শেষ";
+  if(cvv.length<3)return"সঠিক CVV দিন";
+  return null;
+}
+
+function pnum(k){try{var s=JSON.parse(localStorage.getItem("paySettings")||"{}");var v=s[k];if(!v)return "";return typeof v==="string"?v:(v.number||v.details||"");}catch(e){return "";}}
+function payOn(k){try{var s=JSON.parse(localStorage.getItem("paySettings")||"{}");var v=s[k];return !(v&&v.active===false);}catch(e){return true;}}
+function render(){
+ const paySettings=JSON.parse(localStorage.getItem("paySettings")||"{}");
+ const c=state.contact;
+ document.getElementById("deliverBtn").textContent = (c&&c.name) ? "📍 Deliver to: "+c.name+", "+(c.area||c.city||"") : "Deliver to this address";
+ document.getElementById("sItems").textContent=fmt(subtotal);
+ document.getElementById("sShip").textContent= state.deliveryType? (shipCharge()===0?"FREE":fmt(shipCharge())) : "--";
+ document.getElementById("sTotal").textContent= state.deliveryType? fmt(subtotal+shipCharge()) : "--";
+ // address box
+ let ac="";
+ if(c&&c.name){ac+=`<div style="font-size:13px;border:1px solid #ddd;border-radius:8px;padding:10px"><b>${c.name}</b> • ${c.phone}<br>${c.street||""}${c.unit?", "+c.unit:""}${c.city?", "+c.city:""}${c.area?", "+c.area:""}<br><a class="link" onclick="openAddr()">Change</a> | <a class="link" onclick="openPickup()">Add pickup option</a></div>`;}
+ else{ac+=`<button class="yellow-pill" style="width:auto;padding:9px 20px" onclick="openAddr()">Add a new delivery address</button>
+ <button class="white-pill" style="width:auto;padding:9px 20px" onclick="openPickup()">📍 Find a pickup location nearby</button>`;}
+ document.getElementById("addrContent").innerHTML=ac;
+ // payment
+ let payHtml=`${payOn("cod")?`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="cod" checked onchange="paySel('cod')"> 💵 Cash on Delivery</label>`:""}
+  ${payOn("card")?`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="card" ${payOn("cod")?"":"checked"} onchange="paySel('card')"> 💳 Debit / Credit Card <span style="color:#565959;font-size:11px">(Visa • Mastercard)</span></label>`:""}
+  <div id="cardForm" style="display:none;background:#f7f7f7;border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0">
+   <label style="font-size:12px;font-weight:700">Cardholder name</label>
+   <input id="ccName" style="width:100%;padding:8px;margin:4px 0 10px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="Name on card">
+   <label style="font-size:12px;font-weight:700">Card number</label>
+   <input id="ccNum" inputmode="numeric" style="width:100%;padding:8px;margin-bottom:2px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="1234 5678 9012 3456" oninput="fmtCard(this)">
+   <span id="ccBrand" style="font-size:12px;font-weight:700;color:#1a1f71"></span>
+   <div style="display:flex;gap:10px;margin-top:8px">
+    <div style="flex:1"><label style="font-size:12px;font-weight:700">Expiry</label><input id="ccExp" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="MM/YY" oninput="fmtExp(this)"></div>
+    <div style="flex:1"><label style="font-size:12px;font-weight:700">CVV</label><input id="ccCvv" type="password" inputmode="numeric" maxlength="4" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="•••"></div>
+   </div>
+   <p class="small" style="margin:8px 0 0">🔒 Your card info is secure — we only store last 4 digits.</p>
+  </div>`;
+  if(paySettings.bkash)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="bkash" onchange="paySel('bkash')"> 📱 bKash <span style="color:#007185;font-size:11px">(${pnum("bkash")})</span></label>`;
+  if(paySettings.nagad)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="nagad" onchange="paySel('nagad')"> 📱 Nagad <span style="color:#007185;font-size:11px">(${pnum("nagad")})</span></label>`;
+  if(paySettings.rocket)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="rocket" onchange="paySel('rocket')"> 📱 Rocket <span style="color:#007185;font-size:11px">(${pnum("rocket")})</span></label>`;
+  if(paySettings.bank)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="bank" onchange="paySel('bank')"> 🏦 Bank Transfer <span style="color:#007185;font-size:11px">(Account details)</span></label>`;
+  if(paySettings.paypal)payHtml+=`<label style="display:block;font-size:13px;margin:6px 0"><input type="radio" name="pay" value="paypal" onchange="paySel('paypal')"> 🌐 PayPal <span style="color:#007185;font-size:11px">(${pnum("paypal")})</span></label>`;
+  payHtml+=`<div id="mobilePay" style="display:none;background:#fff9e6;border:1px solid #f0d060;border-radius:8px;padding:12px;margin:8px 0"><p style="font-size:13px;margin:0 0 6px"><b id="mpTitle"></b></p><p style="font-size:13px;margin:0 0 6px">📱 Send Money to: <b id="mpNum" style="color:#B12704"></b></p><p style="font-size:12px;color:#565959;margin:0 0 8px">Write your name in reference. Enter Transaction ID below:</p><input id="mpTrx" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="trxID (e.g. 8A7B9C2D1E3F)"></div>`;
+  document.getElementById("payContent").innerHTML=payHtml;
+ // review
+ let del = state.deliveryType==="pickup" ? "🏪 Pickup: <b>"+state.pickup.name+"</b> — FREE pickup "+fdate(d3) : "🚚 Standard delivery: <b>"+fdate(d4)+"</b>"+(shipCharge()===0?" (FREE)":" — ৳100");
+ document.getElementById("revContent").innerHTML = cart.length? cart.map(i=>`<div style="font-size:13px;margin:6px 0">${i.name} × ${i.qty||1} — <b>${fmt(i.price*(i.qty||1))}</b></div>`).join("")+`<hr style="border:none;border-top:1px solid #eee"><div style="font-size:13px">${state.deliveryType?del:"ঠিকানা/pickup সিলেক্ট করুন"}</div>` : "<p>Cart খালি</p>";
+}
+function openAddr(){document.getElementById("addrModal").style.display="block";
+ if(state.contact){const c=state.contact;aName.value=c.name||"";aPhone.value=c.phone||"";aStreet.value=c.street||"";aUnit.value=c.unit||"";aCity.value=c.city||"";aArea.value=c.area||"";aZip.value=c.zip||"";aNote.value=c.note||"";}}
+function closeAddr(){document.getElementById("addrModal").style.display="none";}
+window.applyCountry=function(sel){
+ const code=sel.value,ph=document.getElementById("aPhone");
+ let v=ph.value.trim();
+ if(!v){ph.value=code;}
+ else if(/^\+/.test(v)){ph.value=code+v.replace(/^\+\d{1,3}/,"");}
+};
+function saveAddr(){
+ const name=aName.value.trim();
+ let phone=aPhone.value.trim().replace(/[\s\-().]/g,"").replace(/[০-৯]/g,function(d){return "০১২৩৪৫৬৭৮৯".indexOf(d);});
+ if(phone.indexOf("+880")===0)phone="0"+phone.slice(4);else if(phone.indexOf("880")===0)phone="0"+phone.slice(3);
+ const phOK=/^01[3-9][0-9]{8}$/.test(phone)||/^\+[0-9]{7,15}$/.test(phone);
+ if(!name){alert("⚠️ আপনার নাম লিখুন!");return;}
+ if(!phOK){alert("⚠️ সঠিক মোবাইল নাম্বার দিন (11 digit, যেমন: 01712345678)");return;}
+ aPhone.value=phone;
+ const c={name,phone,street:aStreet.value.trim(),unit:aUnit.value.trim(),city:aCity.value.trim(),area:aArea.value,zip:aZip.value.trim(),note:aNote.value.trim()};
+ state.contact=c;
+ if(aDefault.checked)localStorage.setItem("defaultAddress",JSON.stringify(c));
+ if(c.street&&c.area)state.deliveryType="home";
+ closeAddr();render();
+}
+function openPickup(){
+ document.getElementById("pickupList").innerHTML=PICKUPS.map((p,i)=>`<div class="pick">
+  <h4>${i+1}. ${p.name}</h4><p>${p.addr}</p>
+  <p class="green">FREE pickup <b>${fdate(d3)}</b></p><p>Mon-Sun: 9am - 10pm</p>
+  <button class="yellow-pill" style="width:auto;padding:7px 20px;margin-top:6px" onclick="pickHere(${i})">Pick up here</button></div>`).join("");
+ document.getElementById("pickupModal").style.display="block";
+}
+function closePickup(){document.getElementById("pickupModal").style.display="none";}
+function pickHere(i){state.pickup=PICKUPS[i];state.deliveryType="pickup";closePickup();
+ if(!state.contact||!state.contact.name){openAddr();}
+ render();}
+function fbToken(){try{for(const k of Object.keys(localStorage)){if(k.indexOf("firebase:authUser")===0){const u=JSON.parse(localStorage.getItem(k));if(u&&u.stsTokenManager&&u.stsTokenManager.accessToken)return u.stsTokenManager.accessToken;}}}catch(e){}return null;}
+document.getElementById("placeBtn").onclick=async()=>{
+ if(cart.length===0){alert("Cart খালি!");return;}
+ if(!state.contact||!state.contact.name){openAddr();alert("নাম ও ফোন নাম্বার দিন");return;}
+ if(state.deliveryType==="home"&&(!state.contact.street||!state.contact.area)){openAddr();alert("সম্পূর্ণ ঠিকানা ও জেলা দিন");return;}
+ if(!state.deliveryType){alert("Delivery address বা Pickup location সিলেক্ট করুন");return;}
+ const ship=shipCharge();
+ let payId="COD",payMethod="cash_on_delivery",paid=false;
+  const sel=(document.querySelector('input[name="pay"]:checked')||{}).value||"cod";
+  if(sel==="card"){
+    const err=cardValid();if(err){alert("💳 "+err);return;}
+    const b0=document.getElementById("placeBtn");b0.disabled=true;b0.textContent="💳 Processing payment...";
+    await new Promise(r=>setTimeout(r,2200));
+    payId="CARD-"+(document.getElementById("ccNum").value.replace(/\s/g,"").slice(-4));
+    payMethod="card";paid=true;
+  }
+  if(["bkash","nagad","rocket","bank","paypal"].includes(sel)){
+    const trx=(document.getElementById("mpTrx").value||"").trim();
+    if(!trx){alert("📱 Please enter Transaction ID");return;}
+    payId=sel.toUpperCase()+"-"+trx;payMethod=sel;
+  }
+  const orderId="MJH"+Date.now();
+ const order={createdAt:Date.now(),updatedAt:Date.now(),buyerId:(window.__uid||"guest"),sellerId:"admin",status:"pending",paymentId:payId,deliveryCharge:ship,total:subtotal+ship,itemsTotal:subtotal,shippingAddress:{name:state.contact.name,phone:state.contact.phone,address:state.deliveryType==="home"?(state.contact.street+(state.contact.unit?", "+state.contact.unit:"")+(state.contact.city?", "+state.contact.city:"")):("Pickup: "+state.pickup.name+", "+state.pickup.addr),area:state.deliveryType==="home"?state.contact.area:(state.pickup.area||""),note:state.contact.note||"",expectedAt:Date.now()+14*86400000,advTrx:window.__advTrx||null,advAmt:window.__advAmt||0,refCode:localStorage.getItem("affRef")||null,payMethod:payMethod,payStatus:paid?"paid":"unpaid",subtotal:subtotal,deliveryType:state.deliveryType,pickupName:state.pickup?state.pickup.name:null,expectedDelivery:state.deliveryType==="pickup"?fdate(d3):fdate(d4)},items:cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty||1}))};
+ const btn=document.getElementById("placeBtn");btn.disabled=true;btn.textContent="অর্ডার হচ্ছে...";
+ try{
+  if(!window.__uid){alert("অর্ডার করতে login করুন");location.href="login.html";return;}
+  await window.__placeOrder(orderId,order);
+  // A) Owner-এর email-এ order notification
+  try{fetch("https://formsubmit.co/ajax/mohajonmjh@gmail.com",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({_subject:"🛒 New Order "+orderId,Order:orderId,Total:order.total,Customer:order.shippingAddress.name,Phone:order.shippingAddress.phone,Payment:order.paymentId,Address:order.shippingAddress.address+", "+order.shippingAddress.area})}).catch(()=>{});}catch(e){}
+  // B) Real PayPal payment (নতুন tab-এ খুলবে)
+  if(sel==="paypal"){try{const ps=JSON.parse(localStorage.getItem("paySettings")||"{}");const usd=(order.total/117).toFixed(2);const f=document.createElement("form");f.method="POST";f.action="https://www.paypal.com/cgi-bin/webscr";f.target="_blank";const add=(n,v)=>{const i=document.createElement("input");i.type="hidden";i.name=n;i.value=v;f.appendChild(i);};add("cmd","_xclick");add("business",ps.paypal||"jenisaniaini@gmail.com");add("item_name","Order "+orderId);add("amount",usd);add("currency_code","USD");add("custom",orderId);document.body.appendChild(f);f.submit();}catch(e){}}
+  const my=JSON.parse(localStorage.getItem("myOrders")||"[]");my.push(orderId);localStorage.setItem("myOrders",JSON.stringify(my));
+  if(mode!=="buynow")localStorage.setItem("cart","[]");
+  location.href="order-success.html?id="+orderId;
+ }catch(e){alert("❌ "+e.message);btn.disabled=false;btn.textContent="Place your order ✅";}
+};
+render();
+</script><script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
+
+<script>
+/* DYNAMIC PAYMENT SETTINGS LOADER (Cache-safe & Active Only) */
+(function(){
+  function load(){
+    fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/payments.json")
+    .then(function(r){return r.ok?r.json():{};})
+    .then(function(payments){
+      localStorage.setItem("paySettings",JSON.stringify(payments||{}));
+      
+      /* Dynamically render ONLY active payment methods */
+      const payContent = document.getElementById("payContent");
+      if(payContent && payments){
+        let payHtml = "";
+        const sortedKeys = Object.keys(payments).sort((a,b) => (payments[a].order||0) - (payments[b].order||0));
+        
+        sortedKeys.forEach(function(key){
+          const p = payments[key];
+          if(p && p.active){ /* ONLY SHOW ACTIVE METHODS */
+            payHtml += "<label style="display:block;font-size:13px;margin:6px 0">";
+            payHtml += "<input type="radio" name="pay" value=""+key+"" onchange="paySel(""+key+"")"> ";
+            payHtml += (p.icon||"💳")+" "+p.name;
+            if(p.number) payHtml += " <span style="color:#007185;font-size:11px">("+p.number+")</span>";
+            payHtml += "</label>";
+          }
+        });
+        
+        /* Add Card Form Placeholder (will be shown/hidden by paySel) */
+        payHtml += "<div id="cardForm" style="display:none;background:#f7f7f7;border:1px solid #ddd;border-radius:8px;padding:12px;margin:8px 0">";
+        payHtml += "<label style="font-size:12px;font-weight:700">Cardholder name</label>";
+        payHtml += "<input id="ccName" style="width:100%;padding:8px;margin:4px 0 10px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="Name on card">";
+        payHtml += "<label style="font-size:12px;font-weight:700">Card number</label>";
+        payHtml += "<input id="ccNum" inputmode="numeric" style="width:100%;padding:8px;margin-bottom:2px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="1234 5678 9012 3456" oninput="fmtCard(this)">";
+        payHtml += "<span id="ccBrand" style="font-size:12px;font-weight:700;color:#1a1f71"></span>";
+        payHtml += "<div style="display:flex;gap:10px;margin-top:8px">";
+        payHtml += "<div style="flex:1"><label style="font-size:12px;font-weight:700">Expiry</label><input id="ccExp" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="MM/YY" oninput="fmtExp(this)"></div>";
+        payHtml += "<div style="flex:1"><label style="font-size:12px;font-weight:700">CVV</label><input id="ccCvv" type="password" inputmode="numeric" maxlength="4" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="•••"></div>";
+        payHtml += "</div>";
+        payHtml += "<p class="small" style="margin:8px 0 0">🔒 Your card info is secure.</p></div>";
+        
+        /* Mobile Payment Details Box */
+        payHtml += "<div id="mobilePay" style="display:none;background:#fff9e6;border:1px solid #f0d060;border-radius:8px;padding:12px;margin:8px 0">";
+        payHtml += "<p style="font-size:13px;margin:0 0 6px"><b id="mpTitle"></b></p>";
+        payHtml += "<p style="font-size:13px;margin:0 0 6px">📱 Send Money to: <b id="mpNum" style="color:#B12704"></b></p>";
+        payHtml += "<p style="font-size:12px;color:#565959;margin:0 0 8px">Write your name in reference. Enter Transaction ID below:</p>";
+        payHtml += "<input id="mpTrx" style="width:100%;padding:8px;border:1px solid #888;border-radius:6px;box-sizing:border-box" placeholder="trxID (e.g. 8A7B9C2D1E3F)">";
+        payHtml += "</div>";
+        
+        payContent.innerHTML = payHtml;
+      }
+      if(typeof render==="function"){try{render();}catch(e){}}
+    }).catch(function(){});
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",load);else load();
+})();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",load);else load();
+})();
+</script>
+
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signInAnonymously}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const cfg={"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","authDomain":"mohajon-mjh.firebaseapp.com","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","storageBucket":"mohajon-mjh.firebasestorage.app","messagingSenderId":"526105903976","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
+const app=getApps().length?getApp():initializeApp(cfg);
+const auth=getAuth(app);const db=getDatabase(app);
+onAuthStateChanged(auth,u=>{window.__uid=u?u.uid:null;});
+window.__placeOrder=async(id,order)=>{
+  if(!auth.currentUser){await signInAnonymously(auth);}
+  order.buyerId=auth.currentUser.uid;order.sellerId="admin";
+  await set(ref(db,"orders/"+id),order);
+};
+</script>
+
+<script>/*advance-v1*/
+(function(){var w=function(){var els=document.querySelectorAll("label,input,div");for(var i=0;i<els.length;i++){if((els[i].textContent||"").indexOf("Cash on Delivery")>-1&&els[i].children.length<6){var box=document.createElement("div");box.innerHTML='<div style="background:#fff9e6;border:1px solid #FF9900;border-radius:8px;padding:10px;margin:8px 0;font-size:12px">💳 <b>Advance (optional but recommended):</b> order total-এর 10% advance bKash করুন: <b>0171317668288</b> → trxID দিন: <input id="advTrxInp" placeholder="trxID" style="padding:6px;border:1px solid #999;border-radius:6px;width:140px"></div>';els[i].parentNode.insertBefore(box,els[i].nextSibling);var inp=box.querySelector("#advTrxInp");inp.oninput=function(){window.__advTrx=inp.value.trim();window.__advAmt=1;};return;}}};setTimeout(w,800);setTimeout(w,2000);})();
+</script></html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Orders - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial,sans-serif;background:#EAEDED}
+.wrap{max-width:800px;margin:14px auto;padding:0 10px}
+.order{background:#fff;border-radius:8px;margin-bottom:14px;overflow:hidden}
+.ohead{display:flex;gap:16px;flex-wrap:wrap;padding:10px 16px;background:#f7f7f7;border-bottom:1px solid #eee;font-size:12px;color:#565959}
+.ohead b{display:block;color:#111;font-size:13px}
+.obody{padding:14px 16px}
+.steps{display:flex;margin:14px 0;align-items:center}
+.step{flex:1;text-align:center;font-size:11px;color:#999;position:relative}
+.step .dot{width:14px;height:14px;border-radius:50%;background:#ddd;margin:0 auto 5px}
+.step.on{color:#007600}.step.on .dot{background:#007600}
+.status{font-size:15px;font-weight:700}
+.btn{background:#FFD814;border:1px solid #FCD200;border-radius:16px;padding:7px 14px;cursor:pointer;font-size:13px;font-weight:600}</style></head>
+<body>
+<header style="background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px">
+ <a href="index.html" style="color:#fff;font-weight:700;font-size:17px;text-decoration:none">🛍️ Mohajon-MJH</a>
+ <a href="login.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">👤 <span class="hiName">Sign in</span></a><a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none">🛒 Cart</a>
+</header>
+<div class="wrap"><h2 style="font-size:19px">📦 My Orders</h2><div id="list">লোড হচ্ছে...</div></div>
+<script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
+
+<script type="module">/*buyerChat-v1*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get,query,orderByChild,equalTo}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+onAuthStateChanged(auth,async u=>{
+ if(!u)return;
+ const snap=await get(query(ref(db,"orders"),orderByChild("buyerId"),equalTo(u.uid)));
+ const ords=Object.entries(snap.val()||{}).slice(-5);
+ if(!ords.length)return;
+ const panel=document.createElement("div");
+ panel.style.cssText="position:fixed;bottom:0;left:0;right:0;background:#131921;color:#fff;max-height:40%;overflow:auto;padding:12px;z-index:9998;border-radius:14px 14px 0 0";
+ panel.innerHTML='<b>📦 Recent Orders</b> <span onclick="this.parentNode.style.display=\'none\'" style="float:right;cursor:pointer">✕</span>'+ords.map(([id,o])=>'<div style="background:#232f3e;border-radius:8px;padding:9px;margin:6px 0;font-size:12px">Order #'+id.slice(-6)+' — '+(o.status||"")+' <a href="help-center.html?o='+id+'" style="color:#FFD814;font-weight:700;text-decoration:none">💬 Chat with seller</a></div>').join("");
+ document.body.appendChild(panel);
+});
+</script></html>
+<script type="module">/*myOrdersFix-v3*/
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,onValue,query,orderByChild,equalTo}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({"apiKey":"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw","databaseURL":"https://mohajon-mjh-default-rtdb.firebaseio.com","projectId":"mohajon-mjh","appId":"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+const ST=["placed","sourcing","inbound","shipped","delivered"];
+function draw(html){const el=document.getElementById("list");if(el)el.innerHTML=html;}
+onAuthStateChanged(auth,u=>{
+ if(!u){draw('<div style="background:#fff;border-radius:10px;padding:16px;margin:10px 0;text-align:center">🔐 অর্ডার দেখতে <a href="login.html" style="color:#FF9900;font-weight:700">Login করুন</a></div>');return;}
+ onValue(query(ref(db,"orders"),orderByChild("buyerId"),equalTo(u.uid)),snap=>{
+  const ords=Object.entries(snap.val()||{}).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+  if(!ords.length){draw('<div style="background:#fff;border-radius:10px;padding:16px;text-align:center">📭 কোনো অর্ডার নেই</div>');return;}
+  draw(ords.map(([id,o])=>{
+   const items=o.items||{};const cur=ST.indexOf(o.status||"placed");
+   return '<div style="background:#fff;border-radius:10px;padding:12px;margin:8px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)">'+
+   '<b>Order #'+id.slice(-6)+'</b> — ৳'+(o.total||0)+'<br>Status: <b style="color:'+(o.status==="delivered"?"#007600":o.status==="cancelled"?"#c0392b":"#b967ff")+'">'+(o.status||"placed")+'</b><br>'+
+   '<small>'+Object.values(items).map(i=>(i.title||"")+" ×"+(i.qty||1)).join(", ")+'</small>'+
+   '<div style="display:flex;margin:8px 0">'+ST.map((s,i)=>'<div style="flex:1;text-align:center;font-size:10px;color:'+(i<=cur?"#007600":"#bbb")+';font-weight:'+(i===cur?"900":"400")+'">'+["✅","🛒","📦","🚚","🏠"][i]+'<br>'+s+'</div>').join("")+'</div>'+
+   '<a href="help-center.html?o='+id+'" style="color:#b967ff;font-weight:700;text-decoration:none">💬 Seller-এর সাথে chat</a></div>';
+  }).join(""));
+ });
+});
+</script>

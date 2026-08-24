@@ -1,0 +1,155 @@
+import json
+
+price_desc = {
+    "art_collectibles_crafts": (800, "Art, Collectibles & Crafts — a general range of creative and collectible items."),
+    "abstract_art": (3500, "Abstract Art — a creative artwork piece featuring non-representational shapes and colors."),
+    "acrylic_paint": (400, "Acrylic Paint — a fast-drying water-based paint for various art projects."),
+    "acrylic_paintings": (3000, "Acrylic Paintings — original artwork created using acrylic paint on canvas."),
+    "action_figures": (900, "Action Figures — collectible posable figures based on characters and franchises."),
+    "air_dry_clay": (350, "Air Dry Clay — a modeling clay that hardens without baking, ideal for crafts."),
+    "antique_items": (5000, "Antique Items — vintage collectible pieces with historical or decorative value."),
+    "art_portfolios": (1200, "Art Portfolios — protective cases designed for carrying and storing artwork."),
+    "art_prints": (800, "Art Prints — reproduced artwork prints suitable for framing and display."),
+    "artificial_flowers": (400, "Artificial Flowers — decorative faux flowers for home and craft use."),
+    "autographed_items": (6000, "Autographed Items — collectible items signed by notable personalities."),
+    "badges": (150, "Badges — decorative or identification pins for clothing and bags."),
+    "bamboo_crafts": (700, "Bamboo Crafts — handmade decorative items crafted from bamboo."),
+    "banknotes": (2000, "Banknotes — collectible currency notes valued by collectors."),
+    "beads": (250, "Beads — small decorative pieces used in jewelry making and crafts."),
+    "brush_holders": (300, "Brush Holders — organizers designed for storing art and makeup brushes."),
+    "buttons": (150, "Buttons — decorative or functional fasteners used in crafts and sewing."),
+    "calligraphy_art": (2500, "Calligraphy Art — handcrafted artwork featuring decorative lettering."),
+    "candle_making_kit": (1500, "Candle Making Kit — a complete set of supplies for making candles at home."),
+    "canvas": (500, "Canvas — a blank stretched surface used for painting."),
+    "canvas_art": (2800, "Canvas Art — finished artwork painted or printed on canvas."),
+    "cardstock": (300, "Cardstock — thick, sturdy paper suited for crafting and card making."),
+    "ceramic_art": (2500, "Ceramic Art — decorative artwork crafted from fired ceramic material."),
+    "ceramic_crafts": (1500, "Ceramic Crafts — handmade decorative items crafted from ceramic."),
+    "charcoal_pencils": (300, "Charcoal Pencils — drawing pencils used for sketching and shading."),
+    "charms": (200, "Charms — small decorative pieces used in jewelry and craft making."),
+    "clay_pots": (500, "Clay Pots — handmade pottery vessels used for decor or planting."),
+    "coins": (1500, "Coins — collectible currency coins valued by collectors."),
+    "collectible_dolls": (3500, "Collectible Dolls — decorative dolls valued for their craftsmanship and rarity."),
+    "colored_paper": (250, "Colored Paper — assorted colored paper sheets used for crafts."),
+    "colored_pencils": (500, "Colored Pencils — a set of pencils used for coloring and illustration."),
+    "craft_knife": (250, "Craft Knife — a precision knife used for detailed cutting in craft projects."),
+    "craft_organizers": (900, "Craft Organizers — storage units designed to organize craft supplies."),
+    "crayons": (250, "Crayons — a set of wax-based coloring sticks for drawing."),
+    "crochet_hooks": (350, "Crochet Hooks — tools used for crochet needlework projects."),
+    "cutting_mat": (600, "Cutting Mat — a self-healing mat designed for safe craft cutting."),
+    "decorative_boxes": (900, "Decorative Boxes — ornamental boxes used for storage or gifting."),
+    "decorative_vases": (1200, "Decorative Vases — ornamental vases used for home decor."),
+    "digital_art_prints": (700, "Digital Art Prints — printed reproductions of digitally created artwork."),
+    "display_cases": (1800, "Display Cases — protective cases designed for showcasing collectibles."),
+    "display_stands": (600, "Display Stands — stands designed for displaying collectibles and art pieces."),
+    "drawing_paper": (300, "Drawing Paper — paper designed for sketching and drawing."),
+    "dream_catchers": (500, "Dream Catchers — handcrafted decorative items believed to filter dreams."),
+    "easels": (1500, "Easels — stands designed for supporting canvases while painting."),
+    "embroidery_kit": (900, "Embroidery Kit — a complete set of supplies for embroidery projects."),
+    "embroidery_thread": (200, "Embroidery Thread — colored thread used for embroidery work."),
+    "epoxy_resin": (900, "Epoxy Resin — a clear resin used for casting and coating craft projects."),
+    "erasers": (100, "Erasers — tools used for removing pencil marks in drawing and writing."),
+    "fabric": (400, "Fabric — cloth material used for sewing and craft projects."),
+    "felt_sheets": (250, "Felt Sheets — soft fabric sheets commonly used in craft making."),
+    "festival_decorations": (700, "Festival Decorations — decorative items designed for festive occasions."),
+    "gift_wrapping_supplies": (400, "Gift Wrapping Supplies — paper, ribbons, and materials for wrapping gifts."),
+    "glass_art": (3500, "Glass Art — decorative artwork crafted from glass."),
+    "glue": (150, "Glue — an adhesive used for craft and general purposes."),
+    "glue_gun": (500, "Glue Gun — a tool that melts glue sticks for craft bonding."),
+    "glue_sticks": (150, "Glue Sticks — solid adhesive sticks used with a glue gun."),
+    "handmade_artwork": (4000, "Handmade Artwork — original artwork created entirely by hand."),
+    "handmade_baskets": (900, "Handmade Baskets — woven baskets crafted by hand for storage or decor."),
+    "handmade_candles": (600, "Handmade Candles — artisan candles crafted by hand."),
+    "handmade_jewelry": (1200, "Handmade Jewelry — artisan-crafted jewelry pieces made by hand."),
+    "handmade_soap": (350, "Handmade Soap — artisan soap crafted using natural ingredients."),
+    "holiday_decorations": (700, "Holiday Decorations — decorative items designed for seasonal celebrations."),
+    "jewelry_findings": (250, "Jewelry Findings — small components used in handmade jewelry assembly."),
+    "jewelry_making_kit": (1200, "Jewelry Making Kit — a complete set of supplies for making jewelry."),
+    "keychains": (200, "Keychains — decorative or collectible accessories for keys."),
+    "knitting_needles": (350, "Knitting Needles — tools used for knitting projects."),
+    "lace": (300, "Lace — decorative fabric trim used in sewing and crafts."),
+    "landscape_paintings": (3500, "Landscape Paintings — artwork depicting natural scenery."),
+    "leather_craft_tools": (1500, "Leather Craft Tools — tools used for cutting, stitching, and shaping leather."),
+    "limited_edition_collectibles": (8000, "Limited Edition Collectibles — rare, exclusive collectible items."),
+    "macrame_decor": (900, "Macrame Decor — decorative wall hangings crafted using knotting techniques."),
+    "magnets": (150, "Magnets — decorative or functional magnets for craft and display use."),
+    "markers": (400, "Markers — a set of coloring pens used for drawing and lettering."),
+    "medals": (600, "Medals — collectible or award medals valued by collectors."),
+    "metal_art": (4000, "Metal Art — decorative artwork crafted from metal."),
+    "model_aircraft": (2500, "Model Aircraft — detailed scale model replicas of aircraft."),
+    "model_cars": (1800, "Model Cars — detailed scale model replicas of automobiles."),
+    "model_ships": (2500, "Model Ships — detailed scale model replicas of ships."),
+    "model_trains": (3500, "Model Trains — detailed scale model replicas of trains and rail sets."),
+    "modeling_clay": (350, "Modeling Clay — pliable clay used for sculpting and craft projects."),
+    "movie_memorabilia": (3500, "Movie Memorabilia — collectible items associated with films and cinema."),
+    "music_memorabilia": (3500, "Music Memorabilia — collectible items associated with musicians and bands."),
+    "oil_paint": (600, "Oil Paint — a slow-drying paint used for fine art painting."),
+    "oil_paintings": (5000, "Oil Paintings — original artwork created using oil paint on canvas."),
+    "paint_brushes": (400, "Paint Brushes — a set of brushes used for painting and craft projects."),
+    "paint_palette_brushes_craft": (600, "Paint Palette & Brushes Set — a bundled set of painting tools for craft projects."),
+    "paint_palettes": (350, "Paint Palettes — flat surfaces used for mixing paint colors."),
+    "paintings": (4000, "Paintings — original artwork created using various painting techniques."),
+    "pastels": (450, "Pastels — soft coloring sticks used for drawing and shading."),
+    "pencils": (150, "Pencils — a set of standard pencils used for drawing and sketching."),
+    "photo_frames": (500, "Photo Frames — decorative frames designed for displaying photographs."),
+    "picture_frames": (600, "Picture Frames — decorative frames designed for displaying artwork or photos."),
+    "polymer_clay": (400, "Polymer Clay — a moldable clay that hardens when baked, used in crafts."),
+    "portraits": (4500, "Portraits — custom artwork depicting a person's likeness."),
+    "posters": (300, "Posters — decorative printed artwork for wall display."),
+    "pottery_tools": (900, "Pottery Tools — tools used for shaping and finishing pottery."),
+    "resin_art": (2800, "Resin Art — decorative artwork crafted using cast resin."),
+    "resin_kit": (1200, "Resin Kit — a complete set of supplies for resin art projects."),
+    "ribbon": (200, "Ribbon — decorative trim used in crafts and gift wrapping."),
+    "ruler": (150, "Ruler — a measuring tool used in art and craft projects."),
+    "scissors": (250, "Scissors — cutting tool used for craft and sewing projects."),
+    "sculptures": (5500, "Sculptures — three-dimensional artwork crafted from various materials."),
+    "sewing_machine": (8500, "Sewing Machine — an appliance used for stitching fabric and garments."),
+    "sewing_needles": (150, "Sewing Needles — needles used for hand sewing and embroidery."),
+    "shadow_boxes": (1200, "Shadow Boxes — display cases designed for showcasing collectibles and mementos."),
+    "sharpeners": (100, "Sharpeners — tools used for sharpening pencils and crayons."),
+    "silicone_mold": (400, "Silicone Mold — flexible molds used for resin and candle making."),
+    "sketchbook": (350, "Sketchbook — a bound book of blank paper used for drawing and sketching."),
+    "soap_making_kit": (1200, "Soap Making Kit — a complete set of supplies for making handmade soap."),
+    "souvenirs": (500, "Souvenirs — decorative items collected as keepsakes."),
+    "sports_memorabilia": (4000, "Sports Memorabilia — collectible items associated with sports and athletes."),
+    "stamps": (1200, "Stamps — collectible postage stamps valued by collectors."),
+    "stencils": (300, "Stencils — templates used for tracing patterns and designs."),
+    "storage_boxes": (700, "Storage Boxes — boxes designed for organizing craft and collectible items."),
+    "trading_cards": (700, "Trading Cards — collectible cards featuring characters, athletes, or themes."),
+    "vintage_collectibles": (6000, "Vintage Collectibles — retro items valued for their age and rarity."),
+    "wall_art": (2500, "Wall Art — decorative artwork designed for wall display."),
+    "watercolor_paint": (450, "Watercolor Paint — a water-based paint used for fine art painting."),
+    "watercolor_paintings": (3200, "Watercolor Paintings — original artwork created using watercolor paint."),
+    "wire": (250, "Wire — flexible material used in jewelry making and craft projects."),
+    "wooden_art": (3500, "Wooden Art — decorative artwork crafted from wood."),
+    "wooden_crafts": (1200, "Wooden Crafts — handmade decorative items crafted from wood."),
+    "wreaths": (900, "Wreaths — decorative circular arrangements used for home and festive decor."),
+    "yarn": (300, "Yarn — spun fiber used for knitting and crochet projects."),
+    "zippers": (100, "Zippers — fasteners used in sewing and craft projects."),
+}
+
+path = "data/products-placeholder.json"
+with open(path, "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+updated = 0
+skipped = []
+for sku, prod in data.items():
+    if prod.get("categoryId") == "art_collectibles_crafts":
+        img = prod["images"]["main"].split("/")[-1].replace(".png", "")
+        if img in price_desc:
+            price, desc = price_desc[img]
+            title = " ".join(w.capitalize() for w in img.split("_"))
+            prod["title"] = title
+            prod["price"] = price
+            prod["description"] = desc
+            prod["status"] = "active"
+            updated += 1
+        else:
+            skipped.append((sku, img))
+
+with open(path, "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+
+print(f"Updated: {updated}")
+print(f"Skipped: {skipped}")

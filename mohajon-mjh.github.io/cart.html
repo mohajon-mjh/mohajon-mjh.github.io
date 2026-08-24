@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shopping Cart - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial,sans-serif;background:#EAEDED}
+.wrap{max-width:1100px;margin:14px auto;padding:0 10px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.items{flex:1;min-width:300px;background:#fff;border-radius:8px;padding:16px}
+.row{display:flex;gap:12px;border-bottom:1px solid #eee;padding:12px 0;flex-wrap:wrap}
+.row img{width:90px;height:90px;object-fit:cover;border-radius:6px}
+.price{color:#B12704;font-weight:700}.green{color:#007600}
+.qty button{border:1px solid #ddd;background:#f0f0f0;border-radius:6px;padding:2px 12px;font-size:16px;cursor:pointer}
+a.lnk{color:#007185;text-decoration:none;font-size:12px}
+.box{width:270px;background:#fff;border-radius:8px;padding:16px}
+.btn-yellow{width:100%;background:#FFD814;border:1px solid #FCD200;border-radius:20px;padding:10px;font-size:14px;cursor:pointer;font-weight:600}</style>
+<script src="auto-ads-enable.js"></script>
+</head>
+<body>
+<header style="background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px">
+ <a href="index.html" style="color:#fff;font-weight:700;font-size:17px;text-decoration:none">🛍️ Mohajon-MJH</a>
+ <a href="my-orders.html" style="color:#fff;font-size:13px;text-decoration:none">📦 My Orders</a>
+ <a href="login.html" style="color:#fff;font-size:13px;text-decoration:none;margin-left:auto">👤 <span class="hiName">Sign in</span></a><a href="cart.html" style="color:#fff;font-size:13px;text-decoration:none">🛒 Cart <span id="cartCount"></span></a>
+</header>
+<div class="wrap">
+ <div class="items"><h2 style="margin:0 0 6px;border-bottom:1px solid #eee;padding-bottom:8px">Shopping Cart</h2><div id="list">লোড হচ্ছে...</div></div>
+ <div class="box"><p class="green" id="freeMsg" style="font-size:13px"></p>
+ <p style="font-size:15px">Subtotal (<span id="cnt">0</span> items): <b id="sub">৳0.00</b></p>
+ <button class="btn-yellow" onclick="location.href='checkout.html'">Proceed to Buy →</button></div>
+</div>
+<script>
+const DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+const fmt=v=>"৳"+Number(v||0).toFixed(2);
+function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]")}
+function saveCart(c){localStorage.setItem("cart",JSON.stringify(c));render()}
+let IMG={};
+async function render(){
+ const cart=getCart();
+ document.getElementById("cartCount").textContent="("+cart.reduce((a,i)=>a+(i.qty||1),0)+")";
+ if(cart.length===0){document.getElementById("list").innerHTML='<p style="font-size:17px">Your cart is empty 🛒</p><a class="lnk" href="index.html" style="font-size:14px">Continue shopping →</a>';document.getElementById("sub").textContent=fmt(0);document.getElementById("cnt").textContent="0";return;}
+ await Promise.all(cart.map(async i=>{try{const r=await fetch(DB+"/products/"+i.id+"/images/main.json");IMG[i.id]=await r.json();}catch(e){}}));
+ let total=0,cnt=0;
+ document.getElementById("list").innerHTML=cart.map((i,idx)=>{const q=i.qty||1;total+=i.price*q;cnt+=q;
+  return `<div class="row"><img src="${IMG[i.id]||'https://dummyimage.com/90x90/eeeeee/555&text=MJH'}">
+  <div style="flex:1;min-width:160px"><div style="font-size:15px">${i.name}</div>
+  <div class="green" style="font-size:12px">In Stock</div>
+  <div class="price" style="font-size:16px;margin:4px 0">${fmt(i.price)}</div>
+  <div class="qty"><button onclick="chg(${idx},-1)">−</button> <b>${q}</b> <button onclick="chg(${idx},1)">+</button> &nbsp; <a class="lnk" href="#" onclick="del(${idx});return false">Delete</a></div></div>
+  <div style="font-weight:700">${fmt(i.price*q)}</div></div>`;}).join("");
+ document.getElementById("sub").textContent=fmt(total);
+ document.getElementById("cnt").textContent=cnt;
+ document.getElementById("freeMsg").textContent= total>=2000 ? "✅ এই অর্ডারে FREE Delivery!" : "৳2000+ অর্ডারে FREE Delivery";
+}
+function chg(idx,d){const c=getCart();c[idx].qty=Math.max(1,(c[idx].qty||1)+d);saveCart(c)}
+function del(idx){const c=getCart();c.splice(idx,1);saveCart(c)}
+render();
+</script><script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
+</body></html>

@@ -1,0 +1,229 @@
+import json
+
+# filename (without .png) : (price, description)
+price_desc = {
+    "suitcase_and_backpack": (2500, "Suitcase & Backpack — a versatile combination of travel luggage and backpack essentials."),
+    "suitcases_luggage": (3500, "Suitcases & Luggage — a general range of travel suitcases for every trip."),
+    "carry_on_suitcase": (3000, "Carry-On Suitcase — a compact suitcase sized for airline cabin storage."),
+    "cabin_luggage": (3200, "Cabin Luggage — lightweight luggage designed to fit airline cabin restrictions."),
+    "checked_suitcase": (4000, "Checked Suitcase — a spacious suitcase designed for checked airline baggage."),
+    "hard_shell_suitcase": (4200, "Hard Shell Suitcase — a durable, protective suitcase with a rigid outer shell."),
+    "soft_shell_suitcase": (3500, "Soft Shell Suitcase — a flexible, lightweight suitcase with expandable storage."),
+    "spinner_suitcase": (4500, "Spinner Suitcase — a suitcase with 360-degree spinner wheels for easy maneuvering."),
+    "travel_trunk": (5500, "Travel Trunk — a large, sturdy trunk for extended travel and bulk packing."),
+    "luggage_set": (7000, "Luggage Set — a matching set of suitcases in multiple sizes."),
+    "kids_suitcase": (2200, "Kids' Suitcase — a fun, lightweight suitcase sized for children."),
+    "expandable_suitcase": (4200, "Expandable Suitcase — a suitcase with extra zip expansion for added packing space."),
+
+    "travel_bags": (1500, "Travel Bags — a general range of bags designed for travel convenience."),
+    "duffle_bag": (1500, "Duffle Bag — a spacious, versatile bag ideal for travel and sports."),
+    "weekender_bag": (1800, "Weekender Bag — a stylish, compact bag perfect for short trips."),
+    "travel_bag": (1500, "Travel Bag — a practical bag designed for everyday travel needs."),
+    "rolling_travel_bag": (2500, "Rolling Travel Bag — a wheeled bag combining mobility and packing space."),
+    "garment_bag": (1500, "Garment Bag — a protective bag designed for carrying formal clothing while traveling."),
+    "travel_organizer": (700, "Travel Organizer — a compact organizer for keeping travel essentials tidy."),
+    "packing_cubes": (600, "Packing Cubes — lightweight cubes for organizing luggage contents."),
+    "shoe_bag": (300, "Shoe Bag — a protective bag for packing shoes separately while traveling."),
+    "toiletry_bag": (500, "Toiletry Bag — a compact bag for organizing travel toiletries."),
+    "cosmetic_bag": (500, "Cosmetic Bag — a practical bag for organizing makeup and beauty essentials."),
+    "passport_holder": (400, "Passport Holder — a protective cover for keeping travel documents secure."),
+    "travel_wallet": (600, "Travel Wallet — a compact wallet designed to hold travel documents and cash."),
+    "luggage_tag": (250, "Luggage Tag — a practical tag for identifying and personalizing luggage."),
+    "luggage_strap": (300, "Luggage Strap — an adjustable strap for securing and identifying suitcases."),
+
+    "backpacks": (1200, "Backpacks — a general range of backpacks for daily and travel use."),
+    "laptop_backpack": (1800, "Laptop Backpack — a padded backpack designed to safely carry laptops."),
+    "school_backpack": (1200, "School Backpack — a durable backpack designed for students."),
+    "college_backpack": (1500, "College Backpack — a spacious backpack suited for college essentials."),
+    "travel_backpack": (2000, "Travel Backpack — a versatile backpack designed for travel convenience."),
+    "hiking_backpack": (2500, "Hiking Backpack — a rugged backpack designed for outdoor hiking trips."),
+    "camping_backpack": (2800, "Camping Backpack — a large-capacity backpack designed for camping gear."),
+    "business_backpack": (2200, "Business Backpack — a professional backpack suited for work and commuting."),
+    "anti_theft_backpack": (2000, "Anti-Theft Backpack — a secure backpack with hidden zippers and theft-resistant design."),
+    "hydration_backpack": (1800, "Hydration Backpack — a backpack with built-in water reservoir for outdoor activity."),
+    "tactical_backpack": (2500, "Tactical Backpack — a rugged, multi-compartment backpack for outdoor and utility use."),
+    "camera_backpack": (2800, "Camera Backpack — a padded backpack designed to protect camera gear."),
+    "diaper_backpack": (1800, "Diaper Backpack — a practical backpack designed for carrying baby essentials."),
+    "kids_backpack": (900, "Kids' Backpack — a fun, lightweight backpack sized for children."),
+
+    "handbags": (1200, "Handbags — a general range of stylish bags for everyday and formal use."),
+    "tote_bag": (900, "Tote Bag — a spacious, versatile bag for daily use."),
+    "shoulder_bag": (1100, "Shoulder Bag — a practical, stylish bag for everyday carrying."),
+    "crossbody_bag": (1000, "Crossbody Bag — a compact, hands-free bag for everyday convenience."),
+    "satchel_bag": (1300, "Satchel Bag — a structured bag combining style and functionality."),
+    "hobo_bag": (1200, "Hobo Bag — a relaxed, crescent-shaped bag for everyday use."),
+    "bucket_bag": (1200, "Bucket Bag — a cylindrical bag offering a spacious, trendy design."),
+    "clutch_bag": (800, "Clutch Bag — a compact handheld bag for evening and formal occasions."),
+    "evening_bag": (1000, "Evening Bag — an elegant small bag suited for formal events."),
+    "wristlet": (600, "Wristlet — a small handheld bag with a wrist strap for convenience."),
+    "mini_handbag": (800, "Mini Handbag — a compact handbag for essentials on the go."),
+
+    "wallets_small_accessories": (500, "Wallets & Small Accessories — a general range of compact everyday accessories."),
+    "wallet": (700, "Wallet — a practical accessory for carrying cash and cards."),
+    "card_holder": (400, "Card Holder — a slim accessory for organizing cards."),
+    "coin_purse": (300, "Coin Purse — a compact pouch for carrying coins and small items."),
+    "money_clip_wallet": (500, "Money Clip Wallet — a slim wallet combining card storage with a cash clip."),
+    "passport_wallet": (600, "Passport Wallet — a compact wallet designed to organize travel documents."),
+    "rfid_wallet": (700, "RFID Wallet — a wallet with RFID-blocking technology for card security."),
+    "key_holder": (350, "Key Holder — a compact accessory for organizing and carrying keys."),
+    "key_organizer": (400, "Key Organizer — a practical case for keeping multiple keys tidy and accessible."),
+
+    "business_bags": (1800, "Business Bags — a general range of bags designed for professional use."),
+    "briefcase": (2500, "Briefcase — a professional bag designed for documents and business essentials."),
+    "laptop_bag": (1800, "Laptop Bag — a padded bag designed to safely carry a laptop."),
+    "messenger_bag": (1500, "Messenger Bag — a practical crossbody bag suited for work and commuting."),
+    "document_bag": (900, "Document Bag — a slim bag designed for carrying files and documents."),
+    "portfolio_case": (1200, "Portfolio Case — a professional case for presentations and documents."),
+    "business_travel_bag": (2500, "Business Travel Bag — a versatile bag combining business and travel functionality."),
+
+    "sports_gym_bags": (1200, "Sports & Gym Bags — a general range of bags designed for athletic use."),
+    "gym_bag": (1200, "Gym Bag — a durable bag designed for carrying workout gear."),
+    "sports_duffle_bag": (1300, "Sports Duffle Bag — a spacious bag ideal for sports equipment and gear."),
+    "yoga_bag": (900, "Yoga Bag — a practical bag designed for carrying yoga mats and accessories."),
+    "racket_bag": (1500, "Racket Bag — a specialized bag designed for carrying sports rackets."),
+    "swimming_bag": (700, "Swimming Bag — a water-resistant bag designed for swim gear."),
+
+    "camera_bags_cases": (1500, "Camera Bags & Cases — a general range of protective gear for camera equipment."),
+    "camera_bag": (1500, "Camera Bag — a padded bag designed to protect camera equipment."),
+    "lens_case": (700, "Lens Case — a protective case designed for camera lenses."),
+    "hard_camera_case": (2500, "Hard Camera Case — a rigid, protective case for camera gear."),
+    "drone_carrying_case": (2000, "Drone Carrying Case — a protective case designed for safely transporting drones."),
+    "memory_card_case": (400, "Memory Card Case — a compact case for organizing memory cards."),
+
+    "laptop_tablet_cases": (1200, "Laptop & Tablet Cases — a general range of protective cases for devices."),
+    "laptop_sleeve": (900, "Laptop Sleeve — a slim, protective sleeve for laptops."),
+    "laptop_case": (1200, "Laptop Case — a protective case designed to safeguard a laptop."),
+    "tablet_sleeve": (700, "Tablet Sleeve — a slim, protective sleeve for tablets."),
+    "tablet_case": (900, "Tablet Case — a protective case designed to safeguard a tablet."),
+    "keyboard_carrying_case": (800, "Keyboard Carrying Case — a protective case designed for transporting keyboards."),
+
+    "phone_gadget_cases": (500, "Phone & Gadget Cases — a general range of protective cases for devices."),
+    "phone_case": (500, "Phone Case — a protective case designed for smartphones."),
+    "rugged_phone_case": (800, "Rugged Phone Case — a heavy-duty case offering extra shock protection."),
+    "wallet_phone_case": (700, "Wallet Phone Case — a phone case with built-in card storage."),
+    "tablet_cover": (700, "Tablet Cover — a protective cover designed for tablets."),
+    "earbud_carrying_case": (300, "Earbud Carrying Case — a compact case designed for storing earbuds."),
+    "power_bank_case": (300, "Power Bank Case — a protective case designed for carrying power banks."),
+
+    "protective_cases": (1000, "Protective Cases — a general range of durable cases for equipment protection."),
+    "hard_carry_case": (2000, "Hard Carry Case — a rigid case offering strong protection for equipment."),
+    "waterproof_case": (1800, "Waterproof Case — a sealed case offering protection from water and moisture."),
+    "protective_equipment_case": (1800, "Protective Equipment Case — a durable case designed for safeguarding equipment."),
+    "tool_case": (1500, "Tool Case — a sturdy case designed for organizing and transporting tools."),
+    "instrument_case": (2500, "Instrument Case — a protective case designed for musical instruments."),
+    "storage_case": (900, "Storage Case — a durable case designed for general storage needs."),
+
+    "cosmetic_beauty_bags": (500, "Cosmetic & Beauty Bags — a general range of bags for beauty essentials."),
+    "makeup_bag": (500, "Makeup Bag — a practical bag for organizing makeup essentials."),
+    "makeup_organizer": (700, "Makeup Organizer — a structured organizer for makeup and beauty tools."),
+    "vanity_case": (900, "Vanity Case — a compact case designed for beauty and grooming essentials."),
+    "travel_cosmetic_case": (700, "Travel Cosmetic Case — a compact case for organizing cosmetics while traveling."),
+    "brush_holder": (300, "Brush Holder — a practical holder for organizing makeup brushes."),
+
+    "baby_bags": (1200, "Baby Bags — a general range of bags designed for baby essentials."),
+    "diaper_bag": (1500, "Diaper Bag — a spacious bag designed for carrying baby essentials."),
+    "baby_organizer_bag": (800, "Baby Organizer Bag — a practical bag for organizing baby items."),
+    "bottle_storage_bag": (500, "Bottle Storage Bag — an insulated bag designed for carrying baby bottles."),
+
+    "outdoor_adventure_bags": (1500, "Outdoor & Adventure Bags — a general range of bags designed for outdoor activities."),
+    "dry_bag": (900, "Dry Bag — a waterproof bag designed to keep contents dry during outdoor activities."),
+    "waterproof_backpack": (1800, "Waterproof Backpack — a backpack designed to protect contents from water."),
+    "cooler_bag": (1200, "Cooler Bag — an insulated bag designed to keep food and drinks cold."),
+    "fishing_bag": (1500, "Fishing Bag — a durable bag designed for carrying fishing gear."),
+    "hunting_bag": (1800, "Hunting Bag — a rugged bag designed for outdoor hunting gear."),
+    "cycling_bag": (900, "Cycling Bag — a compact bag designed for cycling essentials."),
+    "motorcycle_tank_bag": (1500, "Motorcycle Tank Bag — a bag designed to mount on a motorcycle fuel tank."),
+
+    "shopping_bags": (300, "Shopping Bags — a general range of bags designed for shopping convenience."),
+    "reusable_shopping_bag": (250, "Reusable Shopping Bag — an eco-friendly bag for everyday shopping."),
+    "foldable_shopping_bag": (300, "Foldable Shopping Bag — a compact, foldable bag for convenient shopping."),
+    "grocery_bag": (250, "Grocery Bag — a sturdy bag designed for carrying groceries."),
+    "insulated_shopping_bag": (500, "Insulated Shopping Bag — a bag designed to keep groceries cool during transport."),
+
+    "pet_travel_bags": (1500, "Pet Travel Bags — a general range of bags designed for traveling with pets."),
+    "pet_carrier_bag": (1800, "Pet Carrier Bag — a comfortable bag designed for transporting small pets."),
+    "pet_backpack_carrier": (2000, "Pet Backpack Carrier — a backpack-style carrier designed for pets."),
+    "pet_travel_crate": (2500, "Pet Travel Crate — a secure crate designed for pet travel."),
+    "pet_car_seat_carrier": (2200, "Pet Car Seat Carrier — a secure carrier designed for pets during car travel."),
+
+    "storage_organization": (500, "Storage & Organization — a general range of bags for household storage needs."),
+    "storage_bag": (500, "Storage Bag — a practical bag designed for general storage."),
+    "vacuum_storage_bag": (600, "Vacuum Storage Bag — a space-saving bag that compresses items using a vacuum seal."),
+    "garment_storage_bag": (500, "Garment Storage Bag — a protective bag designed for storing clothing."),
+    "blanket_storage_bag": (500, "Blanket Storage Bag — a spacious bag designed for storing blankets and bedding."),
+    "under_bed_storage_bag": (600, "Under-Bed Storage Bag — a flat storage bag designed to fit under the bed."),
+
+    "travel_security": (700, "Travel Security — a general range of accessories for securing luggage while traveling."),
+    "tsa_luggage_lock": (500, "TSA Luggage Lock — a security lock approved for airline travel."),
+    "combination_lock": (400, "Combination Lock — a secure lock for luggage and bags."),
+    "cable_lock": (400, "Cable Lock — a flexible security lock for luggage and bags."),
+    "luggage_scale": (600, "Luggage Scale — a portable scale for checking baggage weight before travel."),
+    "gps_luggage_tracker": (2000, "GPS Luggage Tracker — a tracking device for locating luggage in real time."),
+    "airtag_holder": (400, "AirTag Holder — a protective holder for attaching a tracker to luggage."),
+
+    "bag_accessories": (400, "Bag Accessories — a general range of accessories for maintaining and customizing bags."),
+    "shoulder_strap": (400, "Shoulder Strap — a replacement or add-on strap for bags."),
+    "bag_handle": (350, "Bag Handle — a replacement handle for bags and luggage."),
+    "luggage_wheels": (500, "Luggage Wheels — replacement wheels for suitcases."),
+    "wheel_replacement_kit": (600, "Wheel Replacement Kit — a complete kit for replacing luggage wheels."),
+    "zipper_pull": (150, "Zipper Pull — a replacement pull for bag and luggage zippers."),
+    "rain_cover": (500, "Rain Cover — a protective cover designed to shield bags from rain."),
+    "bag_organizer_insert": (500, "Bag Organizer Insert — an insert designed to organize the interior of a bag."),
+    "bag_hooks": (250, "Bag Hooks — practical hooks for hanging bags conveniently."),
+
+    "luxury_bags": (5000, "Luxury Bags — a premium range of high-end bags and accessories."),
+    "designer_handbag": (8000, "Designer Handbag — a premium handbag crafted with high-end materials and design."),
+    "leather_briefcase": (6000, "Leather Briefcase — a premium leather briefcase for professional use."),
+    "leather_wallet": (1500, "Leather Wallet — a premium wallet crafted from genuine leather."),
+    "premium_travel_bag": (5500, "Premium Travel Bag — a high-end bag combining luxury and travel functionality."),
+    "luxury_luggage": (9000, "Luxury Luggage — premium suitcases crafted with high-end materials and design."),
+}
+
+def titleize(fname):
+    words = fname.split("_")
+    return " ".join(w.upper() if w.isdigit() and len(w) <= 2 else w.capitalize() for w in words)
+
+path = "data/products-placeholder.json"
+with open(path, "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+# collect existing image paths for this category to avoid duplicates
+existing_images = set()
+for v in data.values():
+    if isinstance(v, dict) and v.get("categoryId") == "luggage_bags_cases":
+        existing_images.add(v["images"]["main"])
+
+sku_counter = 7661
+added = 0
+skipped_existing = []
+
+for fname, (price, desc) in price_desc.items():
+    image_path = f"assets/images/categories/Luggage, Bags & Cases/{fname}.png"
+    if image_path in existing_images:
+        skipped_existing.append(fname)
+        continue
+    sku = f"p{sku_counter:04d}"
+    title = titleize(fname)
+    data[sku] = {
+        "sellerId": "admin",
+        "title": title,
+        "description": desc,
+        "price": price,
+        "stock": 25,
+        "categoryId": "luggage_bags_cases",
+        "netWeight": "",
+        "status": "active",
+        "createdAt": 1782984093000,
+        "updatedAt": 1782984093000,
+        "images": {"main": image_path},
+        "sku": sku
+    }
+    sku_counter += 1
+    added += 1
+
+with open(path, "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+
+print(f"Added: {added}")
+print(f"Skipped (already existed): {skipped_existing}")
+print(f"Next SKU counter: p{sku_counter:04d}")

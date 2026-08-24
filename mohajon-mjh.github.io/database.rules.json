@@ -1,0 +1,9 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": "auth != null && (auth.token.email === 'mohajonmjh@gmail.com' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+    "products": {
+      ".indexOn": ["isFeatured", "featured", "isTrending", "trending", "status", "createdAt"]
+    }
+  }
+}

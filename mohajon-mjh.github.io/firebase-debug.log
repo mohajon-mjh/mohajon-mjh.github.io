@@ -1,0 +1,19 @@
+[debug] [2026-07-16T08:54:07.914Z] ----------------------------------------------------------------------
+[debug] [2026-07-16T08:54:07.929Z] Command:       /data/data/com.termux/files/usr/bin/node /data/data/com.termux/files/usr/bin/firebase deploy --only database
+[debug] [2026-07-16T08:54:07.931Z] CLI Version:   15.22.4
+[debug] [2026-07-16T08:54:07.931Z] Platform:      android
+[debug] [2026-07-16T08:54:07.932Z] Node Version:  v26.3.1
+[debug] [2026-07-16T08:54:07.933Z] Detected Agent: unknown
+[debug] [2026-07-16T08:54:07.934Z] Time:          Thu Jul 16 2026 11:54:07 GMT+0300 (Arabian Standard Time)
+[debug] [2026-07-16T08:54:07.934Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-07-16T08:54:07.947Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-07-16T08:54:14.343Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-07-16T08:54:17.199Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-07-16T08:54:17.201Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-07-16T08:54:22.419Z] Error: Timed out.
+    at Timeout._onTimeout (/data/data/com.termux/files/usr/lib/node_modules/firebase-tools/lib/utils.js:313:49)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7)
+[error] 
+[error] Error: An unexpected error has occurred.

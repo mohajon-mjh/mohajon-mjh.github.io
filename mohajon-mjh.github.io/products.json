@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "name": "হলুদ গুঁড়া",
+    "category": "মসলা",
+    "price": 120,
+    "image": "assets/images/products/holud.png"
+  },
+  {
+    "id": 2,
+    "name": "জিরা গুঁড়া",
+    "category": "মসলা",
+    "price": 130,
+    "image": "assets/images/products/jira.png"
+  },
+  {
+    "id": 3,
+    "name": "চাল",
+    "category": "খাদ্য",
+    "price": 80,
+    "image": "assets/images/products/chal.png"
+  },
+  {
+    "id": 4,
+    "name": "চিনি",
+    "category": "গ্রোসারি",
+    "price": 90,
+    "image": "assets/images/products/chini.png"
+  }
+]

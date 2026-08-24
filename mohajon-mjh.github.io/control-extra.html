@@ -1,0 +1,40 @@
+<script type="module">/*control-extra-v1*/
+import{getApps,getApp,initializeApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import{getDatabase,ref,get,set}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const app=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+const auth=getAuth(app),db=getDatabase(app);
+let MAP={};
+function build(title,obj,pref){
+ if(!obj)return;
+ const card=document.createElement("div");card.className="card";card.innerHTML="<h2>"+title+"</h2>";
+ Object.entries(obj).forEach(function(e){
+  const id=e[0],name=(e[1].name||e[1].title||id);
+  const row=document.createElement("div");row.className="row";
+  const on=MAP[pref+id]!==false;
+  row.innerHTML='<span class="name">'+name+'</span><span style="display:flex;align-items:center"><span class="st">'+(on?"ON":"OFF")+'</span><label class="sw"><input type="checkbox" '+(on?"checked":"")+'><span class="sl"></span></label></span>';
+  row.querySelector("input").onchange=async function(ev){await set(ref(db,"settings/categoryLive/"+pref+id),ev.target.checked);row.querySelector(".st").textContent=ev.target.checked?"ON":"OFF";};
+  card.appendChild(row);
+ });
+ document.getElementById("list").appendChild(card);
+}
+onAuthStateChanged(auth,async u=>{
+ if(!u)return;
+ const r=(await get(ref(db,"users/"+u.uid))).val()||{};
+ if(r.role!=="admin"&&r.role!=="superadmin")return;
+ let n=0;const w=setInterval(async()=>{
+  n++;if(n>25)clearInterval(w);
+  if(document.getElementById("list").children.length>=2){
+   clearInterval(w);
+   const st=await get(ref(db,"settings/categoryLive"));MAP=st.val()||{};
+   const f=await get(ref(db,"settings/flashSaleCategories"));
+   const d=await get(ref(db,"settings/dealsOfDayCategories"));
+   let s=await get(ref(db,"settings/specialCategories")).catch(()=>null);
+   if(!s||!s.exists())s=await get(ref(db,"settings/specialCats")).catch(()=>null);
+   build("⚡ Flash Sale Categories",f.exists()?f.val():null,"fsc:");
+   build("⭐ Deals of the Day",d.exists()?d.val():null,"dotd:");
+   build("🌟 Special Categories",s&&s.exists()?s.val():null,"sc:");
+  }
+ },1000);
+});
+</script>

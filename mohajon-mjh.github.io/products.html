@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Products | Category View</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="product-card-upgrade.css" />
+    <link rel="stylesheet" href="shared-header.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 0 0.5rem; border-bottom: 1px solid #e9edf2; flex-wrap: wrap; gap: 10px; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 600; color: #0b1a2e; }
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin: 1.2rem 0 1.8rem; }
+        .filter-bar .search-box { flex: 1 1 260px; display: flex; border-radius: 40px; background: white; border: 1px solid #dce1e8; }
+        .filter-bar .search-box input { border: none; padding: 0.7rem 1.2rem; font-size: 0.95rem; width: 100%; background: transparent; outline: none; border-radius: 40px; }
+        .filter-bar .category-select { padding: 0.6rem 2rem 0.6rem 1.2rem; border-radius: 40px; border: 1px solid #dce1e8; background: white; font-size: 0.95rem; min-width: 160px; cursor: pointer; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; padding: 8px 0 40px; }
+        .loading-placeholder { grid-column: 1 / -1; text-align: center; padding: 4rem 0; color: #5f6c80; }
+        
+        .product-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: 0.2s;
+        }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        
+        .product-card-image {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            background: #f1f3f5;
+            overflow: hidden;
+        }
+        .product-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            background: #f1f3f5;
+            padding: 5px;
+        }
+        .stock-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: white;
+            z-index: 2;
+            text-transform: uppercase;
+        }
+        .stock-badge.in-stock { background: #22c55e; }
+        .stock-badge.low-stock { background: #f59e0b; }
+        .stock-badge.out-of-stock { background: #ef4444; }
+        
+        .discount-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            background: #dc2626;
+            color: white;
+            z-index: 2;
+        }
+        
+        .product-card-content {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .product-card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 0 0 4px;
+            color: #0b1a2e;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.3;
+            min-height: 2.5rem;
+        }
+        .product-card-category {
+            font-size: 0.75rem;
+            color: #6b7a8f;
+            margin-bottom: 6px;
+        }
+        .product-card-price {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0;
+        }
+        .current-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0b1a2e;
+        }
+        .old-price {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+        .product-card-weight {
+            font-size: 0.75rem;
+            color: #6b7a8f;
+            margin: 4px 0;
+        }
+        .product-card-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: auto;
+            flex-wrap: wrap;
+        }
+        .product-card-actions button,
+        .product-card-actions a {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .btn-add-to-cart {
+            background: #2563eb;
+            color: white;
+            flex: 1;
+        }
+        .btn-add-to-cart:hover { background: #1d4ed8; }
+        .btn-wishlist {
+            background: #f1f3f5;
+            color: #0b1a2e;
+            font-size: 1rem;
+            padding: 6px 12px;
+            min-width: 35px;
+        }
+        .btn-wishlist.active {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-view-details {
+            background: #f1f3f5;
+            color: #0b1a2e;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+        .btn-view-details:hover { background: #e5e7eb; }
+        
+        @media (max-width: 768px) {
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .product-grid { 
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+                gap: 12px; 
+            }
+            .product-card-image { 
+                height: 140px; 
+            }
+            .product-card-title {
+                font-size: 0.8rem;
+                min-height: 2rem;
+            }
+            .current-price {
+                font-size: 0.95rem;
+            }
+            .product-card-actions button,
+            .product-card-actions a {
+                font-size: 0.65rem;
+                padding: 5px 8px;
+            }
+            .product-card-content {
+                padding: 10px;
+            }
+            .stock-badge, .discount-badge {
+                font-size: 0.5rem;
+                padding: 2px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-grid { 
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+                gap: 10px; 
+            }
+            .product-card-image { 
+                height: 120px; 
+            }
+        }
+    </style>
+<link rel="stylesheet" href="css/global-menu.css">
+
+<script src="auto-ads-enable.js"></script>
+
+<script src="feed-ads.js"></script>
+
+<script src="ad-cleanup.js"></script>
+
+<script src="social-bar.js"></script>
+
+
+</head>
+<body>
+<div id="menuBtn" class="hamburger">☰</div>
+<nav id="sideMenu" class="side-menu">
+<h3>Categories</h3>
+<ul id="categoryList"></ul>
+</nav>
+    <div id="navbar-placeholder"></div>
+    <main class="container">
+        <div class="page-header">
+            <h1>All Products</h1>
+            <span id="product-count" style="color:#4a5a6e;">0 items</span>
+        </div>
+        <div class="filter-bar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search products..." />
+            </div>
+            <select id="categoryFilter" class="category-select">
+                <option value="all">All Categories</option>
+            </select>
+        </div>
+        <div id="productGrid" class="product-grid">
+            <div class="loading-placeholder">Loading products …</div>
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+            authDomain: "mohajon-mjh.firebaseapp.com",
+            databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+            projectId: "mohajon-mjh",
+            storageBucket: "mohajon-mjh.firebasestorage.app",
+            messagingSenderId: "526105903976",
+            appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
+        };
+        firebase.initializeApp(firebaseConfig);
+        window.db = firebase.database();
+
+        window.db.ref('products').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const cats = new Set();
+                Object.values(data).forEach(p => {
+                    if (p.category) cats.add(p.category);
+                });
+                const select = document.getElementById('categoryFilter');
+                select.innerHTML = '<option value="all">All Categories</option>';
+                cats.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat;
+                    opt.textContent = cat;
+                    select.appendChild(opt);
+                });
+            }
+        });
+    </script>
+    <script src="shared-header.js"></script>
+    <script src="products-loader.js"></script>
+    <script type="module" src="assets/js/currency.js"></script>
+    <script src="product-render.js?v=2"></script>
+    <script src="assets/navbar.js"></script>
+<script src="cart.js"></script>
+<script src="wishlist.js"></script>
+<script src="js/global-menu.js?v=2"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const category = params.get("category");
+if(category){
+    const title = document.querySelector("h1");
+    if(title) title.innerText = category;
+}
+</script>
+<style>
+.category-banner{
+background:#232f3e;
+color:white;
+padding:20px;
+margin:10px;
+border-radius:10px;
+text-align:center;
+font-size:20px;
+}
+</style>
+<div class="category-banner" id="catBanner"></div>
+<script>
+if(category){
+document.getElementById("catBanner").innerText = "Category: " + category;
+}
+</script>
+
+
+
+<script>
+(function(){
+ function init(){
+  console.log("🛍️ products.html init start");
+  console.log("  window.db:",!!window.db);
+  console.log("  window.createProductCard:",typeof window.createProductCard);
+  console.log("  window.ProductsLoader:",!!window.ProductsLoader);
+  console.log("  DOM productGrid:",!!document.getElementById("productGrid"));
+  
+  if(!window.db){
+   console.error("❌ Firebase not ready");
+   return setTimeout(init,500);
+  }
+  if(!window.ProductsLoader){
+   console.error("❌ ProductsLoader not ready");
+   return setTimeout(init,500);
+  }
+  
+  // initial load trigger
+  try{
+   window.ProductsLoader.loadProducts();
+   console.log("✅ Initial load triggered");
+  }catch(e){
+   console.error("❌ Load error:",e);
+  }
+  
+  // fallback: ৩ সেকেন্ড পর grid খালি থাকলে direct fetch
+  setTimeout(function(){
+   var grid=document.getElementById("productGrid");
+   if(grid && grid.children.length===0){
+    console.log("⚠️ Grid empty after 3s, fallback fetch...");
+    window.db.ref("products").once("value").then(function(snap){
+     var data=snap.val()||{};
+     var list=Object.keys(data).map(function(id){return Object.assign({id:id},data[id]);}).filter(function(p){return p.status==="active";});
+     console.log("✅ Fallback loaded:",list.length,"products");
+     if(list.length>0 && window.createProductCard){
+      grid.innerHTML="";
+      list.slice(0,50).forEach(function(p){grid.appendChild(window.createProductCard(p));});
+      var c=document.getElementById("product-count");
+      if(c) c.textContent=list.length+" items";
+     }
+    });
+   }
+  },3000);
+ }
+ if(document.readyState==="loading"){
+  document.addEventListener("DOMContentLoaded",init);
+ }else{
+  init();
+ }
+})();
+</script>
+
+<script src="smart-search.js?v=2"></script>
+</body>
+</html>
+
+
+
+<script type="module" src="category-gate.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+<style>/*mjhArrowV9CSS*/
+.scroll-arrow-card{border:2px solid #16a34a !important;background:#ffffff !important;border-radius:12px !important;box-shadow:0 2px 8px rgba(22,163,74,.25) !important;}
+.scroll-arrow-card span{color:#16a34a !important;font-weight:900 !important;font-size:36px !important;line-height:1 !important;}
+</style>
+<script>/*mjhArrowV9*/
+(function(){
+ var LIMIT=20;
+ /* ===== ৩৮টা ক্যাটাগরি — প্রতিটার নাম আলাদা লাইনে ===== */
+ var CATS={
+  /* Flash Sale (৫) */
+  "Up To 5% Off":"flashSaleProductsGrid",
+  "Special Offers for One Week":"flashSaleProductsGrid",
+  "Electronics Deals":"flashSaleProductsGrid",
+  "Fashion Sale":"flashSaleProductsGrid",
+  "Home Essentials":"flashSaleProductsGrid",
+  /* Deals of Day (৪) */
+  "Best Sellers":"dealsGrid",
+  "New Arrivals":"dealsGrid",
+  "Top Rated":"dealsGrid",
+  "Recommended For You":"dealsGrid",
+  /* Special (৬) */
+  "Second-Hand & Refurbished Goods":"specialCatCarousel",
+  "Musical Instruments":"specialCatCarousel",
+  "Printing Supplies":"specialCatCarousel",
+  "Seasonal & Festival Products":"specialCatCarousel",
+  "Islamic & Religious Products":"specialCatCarousel",
+  "Wedding & Event Supplies":"specialCatCarousel",
+  /* মূল সেকশন (৩) */
+  "Trending Products":"trendingProductsGrid",
+  "Featured Products":"featuredProducts",
+  "Coming Soon":"comingSoonGrid",
+  /* Global (২০) */
+  "Electronics":"globalCatCarousel",
+  "Computers":"globalCatCarousel",
+  "TV & Appliances":"globalCatCarousel",
+  "Watches":"globalCatCarousel",
+  "Men Fashion":"globalCatCarousel",
+  "Women Fashion":"globalCatCarousel",
+  "Mother & Baby":"globalCatCarousel",
+  "Toys & Games":"globalCatCarousel",
+  "Grocery":"globalCatCarousel",
+  "Spices":"globalCatCarousel",
+  "Food & Beverages":"globalCatCarousel",
+  "Beauty":"globalCatCarousel",
+  "Health":"globalCatCarousel",
+  "Home & Kitchen":"globalCatCarousel",
+  "Automotive":"globalCatCarousel",
+  "Sports":"globalCatCarousel",
+  "Pet Supplies":"globalCatCarousel",
+  "Books":"globalCatCarousel",
+  "Travel":"globalCatCarousel",
+  "Gift Items":"globalCatCarousel"
+ };
+ function cardsOf(g){var out=[],ch=g.children;for(var i=0;i<ch.length;i++){if(ch[i].classList&&ch[i].classList.contains("product-card"))out.push(ch[i]);}return out;}
+ function makeArrow(g){
+  var old=g.querySelector(".mjh-v9-ar");if(old)old.remove();
+  var hid=cardsOf(g).filter(function(c){return c.style.display==="none";});
+  if(!hid.length)return;
+  var a=document.createElement("div");a.className="mjh-v9-ar";
+  a.innerHTML="<span>→</span>";
+  a.style.cssText="flex:0 0 60px;min-width:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border-radius:12px;margin-left:6px;border:2px solid #16a34a;box-shadow:0 2px 8px rgba(22,163,74,.25);";
+  a.firstChild.style.cssText="color:#16a34a;font-weight:900;font-size:36px;line-height:1;";
+  a.onclick=function(ev){
+   ev.stopPropagation();
+   var h2=cardsOf(g).filter(function(c){return c.style.display==="none";});
+   for(var i=0;i<h2.length&&i<LIMIT;i++)h2[i].style.display="";
+   if(!cardsOf(g).filter(function(c){return c.style.display==="none";}).length)a.remove();
+   g.scrollBy({left:400,behavior:"smooth"});
+  };
+  g.appendChild(a);
+ }
+ function ensure(g){
+  if(!g||g.querySelector(".scroll-arrow-card"))return;
+  var cards=cardsOf(g);
+  if(cards.length<=LIMIT)return;
+  if(g.getAttribute("data-v9")===String(cards.length))return;
+  g.setAttribute("data-v9",String(cards.length));
+  for(var i=0;i<cards.length;i++)cards[i].style.display=i<LIMIT?"":"none";
+  makeArrow(g);
+ }
+ function scan(){
+  var seen={};
+  for(var name in CATS){var id=CATS[name];if(seen[id])continue;seen[id]=1;ensure(document.getElementById(id));}
+  ["categoryProductsGrid","productGrid","productsGrid","mainGrid"].forEach(function(id){ensure(document.getElementById(id));});
+  var ds=document.querySelectorAll("div,ul,section");
+  for(var i=0;i<ds.length;i++){var d=ds[i];if(d.children.length>20&&cardsOf(d).length>20)ensure(d);}
+ }
+ /* নাম ধরে: কোন ক্যাটাগরিতে ক্লিক হলে তার গ্রিড চেক */
+ document.addEventListener("click",function(ev){
+  var t=ev.target;
+  for(var i=0;i<5&&t;i++){
+   var txt=(t.textContent||"").trim();
+   if(txt&&txt.length<40){
+    for(var name in CATS){
+     if(txt.indexOf(name)>-1){
+      var id=CATS[name];
+      (function(x){setTimeout(function(){ensure(document.getElementById(x));},700);setTimeout(function(){ensure(document.getElementById(x));},1600);})(id);
+      break;
+     }
+    }
+   }
+   t=t.parentElement;
+  }
+ },true);
+ var n=0;var iv=setInterval(function(){n++;scan();if(n>60)clearInterval(iv);},3000);
+ setTimeout(scan,2000);setTimeout(scan,6000);
+})();
+</script>

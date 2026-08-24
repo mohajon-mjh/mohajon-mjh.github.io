@@ -1,0 +1,33 @@
+# Backup files (কখনো commit হবে না)
+*.orig-*
+*.pre-*-backup
+*-backup
+*.pre-boxsizing-backup
+*.pre-bulkadd-backup
+
+# Debug/patch scripts (development only)
+patch_*.js
+check_*.js
+fix_*.js
+debug_*.js
+cleanup_*.js
+delete_*.js
+list_*.js
+migrate_*.js
+tag_*.js
+test_*.js
+upload_*.js
+refresh_*.js
+remove_*.js
+*.mjs
+
+# Node/IDE
+node_modules/
+.DS_Store
+.env
+
+# 🚨 CREDENTIALS - NEVER COMMIT
+serviceAccountKey.json
+*.key
+*.pem
+firebase-admin*.json

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Create Account - Mohajon MJH</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+background:#f4f4f4;
+font-family:Arial,sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh
+}
+.box{
+background:#fff;
+width:380px;
+padding:25px;
+border-radius:12px;
+box-shadow:0 5px 20px rgba(0,0,0,.15)
+}
+h2{text-align:center;margin-top:0}
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:15px
+}
+.pass-wrap{
+position:relative;
+margin:10px 0;
+}
+.pass-wrap input{
+margin:0;
+padding-right:45px;
+width:100%;
+}
+.pass-toggle{
+position:absolute;
+right:12px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+font-size:18px;
+user-select:none;
+color:#666;
+}
+button{
+width:100%;
+padding:12px;
+background:#ff9800;
+color:#fff;
+border:0;
+border-radius:8px;
+font-size:16px;
+cursor:pointer
+}
+button:hover{
+background:#f57c00
+}
+#msg{
+margin-top:12px;
+text-align:center;
+color:#d00
+}
+a{text-decoration:none}
+</style>
+
+<link rel="stylesheet" href="css/global-menu.css">
+</head>
+<body>
+<div id="menuBtn" class="hamburger">☰</div>
+<nav id="sideMenu" class="side-menu">
+<h3>Categories</h3>
+<ul id="categoryList"></ul>
+</nav>
+
+<div class="box">
+
+<h2>Create Account</h2>
+
+<input id="name" placeholder="Full Name">
+
+<input id="email"
+type="email"
+placeholder="Email Address">
+
+<div class="pass-wrap">
+  <input id="password"
+  type="password"
+  placeholder="Password (minimum 6 characters)">
+  <span class="pass-toggle" id="togglePass">👁️</span>
+</div>
+
+<button id="signupBtn">
+Create Account
+</button>
+
+<p style="text-align:center">
+<a href="login.html">
+Already have an account?
+</a>
+</p>
+
+<div id="msg"></div>
+
+</div>
+
+<script>
+document.getElementById("togglePass").addEventListener("click", function(){
+  const passInput = document.getElementById("password");
+  if(passInput.type === "password"){
+    passInput.type = "text";
+    this.textContent = "🙈";
+  }else{
+    passInput.type = "password";
+    this.textContent = "👁️";
+  }
+});
+</script>
+
+<script type="module">
+
+import "./assets/js/auth.js";
+
+document
+.getElementById("signupBtn")
+.onclick=async()=>{
+
+const name=
+document
+.getElementById("name")
+.value
+.trim();
+
+const email=
+document
+.getElementById("email")
+.value
+.trim();
+
+const password=
+document
+.getElementById("password")
+.value;
+
+const msg=
+document
+.getElementById("msg");
+
+msg.textContent="";
+
+if(!name||!email||!password){
+
+msg.textContent="Please fill all fields";
+return;
+}
+
+if(password.length<6){
+
+msg.textContent="Password must be at least 6 characters";
+
+return;
+}
+
+try{
+
+await window.signup(
+name,
+email,
+password
+);
+
+}catch(err){
+
+msg.textContent=err.message;
+
+}
+
+};
+
+</script>
+
+<script src="assets/navbar.js"></script>
+<script type="module" src="auth-role.js"></script>
+<script src="cart.js"></script>
+<script src="wishlist.js"></script>
+<script src="js/global-menu.js?v=2"></script>
+</body>
+</html>

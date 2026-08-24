@@ -1,0 +1,209 @@
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  sendEmailVerification
+,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  set,
+  get,
+  update
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
+};
+
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+function verifyActionCodeSettings(){
+  return {
+    url: "https://mohajon-mjh.github.io/verify-email.html?continueUrl=" + encodeURIComponent("become-seller.html"),
+    handleCodeInApp: true
+  };
+}
+
+window.signup = async function(name,email,password){
+
+  const cred = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
+
+  const uid = cred.user.uid;
+
+  await set(ref(db,"users/"+uid),{
+    uid,
+    name,
+    email,
+    role:"customer",
+    phone:"",
+    avatar:"",
+    address:"",
+    createdAt:Date.now(),
+    updatedAt:Date.now()
+  });
+
+  try{
+    await sendEmailVerification(cred.user, verifyActionCodeSettings());
+  }catch(err){
+    console.error("Verification email error:", err.message);
+  }
+
+  alert("✅ অ্যাকাউন্ট তৈরি হয়েছে! আপনার ইমেইলে একটি ভেরিফিকেশন লিংক পাঠানো হয়েছে, দয়া করে ইমেইল চেক করে ভেরিফাই করুন।");
+  location.href="login.html";
+};
+
+window.login = async function(email,password){
+
+  await signInWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
+
+  const uid = auth.currentUser.uid;
+
+  const snap = await get(ref(db,"users/"+uid));
+
+  if(!snap.exists()){
+    alert("User profile not found");
+    await signOut(auth);
+    return;
+  }
+
+  const user = snap.val();
+
+  localStorage.setItem(
+    "user",
+    JSON.stringify(user)
+  );
+
+  await update(
+    ref(db,"users/"+uid),
+    {
+      updatedAt:Date.now()
+    }
+  );
+
+  switch(user.role){
+
+    case "admin":
+      location.href="admin.html";
+      break;
+
+    case "seller":
+      location.href="seller.html";
+      break;
+
+    default:
+      location.href="index.html";
+
+  }
+
+};
+
+window.loginWithGoogle = async function(){
+  try{
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const uid = user.uid;
+
+    let snap = await get(ref(db,"users/"+uid));
+
+    if(!snap.exists()){
+      await set(ref(db,"users/"+uid),{
+        uid,
+        name: user.displayName || "",
+        email: user.email || "",
+        role: "customer",
+        phone: "",
+        avatar: user.photoURL || "",
+        address: "",
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      });
+      snap = await get(ref(db,"users/"+uid));
+    }
+
+    const profile = snap.val();
+    localStorage.setItem("user", JSON.stringify(profile));
+    await update(ref(db,"users/"+uid), { updatedAt: Date.now() });
+
+    switch(profile.role){
+      case "admin":
+        location.href="admin.html"; break;
+      case "seller":
+        location.href="seller.html"; break;
+      default:
+        location.href="index.html";
+    }
+  }catch(err){
+    console.error("Google login error:", err.message);
+    alert("Google লগইনে সমস্যা হয়েছে: " + err.message);
+  }
+};
+
+window.logout = async function(){
+
+  await signOut(auth);
+
+  localStorage.removeItem("user");
+
+  location.href="login.html";
+
+};
+
+window.currentUser = function(callback){
+
+  onAuthStateChanged(auth,callback);
+
+};
+
+window.getProfile = async function(){
+
+  if(!auth.currentUser) return null;
+
+  const snap = await get(
+    ref(db,"users/"+auth.currentUser.uid)
+  );
+
+  return snap.exists() ? snap.val() : null;
+
+};
+
+/* ===================== EMAIL VERIFICATION HELPERS ===================== */
+
+window.resendVerificationEmail = async function(){
+  if(!auth.currentUser){
+    throw new Error("লগইন করা নেই।");
+  }
+  await sendEmailVerification(auth.currentUser, verifyActionCodeSettings());
+};
+
+window.checkEmailVerified = async function(){
+  if(!auth.currentUser) return false;
+  await auth.currentUser.reload();
+  return auth.currentUser.emailVerified;
+};
+
+console.log("MJH Firebase Authentication Ready");

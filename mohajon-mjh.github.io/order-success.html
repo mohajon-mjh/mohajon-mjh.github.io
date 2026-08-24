@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Order Placed - Mohajon-MJH</title>
+<style>body{margin:0;font-family:Arial,sans-serif;background:#EAEDED}.box{max-width:560px;margin:30px auto;background:#fff;border-radius:10px;padding:26px;text-align:center}</style></head>
+<body>
+<header style="background:#131921;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px">
+ <a href="index.html" style="color:#fff;font-weight:700;font-size:17px;text-decoration:none">🛍️ Mohajon-MJH</a>
+</header>
+<div class="box">
+ <div style="font-size:56px">✅</div>
+ <h1 style="color:#007600;font-size:22px">Order placed, thank you!</h1>
+ <p style="font-size:14px">আপনার অর্ডার সফলভাবে গ্রহণ করা হয়েছে।</p>
+ <p style="font-size:14px">Order #: <b id="oid"></b></p>
+ <p style="font-size:15px">🚚 Expected delivery: <b id="eta" style="color:#B12704"></b></p>
+ <p style="font-size:13px;color:#565959">💵 Cash on Delivery — পণ্য হাতে পেয়ে টাকা দিন</p>
+ <div style="margin-top:16px">
+  <button onclick="location.href='my-orders.html'" style="background:#FFD814;border:1px solid #FCD200;border-radius:20px;padding:10px 20px;cursor:pointer;font-weight:600">📦 Track My Order</button>
+  <button onclick="location.href='index.html'" style="background:#fff;border:1px solid #ddd;border-radius:20px;padding:10px 20px;cursor:pointer;margin-left:8px">Continue Shopping</button>
+ </div>
+</div>
+<script>
+const id=new URLSearchParams(location.search).get("id");
+document.getElementById("oid").textContent=id||"-";
+(async()=>{try{const o=await (await fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/orders/"+(id||"")+".json")).json();if(o)document.getElementById("eta").textContent=o.expectedDelivery||"";}catch(e){}})();
+</script></body></html>

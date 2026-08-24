@@ -1,0 +1,59 @@
+i  The Firebase CLI’s MCP server feature can optionally make use of Gemini in Firebase. Learn more about Gemini in Firebase and how it uses your data: https://firebase.google.com/docs/gemini-in-firebase#how-gemini-in-firebase-uses-your-data 
+[34m?[39m [1mEnable Gemini in Firebase features?[22m [2m(Y/n)[22m[45G[46G[2K[G[34m?[39m [1mEnable Gemini in Firebase features?[22m [2m(Y/n)[22m n[46G[45G[2K[G[32m✔[39m [1mEnable Gemini in Firebase features?[22m [36mNo[39m[41G
+[?25h
+i  Firebase optionally collects CLI and Emulator Suite usage and error reporting information to help improve our products. Data is collected in accordance with Google's privacy policy (https://policies.google.com/privacy) and is not used to identify you. 
+[34m?[39m [1mAllow Firebase to collect CLI and Emulator Suite usage and error reporting [22m
+[1minformation?[22m [2m(Y/n)[22m[1A[97G[98G[1B[2K[1A[2K[G[34m?[39m [1mAllow Firebase to collect CLI and Emulator Suite usage and error reporting [22m
+[1minformation?[22m [2m(Y/n)[22m n[1A[98G[97G[1B[2K[1A[2K[G[32m✔[39m [1mAllow Firebase to collect CLI and Emulator Suite usage and error reporting [22m
+[1minformation?[22m [36mNo[39m[1A[93G[1B
+[?25h
+Visit this URL on this device to log in:
+https://accounts.google.com/o/oauth2/auth?client_id=563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com&scope=email%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloudplatformprojects.readonly%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Ffirebase%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform&response_type=code&state=989308252&redirect_uri=http%3A%2F%2Flocalhost%3A9005
+
+Waiting for authentication...
+[2026-06-29T11:22:55.728Z] >>> [apiv2][query] POST https://accounts.google.com/o/oauth2/token [none]
+[2026-06-29T11:22:55.730Z] >>> [apiv2][body] POST https://accounts.google.com/o/oauth2/token [omitted]
+[2026-06-29T11:22:56.461Z] *** [apiv2] retrying https://accounts.google.com/o/oauth2/token without keep-alive after a premature close error
+[2026-06-29T11:22:57.466Z] *** [apiv2] Attempting the request again. Attempt number 2
+[2026-06-29T11:22:57.467Z] >>> [apiv2][query] POST https://accounts.google.com/o/oauth2/token [none]
+[2026-06-29T11:22:57.467Z] >>> [apiv2][body] POST https://accounts.google.com/o/oauth2/token [omitted]
+[2026-06-29T11:22:58.070Z] <<< [apiv2][status] POST https://accounts.google.com/o/oauth2/token 400
+[2026-06-29T11:22:58.071Z] <<< [apiv2][body] POST https://accounts.google.com/o/oauth2/token [omitted]
+[2026-06-29T11:22:58.079Z] Token Fetch Error: FirebaseError: Request to https://accounts.google.com/o/oauth2/token had HTTP Error: 400, invalid_grant
+    at responseToError (/data/data/com.termux/files/usr/lib/node_modules/firebase-tools/lib/responseToError.js:53:12)
+    at RetryOperation._fn (/data/data/com.termux/files/usr/lib/node_modules/firebase-tools/lib/apiv2.js:381:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[2026-06-29T11:22:58.101Z] >>> [apiv2][query] POST https://auth.firebase.tools/attest [none]
+[2026-06-29T11:22:58.103Z] >>> [apiv2][body] POST https://auth.firebase.tools/attest {"session_id":"af27a6ac-4a47-4d9d-8be2-a1956ceed332"}
+[2026-06-29T11:22:59.423Z] <<< [apiv2][status] POST https://auth.firebase.tools/attest 200
+[2026-06-29T11:22:59.424Z] <<< [apiv2][body] POST https://auth.firebase.tools/attest {"token":"L9k6SCd_wZ0JSpVgb9pydqgFUmuVCXTx7t6vsesVqXw"}
+
+To sign in to the Firebase CLI:
+
+1. Take note of your session ID:
+
+   AF27A
+
+2. Visit the URL below on any device and follow the instructions to get your code:
+
+   https://auth.firebase.tools/login?code_challenge=ToomBKBGVEehZlCxi1O_nxvBgBpUhymeFwa4y9WpBSc&session=af27a6ac-4a47-4d9d-8be2-a1956ceed332&attest=L9k6SCd_wZ0JSpVgb9pydqgFUmuVCXTx7t6vsesVqXw
+
+3. Paste or enter the authorization code below once you have it:
+
+[34m?[39m [1mEnter authorization code:[22m[29G
+[?25h[2026-06-29T11:23:47.973Z] ExitPromptError: User force closed the prompt with SIGINT
+    at Interface.sigint (/data/data/com.termux/files/usr/lib/node_modules/firebase-tools/node_modules/@inquirer/core/dist/commonjs/lib/create-prompt.js:101:37)
+    at Interface.emit (node:events:509:20)
+    at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1327:18)
+    at ReadStream.onkeypress (node:internal/readline/interface:284:20)
+    at ReadStream.emit (node:events:521:24)
+    at emitKeys (node:internal/readline/utils:371:14)
+    at emitKeys.next (<anonymous>)
+    at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+    at ReadStream.emit (node:events:509:20)
+    at addChunk (node:internal/streams/readable:568:12)
+
+Error: An unexpected error has occurred.
