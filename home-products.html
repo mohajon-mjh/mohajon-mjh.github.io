@@ -68,19 +68,19 @@ async function openProducts(s){
  "<div class='bar'><button class='btn' id='navView'>🛍️ প্রোডাক্ট ভিউ</button><button class='btn' id='navAdd'>➕ নতুন প্রোডাক্ট এড</button></div>"+
  "<div id='viewSec'>"+
  "<div class='bar'><button class='btn' id='subOwn'>"+(s.hasCats?"📦 এই ক্যাটাগরির প্রোডাক্ট":"📦 এই সেকশনের প্রোডাক্ট")+"</button><button class='btn' id='subAll'>🗂️ All Products</button><button class='btn' id='subSearch'>🔍 Search Products</button></div>"+
+ "<div id='addSec' style='display:none'><p style='color:#aaa;font-size:13px'>গ্যালারি/স্টোরেজ থেকে একাধিক ছবি সিলেক্ট করুন (.png ফাইলনাম অনুযায়ী নাম অটো) — অথবা ছবি ছাড়াই নিচে দাম লিস্ট paste করলেও পণ্য তৈরি হবে</p>"+
+ "<div class='bar'><input type='file' id='addFiles' accept='image/*' multiple style='flex:1'></div>"+
+ "<div class='bar'><div style='flex:1'>প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)<textarea id='addPaste' rows='4' style='width:100%'></textarea></div><button class='btn' id='addPasteApply'>✅ প্রাইস বসান (নাম মিলিয়ে)</button></div>"+
+ "<div class='bar'><label><input type='checkbox' id='addAll' checked> সব সিলেক্ট করুন</label><button class='btn' id='saveAll'>💾 সিলেক্টেড সব Save</button><span id='saveSt'></span></div>"+
+ "<div id='addList'></div></div>"+
  "<div class='bar' id='searchBox' style='display:none'><input id='searchInp' placeholder='🔍 প্রোডাক্ট নাম...' style='flex:1'></div>"+
  "<div class='bar'><label><input type='checkbox' id='selAll'> সব সিলেক্ট করুন</label> % <input id='bulkDisc' type='number' style='width:60px'> <button class='btn' id='bulkApply'>✅ সিলেক্টেডে % বসান</button><button class='btn' id='bulkSave'>💾 সিলেক্টেড Save</button><button class='btn' style='background:#c0392b' id='bulkDel'>🗑️ সিলেক্টেড রিমুভ</button></div>"+
  "<div class='bar'><div style='flex:1'>প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)<textarea id='pasteArea' rows='3' style='width:100%'></textarea></div><button class='btn' id='pasteApply'>✅ প্রাইস বসান (নাম মিলিয়ে)</button><span id='pasteSt'></span></div>"+
  "<div class='bar'>শুরুর তারিখ <input id='bStart' style='width:110px' placeholder='dd-mm-yyyy'> শেষের তারিখ <input id='bEnd' style='width:110px' placeholder='dd-mm-yyyy'> <button class='btn' id='bDate'>📅 সিলেক্টেডে তারিখ বসান</button><span id='bSt'></span></div>"+
- "<div id='pList'></div></div>"+
- "<div id='addSec' style='display:none'><p style='color:#aaa;font-size:13px'>গ্যালারি/স্টোরেজ থেকে একাধিক ছবি সিলেক্ট করুন (.png ফাইলনাম অনুযায়ী নাম অটো)</p>"+
- "<div class='bar'><input type='file' id='addFiles' accept='image/*' multiple style='flex:1'></div>"+
- "<div class='bar'><div style='flex:1'>প্রাইস লিস্ট পেস্ট করুন<textarea id='addPaste' rows='3' style='width:100%'></textarea></div><button class='btn' id='addPasteApply'>✅ প্রাইস বসান (নাম মিলিয়ে)</button></div>"+
- "<div class='bar'><label><input type='checkbox' id='addAll'> সব সিলেক্ট করুন</label><button class='btn' id='saveAll'>💾 সিলেক্টেড সব Save</button><span id='saveSt'></span></div>"+
- "<div id='addList'></div></div>";
+ "<div id='pList'></div></div>";
  if($("backCats"))$("backCats").onclick=function(){CURCAT=null;route();};
- $("navView").onclick=function(){$("viewSec").style.display="";$("addSec").style.display="none";loadList(s);};
- $("navAdd").onclick=function(){$("viewSec").style.display="none";$("addSec").style.display="";};
+ $("navView").onclick=function(){$("addSec").style.display="none";loadList(s);};
+ $("navAdd").onclick=function(){var a=$("addSec");a.style.display=a.style.display==="none"?"":"none";if(a.style.display!=="none")a.scrollIntoView({behavior:"smooth"});};
  $("subOwn").onclick=function(){MODE="own";$("searchBox").style.display="none";loadList(s);};
  $("subAll").onclick=function(){MODE="all";$("searchBox").style.display="none";loadList(s);};
  $("subSearch").onclick=function(){MODE="search";$("searchBox").style.display="";loadList(s);};
@@ -92,9 +92,9 @@ async function openProducts(s){
  $("pasteApply").onclick=async function(){var lines=$("pasteArea").value.split("\n").map(function(l){return l.trim();}).filter(Boolean);var parsed=lines.map(parseLine).filter(function(q){return q.name&&q.price>0;});var up={};var n=0;document.querySelectorAll(".pCard").forEach(function(card){var title=card.querySelector("b").textContent;var best=null,bs=0;parsed.forEach(function(q){var sc=score(title,q.name);if(sc>bs){bs=sc;best=q;}});if(best&&bs>=0.5){var id=card.querySelector(".pPrice").dataset.id;card.querySelector(".pPrice").value=best.price;var dc=+card.querySelector(".pDisc").value||0;card.querySelector(".pCur").textContent="৳"+calc(best.price,dc);up["products/"+id+"/price"]=best.price;n++;}});await update(ref(db),up);ALL=null;$("pasteSt").textContent="✅ "+n+"টার দাম বসল";};
  $("bDate").onclick=async function(){var st=$("bStart").value,en=$("bEnd").value;var up={};var n=0;document.querySelectorAll(".pChk:checked").forEach(function(c){var card=c.closest(".pCard");card.querySelector(".pStart").value=st;card.querySelector(".pEnd").value=en;up["products/"+c.dataset.id+"/startDate"]=st;up["products/"+c.dataset.id+"/endDate"]=en;if(s.hasCats){up[s.prodPath+"/"+CURCAT+"/"+c.dataset.id+"/startDate"]=st;up[s.prodPath+"/"+CURCAT+"/"+c.dataset.id+"/endDate"]=en;}n++;});await update(ref(db),up);toast("✅ "+n+"টার তারিখ বসল");};
  $("addFiles").onchange=function(e){[].slice.call(e.target.files).forEach(function(f){pending.push({title:smartTitle(f.name),price:0,stock:10,file:f,checked:true});});renderAdd();toast("✅ "+pending.length+"টা ফাইল");};
- $("addPasteApply").onclick=function(){var lines=$("addPaste").value.split("\n").map(function(l){return l.trim();}).filter(Boolean);var parsed=lines.map(parseLine).filter(function(q){return q.name&&q.price>0;});var n=0;pending.forEach(function(p){var best=null,bs=0;parsed.forEach(function(q){var sc=score(p.title,q.name);if(sc>bs){bs=sc;best=q;}});if(best&&bs>=0.5){p.price=best.price;n++;}});renderAdd();toast("✅ "+n+"টার দাম বসল");};
+ $("addPasteApply").onclick=function(){var lines=$("addPaste").value.split("\n").map(function(l){return l.trim();}).filter(Boolean);var parsed=lines.map(parseLine).filter(function(q){return q.name&&q.price>0;});var used={};var n=0;pending.forEach(function(p){var best=null,bs=0,bi=-1;parsed.forEach(function(q,qi){var sc=score(p.title,q.name);if(sc>bs){bs=sc;best=q;bi=qi;}});if(best&&bs>=0.5){p.price=best.price;used[bi]=1;n++;}});parsed.forEach(function(q,qi){if(!used[qi])pending.push({title:q.name,price:q.price,stock:10,file:null,checked:true});});renderAdd();toast("✅ "+n+"টার দাম মিলেছে + "+(pending.length-n)+"টা নতুন লিস্ট থেকে যোগ");};
  $("addAll").onchange=function(e){pending.forEach(function(p){p.checked=e.target.checked;});renderAdd();};
- $("saveAll").onclick=async function(){var sel=pending.filter(function(p){return p.checked;});if(!sel.length)return toast("❌ খালি","#c0392b");var n=0;for(var p of sel){await saveOne(s,p);n++;$("saveSt").textContent="⏳ "+n+"/"+sel.length;}pending=[];renderAdd();ALL=null;toast("✅ "+n+"টা Save");loadList(s);};
+ $("saveAll").onclick=async function(){var sel=pending.filter(function(p){return p.checked;});if(!sel.length)return toast("❌ খালি","#c0392b");var n=0;for(var p of sel){await saveOne(s,p);n++;$("saveSt").textContent="⏳ "+n+"/"+sel.length;}pending=[];renderAdd();ALL=null;toast("✅ "+n+"টা Save হয়েছে — home-এ দেখুন");loadList(s);};
  loadList(s);
 }
 async function saveOne(s,p){
@@ -112,8 +112,8 @@ function renderAdd(){
  var L=$("addList");if(!L)return;
  L.innerHTML=pending.map(function(p,i){return "<div class='pCard'><div class='row'><input type='checkbox' class='aChk' data-i='"+i+"' "+(p.checked?"checked":"")+"> <input value='"+String(p.title).replace(/"/g,"&quot;")+"' data-i='"+i+"' data-f='title' style='flex:1'><input type='number' value='"+p.price+"' data-i='"+i+"' data-f='price' style='width:90px'><input type='number' value='"+p.stock+"' data-i='"+i+"' data-f='stock' style='width:60px'><button class='btn' style='background:#c0392b' data-x='"+i+"'>✕</button></div></div>";}).join("");
  L.oninput=function(e){var t=e.target;if(!t.dataset||t.dataset.i===undefined)return;var p=pending[+t.dataset.i];if(!p)return;p[t.dataset.f]=(t.dataset.f==="title")?t.value:(+t.value||0);};
+ L.onchange=function(e){var t=e.target;if(t.classList.contains("aChk")){var p=pending[+t.dataset.i];if(p)p.checked=t.checked;}};
  L.onclick=function(e){var b=e.target.closest("[data-x]");if(b){pending.splice(+b.dataset.x,1);renderAdd();}};
- var st=$("saveSt");if(st)st.textContent="";
 }
 async function loadList(s){
  var items=[];
