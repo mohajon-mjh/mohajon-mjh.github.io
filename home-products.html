@@ -101,7 +101,7 @@ async function saveOne(s,p){
  var id="p_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
  var url="";
  if(p.file){try{url=await compress(p.file);}catch(e){url="";}}
- var obj={title:p.title,price:p.price,stock:p.stock,status:"active",createdAt:Date.now(),images:{main:url||""}};
+ var obj={title:p.title,price:p.price,stock:p.stock,status:"active",createdAt:Date.now(),startDate:p.start||"",endDate:p.end||"",images:{main:url||""}};
  await set(ref(db,"products/"+id),obj);
  if(s.hasCats&&CURCAT)await set(ref(db,s.prodPath+"/"+CURCAT+"/"+id),{id:id,addedAt:Date.now()});
  if(s.flag)await update(ref(db,"products/"+id),{[s.flag]:true});
@@ -110,8 +110,23 @@ async function saveOne(s,p){
 function compress(file){return new Promise(function(res){var rd=new FileReader();rd.onload=function(){var img=new Image();img.onload=function(){var c=document.createElement("canvas");var w=400,h2=Math.round(400*img.height/img.width)||400;c.width=w;c.height=h2;var cx=c.getContext("2d");cx.fillStyle="#fff";cx.fillRect(0,0,w,h2);cx.drawImage(img,0,0,w,h2);res(c.toDataURL("image/jpeg",0.72));};img.onerror=function(){res("");};img.src=rd.result;};rd.readAsDataURL(file);});}
 function renderAdd(){
  var L=$("addList");if(!L)return;
- L.innerHTML=pending.map(function(p,i){return "<div class='pCard'><div class='row'><input type='checkbox' class='aChk' data-i='"+i+"' "+(p.checked?"checked":"")+"> <input value='"+String(p.title).replace(/"/g,"&quot;")+"' data-i='"+i+"' data-f='title' style='flex:1'><input type='number' value='"+p.price+"' data-i='"+i+"' data-f='price' style='width:90px'><input type='number' value='"+p.stock+"' data-i='"+i+"' data-f='stock' style='width:60px'><button class='btn' style='background:#c0392b' data-x='"+i+"'>✕</button></div></div>";}).join("");
- L.oninput=function(e){var t=e.target;if(!t.dataset||t.dataset.i===undefined)return;var p=pending[+t.dataset.i];if(!p)return;p[t.dataset.f]=(t.dataset.f==="title")?t.value:(+t.value||0);};
+ L.innerHTML=pending.map(function(p,i){return "<div class='pCard'>"+
+ "<div class='row'><input type='checkbox' class='aChk' data-i='"+i+"' "+(p.checked?"checked":"")+"> <b>"+String(p.title).replace(/</g,"&lt;")+"</b> <button class='btn' style='background:#c0392b' data-x='"+i+"'>✕</button></div>"+
+ "<div class='row'>পণ্যের নাম <input class='aTitle' value='"+String(p.title).replace(/"/g,"&quot;")+"' data-i='"+i+"' style='flex:1'></div>"+
+ "<div class='row'>মূল দাম / Market Price (৳) <input type='number' class='aPrice' value='"+p.price+"' data-i='"+i+"' style='flex:1'></div>"+
+ "<div class='row'>Discount % <input type='number' class='aDisc' value='"+(p.disc||0)+"' data-i='"+i+"' style='width:70px'></div>"+
+ "<div class='row'>বর্তমান দাম (৳) — অটো ক্যালকুলেটেড: <span class='aCur' style='color:#7CFC00'>৳"+calc(p.price,p.disc||0)+"</span></div>"+
+ "<div class='row'>Stock <input type='number' class='aStock' value='"+p.stock+"' data-i='"+i+"' style='width:70px'> Offer শুরুর তারিখ <input class='aStart' value='"+(p.start||"")+"' data-i='"+i+"' style='width:110px'> Offer শেষের তারিখ <input class='aEnd' value='"+(p.end||"")+"' data-i='"+i+"' style='width:110px'></div>"+
+ "</div>";}).join("");
+ L.oninput=function(e){var t=e.target;if(!t.dataset||t.dataset.i===undefined)return;var p=pending[+t.dataset.i];if(!p)return;
+  if(t.classList.contains("aTitle"))p.title=t.value;
+  else if(t.classList.contains("aPrice"))p.price=+t.value||0;
+  else if(t.classList.contains("aDisc"))p.disc=+t.value||0;
+  else if(t.classList.contains("aStock"))p.stock=+t.value||0;
+  else if(t.classList.contains("aStart"))p.start=t.value;
+  else if(t.classList.contains("aEnd"))p.end=t.value;
+  var card=t.closest(".pCard");if(card)card.querySelector(".aCur").textContent="৳"+calc(p.price,p.disc||0);
+ };
  L.onchange=function(e){var t=e.target;if(t.classList.contains("aChk")){var p=pending[+t.dataset.i];if(p)p.checked=t.checked;}};
  L.onclick=function(e){var b=e.target.closest("[data-x]");if(b){pending.splice(+b.dataset.x,1);renderAdd();}};
 }
