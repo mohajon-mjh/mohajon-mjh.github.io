@@ -36,7 +36,7 @@ var SECTIONS=[
 {key:"cs",name:"🔮 Coming Soon",hasCats:0,cs:1}
 ];
 var CURSEC=null,CURCAT=null,ALL=null,MODE="own",pending=[];
-var PLACEHOLDER="data:image/svg+xml;base64,"+btoa('<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><rect width="46" height="46" fill="#232f3e"/><text x="50%" y="50%" font-size="20" fill="#666" text-anchor="middle" dy=".3em">📷</text></svg>');
+var PLACEHOLDER="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><rect width="46" height="46" fill="#232f3e"/></svg>');base64,"+btoa('<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><rect width="46" height="46" fill="#232f3e"/><text x="50%" y="50%" font-size="20" fill="#666" text-anchor="middle" dy=".3em">📷</text></svg>');
 function $(id){return document.getElementById(id);}
 function S(){return SECTIONS.find(s=>s.key===CURSEC);}
 function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
