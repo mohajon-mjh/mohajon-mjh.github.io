@@ -12,6 +12,7 @@ input,textarea{background:#111;color:#eee;border:1px solid #444;border-radius:4p
 .pCard{background:#1a242f;border-radius:8px;padding:10px;margin:8px 0}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
 .thumb{width:46px;height:46px;object-fit:cover;border-radius:6px;background:#232f3e}
+.thumb{width:46px;height:46px;object-fit:cover;border-radius:6px;background:#232f3e}
 </style></head><body>
 <div class="wrap">
 <div class="side">
@@ -37,6 +38,7 @@ var SECTIONS=[
 {key:"cs",name:"🔮 Coming Soon",hasCats:0,cs:1}
 ];
 var CURSEC=null,CURCAT=null,ALL=null,MODE="own",pending=[];
+var PLACEHOLDER="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='46' height='46'><rect width='46' height='46' fill='%23232f3e'/></svg>";
 function $(id){return document.getElementById(id);}
 function S(){return SECTIONS.find(s=>s.key===CURSEC);}
 function toast(m,c){var t=document.createElement("div");t.textContent=m;t.style.cssText="position:fixed;top:16px;right:16px;background:"+(c||"#27ae60")+";color:#fff;padding:10px 16px;border-radius:8px;z-index:99;font-weight:700";document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
