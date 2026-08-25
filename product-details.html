@@ -141,6 +141,39 @@ function render(P){
  try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error loading product</div>';}
 })();
 </script>
+
+<style>/*mjhAdMediaV1*/
+#mjhAdMedia{max-width:900px;margin:10px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+#mjhAdMedia .am-head{background:linear-gradient(90deg,#ff9900,#ff6a00);color:#fff;font-weight:800;padding:10px 14px;font-size:15px}
+#mjhAdMedia .am-row{display:flex;gap:10px;overflow-x:auto;padding:12px;scroll-snap-type:x mandatory}
+#mjhAdMedia .am-row img,#mjhAdMedia .am-row video{flex:0 0 85%;max-width:85%;height:340px;object-fit:contain;background:#f7f7f7;border-radius:10px;scroll-snap-align:center}
+#mjhAdMedia .am-dots{text-align:center;color:#888;font-size:12px;padding:0 0 10px}
+</style>
+<div id="mjhAdMedia" style="display:none"></div>
+<script>/*mjhAdMediaV1*/
+(function(){
+ var m=location.search.match(/id=([^&]+)/);if(!m)return;
+ var id=decodeURIComponent(m[1]);
+ var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+ function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");}
+ fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){
+  if(!p||!p.title)return;
+  fetch("media/"+slug(p.title)+"/media.json").then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(mj){
+   var box=document.getElementById("mjhAdMedia");if(!box)return;
+   var imgs=mj.images||[],vids=mj.videos||(mj.video?[mj.video]:[]);
+   if(!imgs.length&&!vids.length)return;
+   var html='<div class="am-head">🎬 '+(p.title||"")+' — Official Showcase</div><div class="am-row">';
+   vids.forEach(function(v){html+='<video controls playsinline preload="metadata" src="media/'+slug(p.title)+'/'+encodeURIComponent(v)+'"></video>';});
+   imgs.forEach(function(f){html+='<img loading="lazy" src="media/'+slug(p.title)+'/'+encodeURIComponent(f)+'" alt="">';});
+   html+='</div><div class="am-dots">👆 swipe করুন ('+(imgs.length+vids.length)+' items)</div>';
+   box.innerHTML=html;box.style.display="block";
+   var c=document.getElementById("content");
+   if(c&&c.parentNode)c.parentNode.insertBefore(box,c);
+  }).catch(function(){});
+ }).catch(function(){});
+})();
+</script>
+
 </body></html>
 <script>
 (function(){
