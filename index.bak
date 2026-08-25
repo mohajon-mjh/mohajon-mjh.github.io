@@ -1933,7 +1933,7 @@ function renderFeatCard(id, p){
   return card;
 }
 
-get((typeof query!=="undefined"&&typeof orderByChild!=="undefined"&&typeof equalTo!=="undefined"&&typeof limitToFirst!=="undefined")?query(ref(db,"products"),orderByChild("isFeatured"),equalTo(true),limitToFirst(200)):ref(db,"products")).then(function(snapRaw){
+get(ref(db,"products")).then(function(snapRaw){
   const _d=snapRaw.val()||{};const _f={};Object.keys(_d).forEach(function(id){var p=_d[id]||{};if(p.isFeatured===true||p.featured===true||p.isFeatured==="true")_f[id]=p;});
   const snapshot={val:function(){return _f;}};
   (function(){
@@ -2456,7 +2456,8 @@ function updateMiniStats(){
   });
 }
 
-if(document.getElementById("mini-orders")){updateMiniStats();setInterval(updateMiniStats,60000);}
+updateMiniStats();
+setInterval(updateMiniStats, 5000);
 </script>
 
 <script type="module">/*currency-auto-update*/
@@ -2786,7 +2787,7 @@ console.log("currency-fix-v2 ready");
    }
   }).catch(function(e){console.error("trend load err",e);});
  }
- setTimeout(function(){var g=document.getElementById("trendingProductsGrid");if(g&&g.textContent.indexOf("লোড হচ্ছে")>-1&&g.querySelectorAll(".product-card").length===0)load();},6000);
+ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",load);else setTimeout(load,300);
 })();
 </script>
 
