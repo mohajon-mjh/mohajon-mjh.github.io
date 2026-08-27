@@ -2342,10 +2342,40 @@ const gcSection = document.getElementById("globalCatSection");
   window.gcBuilt = true;
   const row1 = document.getElementById("globalCatsRow1");
   if(!row1) return;
-  row1.innerHTML = "";
+  
+  row1.innerHTML = "<p style='color:#fff; padding:10px;'>লোড হচ্ছে...</p>";
+  
+  try {
+    // Firebase থেকে ক্যাটাগরি আনা
+    const snap = await get(ref(gcDb, "settings/globalCategories"));
+    const dbData = snap.val() || {};
+    
+    // ডিফল্ট ক্যাটাগরি লিস্ট (আপনার দেওয়া নাম অনুযায়ী)
+    const defaultCats = [
+      {id:"women_fashion", name:"👗 Women Fashion"}, {id:"men_fashion", name:"👕 Men Fashion"},
+      {id:"mobile", name:"📱 Mobile"}, {id:"watches", name:"⌚ Watches"},
+      {id:"mother_baby", name:"👶 Mother & Baby"}, {id:"computers", name:"💻 Computers"},
+      {id:"toys_games", name:"🧸 Toys & Games"}, {id:"grocery", name:"🛒 Grocery"},
+      {id:"spices", name:"🌶️ Spices"}, {id:"food_beverages", name:"🍔 Food & Beverages"},
+      {id:"beauty", name:"💄 Beauty"}, {id:"tv_appliances", name:"📺 TV & Appliances"},
+      {id:"health", name:"💊 Health"}, {id:"home_kitchen", name:"🏠 Home & Kitchen"},
+      {id:"automotive", name:"🚗 Automotive"}, {id:"sports", name:"⚽ Sports"},
+      {id:"pet_supplies", name:"🐶 Pet Supplies"}, {id:"books", name:"📚 Books"},
+      {id:"travel", name:"✈️ Travel"}, {id:"gift_items", name:"🎁 Gift Items"}
+    ];
+
+    // DB এবং ডিফল্ট লিস্ট মার্জ করা
+    const merged = defaultCats.map(c => [c.id, (dbData[c.id] && dbData[c.id].name) ? dbData[c.id].name : c.name]);
+    Object.keys(dbData).forEach(k => {
+      if (!merged.find(m => m[0] === k)) merged.push([k, dbData[k].name]);
+    });
+
+    row1.innerHTML = ""; // লোডিং টেক্সট মুছে ফেলা
+
+    // বাটন তৈরি করা
     merged.forEach(([id, name], index) => {
       const div = document.createElement("div");
-      div.className = "cat";
+      div.className = "cat" + (index === 0 ? " active" : "");
       div.textContent = name || id;
       div.onclick = () => {
         document.querySelectorAll(".gc-row .cat").forEach(b => b.classList.remove("active"));
@@ -2354,10 +2384,19 @@ const gcSection = document.getElementById("globalCatSection");
       };
       row1.appendChild(div);
     });
-    const first = row1.querySelector(".cat");
-    if(first && merged.length){ first.classList.add("active"); loadGlobalCatProducts(merged[0][0]); }
+
+    // প্রথম ক্যাটাগরি লোড করা
+    if (merged.length > 0) {
+      loadGlobalCatProducts(merged[0][0]);
+    } else {
+      row1.innerHTML = "<p style='color:#888; padding:10px;'>ক্যাটাগরি পাওয়া যায়নি</p>";
+    }
+  } catch (e) {
+    console.error("Global Categories Load Error:", e);
+    row1.innerHTML = "<p style='color:#ff6b6b; padding:10px;'>এরর: ক্যাটাগরি লোড হয়নি</p>";
   }
-  buildGcRows();
+}
+buildGcRows();
 })();
 </script>
 <script>(function(){var r=new URLSearchParams(location.search).get("ref");if(r)localStorage.setItem("affRef",r);})();</script>

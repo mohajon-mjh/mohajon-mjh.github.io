@@ -185,7 +185,34 @@ function renderRows(s,items){
  L.oninput=function(e){var t=e.target;if(t.classList.contains("pPrice")||t.classList.contains("pDisc")){var card=t.closest(".pCard");var pr=+card.querySelector(".pPrice").value||0;var dc=+card.querySelector(".pDisc").value||0;var cu=calc(pr,dc);card.querySelector(".pCur").value=cu;card.querySelector(".pNote").innerHTML=dc>0?("৳"+pr+" → ৳"+cu+" (Save ৳"+(pr-cu)+")"):("৳"+cu+" (কোনো ডিসকাউন্ট নেই)");}};
  L.onclick=async function(e){
   var sv=e.target.closest("[data-save]");
-  if(sv){var id=sv.dataset.save;var card=sv.closest(".pCard");var up={price:+card.querySelector(".pPrice").value||0,discountPercent:+card.querySelector(".pDisc").value||0,startDate:card.querySelector(".pStart").value,endDate:card.querySelector(".pEnd").value,updatedAt:Date.now()};var lp={};for(var kk in up)lp["products/"+id+"/"+kk]=up[kk];try{await update(ref(db),lp);/*mjhLeaf*/if(s.hasCats)await update(ref(db,s.prodPath+"/"+CURCAT+"/"+id),{startDate:up.startDate,endDate:up.endDate});ALL=null;toast("✅ পণ্য Save হয়েছে");}catch(e){console.error(e);toast("❌ ব্যর্থ: "+(e&&e.message?e.message:String(e)),"#c0392b");}return;}
+  if(sv){
+    var id=sv.dataset.save;
+    console.log("Manual Save Clicked for ID:", id);
+    var card=sv.closest(".pCard");
+    var up={
+      price:+card.querySelector(".pPrice").value||0,
+      discountPercent:+card.querySelector(".pDisc").value||0,
+      startDate:card.querySelector(".pStart").value,
+      endDate:card.querySelector(".pEnd").value,
+      updatedAt:Date.now()
+    };
+    var lp={};
+    for(var kk in up) lp["products/"+id+"/"+kk]=up[kk];
+    
+    // বাটনটি সাময়িক ডিজেবল করা যাতে ডাবল ক্লিক না হয়
+    sv.disabled = true; sv.textContent = "সেভ হচ্ছে...";
+    
+    update(ref(db),lp).then(() => {
+      console.log("✅ Single Save Success:", id);
+      toast("✅ পণ্য সফলভাবে Save হয়েছে!", "#2ecc71", 3000);
+      sv.disabled = false; sv.innerHTML = "💾 Save";
+    }).catch((e) => {
+      console.error("❌ Single Save Failed:", e);
+      toast("❌ সেভ ব্যর্থ: " + (e.message || e), "#c0392b", 4000);
+      sv.disabled = false; sv.innerHTML = "💾 Save";
+    });
+    return;
+  }
   var dl=e.target.closest("[data-del]");
   if(dl){if(confirm("পণ্য সম্পূর্ণ মুছবেন?")){var up2={};up2["products/"+dl.dataset.del]=null;up2["futureProducts/"+dl.dataset.del]=null;if(s.hasCats)up2[s.prodPath+"/"+CURCAT+"/"+dl.dataset.del]=null;await update(ref(db),up2);ALL=null;toast("✅ মুছে গেছে");loadList(s);}return;}
  };
