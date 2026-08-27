@@ -70,6 +70,7 @@ async function renderCats(s){
  L.onclick=async function(e){
   var o=e.target.closest("[data-open]");if(o){CURCAT=o.dataset.open;MODE="own";route();return;}
   var sc=e.target.closest("[data-savecat]");if(sc){var bar=sc.closest(".bar");var oi=bar?bar.querySelector(".cOrd"):null;var oo=oi?(+oi.value||0):0;var sp={};sp[s.catNode+"/"+sc.dataset.savecat+"/order"]=oo;sp[s.catNode+"/"+sc.dataset.savecat+"/savedAt"]=Date.now();try{await update(ref(db),sp);toast("✅ ক্যাটাগরি সেভ হয়েছে (Order: "+oo+")");}catch(e){toast("❌ সেভ ব্যর্থ: "+(e.message||e),"#c0392b");}renderCats(s);return;}
+  var sc=e.target.closest("[data-savecat]");if(sc){var bar=sc.closest(".bar");var oi=bar?bar.querySelector(".cOrd"):null;var oo=oi?(+oi.value||0):0;var sp={};sp[s.catNode+"/"+sc.dataset.savecat+"/order"]=oo;sp[s.catNode+"/"+sc.dataset.savecat+"/savedAt"]=Date.now();try{await update(ref(db),sp);toast("✅ ক্যাটাগরি সেভ হয়েছে");}catch(e){toast("❌ সেভ ব্যর্থ");}renderCats(s);return;}
   var ed=e.target.closest("[data-edit]");if(ed){var nn=prompt("নতুন নাম:");if(nn){var ep={};ep[s.catNode+"/"+ed.dataset.edit+"/name"]=nn;await update(ref(db),ep);/*mjhGcEdit*/renderCats(s);}return;}
   var dl=e.target.closest("[data-del]");if(dl){if(confirm("ক্যাটাগরি ডিলিট?")){var dp={};dp[s.catNode+"/"+dl.dataset.del]=null;dp[s.prodPath+"/"+dl.dataset.del]=null;await update(ref(db),dp);/*mjhGcDel*/renderCats(s);}return;}
  };
@@ -290,47 +291,22 @@ function renderRows(s,items){
 }
 side();route();
 
-/* ===== Custom Sections Manager ===== */
+
+/* ===== Section Manager v2 ===== */
 (function(){
-async function loadCustomSecs(){
-try{
-var snap=await get(ref(db,"settings/customSections"));
-var data=snap.val()||{};
-if(!window.__secHost){
-var all=[].slice.call(document.querySelectorAll("button,a,div"));
-for(var i=0;i<all.length;i++){if((all[i].textContent||"").indexOf("Coming Soon")>-1){window.__secHost=all[i].parentNode;break;}}
-}
-var host=window.__secHost;if(!host)return;
-if(!document.getElementById("addSecBtn")){
-var nb=document.createElement("button");nb.id="addSecBtn";nb.className="btn";
-nb.style.cssText="background:#8e44ad;margin:4px 8px;width:calc(100% - 16px);text-align:left";
-nb.textContent="➕ নতুন সেকশন";nb.onclick=addSec;host.appendChild(nb);
-}
-[].slice.call(document.querySelectorAll(".customSecBtn")).forEach(function(b){b.remove();});
-Object.keys(data).forEach(function(k){
-var b=document.createElement("button");b.className="btn customSecBtn";
-b.style.cssText="background:#16a085;margin:4px 8px;width:calc(100% - 16px);text-align:left";
-b.textContent="🧩 "+(data[k].name||k);
-b.onclick=function(){openSec(k,data[k].name||k);};
-host.appendChild(b);
+var SEC=[["Flash Sale","flash_sale"],["Global Categories","global_categories"],["Trending Products","trending_products"],["Deals of The Day","deals_of_the_day"],["Special Categories","special_categories"],["Featured Products","featured_products"],["Coming Soon","coming_soon"]];
+function findBtn(txt){var bs=[].slice.call(document.querySelectorAll("button"));for(var i=0;i<bs.length;i++){var t=(bs[i].textContent||"").trim();if(t.indexOf(txt)>-1&&t.length<txt.length+10)return bs[i];}return null;}
+function mini(b,txt,fn){var s=document.createElement("span");s.textContent=txt;s.style.cssText="cursor:pointer;margin-left:6px;font-size:12px";s.onclick=function(ev){ev.stopPropagation();fn();};b.appendChild(s);}
+function go(){
+var host=null;
+SEC.forEach(function(p){var b=findBtn(p[0]);if(!b)return;host=host||b.parentNode;if(b.dataset.secDone)return;b.dataset.secDone="1";var key=p[1];
+mini(b,"✏️",function(){var nn=prompt("সেকশনের নতুন নাম:",p[0]);if(!nn)return;var up={};up["settings/sectionMeta/"+key+"/name"]=nn;update(ref(db),up).then(function(){toast("✅ নাম সেভ হয়েছে");});});
+mini(b,"💾",function(){var up={};up["settings/sectionMeta/"+key+"/savedAt"]=Date.now();update(ref(db),up).then(function(){toast("✅ সেকশন সেভ হয়েছে");});});
+mini(b,"🗑️",function(){if(!confirm("সেকশনটি হোম পেজ থেকে মুছে ফেলবেন?"))return;var up={};up["settings/sectionMeta/"+key+"/hidden"]=true;update(ref(db),up).then(function(){b.style.display="none";toast("✅ সেকশন ডিলিট হয়েছে");});});
 });
-}catch(e){console.error(e);}
+if(host&&!document.getElementById("addSecBtn")){var nb=document.createElement("button");nb.id="addSecBtn";nb.className="btn";nb.style.cssText="background:#8e44ad;margin:4px 8px;width:calc(100% - 16px);text-align:left";nb.textContent="➕ নতুন সেকশন";nb.onclick=function(){var n=prompt("নতুন সেকশনের নাম:");if(!n)return;var id=n.toLowerCase().replace(/[^a-z0-9]+/g,"_");set(ref(db,"settings/customSections/"+id),{name:n,order:Date.now(),createdAt:Date.now()}).then(function(){toast("✅ নতুন সেকশন যোগ হয়েছে");location.reload();});};host.appendChild(nb);}
 }
-async function addSec(){
-var n=prompt("নতুন সেকশনের নাম:");if(!n)return;
-var id=n.toLowerCase().replace(/[^a-z0-9]+/g,"_");
-await set(ref(db,"settings/customSections/"+id),{name:n,order:Date.now(),createdAt:Date.now()});
-toast("✅ নতুন সেকশন যোগ হয়েছে: "+n);loadCustomSecs();
-}
-function openSec(id,name){
-try{
-s={catNode:"settings/customSections/"+id+"/cats",prodPath:"settings/customSectionProducts/"+id,hasCats:true,flag:null,cs:false};
-CURCAT=null;ALL=null;
-var h=document.querySelector("h2,h3");if(h)h.textContent="🧩 "+name+" — ক্যাটাগরি";
-renderCats(s);
-}catch(e){console.error(e);}
-}
-setTimeout(loadCustomSecs,800);
+setTimeout(go,900);setTimeout(go,2500);
 })();
 </script>
 </body></html>
