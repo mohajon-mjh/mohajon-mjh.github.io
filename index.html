@@ -1151,7 +1151,6 @@ fsInitCategories();
 .gc-row .cat.active{background:#2563eb;color:#fff}
 </style>
 <div id="globalCatsRow1" class="gc-row"></div>
-<div id="globalCatsRow2" class="gc-row" style="margin-top:12px"></div>
 <br>
 <div id="globalCatCarousel" class="trending-scroll-wrapper">
   <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
@@ -2349,7 +2348,7 @@ const gcSection = document.getElementById("globalCatSection");
       div.className = "cat";
       div.textContent = name || id;
       div.onclick = () => {
-        document.querySelectorAll("#globalCatsRow1 .cat, #globalCatsRow2 .cat").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".gc-row .cat").forEach(b => b.classList.remove("active"));
         div.classList.add("active");
         loadGlobalCatProducts(id);
       };
