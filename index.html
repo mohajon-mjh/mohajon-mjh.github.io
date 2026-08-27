@@ -2393,7 +2393,7 @@ const gcSection = document.getElementById("globalCatSection");
     }
   } catch (e) {
     console.error("Global Categories Load Error:", e);
-    row1.innerHTML = "<p style='color:#ff6b6b; padding:10px;'>এরর: ক্যাটাগরি লোড হয়নি</p>";
+    row1.innerHTML = "<p style='color:#ff6b6b; padding:10px;'>এরর: " + (e.message || JSON.stringify(e)) + "</p>";
   }
 }
 buildGcRows();
