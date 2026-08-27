@@ -65,10 +65,11 @@ async function renderCats(s){
  var m=$("mainArea");
  m.innerHTML="<h3>"+s.name+" — ক্যাটাগরি ("+cats.length+")</h3><div class='bar'><input id='newCat' placeholder='নতুন ক্যাটাগরির নাম' style='flex:1'><input id='newOrd' type='number' value='0' style='width:60px'><button class='btn' style='background:#27ae60' id='addCat'>➕ নতুন যোগ</button></div><div id='catList'></div>";
  var L=$("catList");
- cats.forEach(function(e){var id=e[0],c=e[1];var d=document.createElement("div");d.className="bar";d.innerHTML="<input type='checkbox' class='cChk' data-id='"+id+"'> <b>"+(c.name||id)+"</b> <span style='color:#888;font-size:12px'>Order: "+(c.order||0)+"</span><span style='flex:1'></span><button class='btn' style='background:#27ae60' data-open='"+id+"'>📦 প্রোডাক্ট</button><button class='btn' data-edit='"+id+"'>✏️ Edit</button><button class='btn' style='background:#c0392b' data-del='"+id+"'>🗑️ Delete</button>";L.appendChild(d);});
+ cats.forEach(function(e){var id=e[0],c=e[1];var d=document.createElement("div");d.className="bar";d.innerHTML="<input type='checkbox' class='cChk' data-id='"+id+"'> <b>"+(c.name||id)+"</b> <span style='color:#888;font-size:12px'>Order:</span> <input type='number' class='cOrd' value='"+(c.order||0)+"' style='width:60px'><span style='flex:1'></span><button class='btn' style='background:#27ae60' data-open='"+id+"'>📦 প্রোডাক্ট</button><button class='btn' data-edit='"+id+"'>✏️ Edit</button><button class='btn' style='background:#2980b9' data-savecat='"+id+"'>💾 Save</button><button class='btn' style='background:#c0392b' data-del='"+id+"'>🗑️ Delete</button>";L.appendChild(d);});
  $("addCat").onclick=async function(){var n=$("newCat").value.trim();if(!n)return toast("❌ নাম দিন","#c0392b");var id=n.toLowerCase().replace(/[^a-z0-9]+/g,"_");await set(ref(db,s.catNode+"/"+id),{name:n,order:+$("newOrd").value||0,createdAt:Date.now()});toast("✅ ক্যাটাগরি যোগ");renderCats(s);};
  L.onclick=async function(e){
   var o=e.target.closest("[data-open]");if(o){CURCAT=o.dataset.open;MODE="own";route();return;}
+  var sc=e.target.closest("[data-savecat]");if(sc){var bar=sc.closest(".bar");var oi=bar?bar.querySelector(".cOrd"):null;var oo=oi?(+oi.value||0):0;var sp={};sp[s.catNode+"/"+sc.dataset.savecat+"/order"]=oo;sp[s.catNode+"/"+sc.dataset.savecat+"/savedAt"]=Date.now();try{await update(ref(db),sp);toast("✅ ক্যাটাগরি সেভ হয়েছে (Order: "+oo+")");}catch(e){toast("❌ সেভ ব্যর্থ: "+(e.message||e),"#c0392b");}renderCats(s);return;}
   var ed=e.target.closest("[data-edit]");if(ed){var nn=prompt("নতুন নাম:");if(nn){var ep={};ep[s.catNode+"/"+ed.dataset.edit+"/name"]=nn;await update(ref(db),ep);/*mjhGcEdit*/renderCats(s);}return;}
   var dl=e.target.closest("[data-del]");if(dl){if(confirm("ক্যাটাগরি ডিলিট?")){var dp={};dp[s.catNode+"/"+dl.dataset.del]=null;dp[s.prodPath+"/"+dl.dataset.del]=null;await update(ref(db),dp);/*mjhGcDel*/renderCats(s);}return;}
  };
@@ -288,5 +289,48 @@ function renderRows(s,items){
  };
 }
 side();route();
+
+/* ===== Custom Sections Manager ===== */
+(function(){
+async function loadCustomSecs(){
+try{
+var snap=await get(ref(db,"settings/customSections"));
+var data=snap.val()||{};
+if(!window.__secHost){
+var all=[].slice.call(document.querySelectorAll("button,a,div"));
+for(var i=0;i<all.length;i++){if((all[i].textContent||"").indexOf("Coming Soon")>-1){window.__secHost=all[i].parentNode;break;}}
+}
+var host=window.__secHost;if(!host)return;
+if(!document.getElementById("addSecBtn")){
+var nb=document.createElement("button");nb.id="addSecBtn";nb.className="btn";
+nb.style.cssText="background:#8e44ad;margin:4px 8px;width:calc(100% - 16px);text-align:left";
+nb.textContent="➕ নতুন সেকশন";nb.onclick=addSec;host.appendChild(nb);
+}
+[].slice.call(document.querySelectorAll(".customSecBtn")).forEach(function(b){b.remove();});
+Object.keys(data).forEach(function(k){
+var b=document.createElement("button");b.className="btn customSecBtn";
+b.style.cssText="background:#16a085;margin:4px 8px;width:calc(100% - 16px);text-align:left";
+b.textContent="🧩 "+(data[k].name||k);
+b.onclick=function(){openSec(k,data[k].name||k);};
+host.appendChild(b);
+});
+}catch(e){console.error(e);}
+}
+async function addSec(){
+var n=prompt("নতুন সেকশনের নাম:");if(!n)return;
+var id=n.toLowerCase().replace(/[^a-z0-9]+/g,"_");
+await set(ref(db,"settings/customSections/"+id),{name:n,order:Date.now(),createdAt:Date.now()});
+toast("✅ নতুন সেকশন যোগ হয়েছে: "+n);loadCustomSecs();
+}
+function openSec(id,name){
+try{
+s={catNode:"settings/customSections/"+id+"/cats",prodPath:"settings/customSectionProducts/"+id,hasCats:true,flag:null,cs:false};
+CURCAT=null;ALL=null;
+var h=document.querySelector("h2,h3");if(h)h.textContent="🧩 "+name+" — ক্যাটাগরি";
+renderCats(s);
+}catch(e){console.error(e);}
+}
+setTimeout(loadCustomSecs,800);
+})();
 </script>
 </body></html>
