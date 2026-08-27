@@ -25,10 +25,12 @@ input,textarea{background:#111;color:#eee;border:1px solid #444;border-radius:4p
 <div class="main" id="mainArea"></div>
 </div>
 <script type="module">
-import{initializeApp,getApps}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 import{getDatabase,ref,get,set,update,remove}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 const cfg={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",authDomain:"mohajon-mjh.firebaseapp.com",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",storageBucket:"mohajon-mjh.firebasestorage.app",messagingSenderId:"526105903976",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
-const app=getApps().some(a=>a.name==="mjhMain")?getApps().find(a=>a.name==="mjhMain"):initializeApp(cfg,"mjhMain");
+const app=getApps().some(a=>a.name==="[DEFAULT]")?getApp():initializeApp(cfg);
+/*mjhAuthBridge*/onAuthStateChanged(getAuth(app),u=>{document.title=u?("✅ "+(u.email||"admin")):"❌ login needed";});
 const db=getDatabase(app);
 var PLACEHOLDER="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='46' height='46'><rect width='46' height='46' fill='%23232f3e'/></svg>";
 var SECTIONS=[
