@@ -2338,14 +2338,12 @@ const gcSection = document.getElementById("globalCatSection");
     {id:"gift_items", name:"🎁 Gift Items"}
   ];
   const row1 = document.getElementById("globalCatsRow1");
-  async function buildGcRows(){if(window.gcBuilt)return;window.gcBuilt=true;
-    const merged = GC_CATS.map((c,i)=>[c.id, c.name, i]);
-    try{
-      const snap = await get(ref(gcDb, "settings/globalCategories"));
-      const dbData = snap.val() || {};
-      Object.entries(dbData).forEach(([k,v],i)=>{ if(!GC_CATS.some(c=>c.id===k)) merged.push([k, v.name, 100+i]); });
-    }catch(e){}
-    if(window.gcBuilt)return;row1.innerHTML="";row2.innerHTML="";
+  async function buildGcRows(){
+  if(window.gcBuilt) return;
+  window.gcBuilt = true;
+  const row1 = document.getElementById("globalCatsRow1");
+  if(!row1) return;
+  row1.innerHTML = "";row2.innerHTML="";
     merged.forEach(([id, name], index) => {
       const div = document.createElement("div");
       div.className = "cat";
