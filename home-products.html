@@ -99,18 +99,31 @@ async function openProducts(s){
  $("selAll").onchange=function(e){document.querySelectorAll(".pChk,.aChk").forEach(function(c){c.checked=e.target.checked;});toast(e.target.checked?"✅ সব সিলেক্ট হলো":"সিলেক্ট মুছে গেলো");};
  $("bulkApply").onclick=async function(){var d=+$("bulkDisc").value||0;var up={};var n=0;document.querySelectorAll(".pChk:checked").forEach(function(c){var card=c.closest(".pCard");card.querySelector(".pDisc").value=d;var pr=+card.querySelector(".pPrice").value||0;card.querySelector(".pCur").value=calc(pr,d);var nt=card.querySelector(".pNote");if(nt)nt.innerHTML=noteTxt(pr,d);up["products/"+c.dataset.id+"/discountPercent"]=d;n++;});await update(ref(db),up);ALL=null;toast("✅ "+n+"টার % বসল");};
  $("bulkSave").onclick=async function(){
+  if($("bulkSave").disabled) return;
+  $("bulkSave").disabled = true;
+  $("bulkSave").textContent = "সেভ হচ্ছে...";
+
   var n=0, err=0, last="";
-  var total = document.querySelectorAll(".aChk:checked").length + document.querySelectorAll(".pChk:checked").length;
-  if(total === 0) { toast("❌ কোনো পণ্য সিলেক্ট নেই", "#c0392b", 3000); return; }
-  
   var cs=[].slice.call(document.querySelectorAll(".aChk:checked"));
-  for(var k=0;k<cs.length;k++){
+  var ps=[].slice.call(document.querySelectorAll(".pChk:checked"));
+  var total = cs.length + ps.length;
+  
+  if(total === 0) { 
+    toast("❌ কোনো পণ্য সিলেক্ট নেই", "#c0392b", 3000); 
+    $("bulkSave").disabled = false;
+    $("bulkSave").textContent = "💾 সিলেক্টেড Save";
+    return; 
+  }
+
+  toast("⏳ সেভ প্রক্রিয়া শুরু: মোট " + total + "টা পণ্য", "#f39c12", 2000);
+
+  for(var k=0; k<cs.length; k++){
     var p=pending[+cs[k].dataset.i];
     if(p){
       try{
         await saveOne(s,p);
         n++;
-        toast("⏳ সেভ হচ্ছে: "+n+"/"+total, "#f39c12", 1000); // প্রোগ্রেস দেখানো
+        if(n % 10 === 0 || n === total) toast("⏳ সেভ হচ্ছে: "+n+"/"+total, "#f39c12", 1000);
       }catch(e){
         err++;
         last=e&&e.message?e.message:String(e);
@@ -118,29 +131,42 @@ async function openProducts(s){
       }
     }
   }
+  
   pending=pending.filter(function(p){return !p.checked;});
   renderAdd();
   
-  var ps=[].slice.call(document.querySelectorAll(".pChk:checked"));
-  for(var k2=0;k2<ps.length;k2++){
+  for(var k2=0; k2<ps.length; k2++){
+    var id=ps[k2].dataset.id;
+    if(!id) continue;
     var card=ps[k2].closest(".pCard");
-    var up={price:+card.querySelector(".pPrice").value||0,discountPercent:+card.querySelector(".pDisc").value||0,startDate:card.querySelector(".pStart").value,endDate:card.querySelector(".pEnd").value,updatedAt:Date.now()};
+    var up={
+      price:+card.querySelector(".pPrice").value||0,
+      discountPercent:+card.querySelector(".pDisc").value||0,
+      startDate:card.querySelector(".pStart").value,
+      endDate:card.querySelector(".pEnd").value,
+      updatedAt:Date.now()
+    };
     var lp2={};
-    for(var kk2 in up) lp2["products/"+ps[k2].dataset.id+"/"+kk2]=up[kk2];
+    for(var kk2 in up) lp2["products/"+id+"/"+kk2]=up[kk2];
+    
     try{
       await update(ref(db),lp2);/*mjhLeaf*/
-      if(s.hasCats) await update(ref(db,s.prodPath+"/"+CURCAT+"/"+ps[k2].dataset.id),{startDate:up.startDate,endDate:up.endDate});
+      if(s.hasCats) await update(ref(db,s.prodPath+"/"+CURCAT+"/"+id),{startDate:up.startDate,endDate:up.endDate});
       n++;
-      toast("⏳ সেভ হচ্ছে: "+n+"/"+total, "#f39c12", 1000); // প্রোগ্রেস দেখানো
+      if(n % 10 === 0 || n === total) toast("⏳ সেভ হচ্ছে: "+n+"/"+total, "#f39c12", 1000);
     }catch(e){
       err++;
       last=e&&e.message?e.message:String(e);
       console.error(e);
     }
   }
+  
   ALL=null;
   if(n) toast("✅ সফলভাবে "+n+"/"+total+"টা পণ্য Save হয়েছে! (পেজ রিফ্রেশ করুন)", "#2ecc71", 4000);
   if(err) toast("❌ "+err+"টা ব্যর্থ: "+last, "#c0392b", 4000);
+  
+  $("bulkSave").disabled = false;
+  $("bulkSave").textContent = "💾 সিলেক্টেড Save";
   loadList(s);
 };
  $("bulkDel").onclick=async function(){var ids=[].slice.call(document.querySelectorAll(".pChk:checked")).map(function(c){return c.dataset.id;});if(!ids.length)return toast("❌ সিলেক্ট নেই","#c0392b");if(!confirm(ids.length+"টা ডিলিট?"))return;var up={};ids.forEach(function(id){up["products/"+id]=null;up["futureProducts/"+id]=null;if(s.hasCats)up[s.prodPath+"/"+CURCAT+"/"+id]=null;});await update(ref(db),up);ALL=null;toast("✅ ডিলিট");loadList(s);};
