@@ -2397,6 +2397,55 @@ const gcSection = document.getElementById("globalCatSection");
   }
 }
 buildGcRows();
+async function loadGlobalCatProducts(catId){
+  const carousel = document.getElementById("globalCatCarousel");
+  if(!carousel) return;
+  carousel.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
+  try {
+    const snap = await get(ref(gcDb, "settings/globalCategoryProducts/" + catId));
+    const productMap = snap.val() || {};
+    const pids = Object.keys(productMap);
+    if(pids.length === 0){
+      carousel.innerHTML = "<p style='text-align:center;color:#888'>এই মুহূর্তে পণ্য নেই</p>";
+      return;
+    }
+    carousel.innerHTML = "";
+    for(const pid of pids.slice(0, 20)){
+      const pSnap = await get(ref(gcDb, "products/" + pid));
+      const p = pSnap.val();
+      if(p && p.status === "active"){
+        const price = p.price || 0;
+        const disc = p.discountPercent || 0;
+        const finalPrice = disc > 0 ? (price * (100 - disc) / 100).toFixed(2) : price;
+        const div = document.createElement("div");
+        div.className = "product-card";
+        div.style.cssText = "min-width:280px;margin:0 12px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);";
+        let imgSrc = (p.images && p.images.main) ? p.images.main : "";
+        let html = '<div style="position:relative">';
+        html += '<img src="' + imgSrc + '" style="width:100%;height:200px;object-fit:cover">';
+        if(p.stock > 0) html += '<span style="position:absolute;top:8px;left:8px;background:#2ecc71;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px">IN STOCK</span>';
+        if(disc > 0) html += '<span style="position:absolute;top:8px;right:8px;background:#e74c3c;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px">-' + disc + '%</span>';
+        html += '</div><div style="padding:12px">';
+        html += '<h3 style="margin:0 0 8px;font-size:14px;color:#333">' + (p.title || 'Product') + '</h3>';
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">';
+        html += '<span style="font-size:18px;font-weight:700;color:#111">৳' + finalPrice + '</span>';
+        if(disc > 0) html += '<span style="font-size:13px;color:#999;text-decoration:line-through">৳' + price + '</span>';
+        html += '</div>';
+        html += '<button style="width:100%;background:#3498db;color:#fff;border:none;padding:10px;border-radius:6px;cursor:pointer;font-weight:600;margin-bottom:6px">Add to Cart</button>';
+        html += '</div>';
+        div.innerHTML = html;
+        carousel.appendChild(div);
+      }
+    }
+    if(carousel.children.length === 0){
+      carousel.innerHTML = "<p style='text-align:center;color:#888'>কোনো পণ্য পাওয়া যায়নি</p>";
+    }
+  } catch(e){
+    console.error("Load products error:", e);
+    carousel.innerHTML = "<p style='text-align:center;color:#ff6b6b'>পণ্য লোড ব্যর্থ: " + (e.message || e) + "</p>";
+  }
+}
+
 })();
 </script>
 <script>(function(){var r=new URLSearchParams(location.search).get("ref");if(r)localStorage.setItem("affRef",r);})();</script>
