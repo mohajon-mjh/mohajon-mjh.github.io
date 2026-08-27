@@ -2365,10 +2365,9 @@ const gcSection = document.getElementById("globalCatSection");
     ];
 
     // DB এবং ডিফল্ট লিস্ট মার্জ করা
-    const merged = defaultCats.map(c => [c.id, (dbData[c.id] && dbData[c.id].name) ? dbData[c.id].name : c.name]);
-    Object.keys(dbData).forEach(k => {
-      if (!merged.find(m => m[0] === k)) merged.push([k, dbData[k].name]);
-    });
+    var merged = [];
+    Object.keys(dbData).forEach(k => { merged.push([k, (dbData[k] && dbData[k].name) ? dbData[k].name : k]); });
+    if (merged.length === 0) { merged = defaultCats.map(c => [c.id, c.name]); }
 
     row1.innerHTML = ""; // লোডিং টেক্সট মুছে ফেলা
 
