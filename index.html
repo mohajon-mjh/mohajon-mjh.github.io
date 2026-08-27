@@ -2214,17 +2214,9 @@ const gcCfg = {
 const gcApp = getApps().some(a=>a.name==="mjhMain") ? getApps().find(a=>a.name==="mjhMain") : initializeApp(gcCfg, "mjhMain");
 const gcDb = getDatabase(gcApp);
 
+/*mjhGcDedup*/let gcLoaded=false;
+function loadGlobalCats(){if(gcLoaded)return;gcLoaded=true;
 const gcSection = document.getElementById("globalCatSection");
-const gcContainer = document.getElementById("globalCatsContainer");
-const gcCarousel = document.getElementById("globalCatCarousel");
-let gcMap = {};
-
-function gcIsWished(id){
-  const list = JSON.parse(localStorage.getItem("wishlist") || "[]");
-  return list.some(i => i.id === id);
-}
-
-function loadGlobalCatProducts(catId){
   gcCarousel.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
   onValue(ref(gcDb, "settings/globalCategoryProducts/"+catId), async (snapshot) => {
     gcMap = snapshot.val() || {};
