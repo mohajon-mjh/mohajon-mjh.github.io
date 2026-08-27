@@ -2338,15 +2338,14 @@ const gcSection = document.getElementById("globalCatSection");
     {id:"gift_items", name:"🎁 Gift Items"}
   ];
   const row1 = document.getElementById("globalCatsRow1");
-  const row2 = document.getElementById("globalCatsRow2");
-  async function buildGcRows(){
+  async function buildGcRows(){if(window.gcBuilt)return;window.gcBuilt=true;
     const merged = GC_CATS.map((c,i)=>[c.id, c.name, i]);
     try{
       const snap = await get(ref(gcDb, "settings/globalCategories"));
       const dbData = snap.val() || {};
       Object.entries(dbData).forEach(([k,v],i)=>{ if(!GC_CATS.some(c=>c.id===k)) merged.push([k, v.name, 100+i]); });
     }catch(e){}
-    row1.innerHTML = ""; row2.innerHTML = "";
+    if(window.gcBuilt)return;row1.innerHTML="";row2.innerHTML="";
     merged.forEach(([id, name], index) => {
       const div = document.createElement("div");
       div.className = "cat";
@@ -2356,7 +2355,7 @@ const gcSection = document.getElementById("globalCatSection");
         div.classList.add("active");
         loadGlobalCatProducts(id);
       };
-      (index < 10 ? row1 : row2).appendChild(div);
+      row1.appendChild(div);
     });
     const first = row1.querySelector(".cat");
     if(first && merged.length){ first.classList.add("active"); loadGlobalCatProducts(merged[0][0]); }
