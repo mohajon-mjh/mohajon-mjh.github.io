@@ -304,3 +304,22 @@ var w=0;var t=setInterval(function(){w++;
  });
 })();
 </script>
+<script>/*mjhForceData*/
+(function(){
+var m=location.search.match(/id=([^&]+)/);if(!m)return;
+var id=decodeURIComponent(m[1]);
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+function apply(p){
+ if(!p)return;
+ var img=document.getElementById("mainImg");
+ if(img&&p.images&&p.images.main)img.src=p.images.main;
+ var h=document.querySelector("h1");if(h&&p.title)h.textContent=p.title;
+ var d=p.discountPercent||0;var fin=d>0?(p.price*(100-d)/100):(p.price||0);
+ var pb=document.querySelector(".price-big");if(pb)pb.textContent=fin.toFixed(2)+" ৳";
+ var bb=document.querySelector(".bb-price");if(bb)bb.textContent=fin.toFixed(2)+" ৳";
+ var opts=document.querySelectorAll(".opt img, .thumb img");
+ opts.forEach(function(o){if(p.images&&p.images.main)o.src=p.images.main;});
+}
+fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(apply).catch(function(){});
+})();
+</script>
