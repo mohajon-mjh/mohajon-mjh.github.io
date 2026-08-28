@@ -158,18 +158,29 @@ function render(P){
  function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");}
  fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){
   if(!p||!p.title)return;
-  fetch("media/"+slug(p.title)+"/media.json").then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(mj){
-   var box=document.getElementById("mjhAdMedia");if(!box)return;
-   var imgs=mj.images||[],vids=mj.videos||(mj.video?[mj.video]:[]);
-   if(!imgs.length&&!vids.length)return;
-   var html='<div class="am-head">🎬 '+(p.title||"")+' — Official Showcase</div><div class="am-row">';
-   vids.forEach(function(v){html+='<video controls playsinline preload="metadata" src="media/'+slug(p.title)+'/'+encodeURIComponent(v)+'"></video>';});
-   imgs.forEach(function(f){html+='<img loading="lazy" src="media/'+slug(p.title)+'/'+encodeURIComponent(f)+'" alt="">';});
-   html+='</div><div class="am-dots">👆 swipe করুন ('+(imgs.length+vids.length)+' items)</div>';
-   box.innerHTML=html;box.style.display="block";
-   var c=document.getElementById("content");
-   if(c&&c.parentNode)c.parentNode.insertBefore(box,c);
-  }).catch(function(){});
+  var slugTitle=slug(p.title);
+   fetch("media/"+slugTitle+"/media.json").then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(mj){
+    var box=document.getElementById("mjhAdMedia");if(!box)return;
+    var imgs=mj.images||[],vids=mj.videos||(mj.video?[mj.video]:[]);
+    if(!imgs.length&&!vids.length)return;
+    var html='<div class="am-head">🎬 '+(p.title||"")+' — Official Showcase</div><div class="am-row">';
+    vids.forEach(function(v){html+='<video controls playsinline preload="metadata" src="media/'+slugTitle+'/'+encodeURIComponent(v)+'"></video>';});
+    imgs.forEach(function(f){html+='<img loading="lazy" src="media/'+slugTitle+'/'+encodeURIComponent(f)+'" alt="">';});
+    html+='</div><div class="am-dots">👆 swipe করুন ('+(imgs.length+vids.length)+' items)</div>';
+    box.innerHTML=html;box.style.display="block";
+    var c=document.getElementById("content");
+    if(c&&c.parentNode)c.parentNode.insertBefore(box,c);
+   }).catch(function(){
+    /* Fallback: যদি media.json না থাকে, products/ থেকে main image দেখাও */
+    if(p.images&&p.images.main){
+     var box=document.getElementById("mjhAdMedia");if(!box)return;
+     var src=p.images.main;
+     var html='<div class="am-head">🖼️ '+(p.title||"")+'</div><div class="am-row"><img loading="lazy" src="'+src+'" alt="" style="width:100%"></div>';
+     box.innerHTML=html;box.style.display="block";
+     var c=document.getElementById("content");
+     if(c&&c.parentNode)c.parentNode.insertBefore(box,c);
+    }
+   });
  }).catch(function(){});
 })();
 </script>
