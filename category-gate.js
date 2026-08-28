@@ -30,13 +30,13 @@ function chipOff(c){
 }
 document.addEventListener("click",function(e){
  if(MAP===null)return;
- var c=e.target.closest?e.target.closest("#globalCatsRow1 .cat,#globalCatsRow2 .cat,#flashCatsRow .cat,#dotdCatsRow .cat,#specialCatsContainer .cat"):null;
+ var c=e.target.closest?e.target.closest("#globalCatCarousel .cat,#globalCatsRow1 .cat,#globalCatsRow2 .cat,#flashCatsRow .cat,#dotdCatsRow .cat,#specialCatsContainer .cat"):null;
  if(!c)return;
  if(chipOff(c)){e.stopPropagation();e.preventDefault();showSoon(c.textContent.replace("🔜","").trim());}
 },true);
 function hideOff(){
  document.querySelectorAll("#flashCatsRow .cat,#dotdCatsRow .cat,#specialCatsContainer .cat").forEach(function(c){if(chipOff(c))c.style.display="none";});
- document.querySelectorAll("#globalCatsRow1 .cat,#globalCatsRow2 .cat").forEach(function(c){var id=idFromText(c.textContent||"");if(id&&isOff(id)&&c.textContent.indexOf("🔜")===-1)c.textContent=c.textContent+" 🔜";});
+ document.querySelectorAll("#globalCatsRow1 .cat,#globalCatsRow2 .cat").forEach(function(c){var id=idFromText(c.textContent||"");if(id&&isOff(id)&&c.textContent.indexOf("🔜")===-1)c.textContent=c.textContent+" 🔜";});document.querySelectorAll("#globalCatCarousel .cat,#globalCatCarousel button,#globalCatCarousel a").forEach(function(c){var id=idFromText(c.textContent||"");if(id&&isOff(id))c.style.display="none";});
  function hideSec(off,sel){if(!off)return;var el=document.querySelector(sel);if(el){var sec=el.closest(".section")||el;sec.style.display="none";}}
  hideSec(isOff("sec:trending"),"#trendingProductsGrid");
  hideSec(isOff("sec:featured"),"#featuredProducts");
@@ -44,7 +44,7 @@ function hideOff(){
  var fa=document.querySelector("#flashCatsRow .cat.active");
  if(fa&&fa.style.display==="none"){var all=document.querySelectorAll("#flashCatsRow .cat");for(var i=0;i<all.length;i++){if(all[i].style.display!=="none"){all[i].click();break;}}}
 }
-ready().then(function(){setTimeout(hideOff,1500);setTimeout(hideOff,4500);});
+ready().then(function(){[1500,4500,8000,12000,16000].forEach(function(t){setTimeout(hideOff,t);});});
 setTimeout(function(){document.querySelectorAll(".stock-badge,.discount-badge,.save-badge").forEach(function(b){if(!b.closest(".product-card")&&!b.closest(".card"))b.remove();});},3000);
 var AF_START=Date.now(),POOL=null,F2={};
 function cGet(k){try{var r=JSON.parse(localStorage.getItem("afc_"+k)||"null");if(r&&Date.now()-r.t<900000)return r.v;}catch(e){}return null;}
