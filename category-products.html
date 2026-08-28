@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ক্যাটাগরি প্রোডাক্ট ম্যানেজার</title>
+<style>
+body{background:#111;color:#eee;font-family:sans-serif;margin:0;padding:12px}
+.bar{background:#1d2733;border-radius:10px;padding:10px;margin:10px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:8px;padding:9px 12px;font-weight:700;cursor:pointer;color:#fff}
+input,textarea{background:#0b0f14;color:#eee;border:1px solid #333;border-radius:6px;padding:8px}
+.card{background:#16202b;border-radius:12px;padding:10px;margin:10px 0}
+#badge{position:fixed;top:8px;right:8px;background:#f39c12;color:#111;font-weight:700;padding:8px 12px;border-radius:10px;z-index:99}
+img.th{width:70px;height:70px;object-fit:cover;border-radius:8px}
+.cur{color:#2ecc71;font-weight:700}
+h3{color:#f39c12}
+</style>
+</head>
+<body>
+<div id="badge">☑️ 0/0</div>
+<h2 id="head">লোড হচ্ছে...</h2>
+<div id="loginBox" class="bar" style="display:none">
+<input id="em" placeholder="Email" style="flex:1"><input id="pw" type="password" placeholder="Password" style="flex:1">
+<button class="btn" style="background:#2980b9" id="loginBtn">লগইন</button>
+</div>
+<div class="bar">
+<input type="file" id="files" accept="image/*" multiple>
+<button class="btn" style="background:#27ae60" id="markAll">✅ সব সিলেক্ট</button>
+<button class="btn" style="background:#2980b9" id="saveSel">💾 সিলেক্টেড Save</button>
+<button class="btn" style="background:#c0392b" id="delSel">🗑️ সিলেক্টেড Delete</button>
+</div>
+<div class="bar">
+<textarea id="paste" rows="3" placeholder="প্রাইস লিস্ট পেস্ট করুন (প্রতি লাইনে: নাম — ৳দাম)" style="flex:1"></textarea>
+<button class="btn" style="background:#2980b9" id="applyPaste">✅ প্রাইস বসান</button>
+</div>
+<div class="bar">
+<input id="pct" type="number" placeholder="%" style="width:70px">
+<button class="btn" style="background:#27ae60" id="applyPct">সিলেক্টেড % বসান</button>
+<input id="d1" type="date"><input id="d2" type="date">
+<button class="btn" style="background:#2980b9" id="applyDates">📆 তারিখ বসান</button>
+</div>
+<div id="list"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+var CFG = {apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain: "mohajon-mjh.firebaseapp.com",
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId: "mohajon-mjh",
+  storageBucket: "mohajon-mjh.firebasestorage.app",
+  messagingSenderId: "526105903976",
+  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"};
+firebase.initializeApp(CFG);
+var db = firebase.database();
+var auth = firebase.auth();
+var params = new URLSearchParams(location.search);
+var SEC = params.get("sec") || "settings/globalCategoryProducts";
+var CAT = params.get("cat") || "";
+document.getElementById("head").textContent = "📦 " + CAT + " — প্রোডাক্ট ম্যানেজার";
+var pending = [];
+var existing = [];
+function toast(msg, color) {
+  var d = document.createElement("div");
+  d.textContent = msg;
+  d.style.cssText = "position:fixed;top:50px;right:8px;z-index:999;background:" + (color || "#2ecc71") + ";color:#111;font-weight:700;padding:10px 14px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.5)";
+  document.body.appendChild(d);
+  setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 2500);
+}
+function badge() {
+  var all = document.querySelectorAll(".chk");
+  var ch = document.querySelectorAll(".chk:checked");
+  document.getElementById("badge").textContent = "☑️ " + ch.length + "/" + all.length;
+}
+function cur(p) { var d = p.disc || 0; return d > 0 ? (p.price * (100 - d) / 100) : (p.price || 0); }
+function cleanName(n) { return n.replace(/\.[a-z0-9]+$/i, "").replace(/[_\-\.]+/g, " ").replace(/\s+/g, " ").trim(); }
+function genId() { return "p_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+auth.onAuthStateChanged(function(u) {
+  if (u) { document.getElementById("loginBox").style.display = "none"; loadExisting(); }
+  else { document.getElementById("loginBox").style.display = "flex"; }
+});
+document.getElementById("loginBtn").onclick = function() {
+  auth.signInWithEmailAndPassword(document.getElementById("em").value.trim(), document.getElementById("pw").value).catch(function(e){ toast("❌ লগইন ব্যর্থ: " + e.message, "#c0392b"); });
+};
+function loadExisting() {
+  db.ref(SEC + "/" + CAT).once("value").then(function(snap) {
+    var map = snap.val() || {};
+    var ids = Object.keys(map);
+    var proms = ids.map(function(id) {
+      return db.ref("products/" + id).once("value").then(function(ps) {
+        var p = ps.val();
+        if (!p) return null;
+        return { id: id, title: p.title || id, img: (p.images && p.images.main) || "", price: p.price || 0, disc: p.discountPercent || 0, start: p.startDate || "", end: p.endDate || "", stock: p.stock || 0, checked: false };
+      });
+    });
+    Promise.all(proms).then(function(arr) { existing = arr.filter(function(x){ return x; }); render(); });
+  }).catch(function(e){ toast("❌ লোড ব্যর্থ: " + e.message, "#c0392b"); });
+}
+function cardHTML(it, kind, i) {
+  var h = '<div class="card">';
+  h += '<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" class="chk" data-kind="' + kind + '" data-idx="' + i + '" ' + (it.checked ? "checked" : "") + '> <img class="th" src="' + (it.img || "") + '"><b>' + (it.title || "") + '</b></label>';
+  h += '<div class="bar" style="margin:6px 0">নাম:<input class="fTitle" value="' + String(it.title || "").replace(/"/g, "&quot;") + '" style="flex:1">দাম:<input type="number" class="fPrice" value="' + (it.price || 0) + '" style="width:90px">%:<input type="number" class="fDisc" value="' + (it.disc || 0) + '" style="width:60px"></div>';
+  h += '<div class="bar" style="margin:6px 0">বর্তমান দাম: <span class="cur">৳' + cur(it).toFixed(2) + '</span> <span style="color:#888;text-decoration:line-through">' + (it.disc > 0 ? "৳" + it.price : "") + '</span> | Save: <span class="cur">৳' + (it.disc > 0 ? (it.price - cur(it)).toFixed(0) : "0") + '</span></div>';
+  h += '<div class="bar" style="margin:6px 0">শুরু:<input type="date" class="fStart" value="' + (it.start || "") + '">শেষ:<input type="date" class="fEnd" value="' + (it.end || "") + '">স্টক:<input type="number" class="fStock" value="' + (it.stock || 0) + '" style="width:60px"><input type="file" accept="image/*" class="fImg" style="width:40%">';
+  h += '<button class="btn" style="background:#2980b9" data-save="' + kind + ':' + i + '">💾 Save</button>';
+  h += '<button class="btn" style="background:#c0392b" data-del="' + kind + ':' + i + '">🗑️ Remove</button></div></div>';
+  return h;
+}
+function render() {
+  var html = "<h3>নতুন পণ্য (" + pending.length + ")</h3>";
+  pending.forEach(function(it, i){ html += cardHTML(it, "new", i); });
+  html += "<h3>আগের পণ্য (" + existing.length + ")</h3>";
+  existing.forEach(function(it, i){ html += cardHTML(it, "old", i); });
+  document.getElementById("list").innerHTML = html;
+  badge();
+}
+function readCard(card, it) {
+  it.title = card.querySelector(".fTitle").value;
+  it.price = +card.querySelector(".fPrice").value || 0;
+  it.disc = +card.querySelector(".fDisc").value || 0;
+  it.start = card.querySelector(".fStart").value;
+  it.end = card.querySelector(".fEnd").value;
+  it.stock = +card.querySelector(".fStock").value || 0;
+}
+function saveItem(it, done) {
+  var up = { title: it.title, price: it.price, discountPercent: it.disc, startDate: it.start, endDate: it.end, stock: it.stock, status: "active", updatedAt: Date.now() };
+  if (it.img) up["images/main"] = it.img;
+  db.ref("products/" + it.id).update(up).then(function() {
+    return db.ref(SEC + "/" + CAT + "/" + it.id).set({ addedAt: Date.now() });
+  }).then(function(){ done(null); }).catch(function(e){ done(e); });
+}
+function delItem(it, done) {
+  var up = {};
+  up[SEC + "/" + CAT + "/" + it.id] = null;
+  up["products/" + it.id] = null;
+  db.ref().update(up).then(function(){ done(null); }).catch(function(e){ done(e); });
+}
+document.getElementById("list").addEventListener("change", function(e) {
+  var t = e.target;
+  if (t.classList.contains("chk")) {
+    var arr = t.dataset.kind === "new" ? pending : existing;
+    arr[+t.dataset.idx].checked = t.checked;
+    badge();
+  }
+  var card = t.closest ? t.closest(".card") : null;
+  if (card && (t.classList.contains("fPrice") || t.classList.contains("fDisc"))) {
+    var ck = card.querySelector(".chk");
+    var a2 = ck.dataset.kind === "new" ? pending : existing;
+    var it2 = a2[+ck.dataset.idx];
+    readCard(card, it2);
+    card.querySelector(".cur").textContent = "৳" + cur(it2).toFixed(2);
+  }
+  if (t.classList.contains("fImg")) {
+    var f = t.files[0]; if (!f) return;
+    var c2 = t.closest(".card");
+    var ck2 = c2.querySelector(".chk");
+    var a3 = ck2.dataset.kind === "new" ? pending : existing;
+    var it3 = a3[+ck2.dataset.idx];
+    var rd = new FileReader();
+    rd.onload = function(){ it3.img = rd.result; c2.querySelector(".th").src = rd.result; toast("✅ ছবি যুক্ত হয়েছে"); };
+    rd.readAsDataURL(f);
+  }
+});
+document.getElementById("list").addEventListener("click", function(e) {
+  var sv = e.target.closest("[data-save]");
+  var dl = e.target.closest("[data-del]");
+  if (sv) {
+    var parts = sv.dataset.save.split(":");
+    var arr = parts[0] === "new" ? pending : existing;
+    var it = arr[+parts[1]];
+    readCard(sv.closest(".card"), it);
+    saveItem(it, function(err){
+      toast(err ? "❌ ব্যর্থ" : "✅ সেভ হয়েছে: " + it.title, err ? "#c0392b" : "#2ecc71");
+      if (!err) { if (parts[0] === "new") pending = pending.filter(function(x){ return x.id !== it.id; }); loadExisting(); }
+    });
+  }
+  if (dl) {
+    var p2 = dl.dataset.del.split(":");
+    var a4 = p2[0] === "new" ? pending : existing;
+    var it4 = a4[+p2[1]];
+    if (p2[0] === "new") { pending = pending.filter(function(x){ return x.id !== it4.id; }); render(); }
+    else delItem(it4, function(err){ toast(err ? "❌ ব্যর্থ" : "🗑️ ডিলিট হয়েছে", err ? "#c0392b" : "#e67e22"); if(!err) loadExisting(); });
+  }
+});
+document.getElementById("files").addEventListener("change", function(e) {
+  [].slice.call(e.target.files).forEach(function(f) {
+    var rd = new FileReader();
+    rd.onload = function(){ pending.push({ id: genId(), title: cleanName(f.name), img: rd.result, price: 0, disc: 0, start: "", end: "", stock: 10, checked: true }); render(); };
+    rd.readAsDataURL(f);
+  });
+});
+function checkedItems() {
+  var out = [];
+  pending.forEach(function(p){ if(p.checked) out.push(p); });
+  existing.forEach(function(p){ if(p.checked) out.push(p); });
+  return out;
+}
+document.getElementById("markAll").onclick = function() {
+  pending.forEach(function(p){ p.checked = true; });
+  existing.forEach(function(p){ p.checked = true; });
+  render();
+};
+document.getElementById("applyPaste").onclick = function() {
+  var lines = document.getElementById("paste").value.split(/\r?\n/);
+  var n = 0;
+  lines.forEach(function(ln) {
+    var mm = ln.match(/^(.+?)\s*[—–-]+\s*৳?\s*([\d,.]+)/);
+    if (!mm) return;
+    var name = mm[1].trim().toLowerCase();
+    var price = parseFloat(mm[2].replace(/,/g, ""));
+    pending.concat(existing).forEach(function(it) {
+      if (name && it.title && (it.title.toLowerCase().indexOf(name) > -1 || name.indexOf(it.title.toLowerCase()) > -1)) { it.price = price; n++; }
+    });
+  });
+  render();
+  toast("✅ " + n + "টি পণ্যে দাম বসেছে");
+};
+document.getElementById("applyPct").onclick = function() {
+  var v = +document.getElementById("pct").value || 0;
+  var items = checkedItems();
+  items.forEach(function(it){ it.disc = v; });
+  render();
+  toast("✅ " + items.length + "টি পণ্যে " + v + "% বসেছে");
+};
+document.getElementById("applyDates").onclick = function() {
+  var sV = document.getElementById("d1").value;
+  var eV = document.getElementById("d2").value;
+  var items = checkedItems();
+  items.forEach(function(it){ it.start = sV; it.end = eV; });
+  render();
+  toast("✅ " + items.length + "টি পণ্যে তারিখ বসেছে");
+};
+document.getElementById("saveSel").onclick = function() {
+  var items = checkedItems();
+  if (!items.length) { toast("❌ কোনো সিলেক্ট নেই", "#c0392b"); return; }
+  var done = 0, i = 0;
+  toast("⏳ সেভ শুরু: " + items.length + "টি");
+  (function next() {
+    if (i >= items.length) {
+      toast("✅ সফল: " + done + "/" + items.length);
+      pending = pending.filter(function(p){ return !p.checked; });
+      loadExisting();
+      return;
+    }
+    var it = items[i]; i++;
+    saveItem(it, function(err){ if(!err) done++; next(); });
+  })();
+};
+document.getElementById("delSel").onclick = function() {
+  var items = checkedItems();
+  if (!items.length) { toast("❌ কোনো সিলেক্ট নেই", "#c0392b"); return; }
+  if (!confirm(items.length + "টি পণ্য ডিলিট করবেন?")) return;
+  var done = 0;
+  (function next() {
+    if (!items.length) { toast("🗑️ ডিলিট: " + done); loadExisting(); return; }
+    var it = items.shift();
+    if (pending.indexOf(it) > -1) { pending = pending.filter(function(x){ return x.id !== it.id; }); done++; next(); }
+    else delItem(it, function(err){ if(!err) done++; next(); });
+  })();
+};
+</script>
+</body>
+</html>
