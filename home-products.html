@@ -332,5 +332,67 @@ renderCats(s);
 }
 setTimeout(loadCustomSecs,800);
 })();
+
+/* ===== Admin Enhance v6 ===== */
+(function(){
+function findBtn(t){var bs=[].slice.call(document.querySelectorAll("button"));for(var i=0;i<bs.length;i++){if((bs[i].textContent||"").indexOf(t)>-1)return bs[i];}return null;}
+function updateBadge(){var b=document.getElementById("mjhSelCount");if(!b)return;var c=document.querySelectorAll(".aChk:checked,.pChk:checked").length;var t=document.querySelectorAll(".aChk,.pChk").length;b.textContent="☑️ সিলেক্টেড: "+c+"/"+t;}
+function bindMaster(){
+var best=null;
+[].slice.call(document.querySelectorAll("div,span,label")).forEach(function(el){
+var t=(el.textContent||"");
+if(t.indexOf("সব সিলেক্ট করুন")>-1&&t.length<60&&el.querySelector("input[type=checkbox]")){if(!best||t.length<best.tl)best={el:el,tl:t.length};}
+});
+var lab=best?best.el.querySelector("input[type=checkbox]"):null;
+if(lab&&!lab.dataset.v6){lab.dataset.v6="1";
+lab.addEventListener("change",function(){[].slice.call(document.querySelectorAll(".aChk,.pChk")).forEach(function(c){c.checked=lab.checked;});updateBadge();},true);}
+}
+function recheck(idxs){idxs.forEach(function(i){var c=document.querySelector('.aChk[data-i="'+i+'"]');if(c)c.checked=true;});updateBadge();}
+function bindPct(){
+var bP=findBtn("সিলেক্টেড % বসান");
+if(bP&&!bP.dataset.v6){bP.dataset.v6="1";bP.addEventListener("click",function(){
+var row=bP.parentNode;var inp=row.querySelector("input:not([type=checkbox])");var v=inp?(+inp.value||0):0;
+var idxs=[].slice.call(document.querySelectorAll(".aChk:checked")).map(function(c){return c.dataset.i;});
+[].slice.call(document.querySelectorAll(".aChk:checked")).forEach(function(c){
+var p=(typeof pending!=="undefined")?pending[+c.dataset.i]:null;
+if(p)p.discountPercent=v;
+var card=c.closest(".pCard")||c.closest(".bar");
+if(card){var dd=card.querySelector(".pDisc");if(dd)dd.value=v;}
+});
+if(typeof renderAdd==="function")renderAdd();
+recheck(idxs);
+},true);}
+}
+function bindDates(){
+var bD=findBtn("সিলেক্টেড তারিখ বসান");
+if(bD&&!bD.dataset.v6){bD.dataset.v6="1";bD.addEventListener("click",function(){
+var row=bD.parentNode;var ins=[].slice.call(row.querySelectorAll("input:not([type=checkbox])"));
+var sV=ins[0]?ins[0].value:"";var eV=ins[1]?ins[1].value:"";
+var idxs=[].slice.call(document.querySelectorAll(".aChk:checked")).map(function(c){return c.dataset.i;});
+[].slice.call(document.querySelectorAll(".aChk:checked")).forEach(function(c){
+var p=(typeof pending!=="undefined")?pending[+c.dataset.i]:null;
+if(p){p.startDate=sV;p.endDate=eV;}
+var card=c.closest(".pCard")||c.closest(".bar");
+if(card){var ss=card.querySelector(".pStart");var ee=card.querySelector(".pEnd");if(ss)ss.value=sV;if(ee)ee.value=eV;}
+});
+if(typeof renderAdd==="function")renderAdd();
+recheck(idxs);
+},true);}
+}
+function fixImgs(){
+if(typeof pending==="undefined")return;
+[].slice.call(document.querySelectorAll(".aChk")).forEach(function(c){
+var p=pending[+c.dataset.i];if(!p||!p.file)return;
+var card=c.closest(".pCard")||c.closest(".bar")||c.parentNode;
+var img=card?card.querySelector("img"):null;
+if(img&&img.naturalWidth===0){
+var rd=new FileReader();
+rd.onload=function(){p.img=rd.result;if(p.images){p.images.main=rd.result;}else{p.images={main:rd.result};}img.src=rd.result;};
+rd.readAsDataURL(p.file);
+}
+});
+}
+setInterval(function(){bindMaster();bindPct();bindDates();fixImgs();},2000);
+})();
 </script>
 </body></html>
