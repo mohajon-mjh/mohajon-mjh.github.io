@@ -437,5 +437,30 @@ b.onclick=function(){location.href="category-products.html?sec="+encodeURICompon
 need.host.appendChild(b);
 },1500);
 })();
+
+/* FlatSectionBtns v1 */
+(function(){
+var FLAT=[{name:"🔥 Trending Products",sec:"settings/trProducts",flag:"isTrending",cs:false},{name:"🌟 Featured Products",sec:"settings/featProducts",flag:"isFeatured",cs:false},{name:"🔮 Coming Soon",sec:"settings/csProducts",flag:"",cs:1}];
+setInterval(function(){
+for(var i=0;i<FLAT.length;i++){
+var hs=[].slice.call(document.querySelectorAll("h1,h2,h3"));
+for(var j=0;j<hs.length;j++){
+var t=(hs[j].textContent||"").trim();
+if(t.indexOf(FLAT[i].name)>-1&&t.length<FLAT[i].name.length+6){
+var host=hs[j].parentNode;
+var old=document.getElementById("mjhFlatBtn_"+i);
+if(old)return;
+var b=document.createElement("button");
+b.id="mjhFlatBtn_"+i;
+b.style.cssText="display:block;background:#16a085;margin:10px 0;padding:10px 16px;border-radius:8px;color:#fff;font-weight:700;border:none";
+b.textContent="📦 প্রোডাক্ট ম্যানেজার খুলুন (নতুন পেজ)";
+var f=FLAT[i];
+b.onclick=function(){location.href="category-products.html?sec="+encodeURIComponent(f.sec)+"&cat=main&flag="+encodeURIComponent(f.flag)+"&hasCats=0&cs="+(f.cs?"1":"0");};
+host.appendChild(b);
+break;}
+}
+}
+},1500);
+})();
 </script>
 </body></html>

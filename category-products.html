@@ -60,6 +60,8 @@ var params = new URLSearchParams(location.search);
 var SEC = params.get("sec") || "settings/globalCategoryProducts";
 var CAT = params.get("cat") || "";
 var FLAG = params.get("flag") || "";
+var HAS_CATS = params.get("hasCats") === "1";
+var CS = params.get("cs") === "1";
 document.getElementById("head").textContent = "📦 " + CAT + " — প্রোডাক্ট ম্যানেজার";
 function log(m){var d=document.getElementById("dbg");if(d){d.textContent+=m+"\n";d.scrollTop=d.scrollHeight;}}
 window.onerror=function(msg){log("JS ERROR: "+msg);};
@@ -141,15 +143,26 @@ function readCard(card, it) {
 function saveItem(it, done) {
   var up = { title: it.title, price: it.price, discountPercent: it.disc, startDate: it.start, endDate: it.end, stock: it.stock, status: "active", updatedAt: Date.now() };
   if (it.img) up["images/main"] = it.img;
-  if (FLAG) up["flags/" + FLAG] = true;
+  if (FLAG) up[FLAG] = true;
+  if (CS) up["comingSoon"] = true;
   db.ref("products/" + it.id).update(up).then(function() {
-    return db.ref(SEC + "/" + CAT + "/" + it.id).set({ addedAt: Date.now() });
+    if (HAS_CATS) {
+      return db.ref(SEC + "/" + CAT + "/" + it.id).set({ id: it.id, addedAt: Date.now() });
+    } else if (CS) {
+      return db.ref("futureProducts/" + it.id).set({ title: it.title, expectedPrice: it.price, categoryId: "coming_soon", createdAt: Date.now(), released: false, images: { main: it.img || "" } });
+    } else {
+      return Promise.resolve();
+    }
   }).then(function(){ done(null); }).catch(function(e){ log("SAVE ERR " + it.title + ": " + (e.message || e)); done(e); });
 }
 function delItem(it, done) {
   var up = {};
-  up[SEC + "/" + CAT + "/" + it.id] = null;
-  if (FLAG) { up["products/" + it.id + "/flags/" + FLAG] = null; } else { up["products/" + it.id] = null; }
+  if (HAS_CATS) {
+    up[SEC + "/" + CAT + "/" + it.id] = null;
+  } else if (CS) {
+    up["futureProducts/" + it.id] = null;
+  }
+  up["products/" + it.id] = null;
   db.ref().update(up).then(function(){ done(null); }).catch(function(e){ done(e); });
 }
 document.getElementById("list").addEventListener("change", function(e) {
