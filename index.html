@@ -2395,6 +2395,32 @@ const gcSection = document.getElementById("globalCatSection");
     row1.innerHTML = "<p style='color:#ff6b6b; padding:10px;'>এরর: " + (e.message || JSON.stringify(e)) + "</p>";
   }
 }
+
+
+/* GC Cart Handler */
+document.addEventListener('click', function(ev) {
+  var b = ev.target && ev.target.closest ? ev.target.closest('[data-cart]') : null;
+  if (!b) return;
+  ev.preventDefault();
+  var pid = b.getAttribute('data-cart');
+  try {
+    if (typeof addToCart === 'function') {
+      addToCart(pid);
+    } else {
+      var cart = JSON.parse(localStorage.getItem('mjh_cart') || '[]');
+      var exists = cart.find(function(c){ return c.id === pid; });
+      if (exists) exists.qty = (exists.qty || 1) + 1;
+      else cart.push({id: pid, qty: 1, at: Date.now()});
+      localStorage.setItem('mjh_cart', JSON.stringify(cart));
+      if (typeof updateCartCount === 'function') updateCartCount();
+    }
+    if (typeof toast === 'function') toast('✅ কার্টে যোগ হয়েছে');
+    else alert('✅ কার্টে যোগ হয়েছে');
+  } catch(e) {
+    console.error(e);
+  }
+}, true);
+
 buildGcRows();
 async function loadGlobalCatProducts(catId){
   const carousel = document.getElementById("globalCatCarousel");
