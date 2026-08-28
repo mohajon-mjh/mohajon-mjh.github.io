@@ -57,6 +57,7 @@ var auth = firebase.auth();
 var params = new URLSearchParams(location.search);
 var SEC = params.get("sec") || "settings/globalCategoryProducts";
 var CAT = params.get("cat") || "";
+var FLAG = params.get("flag") || "";
 document.getElementById("head").textContent = "📦 " + CAT + " — প্রোডাক্ট ম্যানেজার";
 var pending = [];
 var existing = [];
@@ -125,6 +126,7 @@ function readCard(card, it) {
 function saveItem(it, done) {
   var up = { title: it.title, price: it.price, discountPercent: it.disc, startDate: it.start, endDate: it.end, stock: it.stock, status: "active", updatedAt: Date.now() };
   if (it.img) up["images/main"] = it.img;
+  if (FLAG) up["flags/" + FLAG] = true;
   db.ref("products/" + it.id).update(up).then(function() {
     return db.ref(SEC + "/" + CAT + "/" + it.id).set({ addedAt: Date.now() });
   }).then(function(){ done(null); }).catch(function(e){ done(e); });
@@ -132,7 +134,7 @@ function saveItem(it, done) {
 function delItem(it, done) {
   var up = {};
   up[SEC + "/" + CAT + "/" + it.id] = null;
-  up["products/" + it.id] = null;
+  if (FLAG) { up["products/" + it.id + "/flags/" + FLAG] = null; } else { up["products/" + it.id] = null; }
   db.ref().update(up).then(function(){ done(null); }).catch(function(e){ done(e); });
 }
 document.getElementById("list").addEventListener("change", function(e) {

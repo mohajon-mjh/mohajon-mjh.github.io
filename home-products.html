@@ -405,5 +405,31 @@ var sec = "settings/globalCategoryProducts";
 try { if (typeof s !== "undefined" && s && s.prodPath) sec = s.prodPath; } catch(e){}
 location.href = "category-products.html?sec=" + encodeURIComponent(sec) + "&cat=" + encodeURIComponent(cat);
 }, true);
+
+/* FlatSectionMgr v1 */
+(function(){
+var FLAT=[["Trending Products","settings/trendingProducts","trending"],["Featured Products","settings/featuredProducts","featured"],["Coming Soon","settings/comingSoonProducts","comingSoon"]];
+setInterval(function(){
+var need=null;
+for(var i=0;i<FLAT.length;i++){
+var hs=[].slice.call(document.querySelectorAll("h1,h2,h3"));
+for(var j=0;j<hs.length;j++){
+var t=(hs[j].textContent||"").trim();
+if(t.indexOf(FLAT[i][0])>-1&&t.length<FLAT[i][0].length+6){need={f:FLAT[i],host:hs[j].parentNode};break;}
+}
+if(need)break;
+}
+var old=document.getElementById("mjhMgrBtn");
+if(!need){if(old)old.remove();return;}
+if(old&&old.dataset.sec===need.f[1])return;
+if(old)old.remove();
+var b=document.createElement("button");
+b.id="mjhMgrBtn";b.dataset.sec=need.f[1];
+b.style.cssText="display:block;background:#16a085;margin:10px 0;padding:10px 16px;border-radius:8px;color:#fff;font-weight:700;border:none";
+b.textContent="📦 প্রোডাক্ট ম্যানেজার খুলুন (নতুন পেজ)";
+b.onclick=function(){location.href="category-products.html?sec="+encodeURIComponent(need.f[1])+"&cat=main&flag="+encodeURIComponent(need.f[2]);};
+need.host.appendChild(b);
+},1500);
+})();
 </script>
 </body></html>
