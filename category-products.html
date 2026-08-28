@@ -18,6 +18,7 @@ h3{color:#f39c12}
 </head>
 <body>
 <div id="badge">☑️ 0/0</div>
+<div id="authStat" class="bar" style="background:#3a1111;color:#ffb1b1">🔒 লগইন চেক হচ্ছে...</div>
 <h2 id="head">লোড হচ্ছে...</h2>
 <div id="loginBox" class="bar" style="display:none">
 <input id="em" placeholder="Email" style="flex:1"><input id="pw" type="password" placeholder="Password" style="flex:1">
@@ -59,6 +60,8 @@ var SEC = params.get("sec") || "settings/globalCategoryProducts";
 var CAT = params.get("cat") || "";
 var FLAG = params.get("flag") || "";
 document.getElementById("head").textContent = "📦 " + CAT + " — প্রোডাক্ট ম্যানেজার";
+function log(m){var d=document.getElementById("dbg");if(d){d.textContent+=m+"\n";d.scrollTop=d.scrollHeight;}}
+window.onerror=function(msg){log("JS ERROR: "+msg);};
 var pending = [];
 var existing = [];
 function toast(msg, color) {
@@ -77,6 +80,8 @@ function cur(p) { var d = p.disc || 0; return d > 0 ? (p.price * (100 - d) / 100
 function cleanName(n) { return n.replace(/\.[a-z0-9]+$/i, "").replace(/[_\-\.]+/g, " ").replace(/\s+/g, " ").trim(); }
 function genId() { return "p_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 auth.onAuthStateChanged(function(u) {
+  var st=document.getElementById("authStat");
+  if(st){ if(u){st.innerHTML="✅ লগইন: "+(u.email||"user");st.style.background="#0d2b1a";st.style.color="#9ff5c0";} else {st.innerHTML="🔒 লগইন নেই — email/password দিয়ে লগইন করুন";st.style.background="#3a1111";st.style.color="#ffb1b1";} }
   if (u) { document.getElementById("loginBox").style.display = "none"; loadExisting(); }
   else { document.getElementById("loginBox").style.display = "flex"; }
 });
@@ -98,7 +103,7 @@ function loadExisting() {
   }).catch(function(e){ toast("❌ লোড ব্যর্থ: " + e.message, "#c0392b"); });
 }
 function cardHTML(it, kind, i) {
-  var h = '<div class="card">';
+  var h = '<div class="card" data-id="' + it.id + '">';
   h += '<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" class="chk" data-kind="' + kind + '" data-idx="' + i + '" ' + (it.checked ? "checked" : "") + '> <img class="th" src="' + (it.img || "") + '"><b>' + (it.title || "") + '</b></label>';
   h += '<div class="bar" style="margin:6px 0">নাম:<input class="fTitle" value="' + String(it.title || "").replace(/"/g, "&quot;") + '" style="flex:1">দাম:<input type="number" class="fPrice" value="' + (it.price || 0) + '" style="width:90px">%:<input type="number" class="fDisc" value="' + (it.disc || 0) + '" style="width:60px"></div>';
   h += '<div class="bar" style="margin:6px 0">বর্তমান দাম: <span class="cur">৳' + cur(it).toFixed(2) + '</span> <span style="color:#888;text-decoration:line-through">' + (it.disc > 0 ? "৳" + it.price : "") + '</span> | Save: <span class="cur">৳' + (it.disc > 0 ? (it.price - cur(it)).toFixed(0) : "0") + '</span></div>';
@@ -184,12 +189,19 @@ document.getElementById("list").addEventListener("click", function(e) {
     else delItem(it4, function(err){ toast(err ? "❌ ব্যর্থ" : "🗑️ ডিলিট হয়েছে", err ? "#c0392b" : "#e67e22"); if(!err) loadExisting(); });
   }
 });
-document.getElementById("files").addEventListener("change", function(e) {
-  [].slice.call(e.target.files).forEach(function(f) {
+["change","input"].forEach(function(evt){ document.getElementById("files").addEventListener(evt, function(e) {
+  log("file " + evt + ": " + (e.target.files ? e.target.files.length : 0));
+  [].slice.call(e.target.files || []).forEach(function(f) {
+    var it = { id: genId(), title: cleanName(f.name), img: "", price: 0, disc: 0, start: "", end: "", stock: 10, checked: true };
+    pending.push(it);
+    log("added: " + it.title);
+    render();
     var rd = new FileReader();
-    rd.onload = function(){ pending.push({ id: genId(), title: cleanName(f.name), img: rd.result, price: 0, disc: 0, start: "", end: "", stock: 10, checked: true }); render(); };
+    rd.onload = function(){ it.img = rd.result; var el = document.querySelector('[data-id="' + it.id + '"] .th'); if (el) el.src = rd.result; log("img ok: " + it.title); };
+    rd.onerror = function(){ log("FileReader ERROR: " + it.title); };
     rd.readAsDataURL(f);
   });
+}); });
 });
 function checkedItems() {
   var out = [];
@@ -261,5 +273,6 @@ document.getElementById("delSel").onclick = function() {
   })();
 };
 </script>
+<pre id="dbg" style="background:#000;color:#0f0;font-size:11px;max-height:160px;overflow:auto;padding:6px;border-radius:8px"></pre>
 </body>
 </html>

@@ -406,9 +406,10 @@ try { if (typeof s !== "undefined" && s && s.prodPath) sec = s.prodPath; } catch
 location.href = "category-products.html?sec=" + encodeURIComponent(sec) + "&cat=" + encodeURIComponent(cat);
 }, true);
 
-/* FlatSectionMgr v1 */
+/* FlatSectionMgr v2 */
 (function(){
 var FLAT=[["Trending Products","settings/trendingProducts","trending"],["Featured Products","settings/featuredProducts","featured"],["Coming Soon","settings/comingSoonProducts","comingSoon"]];
+var HIDE=["প্রোডাক্ট ভিউ","নতুন প্রোডাক্ট এড","এই সেকশনের প্রোডাক্ট","All Products","Search Products","সব সিলেক্ট করুন","শুরুর তারিখ","তারিখ বসান","সিলেক্টেড"];
 setInterval(function(){
 var need=null;
 for(var i=0;i<FLAT.length;i++){
@@ -421,6 +422,11 @@ if(need)break;
 }
 var old=document.getElementById("mjhMgrBtn");
 if(!need){if(old)old.remove();return;}
+var rows=[].slice.call(need.host.querySelectorAll("div"));
+rows.forEach(function(r){
+var t=(r.textContent||"").trim();
+if(t.length<220){for(var k=0;k<HIDE.length;k++){if(t.indexOf(HIDE[k])>-1){r.style.display="none";break;}}}
+});
 if(old&&old.dataset.sec===need.f[1])return;
 if(old)old.remove();
 var b=document.createElement("button");
