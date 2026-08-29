@@ -3068,40 +3068,31 @@ if(document.readyState==="complete")render();else window.addEventListener("load"
 </script>
 
 <script>
-/* CustomSec Home v3 */
+/* CustomSec Home v4 */
 (function(){
 var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
-var MAP={"flash_sale":"Flash Sale","global_categories":"Global Categories","trending_products":"Trending Products","deals_of_the_day":"Deals of The Day","special_categories":"Special Categories","featured_products":"Featured Products","coming_soon":"Coming Soon"};
 function j(p){return fetch(BASE+"/"+p+".json").then(function(r){return r.json();});}
 async function apply(){
 try{
-var meta=await j("settings/sectionMeta")||{};
-Object.keys(MAP).forEach(function(k){var m=meta[k];if(!m)return;
-var els=[].slice.call(document.querySelectorAll("h1,h2,h3,h4"));
-for(var i=0;i<els.length;i++){var t=(els[i].textContent||"").trim();
-if(t.indexOf(MAP[k])>-1&&t.length<MAP[k].length+10){
-if(m.hidden){var sec=els[i].closest("section")||els[i].parentNode;if(sec)sec.style.display="none";}
-else if(m.name){els[i].textContent=t.replace(MAP[k],m.name);}
-break;}}});
 var secs=await j("settings/customSections")||{};
-var anchor=document.querySelector("footer")||document.body;
+var link=[].slice.call(document.querySelectorAll("a")).filter(function(x){return (x.textContent||"").indexOf("Seller Dashboard")>-1;})[0];
+var anchor=link?(link.closest("section,div,p")||link):(document.querySelector("footer")||document.body);
 for(var id in secs){
 if(document.getElementById("csh_"+id))continue;
-var sec=secs[id];
-var wrap=document.createElement("section");wrap.id="csh_"+id;wrap.style.cssText="padding:16px 12px";
-wrap.innerHTML="<h2 style='margin:0 0 10px;font-size:20px'>🧩 "+(sec.name||id)+"</h2><div class='csCats' style='display:flex;gap:8px;overflow-x:auto'></div><div class='csProds' style='display:flex;gap:10px;overflow-x:auto;margin-top:10px'></div>";
-if(anchor&&anchor.parentNode){anchor.parentNode.insertBefore(wrap,anchor);}else{document.body.appendChild(wrap);}
+var wrap=document.createElement("section");wrap.id="csh_"+id;wrap.style.cssText="padding:18px 12px";
+wrap.innerHTML="<h2 style='margin:0 0 12px;font-size:20px;font-weight:800;color:#111'>🧩 "+(secs[id].name||id)+"</h2><div class='csCats' style='display:flex;gap:10px;overflow-x:auto;padding-bottom:6px'></div><div class='csProds' style='display:flex;gap:10px;overflow-x:auto;margin-top:12px'></div>";
+if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(wrap,anchor);else document.body.appendChild(wrap);
 loadCats(wrap,id);
 }
-}catch(e){console.error(e);}
+}catch(e){}
 }
 async function loadCats(wrap,id){
 var cats=await j("settings/customSections/"+id+"/cats")||{};
-var box=wrap.querySelector(".csCats");var keys=Object.keys(cats);
+var box=wrap.querySelector(".csCats");var keys=Object.keys(cats).sort(function(a,b){return (cats[a].order||0)-(cats[b].order||0);});
 if(!keys.length){box.innerHTML="<span style='color:#888'>ক্যাটাগরি নেই</span>";return;}
 keys.forEach(function(k){
 var b=document.createElement("button");b.textContent=cats[k].name||k;
-b.style.cssText="padding:8px 14px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;white-space:nowrap";
+b.style.cssText="padding:12px 18px;border-radius:10px;border:2px solid #f39c12;background:#111;color:#fff;font-weight:700;cursor:pointer;white-space:nowrap";
 b.onclick=function(){loadProds(wrap,id,k);};
 box.appendChild(b);});
 loadProds(wrap,id,keys[0]);
@@ -3113,9 +3104,10 @@ var pids=Object.keys(map);
 if(!pids.length){box.innerHTML="<span style='color:#888'>পণ্য নেই — অ্যাডমিন থেকে যোগ করুন</span>";return;}
 for(var i=0;i<pids.length;i++){
 var p=await j("products/"+pids[i]);if(!p)continue;
-var d=document.createElement("div");d.style.cssText="min-width:160px;background:#fff;border-radius:10px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,.15)";
+var d=document.createElement("div");d.style.cssText="min-width:170px;background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.12)";
 var img=(p.images&&p.images.main)?p.images.main:"";
-d.innerHTML="<a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:110px;object-fit:cover;border-radius:8px'><b style='font-size:13px'>"+(p.title||"")+"</b></a><div style='font-weight:700'>৳"+(p.price||0)+"</div>";
+var disc=p.discountPercent||0;var fin=disc>0?(p.price*(100-disc)/100):p.price;
+d.innerHTML="<div style='position:relative'><a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:120px;object-fit:cover;border-radius:8px'></a><span style='position:absolute;top:4px;left:4px;background:#2ecc71;color:#fff;padding:3px 7px;border-radius:4px;font-size:11px'>IN STOCK</span>"+(disc>0?"<span style='position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:3px 7px;border-radius:4px;font-size:11px'>-"+disc+"%</span>":"")+"</div><b style='font-size:13px;display:block;margin:8px 0'>"+(p.title||"")+"</b><div style='font-weight:800;margin-bottom:8px'>৳"+fin+" "+(disc>0?"<span style='color:#999;text-decoration:line-through;font-weight:400'>৳"+p.price+"</span>":"")+"</div><a href='product-details.html?id="+pids[i]+"'><button style='width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px'>🛒 Add to Cart</button></a><a href='product-details.html?id="+pids[i]+"&buy=1'><button style='width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700'>⚡ Buy Now</button></a>";
 box.appendChild(d);}
 }
 if(document.readyState==="complete")apply();else window.addEventListener("load",apply);
