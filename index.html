@@ -3073,6 +3073,7 @@ if(document.readyState==="complete")render();else window.addEventListener("load"
 var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
 function j(p){return fetch(BASE+"/"+p+".json").then(function(r){return r.json();});}
 async function apply(){
+if(!document.getElementById("csCss")){var st=document.createElement("style");st.id="csCss";st.textContent=".csCats button{padding:16px 24px !important;border-radius:12px !important;border:2px solid #f39c12 !important;background:#111 !important;color:#fff !important;font-weight:700 !important;font-size:15px !important;white-space:nowrap}.csCats button.on{background:#1a73e8 !important}";document.head.appendChild(st);}
 try{
 var secs=await j("settings/customSections")||{};
 var matches=[].slice.call(document.querySelectorAll("a")).filter(function(x){return (x.textContent||"").indexOf("Seller Dashboard")>-1;});
@@ -3094,13 +3095,13 @@ if(!keys.length){box.innerHTML="<span style='color:#888'>ক্যাটাগ�
 keys.forEach(function(k){
 var b=document.createElement("button");b.textContent=cats[k].name||k;
 b.style.cssText="padding:14px 20px;border-radius:10px;border:2px solid #f39c12;background:#111;color:#fff;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap";
-b.onclick=function(){var all=box.querySelectorAll("button");for(var x=0;x<all.length;x++){all[x].style.background="#111";all[x].style.borderColor="#f39c12";}b.style.background="#1a73e8";b.style.borderColor="#1a73e8";loadProds(wrap,id,k);};
+b.onclick=function(){var all=box.querySelectorAll("button");for(var x=0;x<all.length;x++){all[x].classList.remove("on");}b.classList.add("on");loadProds(wrap,id,k);};
 box.appendChild(b);});
-var fb2=box.querySelectorAll("button");if(fb2[0]){fb2[0].style.background="#1a73e8";fb2[0].style.borderColor="#1a73e8";}
+var fb2=box.querySelectorAll("button");if(fb2[0]){fb2[0].classList.add("on");}
 loadProds(wrap,id,keys[0]);
 }
 async function loadProds(wrap,id,cat){
-var map=await j("settings/customSections/"+id+"/catProducts/"+cat)||{};
+var map=await j("settings/customSections/"+id+"/catProducts/"+cat)||{}; /*csDualPath*/ if(!Object.keys(map).length){map=await j("settings/customSectionProducts/"+id+"/"+cat)||{};}
 var box=wrap.querySelector(".csProds");box.innerHTML="";
 var pids=Object.keys(map);
 if(!pids.length){box.innerHTML="<span style='color:#888'>পণ্য নেই — অ্যাডমিন থেকে যোগ করুন</span>";return;}
