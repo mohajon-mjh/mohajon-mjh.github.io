@@ -3088,6 +3088,7 @@ loadCats(wrap,id);
 }
 }catch(e){}
 }
+function copyNative(btn){try{var ref=null;var cands=[].slice.call(document.querySelectorAll("button"));for(var i=0;i<cands.length;i++){var t=(cands[i].textContent||"");if(t.indexOf("Top Rated")>-1||t.indexOf("Musical Instruments")>-1||t.indexOf("New Arrivals")>-1||t.indexOf("Electronics Deals")>-1){ref=cands[i];break;}}if(!ref)return;var cs=getComputedStyle(ref);btn.style.padding=cs.paddingTop+" "+cs.paddingRight+" "+cs.paddingBottom+" "+cs.paddingLeft;btn.style.fontSize=cs.fontSize;btn.style.fontWeight=cs.fontWeight;btn.style.borderRadius=cs.borderTopLeftRadius;btn.style.border=cs.borderTopWidth+" "+cs.borderTopStyle+" #f39c12";btn.style.color=cs.color;btn.style.whiteSpace="nowrap";}catch(e){}}
 async function loadCats(wrap,id){
   console.log("/*megaDebug*/ id=" + id + ", trying catProducts and customSectionProducts");
 var cats=await j("settings/customSections/"+id+"/cats")||{};
