@@ -3027,50 +3027,7 @@ document.addEventListener("click",function(e){
 
 
 
-<script>
-/* Section Meta + Custom Sections v2 */
-(function(){
-var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
-var MAP={"flash_sale":"Flash Sale","global_categories":"Global Categories","trending_products":"Trending Products","deals_of_the_day":"Deals of The Day","special_categories":"Special Categories","featured_products":"Featured Products","coming_soon":"Coming Soon"};
-async function apply(){
-try{
-var r=await fetch(BASE+"/settings/sectionMeta.json");
-var meta=await r.json()||{};
-Object.keys(MAP).forEach(function(k){var m=meta[k];if(!m)return;
-var els=[].slice.call(document.querySelectorAll("h1,h2,h3,h4"));
-for(var i=0;i<els.length;i++){var t=(els[i].textContent||"").trim();
-if(t.indexOf(MAP[k])>-1&&t.length<MAP[k].length+10){
-if(m.hidden){var sec=els[i].closest("section")||els[i].parentNode;if(sec)sec.style.display="none";}
-else if(m.name){els[i].textContent=t.replace(MAP[k],m.name);}
-break;}}});
-var r2=await fetch(BASE+"/settings/customSections.json");
-var secs=await r2.json()||{};
-var anchor2=document.querySelector("footer")||document.body;
-for(var id in secs){(function(id){
-var wrap=document.createElement("section");wrap.style.cssText="padding:16px 12px";
-wrap.innerHTML="<h2 style='margin:0 0 10px;font-size:20px'>🧩 "+(secs[id].name||id)+"</h2><div class='csCats' style='display:flex;gap:8px;overflow-x:auto'></div><div class='csProds' style='display:flex;gap:10px;overflow-x:auto;margin-top:10px'></div>";
-document.body.insertBefore(wrap,anchor2);loadCats(wrap,id);})(id);}
-}catch(e){console.error(e);}
-}
-async function loadCats(wrap,id){
-var r=await fetch(BASE+"/settings/customSections/"+id+"/cats.json");
-var cats=await r.json()||{};var box=wrap.querySelector(".csCats");var keys=Object.keys(cats);
-if(!keys.length){box.innerHTML="<span style='color:#888'>ক্যাটাগরি নেই</span>";return;}
-keys.forEach(function(k){var b=document.createElement("button");b.textContent=cats[k].name||k;b.style.cssText="padding:8px 14px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;white-space:nowrap";b.onclick=function(){loadProds(wrap,id,k);};box.appendChild(b);});
-loadProds(wrap,id,keys[0]);
-}
-async function loadProds(wrap,id,cat){
-var r=await fetch(BASE+"/settings/customSectionProducts/"+id+"/"+cat+".json");
-var map=await r.json()||{};var box=wrap.querySelector(".csProds");box.innerHTML="";
-var pids=Object.keys(map);if(!pids.length){box.innerHTML="<span style='color:#888'>পণ্য নেই</span>";return;}
-for(var i=0;i<pids.length;i++){var pr=await fetch(BASE+"/products/"+pids[i]+".json");var p=await pr.json();if(!p)continue;
-var d=document.createElement("div");d.style.cssText="min-width:160px;background:#fff;border-radius:10px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,.15)";
-var img=(p.images&&p.images.main)?p.images.main:"";
-d.innerHTML="<img src='"+img+"' style='width:100%;height:110px;object-fit:cover;border-radius:8px'><b style='font-size:13px'>"+(p.title||"")+"</b><div style='font-weight:700'>৳"+(p.price||0)+"</div>";
-box.appendChild(d);}}
-if(document.readyState==="complete")apply();else window.addEventListener("load",apply);
-})();
-</script>
+
 
 <script>
 /* FlatCats Home v1 */
@@ -3107,6 +3064,61 @@ var img=(p.images&&p.images.main)?p.images.main:"";
 d.innerHTML="<a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:110px;object-fit:cover;border-radius:8px'><b style='font-size:13px'>"+(p.title||"")+"</b></a><div style='font-weight:700'>৳"+(p.price||0)+"</div>";
 box.appendChild(d);}}
 if(document.readyState==="complete")render();else window.addEventListener("load",render);
+})();
+</script>
+
+<script>
+/* CustomSec Home v3 */
+(function(){
+var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var MAP={"flash_sale":"Flash Sale","global_categories":"Global Categories","trending_products":"Trending Products","deals_of_the_day":"Deals of The Day","special_categories":"Special Categories","featured_products":"Featured Products","coming_soon":"Coming Soon"};
+function j(p){return fetch(BASE+"/"+p+".json").then(function(r){return r.json();});}
+async function apply(){
+try{
+var meta=await j("settings/sectionMeta")||{};
+Object.keys(MAP).forEach(function(k){var m=meta[k];if(!m)return;
+var els=[].slice.call(document.querySelectorAll("h1,h2,h3,h4"));
+for(var i=0;i<els.length;i++){var t=(els[i].textContent||"").trim();
+if(t.indexOf(MAP[k])>-1&&t.length<MAP[k].length+10){
+if(m.hidden){var sec=els[i].closest("section")||els[i].parentNode;if(sec)sec.style.display="none";}
+else if(m.name){els[i].textContent=t.replace(MAP[k],m.name);}
+break;}}});
+var secs=await j("settings/customSections")||{};
+var anchor=document.querySelector("footer")||document.body;
+for(var id in secs){
+if(document.getElementById("csh_"+id))continue;
+var sec=secs[id];
+var wrap=document.createElement("section");wrap.id="csh_"+id;wrap.style.cssText="padding:16px 12px";
+wrap.innerHTML="<h2 style='margin:0 0 10px;font-size:20px'>🧩 "+(sec.name||id)+"</h2><div class='csCats' style='display:flex;gap:8px;overflow-x:auto'></div><div class='csProds' style='display:flex;gap:10px;overflow-x:auto;margin-top:10px'></div>";
+document.body.insertBefore(wrap,anchor);
+loadCats(wrap,id);
+}
+}catch(e){console.error(e);}
+}
+async function loadCats(wrap,id){
+var cats=await j("settings/customSections/"+id+"/cats")||{};
+var box=wrap.querySelector(".csCats");var keys=Object.keys(cats);
+if(!keys.length){box.innerHTML="<span style='color:#888'>ক্যাটাগরি নেই</span>";return;}
+keys.forEach(function(k){
+var b=document.createElement("button");b.textContent=cats[k].name||k;
+b.style.cssText="padding:8px 14px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer;white-space:nowrap";
+b.onclick=function(){loadProds(wrap,id,k);};
+box.appendChild(b);});
+loadProds(wrap,id,keys[0]);
+}
+async function loadProds(wrap,id,cat){
+var map=await j("settings/customSectionProducts/"+id+"/"+cat)||{};
+var box=wrap.querySelector(".csProds");box.innerHTML="";
+var pids=Object.keys(map);
+if(!pids.length){box.innerHTML="<span style='color:#888'>পণ্য নেই — অ্যাডমিন থেকে যোগ করুন</span>";return;}
+for(var i=0;i<pids.length;i++){
+var p=await j("products/"+pids[i]);if(!p)continue;
+var d=document.createElement("div");d.style.cssText="min-width:160px;background:#fff;border-radius:10px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,.15)";
+var img=(p.images&&p.images.main)?p.images.main:"";
+d.innerHTML="<a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:110px;object-fit:cover;border-radius:8px'><b style='font-size:13px'>"+(p.title||"")+"</b></a><div style='font-weight:700'>৳"+(p.price||0)+"</div>";
+box.appendChild(d);}
+}
+if(document.readyState==="complete")apply();else window.addEventListener("load",apply);
 })();
 </script>
 </body>
