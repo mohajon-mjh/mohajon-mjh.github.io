@@ -3075,8 +3075,9 @@ function j(p){return fetch(BASE+"/"+p+".json").then(function(r){return r.json();
 async function apply(){
 try{
 var secs=await j("settings/customSections")||{};
-var link=[].slice.call(document.querySelectorAll("a")).filter(function(x){return (x.textContent||"").indexOf("Seller Dashboard")>-1;})[0];
-var anchor=link?(link.closest("section,div,p")||link):(document.querySelector("footer")||document.body);
+var matches=[].slice.call(document.querySelectorAll("a")).filter(function(x){return (x.textContent||"").indexOf("Seller Dashboard")>-1;});
+var link=matches.length?matches[matches.length-1]:null;
+var anchor=link?link.parentNode:(document.querySelector("footer")||document.body);
 for(var id in secs){
 if(document.getElementById("csh_"+id))continue;
 var wrap=document.createElement("section");wrap.id="csh_"+id;wrap.style.cssText="padding:18px 12px";
