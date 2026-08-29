@@ -3044,7 +3044,7 @@ var cats=await j("settings/"+key+"Categories");
 if(!cats)continue;
 var wrap=document.createElement("section");wrap.id="fch_"+key;wrap.style.cssText="padding:16px 12px";
 wrap.innerHTML="<h2 style='margin:0 0 10px;font-size:20px'>"+SECS[i][1]+"</h2><div class='fcCats' style='display:flex;gap:8px;overflow-x:auto'></div><div class='fcProds' style='display:flex;gap:10px;overflow-x:auto;margin-top:10px'></div>";
-document.body.insertBefore(wrap,anchor);
+if(anchor&&anchor.parentNode){anchor.parentNode.insertBefore(wrap,anchor);}else{document.body.appendChild(wrap);}
 fill(wrap,key,cats);
 }}
 async function fill(wrap,key,cats){
@@ -3090,7 +3090,7 @@ if(document.getElementById("csh_"+id))continue;
 var sec=secs[id];
 var wrap=document.createElement("section");wrap.id="csh_"+id;wrap.style.cssText="padding:16px 12px";
 wrap.innerHTML="<h2 style='margin:0 0 10px;font-size:20px'>🧩 "+(sec.name||id)+"</h2><div class='csCats' style='display:flex;gap:8px;overflow-x:auto'></div><div class='csProds' style='display:flex;gap:10px;overflow-x:auto;margin-top:10px'></div>";
-document.body.insertBefore(wrap,anchor);
+if(anchor&&anchor.parentNode){anchor.parentNode.insertBefore(wrap,anchor);}else{document.body.appendChild(wrap);}
 loadCats(wrap,id);
 }
 }catch(e){console.error(e);}
