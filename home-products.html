@@ -400,7 +400,7 @@ document.addEventListener("click", function(ev){
 var b = ev.target && ev.target.closest ? ev.target.closest("[data-open]") : null;
 if(!b) return;
 ev.preventDefault(); ev.stopPropagation();
-var cat = b.getAttribute("data-open");
+var cat = b.getAttribute("data-cat-key") || b.getAttribute("data-open");
 var sec = "settings/globalCategoryProducts";
 try { if (typeof s !== "undefined" && s && s.prodPath) sec = s.prodPath; } catch(e){}
 location.href = "category-products.html?sec=" + encodeURIComponent(sec) + "&cat=" + encodeURIComponent(cat);
