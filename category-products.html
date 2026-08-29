@@ -393,11 +393,17 @@ function j(p){return fetch(DB+"/"+p+".json").then(function(r){return r.json();})
 var SEC=window.SEC||"settings/globalCategoryProducts",CAT=window.CAT||"";
 function fillList(){
   var selEl=document.getElementById("veProd");if(!selEl)return;
-  j(SEC+"/"+(CAT||"")).then(function(map){
-    var ids=Object.keys(map||{});if(!ids.length)return;
+  var paths=[SEC+"/"+(CAT||""),"settings/flashSaleCategoryProducts/"+CAT,"settings/dealsOfDayCategoryProducts/"+CAT,"settings/specialCategoryProducts/"+CAT,"settings/globalCategoryProducts/"+CAT];
+  function build(ids){
+    if(!ids.length)return;
     var ps=[];var done=0;
     ids.forEach(function(pid){j("products/"+pid).then(function(p){done++;if(p)ps.push({id:pid,t:p.title||pid});if(done===ids.length){ps.sort(function(a,b){return a.t.localeCompare(b.t);});selEl.innerHTML=ps.map(function(x){return '<option value="'+x.id+'">'+x.t+'</option>';}).join("");load();}});});
-  }).catch(function(){});
+  }
+  function tryPath(i){
+    if(i>=paths.length){j("products").then(function(all){build(Object.keys(all||{}));});return;}
+    j(paths[i]).then(function(map){var ids=Object.keys(map||{});if(ids.length)build(ids);else tryPath(i+1);}).catch(function(){tryPath(i+1);});
+  }
+  tryPath(0);
 }
 function load(){
   var id=document.getElementById("veProd").value;if(!id)return;
@@ -412,7 +418,7 @@ function load(){
   });
 }
 function save(){
-  var id=document.getElementById("veProd").value;if(!id)return;
+  var id=document.getElementById("veProd").value;if(!id){var m0=document.getElementById("veMsg");if(m0)m0.textContent="❌ আগে পণ্য সিলেক্ট করুন";return;
   var up={};
   up["products/"+id+"/sizes"]=document.getElementById("veSizes").value.trim();
   up["products/"+id+"/colors"]=document.getElementById("veColors").value.trim();
