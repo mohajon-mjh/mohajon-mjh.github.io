@@ -712,6 +712,65 @@ text-decoration:none;
 .notif-cat{font-size:10px;min-width:60px;padding:8px 4px}
 }
 </style>
+<style id="mjhAllCatBtnCSS">
+/* সব ক্যাটাগরি বাটন এক সাইজ */
+#flashCatsRow .cat,
+#dotdCatsRow .cat,
+#specialCatsContainer .cat,
+.special-categories-row .cat,
+#globalCatCarousel .cat,
+#trendingCatsRow .cat,
+#featuredCatsRow .cat,
+#comingSoonCatsRow .cat,
+#dealsCatsRow .cat,
+.csCats button,
+.fcCats button,
+[class*="CatsRow"] .cat,
+[class*="CatsRow"] button,
+.mjhCatBtn {
+  background:#111 !important;
+  color:#fff !important;
+  padding:20px 26px !important;
+  border-radius:12px !important;
+  border:2px solid #f39c12 !important;
+  font-weight:700 !important;
+  font-size:16px !important;
+  text-align:center !important;
+  cursor:pointer !important;
+  white-space:normal !important;
+  min-width:150px !important;
+  max-width:220px !important;
+  flex:0 0 auto !important;
+  box-sizing:border-box !important;
+  transition:background .2s,border-color .2s;
+  line-height:1.3 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#flashCatsRow .cat.active,
+#dotdCatsRow .cat.active,
+#specialCatsContainer .cat.active,
+.special-categories-row .cat.active,
+#globalCatCarousel .cat.active,
+.csCats button.on,
+.fcCats button.on,
+.mjhCatBtnActive,
+#flashCatsRow .cat:active,
+#dotdCatsRow .cat:active {
+  background:#2563eb !important;
+  color:#fff !important;
+  border-color:#2563eb !important;
+}
+#flashCatsRow .cat:hover,
+#dotdCatsRow .cat:hover,
+.special-categories-row .cat:hover,
+.csCats button:hover,
+.fcCats button:hover {
+  background:#1a1a1a !important;
+  border-color:#f39c12 !important;
+}
+</style>
 </head>
 
 
@@ -2496,7 +2555,7 @@ async function loadGlobalCatProducts(catId){
  if(!id)return;
  var b=document.createElement("button");
  b.textContent="✅ এই পণ্যটি আমার Business Account-এ যোগ করুন";
- b.style.cssText=window.CAT_STYLE;
+ b.style.cssText="";b.className="mjhCatBtn";
  b.onclick=function(){localStorage.removeItem("pickMode");location.href="affiliate.html?product="+encodeURIComponent(id);};
  document.body.appendChild(b);
 })();
@@ -3050,7 +3109,7 @@ fill(wrap,key,cats);
 async function fill(wrap,key,cats){
 var box=wrap.querySelector(".fcCats");var ids=Object.keys(cats);
 if(!ids.length){wrap.style.display="none";return;}
-ids.forEach(function(cid){var b=document.createElement("button");b.textContent=cats[cid].name||cid;b.style.cssText=window.CAT_STYLE;b.onclick=function(){prods(wrap,key,cid);};box.appendChild(b);});
+ids.forEach(function(cid){var b=document.createElement("button");b.className="mjhCatBtn";b.textContent=cats[cid].name||cid;b.className="mjhCatBtn";b.onclick=function(){prods(wrap,key,cid);};box.appendChild(b);});
 prods(wrap,key,ids[0]);}
 async function prods(wrap,key,cid){
 var map=await j("settings/"+key+"CategoryProducts/"+cid);
@@ -3069,7 +3128,7 @@ if(document.readyState==="complete")render();else window.addEventListener("load"
 
 <script>
 /* CustomSec Home v4 */
-window.CAT_STYLE="padding:20px 26px;border-radius:12px;border:2px solid #f39c12;background:#111;color:#fff;font-weight:700;font-size:16px;text-align:center;cursor:pointer;white-space:normal;min-width:150px";window.CAT_ACTIVE="background:#2563eb;color:#fff;border-color:#2563eb";
+
 (function(){
 var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
 function j(p){return fetch(BASE+"/"+p+".json").then(function(r){return r.json();});}
@@ -3089,20 +3148,16 @@ loadCats(wrap,id);
 }
 }catch(e){}
 }
-function copyNative(btn){try{var ref=null;var cands=[].slice.call(document.querySelectorAll("button"));for(var i=0;i<cands.length;i++){var t=(cands[i].textContent||"");if(t.indexOf("Top Rated")>-1||t.indexOf("Musical Instruments")>-1||t.indexOf("New Arrivals")>-1||t.indexOf("Electronics Deals")>-1){ref=cands[i];break;}}if(!ref)return;var cs=getComputedStyle(ref);btn.style.padding=cs.paddingTop+" "+cs.paddingRight+" "+cs.paddingBottom+" "+cs.paddingLeft;btn.style.fontSize=cs.fontSize;btn.style.fontWeight=cs.fontWeight;btn.style.borderRadius=cs.borderTopLeftRadius;btn.style.border=cs.borderTopWidth+" "+cs.borderTopStyle+" #f39c12";btn.style.color=cs.color;btn.style.whiteSpace="nowrap";}catch(e){}}
-function findRefBtn(){var c=[].slice.call(document.querySelectorAll("button"));for(var i=0;i<c.length;i++){var t=(c[i].textContent||"");if(t.indexOf("Top Rated")>-1||t.indexOf("Musical Instruments")>-1||t.indexOf("New Arrivals")>-1||t.indexOf("Best Sellers")>-1){return c[i];}}return null;}
-function applyNativeSizes(box){var apply=function(){var ref=findRefBtn();if(!ref)return false;var cs=getComputedStyle(ref);var bs=box.querySelectorAll("button");for(var i=0;i<bs.length;i++){bs[i].style.padding=cs.paddingTop+" "+cs.paddingRight+" "+cs.paddingBottom+" "+cs.paddingLeft;bs[i].style.fontSize=cs.fontSize;bs[i].style.fontWeight=cs.fontWeight;bs[i].style.borderRadius=cs.borderTopLeftRadius;bs[i].style.border=cs.borderTopWidth+" "+cs.borderTopStyle+" #f39c12";bs[i].style.color="#fff";bs[i].style.whiteSpace="nowrap";}return true;};if(!apply()){var n=0;var iv=setInterval(function(){n++;if(apply()||n>10)clearInterval(iv);},1000);}}
 async function loadCats(wrap,id){
   console.log("/*megaDebug*/ id=" + id + ", trying catProducts and customSectionProducts");
 var cats=await j("settings/customSections/"+id+"/cats")||{};
 var box=wrap.querySelector(".csCats");var keys=Object.keys(cats).sort(function(a,b){return (cats[a].order||0)-(cats[b].order||0);});
 if(!keys.length){box.innerHTML="<span style='color:#888'>ক্যাটাগরি নেই</span>";return;}
 keys.forEach(function(k){
-var b=document.createElement("button");b.textContent=cats[k].name||k;
-b.style.cssText=window.CAT_STYLE;
-b.onclick=function(){var all=box.querySelectorAll("button");for(var x=0;x<all.length;x++){all[x].style.cssText=window.CAT_STYLE;}b.style.cssText=window.CAT_STYLE+";"+window.CAT_ACTIVE;loadProds(wrap,id,k);};
+var b=document.createElement("button");b.className="mjhCatBtn";b.textContent=cats[k].name||k;b.className="mjhCatBtn";
+b.onclick=function(){var all=box.querySelectorAll("button");for(var x=0;x<all.length;x++){all[x].classList.remove("mjhCatBtnActive");}b.classList.add("mjhCatBtnActive");loadProds(wrap,id,k);};
 box.appendChild(b);});
-var fb2=box.querySelectorAll("button");if(fb2[0]){fb2[0].style.cssText=window.CAT_STYLE+";"+window.CAT_ACTIVE;}
+var fb2=box.querySelectorAll("button");if(fb2[0]){fb2[0].classList.add("mjhCatBtnActive");}
 loadProds(wrap,id,keys[0]);
 }
 async function loadProds(wrap,id,cat){
