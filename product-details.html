@@ -185,7 +185,59 @@ function render(P){
 })();
 </script>
 
-</body></html>
+</body>
+<script>
+/* mjhVariants v1 */
+(function(){
+var m=location.search.match(/id=([^&]+)/);if(!m)return;var id=decodeURIComponent(m[1]);
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var sel={};
+function vals(s){return String(s||"").split(",").map(function(x){return x.trim();}).filter(Boolean);}
+fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(P){
+if(!P)return;
+var n=0;var iv=setInterval(function(){n++;var bb=document.querySelector(".buybox");if(bb||n>20){clearInterval(iv);init(P,bb);}},500);
+});
+function init(P,bb){
+  document.querySelectorAll("div").forEach(function(d){
+    var t=(d.textContent||"").trim();
+    if((t.indexOf("Size:")===0&&t.length<80)||(t.indexOf("Style:")===0&&t.length<80)||((t.indexOf("Colour:")===0||t.indexOf("Color:")===0)&&t.length<500&&d.querySelectorAll("img").length>2)){d.remove();}
+  });
+  var groups=[];
+  if(vals(P.sizes).length)groups.push({n:"Size",v:vals(P.sizes)});
+  if(vals(P.colors).length)groups.push({n:"Color",v:vals(P.colors)});
+  if(vals(P.variants).length)groups.push({n:"Version",v:vals(P.variants)});
+  if(!groups.length)return;
+  var nostock=String(P.noStock||"");
+  var ui=document.createElement("div");ui.id="mjhVariants";ui.style.cssText="margin:14px 0";
+  var anchor=document.querySelector(".price-box")||document.querySelector(".buybox")||bb;
+  if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(ui,anchor.nextSibling);
+  groups.forEach(function(g){
+    var row=document.createElement("div");row.style.cssText="margin:10px 0";
+    row.innerHTML="<b style='font-size:14px'>"+g.n+": <span id='mjhVS_"+g.n+"' style='color:#e77c00'></span></b><div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:6px' id='mjhV_"+g.n+"'></div>";
+    ui.appendChild(row);
+    var wrap=row.querySelector("#mjhV_"+g.n);
+    g.v.forEach(function(val){
+      var off=nostock.indexOf(g.n+":"+val)>-1;
+      var b=document.createElement("button");b.textContent=val;b.disabled=off;
+      b.style.cssText="padding:9px 16px;border:1px solid #888;border-radius:8px;background:"+(off?"#eee":"#fff")+";color:"+(off?"#aaa":"#111")+";cursor:"+(off?"not-allowed":"pointer")+";font-size:14px;font-weight:600";
+      b.onclick=function(){sel[g.n]=val;wrap.querySelectorAll("button").forEach(function(x){x.style.border="1px solid #888";});b.style.border="2px solid #e77c00";var lb=document.getElementById("mjhVS_"+g.n);if(lb)lb.textContent=val;};
+      wrap.appendChild(b);
+      if(!sel[g.n]&&!off){sel[g.n]=val;b.style.border="2px solid #e77c00";var lb=document.getElementById("mjhVS_"+g.n);if(lb)lb.textContent=val;}
+    });
+  });
+  window.__mjhVariant=function(){var parts=[];for(var k in sel){if(sel[k])parts.push(k+": "+sel[k]);}return parts.join(", ");};
+  ["addBtn","buyBtn"].forEach(function(bid){
+    var b=document.getElementById(bid);if(!b||b.dataset.vp)return;b.dataset.vp="1";
+    var old=b.onclick;
+    b.onclick=function(e){old&&old.call(b,e);var v=window.__mjhVariant?window.__mjhVariant():"";if(v){try{
+      var c=JSON.parse(localStorage.getItem("cart")||"[]");if(c.length){c[c.length-1].variant=v;c[c.length-1].name=String(c[c.length-1].name).split(" |")[0]+" | "+v;localStorage.setItem("cart",JSON.stringify(c));}
+      var bn=JSON.parse(localStorage.getItem("buyNowItem")||"null");if(bn){bn.variant=v;bn.name=String(bn.name).split(" |")[0]+" | "+v;localStorage.setItem("buyNowItem",JSON.stringify(bn));}
+    }catch(e2){}}};
+  });
+}
+})();
+</script>
+</html>
 <script>
 (function(){
 function go(){
