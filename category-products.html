@@ -139,7 +139,7 @@ function saveItem(it, done) {
     if (imgUrl && imgUrl.indexOf("blob:") !== 0) up["images/main"] = imgUrl;
     if (FLAG) up[FLAG] = true;
     if (CS) up["comingSoon"] = true;
-    db.ref("products/" + it.id).update(up).then(function() {
+    db.ref("products/" + it.id).set(up).then(function() {
       if (CS) {
         return db.ref("futureProducts/" + it.id).set({ title: it.title, expectedPrice: it.price, categoryId: "coming_soon", createdAt: Date.now(), released: false, images: { main: imgUrl || "" } });
       } else {
@@ -227,7 +227,6 @@ function onFiles(e) {
   });
 }
 document.getElementById("files").addEventListener("change", onFiles);
-document.getElementById("files").addEventListener("input", onFiles);
 function checkedItems() {
   var out = [];
   pending.forEach(function(p){ if(p.checked) out.push(p); });
