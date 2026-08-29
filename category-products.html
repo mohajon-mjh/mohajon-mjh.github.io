@@ -92,6 +92,7 @@ document.getElementById("loginBtn").onclick = function() {
   auth.signInWithEmailAndPassword(document.getElementById("em").value.trim(), document.getElementById("pw").value).catch(function(e){ log("login err: " + (e.message || e)); toast("❌ লগইন ব্যর্থ: " + e.message, "#c0392b"); });
 };
 function loadExisting() {
+  console.log("/*catDebug*/ SEC=" + SEC + ", CAT=" + CAT + ", FLAG=" + FLAG);
   db.ref(SEC + "/" + CAT).once("value").then(function(snap) {
     var map = snap.val() || {};
     var ids = Object.keys(map);
@@ -182,6 +183,7 @@ function saveItem(it, done) {
     };
     
     var writeP = (it.kind === "old") ? db.ref("products/" + id).update(obj) : db.ref("products/" + id).set(obj);
+    console.log("/*saveDebug*/ saving to:", SEC + "/" + CAT + "/" + id);
     writeP.then(function() {
       var promises = [];
       if (s.hasCats && CAT) {

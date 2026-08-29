@@ -3089,6 +3089,7 @@ loadCats(wrap,id);
 }catch(e){}
 }
 async function loadCats(wrap,id){
+  console.log("/*megaDebug*/ id=" + id + ", trying catProducts and customSectionProducts");
 var cats=await j("settings/customSections/"+id+"/cats")||{};
 var box=wrap.querySelector(".csCats");var keys=Object.keys(cats).sort(function(a,b){return (cats[a].order||0)-(cats[b].order||0);});
 if(!keys.length){box.innerHTML="<span style='color:#888'>ক্যাটাগরি নেই</span>";return;}
