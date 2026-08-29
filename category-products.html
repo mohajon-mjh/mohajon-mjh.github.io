@@ -132,7 +132,7 @@ function readCard(card, it) {
   it.end = card.querySelector(".fEnd").value;
   it.stock = +card.querySelector(".fStock").value || 0;
 }
-function shrink(url){return new Promise(function(res){var img=new Image();img.onload=function(){try{var c=document.createElement("canvas");var w=400,h2=Math.round(400*img.height/img.width)||400;c.width=w;c.height=h2;var cx=c.getContext("2d");cx.fillStyle="#fff";cx.fillRect(0,0,w,h2);cx.drawImage(img,0,0,w,h2);res(c.toDataURL("image/jpeg",0.72));}catch(e){res("");}};img.onerror=function(){res("");};img.src=url;});}
+function shrink(url){return new Promise(function(res){var fin=false;var to=setTimeout(function(){if(!fin){fin=true;res("");}},6000);var img=new Image();img.onload=function(){if(fin)return;try{var c=document.createElement("canvas");var w=400,h2=Math.round(400*img.height/img.width)||400;c.width=w;c.height=h2;var cx=c.getContext("2d");cx.fillStyle="#fff";cx.fillRect(0,0,w,h2);cx.drawImage(img,0,0,w,h2);fin=true;clearTimeout(to);res(c.toDataURL("image/jpeg",0.72));}catch(e){fin=true;clearTimeout(to);res("");}};img.onerror=function(){if(!fin){fin=true;clearTimeout(to);res("");}};img.src=url;});}
 function saveItem(it, done) {
   function proceed(imgUrl) {
     var up = { title: it.title, price: it.price, discountPercent: it.disc, startDate: it.start, endDate: it.end, stock: it.stock, status: "active", updatedAt: Date.now(), sellerId: "mjh-admin" };
@@ -286,7 +286,9 @@ document.getElementById("saveSel").onclick = function() {
     }
     var it = items[i]; i++;
     pr.textContent = "⏳ সেভ: " + i + "/" + items.length;
-    saveItem(it, function(err){ if(!err){ done++; it.__ok = true; } else { lastErr = (err && err.message) ? err.message : String(err); } next(); });
+    var called = false;
+    var wd = setTimeout(function(){ if(!called){ called = true; lastErr = "timeout"; next(); } }, 25000);
+    saveItem(it, function(err){ if(called) return; called = true; clearTimeout(wd); if(!err){ done++; it.__ok = true; } else { lastErr = (err && err.message) ? err.message : String(err); } next(); });
   })();
 };
 document.getElementById("delSel").onclick = function() {
