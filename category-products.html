@@ -67,6 +67,7 @@ function toast(msg, color) {
   document.body.appendChild(d);
   setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 2500);
 }
+window.onerror=function(m){toast("❌ JS: "+m,"#c0392b");};
 function badge() {
   var all = document.querySelectorAll(".chk");
   var ch = document.querySelectorAll(".chk:checked");
@@ -123,11 +124,19 @@ function readCard(card, it) {
   it.stock = +card.querySelector(".fStock").value || 0;
 }
 function saveItem(it, done) {
-  var up = { title: it.title, price: it.price, discountPercent: it.disc, startDate: it.start, endDate: it.end, stock: it.stock, status: "active", updatedAt: Date.now() };
-  if (it.img) up["images/main"] = it.img;
-  db.ref("products/" + it.id).update(up).then(function() {
-    return db.ref(SEC + "/" + CAT + "/" + it.id).set({ addedAt: Date.now() });
-  }).then(function(){ done(null); }).catch(function(e){ done(e); });
+  function proceed(imgUrl) {
+    var up = { title: it.title, price: it.price, discountPercent: it.disc, startDate: it.start, endDate: it.end, stock: it.stock, status: "active", updatedAt: Date.now() };
+    if (imgUrl && imgUrl.indexOf("blob:") !== 0) up["images/main"] = imgUrl;
+    db.ref("products/" + it.id).update(up).then(function() {
+      return db.ref(SEC + "/" + CAT + "/" + it.id).set({ addedAt: Date.now() });
+    }).then(function(){ done(null); }).catch(function(e){ done(e); });
+  }
+  if (it.file) {
+    var rd = new FileReader();
+    rd.onload = function(){ proceed(rd.result); };
+    rd.onerror = function(){ proceed(""); };
+    rd.readAsDataURL(it.file);
+  } else proceed(it.img || "");
 }
 function delItem(it, done) {
   var up = {};
@@ -182,13 +191,17 @@ document.getElementById("list").addEventListener("click", function(e) {
     else delItem(it4, function(err){ toast(err ? "❌ ব্যর্থ" : "🗑️ ডিলিট হয়েছে", err ? "#c0392b" : "#e67e22"); if(!err) loadExisting(); });
   }
 });
-document.getElementById("files").addEventListener("change", function(e) {
-  [].slice.call(e.target.files).forEach(function(f) {
-    var rd = new FileReader();
-    rd.onload = function(){ pending.push({ id: genId(), title: cleanName(f.name), img: rd.result, price: 0, disc: 0, start: "", end: "", stock: 10, checked: true }); render(); };
-    rd.readAsDataURL(f);
+function onFiles(e) {
+  [].slice.call(e.target.files || []).forEach(function(f) {
+    var it = { id: genId(), title: cleanName(f.name), img: "", file: f, price: 0, disc: 0, start: "", end: "", stock: 10, checked: true };
+    try { it.img = URL.createObjectURL(f); } catch (err) {}
+    pending.push(it);
   });
-});
+  render();
+  toast("✅ " + (e.target.files ? e.target.files.length : 0) + "টি কার্ড যোগ হয়েছে");
+}
+document.getElementById("files").addEventListener("change", onFiles);
+document.getElementById("files").addEventListener("input", onFiles);
 function checkedItems() {
   var out = [];
   pending.forEach(function(p){ if(p.checked) out.push(p); });
