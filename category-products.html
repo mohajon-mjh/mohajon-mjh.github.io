@@ -100,7 +100,7 @@ function loadExisting() {
       return db.ref("products/" + id).once("value").then(function(ps) {
         var p = ps.val();
         if (!p) return null;
-        return { id: id, title: p.title || id, img: (p.images && p.images.main) || "", price: p.price || 0, disc: p.discountPercent || 0, start: p.startDate || "", end: p.endDate || "", stock: p.stock || 0, checked: false };
+        return { id: id, title: p.title || id, img: (p.images && p.images.main) || "", price: p.price || 0, disc: p.discountPercent || 0, start: p.startDate || "", end: p.endDate || "", stock: p.stock || 0, checked: false, kind: "old" };
       });
     });
     Promise.all(proms).then(function(arr) { existing = arr.filter(function(x){ return x; }); render(); });
@@ -181,7 +181,8 @@ function saveItem(it, done) {
       images: { main: url || "" }
     };
     
-    db.ref("products/" + id).set(obj).then(function() {
+    var writeP = (it.kind === "old") ? db.ref("products/" + id).update(obj) : db.ref("products/" + id).set(obj);
+    writeP.then(function() {
       var promises = [];
       if (s.hasCats && CAT) {
         promises.push(db.ref(s.prodPath + "/" + CAT + "/" + id).set({ id: id, addedAt: Date.now() }));
@@ -200,6 +201,7 @@ function saveItem(it, done) {
           images: { main: url || "" }
         }));
       }
+      if (it.disc > 0) { promises.push(db.ref("products/" + id + "/discountPercent").set(it.disc).catch(function(){})); }
       return Promise.all(promises);
     }).then(function() {
       done(null);
