@@ -155,17 +155,17 @@ function render(P){
  var m=location.search.match(/id=([^&]+)/);if(!m)return;
  var id=decodeURIComponent(m[1]);
  var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
- function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");}
+ function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
  fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){
   if(!p||!p.title)return;
   var slugTitle=slug(p.title);
-   fetch("media/"+slugTitle+"/media.json").then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(mj){
+   fetch("assets/products/"+slugTitle+"/media.json").then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(mj){
     var box=document.getElementById("mjhAdMedia");if(!box)return;
     var imgs=mj.images||[],vids=mj.videos||(mj.video?[mj.video]:[]);
     if(!imgs.length&&!vids.length)return;
     var html='<div class="am-head">🎬 '+(p.title||"")+' — Official Showcase</div><div class="am-row">';
-    vids.forEach(function(v){html+='<video controls playsinline preload="metadata" src="media/'+slugTitle+'/'+encodeURIComponent(v)+'"></video>';});
-    imgs.forEach(function(f){html+='<img loading="lazy" src="media/'+slugTitle+'/'+encodeURIComponent(f)+'" alt="">';});
+    vids.forEach(function(v){html+='<video controls playsinline preload="metadata" src="assets/products/'+slugTitle+'/'+encodeURIComponent(v)+'"></video>';});
+    imgs.forEach(function(f){html+='<img loading="lazy" src="assets/products/'+slugTitle+'/'+encodeURIComponent(f)+'" alt="">';});
     html+='</div><div class="am-dots">👆 swipe করুন ('+(imgs.length+vids.length)+' items)</div>';
     box.innerHTML=html;box.style.display="block";
     var c=document.getElementById("content");
@@ -321,5 +321,6 @@ function apply(p){
  opts.forEach(function(o){if(p.images&&p.images.main)o.src=p.images.main;});
 }
 fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(apply).catch(function(){});
+  fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){if(!p||!p.title)return;var s=String(p.title).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");fetch("assets/products/"+s+"/media.json").then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(mj){var base="assets/products/"+s+"/";var imgs=mj.images||[];if(!imgs.length)return;var mi=document.getElementById("mainImg");if(mi)mi.src=base+imgs[0];var th=document.querySelector(".thumbs");if(th){th.innerHTML=imgs.map(function(f,i){return '<img src="'+base+f+'" class="'+(i===0?"on":"")+'" onclick="setImg(this,\''+base+f+'\')">';}).join("");}}).catch(function(){});}).catch(function(){});
 })();
 </script>
