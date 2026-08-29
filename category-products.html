@@ -188,6 +188,10 @@ function saveItem(it, done) {
       var promises = [];
       if (s.hasCats && CAT) {
         promises.push(db.ref(s.prodPath + "/" + CAT + "/" + id).set({ id: id, addedAt: Date.now() }));
+        if (s.prodPath.indexOf("catProducts") > -1) {
+          var alt = s.prodPath.replace("customSections/", "customSectionProducts/").replace("/catProducts", "");
+          promises.push(db.ref(alt + "/" + CAT + "/" + id).set({ id: id, addedAt: Date.now() }).catch(function(){}));
+        }
       }
       if (s.flag) {
         promises.push(db.ref("products/" + id + "/" + s.flag).set(true));
