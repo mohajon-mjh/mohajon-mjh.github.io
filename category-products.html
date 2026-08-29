@@ -58,7 +58,7 @@ var params = new URLSearchParams(location.search);
 var SEC = params.get("sec") || "settings/globalCategoryProducts";
 var CAT = params.get("cat") || "";
 var FLAG = params.get("flag") || "";
-var HAS_CATS = params.get("hasCats") === "1";
+var HAS_CATS = params.get("hasCats") !== "0";
 var CS = params.get("cs") === "1";
 document.getElementById("head").textContent = "📦 " + CAT + " — প্রোডাক্ট ম্যানেজার";
 function log(m){var d=document.getElementById("dbg");if(d){d.textContent+=m+"\n";d.scrollTop=d.scrollHeight;}}
@@ -132,20 +132,29 @@ function readCard(card, it) {
   it.end = card.querySelector(".fEnd").value;
   it.stock = +card.querySelector(".fStock").value || 0;
 }
+function shrink(url){return new Promise(function(res){var img=new Image();img.onload=function(){try{var c=document.createElement("canvas");var w=400,h2=Math.round(400*img.height/img.width)||400;c.width=w;c.height=h2;var cx=c.getContext("2d");cx.fillStyle="#fff";cx.fillRect(0,0,w,h2);cx.drawImage(img,0,0,w,h2);res(c.toDataURL("image/jpeg",0.72));}catch(e){res("");}};img.onerror=function(){res("");};img.src=url;});}
 function saveItem(it, done) {
-  var up = { title: it.title, price: it.price, discountPercent: it.disc, startDate: it.start, endDate: it.end, stock: it.stock, status: "active", updatedAt: Date.now() };
-  if (it.img) up["images/main"] = it.img;
-  if (FLAG) up[FLAG] = true;
-  if (CS) up["comingSoon"] = true;
-  db.ref("products/" + it.id).update(up).then(function() {
-    if (HAS_CATS) {
-      return db.ref(SEC + "/" + CAT + "/" + it.id).set({ id: it.id, addedAt: Date.now() });
-    } else if (CS) {
-      return db.ref("futureProducts/" + it.id).set({ title: it.title, expectedPrice: it.price, categoryId: "coming_soon", createdAt: Date.now(), released: false, images: { main: it.img || "" } });
-    } else {
-      return Promise.resolve();
-    }
-  }).then(function(){ done(null); }).catch(function(e){ log("SAVE ERR " + it.title + ": " + (e.message || e)); done(e); });
+  function proceed(imgUrl) {
+    var up = { title: it.title, price: it.price, discountPercent: it.disc, startDate: it.start, endDate: it.end, stock: it.stock, status: "active", updatedAt: Date.now(), sellerId: "mjh-admin" };
+    if (imgUrl && imgUrl.indexOf("blob:") !== 0) up["images/main"] = imgUrl;
+    if (FLAG) up[FLAG] = true;
+    if (CS) up["comingSoon"] = true;
+    db.ref("products/" + it.id).update(up).then(function() {
+      if (CS) {
+        return db.ref("futureProducts/" + it.id).set({ title: it.title, expectedPrice: it.price, categoryId: "coming_soon", createdAt: Date.now(), released: false, images: { main: imgUrl || "" } });
+      } else {
+        return db.ref(SEC + "/" + CAT + "/" + it.id).set({ id: it.id, addedAt: Date.now() });
+      }
+    }).then(function(){ done(null); }).catch(function(e){ done(e); });
+  }
+  if (it.file) {
+    var rd = new FileReader();
+    rd.onload = function(){ shrink(rd.result).then(proceed); };
+    rd.onerror = function(){ proceed(""); };
+    rd.readAsDataURL(it.file);
+  } else if (it.img && it.img.indexOf("data:") === 0 && it.img.length > 200000) {
+    shrink(it.img).then(proceed);
+  } else proceed(it.img || "");
 }
 function delItem(it, done) {
   var up = {};
@@ -263,17 +272,22 @@ document.getElementById("applyDates").onclick = function() {
 document.getElementById("saveSel").onclick = function() {
   var items = checkedItems();
   if (!items.length) { toast("❌ কোনো সিলেক্ট নেই", "#c0392b"); return; }
-  var done = 0, i = 0;
-  toast("⏳ সেভ শুরু: " + items.length + "টি");
+  var done = 0, i = 0, lastErr = "";
+  var pr = document.getElementById("prog");
+  if (!pr) { pr = document.createElement("div"); pr.id = "prog"; pr.style.cssText = "position:fixed;top:8px;left:8px;background:#f39c12;color:#111;font-weight:700;padding:8px 12px;border-radius:10px;z-index:99"; document.body.appendChild(pr); }
+  pr.style.display = "block";
+  pr.textContent = "⏳ সেভ: 0/" + items.length;
   (function next() {
     if (i >= items.length) {
-      toast("✅ সফল: " + done + "/" + items.length + (done < items.length ? " | ❌ ব্যর্থ: " + (items.length - done) : ""));
+      pr.style.display = "none";
+      toast("✅ সফল: " + done + "/" + items.length + (done < items.length ? " | ❌ " + lastErr : ""));
       pending = pending.filter(function(p){ return !p.__ok; });
       loadExisting();
       return;
     }
     var it = items[i]; i++;
-    saveItem(it, function(err){ if(!err){ done++; it.__ok = true; } next(); });
+    pr.textContent = "⏳ সেভ: " + i + "/" + items.length;
+    saveItem(it, function(err){ if(!err){ done++; it.__ok = true; } else { lastErr = (err && err.message) ? err.message : String(err); } next(); });
   })();
 };
 document.getElementById("delSel").onclick = function() {
