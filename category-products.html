@@ -112,7 +112,7 @@ function cardHTML(it, kind, i) {
   h += '<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" class="chk" data-kind="' + kind + '" data-idx="' + i + '" ' + (it.checked ? "checked" : "") + '> <img class="th" src="' + (it.img || "") + '"><b>' + (it.title || "") + '</b></label>';
   h += '<div class="bar" style="margin:6px 0">নাম:<input class="fTitle" value="' + String(it.title || "").replace(/"/g, "&quot;") + '" style="flex:1">দাম:<input type="number" class="fPrice" value="' + (it.price || 0) + '" style="width:90px">%:<input type="number" class="fDisc" value="' + (it.disc || 0) + '" style="width:60px"></div>';
   h += '<div class="bar" style="margin:6px 0">বর্তমান: <span class="cur">৳' + cur(it).toFixed(2) + '</span> <span style="color:#888;text-decoration:line-through">' + (it.disc > 0 ? "৳" + it.price : "") + '</span> | Save: <span class="cur">৳' + (it.disc > 0 ? (it.price - cur(it)).toFixed(0) : "0") + '</span></div>';
-  h += '<div class="bar" style="margin:6px 0">শুরু:<input type="date" class="fStart" value="' + (it.start || "") + '">শেষ:<input type="date" class="fEnd" value="' + (it.end || "") + '">স্টক:<input type="number" class="fStock" value="' + (it.stock || 0) + '" style="width:60px"><input type="file" accept="image/*" class="fImg" style="width:40%">';
+  h += '<div class="bar" style="margin:6px 0">শুরু:<input type="date" class="fStart" value="' + (it.start || "") + '">শেষ:<input type="date" class="fEnd" value="' + (it.end || "") + '">স্টক:<input type="number" class="fStock" value="' + (it.stock || 0) + '" style="width:60px">';
   h += '<button class="btn" style="background:#2980b9" data-save="' + kind + ':' + i + '">💾 Save</button>';
   h += '<button class="btn" style="background:#c0392b" data-del="' + kind + ':' + i + '">🗑️ Remove</button></div></div>';
   return h;
@@ -182,7 +182,14 @@ function saveItem(it, done) {
       images: { main: url || "" }
     };
     
-    var writeP = (it.kind === "old") ? db.ref("products/" + id).update(obj) : db.ref("products/" + id).set(obj);
+    var writeP;
+    if (it.kind === "old") {
+      var up2 = {}; var base = "products/" + id + "/";
+      up2[base+"title"]=obj.title; up2[base+"price"]=obj.price; up2[base+"stock"]=obj.stock; up2[base+"status"]=obj.status; up2[base+"startDate"]=obj.startDate; up2[base+"endDate"]=obj.endDate; up2[base+"categoryId"]=obj.categoryId; up2[base+"images/main"]=obj.images.main; if (it.disc>0) up2[base+"discountPercent"]=it.disc;
+      writeP = db.ref().update(up2);
+    } else {
+      writeP = db.ref("products/" + id).set(obj);
+    }
     console.log("/*saveDebug*/ saving to:", SEC + "/" + CAT + "/" + id);
     writeP.then(function() {
       var promises = [];
