@@ -19,7 +19,6 @@ h3{color:#f39c12}
 <body>
 <div id="badge">☑️ 0/0</div>
 <h2 id="head">লোড হচ্ছে...</h2>
-<div id="authStat" class="bar" style="background:#3a1111;color:#ffb1b1">🔒 লগইন চেক হচ্ছে...</div>
 <div id="loginBox" class="bar" style="display:none">
 <input id="em" placeholder="Email" style="flex:1"><input id="pw" type="password" placeholder="Password" style="flex:1">
 <button class="btn" style="background:#2980b9" id="loginBtn">লগইন</button>
@@ -41,7 +40,6 @@ h3{color:#f39c12}
 <button class="btn" style="background:#2980b9" id="applyDates">📆 তারিখ বসান</button>
 </div>
 <div id="list"></div>
-<pre id="dbg" style="background:#000;color:#0f0;font-size:11px;max-height:160px;overflow:auto;padding:6px;border-radius:8px"></pre>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -83,17 +81,11 @@ function cur(p) { var d = p.disc || 0; return d > 0 ? (p.price * (100 - d) / 100
 function cleanName(n) { return n.replace(/\.[a-z0-9]+$/i, "").replace(/[_\-\.]+/g, " ").replace(/\s+/g, " ").trim(); }
 function genId() { return "p_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 auth.onAuthStateChanged(function(u) {
-  var st = document.getElementById("authStat");
   if (u) {
-    st.innerHTML = "✅ লগইন: " + (u.email || "user");
-    st.style.background = "#0d2b1a"; st.style.color = "#9ff5c0";
     document.getElementById("loginBox").style.display = "none";
-    log("auth OK: " + (u.email || ""));
     loadExisting();
   } else {
-    st.innerHTML = "🔒 লগইন নেই — email/password দিন";
     document.getElementById("loginBox").style.display = "flex";
-    log("auth: none");
   }
 });
 document.getElementById("loginBtn").onclick = function() {
