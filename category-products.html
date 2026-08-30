@@ -118,7 +118,88 @@ function cardHTML(it, kind, i) {
   return h;
 }
 function render() {
-  var html = "<h3>নতুন পণ্য (" + pending.length + ")</h3>";
+  var html = "<div id="veBox" style="background:#16202c;border:1px solid #2b3a4a;border-radius:12px;padding:12px;margin:12px">
+<h3 style="margin:0 0 10px;color:#f39c12">🧬 Size / Color / Description / Image Editor</h3>
+<div id="veStatus" style="color:#f39c12;font-size:13px;margin-bottom:8px">🔎 পণ্য লোড হচ্ছে...</div>
+<select id="veProd" style="width:100%;padding:10px;margin-bottom:8px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px"></select>
+<input id="veSizes" placeholder="Sizes: S,M,L,XL,XXL" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
+<input id="veColors" placeholder="Colors: White,Red,Blue,Black" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
+<input id="veVars" placeholder="Version: 4GB/64GB,6GB/128GB,8GB/256GB" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
+<textarea id="veDesc" rows="4" placeholder="Description — প্রতি লাইনে একটা পয়েন্ট" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box"></textarea>
+<input id="veNoStock" placeholder="No stock: Size:XL,Color:Black" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
+<input type="file" id="veImg" accept="image/*" style="width:100%;margin-bottom:6px;color:#fff">
+<label style="color:#fff;font-size:13px"><input type="checkbox" id="veHide"> পণ্য Hide করুন (কাস্টমার দেখবে না)</label><br>
+<button id="veSave" style="background:#27ae60;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:700;margin-top:8px">💾 Save Variants</button>
+</div>
+<script>
+/* mjhVariantEditor v1 */
+(function(){
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+function j(p){return fetch(DB+"/"+p+".json").then(function(r){return r.json();});}
+function st(t){var el=document.getElementById("veStatus");if(el)el.textContent=t;console.log("[ve]",t);}
+var SEC=window.SEC||"settings/globalCategoryProducts",CAT=window.CAT||"";
+function moveTop(){var box=document.getElementById("veBox");if(!box)return;var all=[].slice.call(document.querySelectorAll("body *"));for(var i=0;i<all.length;i++){var t=(all[i].textContent||"").trim();if(t.indexOf("নতুন পণ্য")===0&&t.length<20){all[i].parentNode.insertBefore(box,all[i]);return;}}}
+function build(ids){
+  var selEl=document.getElementById("veProd");if(!selEl)return;
+  if(!ids.length){st("❌ কোনো পণ্য পাওয়া যায়নি");return;}
+  var ps=[];var done=0;
+  ids.forEach(function(pid){j("products/"+pid).then(function(p){done++;if(p)ps.push({id:pid,t:p.title||pid});if(done===ids.length){ps.sort(function(a,b){return a.t.localeCompare(b.t);});selEl.innerHTML='<option value="">-- পণ্য বাছাই করুন --</option>'+ps.map(function(x){return '<option value="'+x.id+'">'+x.t+'</option>';}).join("");st("✅ "+ps.length+"টি পণ্য লোড হয়েছে — dropdown থেকে বাছুন");}}).catch(function(){done++;});});
+}
+function fillList(){
+  st("🔎 পণ্য খোঁজা হচ্ছে...");
+  var paths=[SEC+"/"+(CAT||""),"settings/flashSaleCategoryProducts/"+CAT,"settings/dealsOfDayCategoryProducts/"+CAT,"settings/specialCategoryProducts/"+CAT,"settings/globalCategoryProducts/"+CAT];
+  function tryPath(i){
+    if(i>=paths.length){st("🔎 সব পণ্য লোড হচ্ছে...");j("products").then(function(all){build(Object.keys(all||{}));}).catch(function(err){st("❌ "+err.message);});return;}
+    j(paths[i]).then(function(map){var ids=Object.keys(map||{});if(ids.length){build(ids);}else tryPath(i+1);}).catch(function(){tryPath(i+1);});
+  }
+  tryPath(0);
+}
+function load(){
+  var id=document.getElementById("veProd").value;if(!id)return;
+  st("📥 পণ্যের তথ্য লোড হচ্ছে...");
+  j("products/"+id).then(function(p){
+    if(!p)return;
+    document.getElementById("veSizes").value=p.sizes||"";
+    document.getElementById("veColors").value=p.colors||"";
+    document.getElementById("veVars").value=p.variants||"";
+    document.getElementById("veDesc").value=p.description||"";
+    document.getElementById("veNoStock").value=p.noStock||"";
+    document.getElementById("veHide").checked=(p.status==="hidden");
+    st("✅ লোড হয়েছে — এডিট করে Save চাপুন");
+  });
+}
+function save(){
+  var id=document.getElementById("veProd").value;
+  if(!id){st("❌ আগে পণ্য সিলেক্ট করুন");alert("❌ আগে dropdown থেকে পণ্য সিলেক্ট করুন");return;}
+  st("📥 পুরো পণ্য পড়া হচ্ছে...");
+  j("products/"+id).then(function(P){
+    if(!P){alert("❌ পণ্য পাওয়া যায়নি");return;}
+    P.title=P.title||"";P.price=+P.price||0;P.stock=+P.stock||0;P.status=P.status||"active";P.sellerId=P.sellerId||(window.__mjhUid||"mjh-admin");P.categoryId=P.categoryId||"general";P.createdAt=P.createdAt||Date.now();P.startDate=P.startDate||"";P.endDate=P.endDate||"";if(!P.images||typeof P.images!=="object")P.images={main:""};if(typeof P.images.main!=="string")P.images.main="";
+    P.sizes=document.getElementById("veSizes").value.trim();
+    P.colors=document.getElementById("veColors").value.trim();
+    P.variants=document.getElementById("veVars").value.trim();
+    P.description=document.getElementById("veDesc").value.trim();
+    P.noStock=document.getElementById("veNoStock").value.trim();
+    P.status=document.getElementById("veHide").checked?"hidden":"active";
+    var f=document.getElementById("veImg").files[0];
+    function fin(){
+      st("💾 সেভ হচ্ছে (পুরো অবজেক্ট)...");
+      db.ref("products/"+id).set(P).then(function(){
+        st("✅ সেভ হয়েছে!");alert("✅ সেভ হয়েছে! Size/Color/Description আপডেট হয়েছে।");
+      }).catch(function(err){
+        st("⚠️ set ব্যর্থ, child-update চেষ্টা...");
+        var up={};["sizes","colors","variants","description","noStock","status"].forEach(function(k){up["products/"+id+"/"+k]=P[k];});
+        db.ref().update(up).then(function(){st("✅ সেভ হয়েছে!");alert("✅ সেভ হয়েছে!");}).catch(function(e2){st("❌ "+e2.message);alert("❌ সেভ ব্যর্থ: "+e2.message);});
+      });
+    }
+    if(f){st("🖼️ ছবি প্রসেস হচ্ছে...");var rd=new FileReader();rd.onload=function(){if(typeof shrink==="function"){shrink(rd.result).then(function(u){if(u){P.images=P.images||{};P.images.main=u;fin();}});}else{P.images=P.images||{};P.images.main=rd.result;fin();}};rd.readAsDataURL(f);}else fin();
+  }).catch(function(err){alert("❌ "+err.message);});
+}
+moveTop();setTimeout(moveTop,800);setTimeout(moveTop,2000);
+var n=0;var iv=setInterval(function(){n++;var b=document.getElementById("veSave");if(b||n>20){clearInterval(iv);if(b){b.onclick=save;var selEl=document.getElementById("veProd");if(selEl)selEl.onchange=load;fillList();}}},500);
+})();
+</script>
+<h3>নতুন পণ্য (" + pending.length + ")</h3>";
   pending.forEach(function(it, i){ html += cardHTML(it, "new", i); });
   html += "<h3>আগের পণ্য (" + existing.length + ")</h3>";
   existing.forEach(function(it, i){ html += cardHTML(it, "old", i); });
@@ -372,85 +453,6 @@ document.getElementById("delSel").onclick = function() {
 };
 </script>
 
-<div id="veBox" style="background:#16202c;border:1px solid #2b3a4a;border-radius:12px;padding:12px;margin:12px">
-<h3 style="margin:0 0 10px;color:#f39c12">🧬 Size / Color / Description / Image Editor</h3>
-<div id="veStatus" style="color:#f39c12;font-size:13px;margin-bottom:8px">🔎 পণ্য লোড হচ্ছে...</div>
-<select id="veProd" style="width:100%;padding:10px;margin-bottom:8px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px"></select>
-<input id="veSizes" placeholder="Sizes: S,M,L,XL,XXL" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
-<input id="veColors" placeholder="Colors: White,Red,Blue,Black" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
-<input id="veVars" placeholder="Version: 4GB/64GB,6GB/128GB,8GB/256GB" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
-<textarea id="veDesc" rows="4" placeholder="Description — প্রতি লাইনে একটা পয়েন্ট" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box"></textarea>
-<input id="veNoStock" placeholder="No stock: Size:XL,Color:Black" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
-<input type="file" id="veImg" accept="image/*" style="width:100%;margin-bottom:6px;color:#fff">
-<label style="color:#fff;font-size:13px"><input type="checkbox" id="veHide"> পণ্য Hide করুন (কাস্টমার দেখবে না)</label><br>
-<button id="veSave" style="background:#27ae60;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:700;margin-top:8px">💾 Save Variants</button>
-</div>
-<script>
-/* mjhVariantEditor v1 */
-(function(){
-var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
-function j(p){return fetch(DB+"/"+p+".json").then(function(r){return r.json();});}
-function st(t){var el=document.getElementById("veStatus");if(el)el.textContent=t;console.log("[ve]",t);}
-var SEC=window.SEC||"settings/globalCategoryProducts",CAT=window.CAT||"";
-function moveTop(){var box=document.getElementById("veBox");if(!box)return;var all=[].slice.call(document.querySelectorAll("body *"));for(var i=0;i<all.length;i++){var t=(all[i].textContent||"").trim();if(t.indexOf("নতুন পণ্য")===0&&t.length<20){all[i].parentNode.insertBefore(box,all[i]);return;}}}
-function build(ids){
-  var selEl=document.getElementById("veProd");if(!selEl)return;
-  if(!ids.length){st("❌ কোনো পণ্য পাওয়া যায়নি");return;}
-  var ps=[];var done=0;
-  ids.forEach(function(pid){j("products/"+pid).then(function(p){done++;if(p)ps.push({id:pid,t:p.title||pid});if(done===ids.length){ps.sort(function(a,b){return a.t.localeCompare(b.t);});selEl.innerHTML='<option value="">-- পণ্য বাছাই করুন --</option>'+ps.map(function(x){return '<option value="'+x.id+'">'+x.t+'</option>';}).join("");st("✅ "+ps.length+"টি পণ্য লোড হয়েছে — dropdown থেকে বাছুন");}}).catch(function(){done++;});});
-}
-function fillList(){
-  st("🔎 পণ্য খোঁজা হচ্ছে...");
-  var paths=[SEC+"/"+(CAT||""),"settings/flashSaleCategoryProducts/"+CAT,"settings/dealsOfDayCategoryProducts/"+CAT,"settings/specialCategoryProducts/"+CAT,"settings/globalCategoryProducts/"+CAT];
-  function tryPath(i){
-    if(i>=paths.length){st("🔎 সব পণ্য লোড হচ্ছে...");j("products").then(function(all){build(Object.keys(all||{}));}).catch(function(err){st("❌ "+err.message);});return;}
-    j(paths[i]).then(function(map){var ids=Object.keys(map||{});if(ids.length){build(ids);}else tryPath(i+1);}).catch(function(){tryPath(i+1);});
-  }
-  tryPath(0);
-}
-function load(){
-  var id=document.getElementById("veProd").value;if(!id)return;
-  st("📥 পণ্যের তথ্য লোড হচ্ছে...");
-  j("products/"+id).then(function(p){
-    if(!p)return;
-    document.getElementById("veSizes").value=p.sizes||"";
-    document.getElementById("veColors").value=p.colors||"";
-    document.getElementById("veVars").value=p.variants||"";
-    document.getElementById("veDesc").value=p.description||"";
-    document.getElementById("veNoStock").value=p.noStock||"";
-    document.getElementById("veHide").checked=(p.status==="hidden");
-    st("✅ লোড হয়েছে — এডিট করে Save চাপুন");
-  });
-}
-function save(){
-  var id=document.getElementById("veProd").value;
-  if(!id){st("❌ আগে পণ্য সিলেক্ট করুন");alert("❌ আগে dropdown থেকে পণ্য সিলেক্ট করুন");return;}
-  st("📥 পুরো পণ্য পড়া হচ্ছে...");
-  j("products/"+id).then(function(P){
-    if(!P){alert("❌ পণ্য পাওয়া যায়নি");return;}
-    P.sizes=document.getElementById("veSizes").value.trim();
-    P.colors=document.getElementById("veColors").value.trim();
-    P.variants=document.getElementById("veVars").value.trim();
-    P.description=document.getElementById("veDesc").value.trim();
-    P.noStock=document.getElementById("veNoStock").value.trim();
-    P.status=document.getElementById("veHide").checked?"hidden":"active";
-    var f=document.getElementById("veImg").files[0];
-    function fin(){
-      st("💾 সেভ হচ্ছে (পুরো অবজেক্ট)...");
-      db.ref("products/"+id).set(P).then(function(){
-        st("✅ সেভ হয়েছে!");alert("✅ সেভ হয়েছে! Size/Color/Description আপডেট হয়েছে।");
-      }).catch(function(err){
-        st("⚠️ set ব্যর্থ, child-update চেষ্টা...");
-        var up={};["sizes","colors","variants","description","noStock","status"].forEach(function(k){up["products/"+id+"/"+k]=P[k];});
-        db.ref().update(up).then(function(){st("✅ সেভ হয়েছে!");alert("✅ সেভ হয়েছে!");}).catch(function(e2){st("❌ "+e2.message);alert("❌ সেভ ব্যর্থ: "+e2.message);});
-      });
-    }
-    if(f){st("🖼️ ছবি প্রসেস হচ্ছে...");var rd=new FileReader();rd.onload=function(){if(typeof shrink==="function"){shrink(rd.result).then(function(u){if(u){P.images=P.images||{};P.images.main=u;fin();}});}else{P.images=P.images||{};P.images.main=rd.result;fin();}};rd.readAsDataURL(f);}else fin();
-  }).catch(function(err){alert("❌ "+err.message);});
-}
-moveTop();setTimeout(moveTop,800);setTimeout(moveTop,2000);
-var n=0;var iv=setInterval(function(){n++;var b=document.getElementById("veSave");if(b||n>20){clearInterval(iv);if(b){b.onclick=save;var selEl=document.getElementById("veProd");if(selEl)selEl.onchange=load;fillList();}}},500);
-})();
-</script>
+
 </body>
 </html>
