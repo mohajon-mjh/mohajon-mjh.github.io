@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
 <script>/*speed-v1*/
 (function(){var n=0;var t=setInterval(function(){n++;if(n>15){clearInterval(t);return;}
- document.querySelectorAll("img:not([loading])").forEach(function(im){im.loading="lazy";im.decoding="async";});
+ document.querySelectorAll("img:not([প্রস্তুত হচ্ছে])").forEach(function(im){im.প্রস্তুত হচ্ছে="lazy";im.decoding="async";});
 },2000);})();
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
@@ -786,7 +786,7 @@ text-decoration:none;
 <div class="notif-cat" data-cat="delivery">🚚 ডেলিভারি <span class="cc" id="cc-delivery">0</span></div>
 <div class="notif-cat" data-cat="courier">📦 কুরিয়ার <span class="cc" id="cc-courier">0</span></div>
 </div>
-<div class="notif-body" id="notifBodyV2"><div class="notif-empty">লোড হচ্ছে...</div></div>
+<div class="notif-body" id="notifBodyV2"><div class="notif-empty">পণ্য ও অফার প্রস্তুত হচ্ছে</div></div>
 </div>
 <div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div>
 <div class="notif-panel-v2" id="notifPanelV2">
@@ -802,7 +802,7 @@ text-decoration:none;
   <div class="notif-cat" data-cat="delivery">🚚 ডেলিভারি <span class="cc" id="cc-delivery">0</span></div>
   <div class="notif-cat" data-cat="courier">📦 কুরিয়ার <span class="cc" id="cc-courier">0</span></div>
  </div>
- <div class="notif-body" id="notifBodyV2"><div class="notif-empty">লোড হচ্ছে...</div></div>
+ <div class="notif-body" id="notifBodyV2"><div class="notif-empty">পণ্য ও অফার প্রস্তুত হচ্ছে</div></div>
 </div><div style="background:linear-gradient(90deg,#FF9900,#FFD814);padding:14px 10px;text-align:center">
 <div style="font-size:20px;font-weight:900;color:#111;margin-bottom:10px">💰 এই সাইটে ইনকাম করুন!</div>
 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
@@ -936,12 +936,12 @@ drawDots();
 <br>
 
 <div class="categories" id="flashCatsRow">
-<p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+<p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
 </div>
 
 <br>
 <div id="flashSaleProductsGrid" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
 </div>
 
 
@@ -1017,7 +1017,7 @@ function renderFlashSaleCard(id, data, mapInfo){
       ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
       <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
       <img src="${imageUrl}" alt="${data.title || data.name || 'Product'}"
-           loading="lazy"
+           প্রস্তুত হচ্ছে="lazy"
            onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
     </div>
     <div class="product-card-content">
@@ -1129,12 +1129,12 @@ function fsIsOfferActive(mapInfo){
 
 let fscCatsCache = {};
 
-function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flashCatsRow .cat[data-cat="'+catId+'"]');var __nm=__bn?__bn.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("fsc:"+catId)||window.MJHCategoryGate.isOff("fscname:"+window.MJHCategoryGate.norm(__nm)))){flashSaleGrid.innerHTML='<p style="text-align:center;color:#888;padding:20px">🔜 Coming Soon...</p>';fsAllItems=[];return;}
+function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flashCatsRow .cat[data-cat="'+catId+'"]');var __nm=__bn?__bn.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("fsc:"+catId)||window.MJHCategoryGate.isOff("fscname:"+window.MJHCategoryGate.norm(__nm)))){flashSaleGrid.innerHTML='<p style="text-align:center;color:#888;padding:20px">🛍️ শীঘ্রই আসছে...</p>';fsAllItems=[];return;}
   document.querySelectorAll("#flashCatsRow .cat").forEach(b => b.classList.remove("active"));
   const activeBtn = document.querySelector(`#flashCatsRow .cat[data-cat="${catId}"]`);
   if(activeBtn) activeBtn.classList.add("active");
 
-  flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
+  flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
 
   get(ref(fsDb, "settings/flashSaleCategoryProducts/"+catId)).then(async (mapSnap) => {
     const map = mapSnap.exists() ? mapSnap.val() : {};
@@ -1212,7 +1212,7 @@ fsInitCategories();
 <div id="globalCatsRow1" class="gc-row"></div>
 <br>
 <div id="globalCatCarousel" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
 </div>
 </div>
 
@@ -1221,7 +1221,7 @@ fsInitCategories();
 <br>
 
 <div id="trendingProductsGrid" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
 </div>
 
 <script type="module">
@@ -1289,7 +1289,7 @@ function renderTrendingCard(id, data){
       ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
       <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
       <img src="${imageUrl}" alt="${data.title || data.name || 'Product'}"
-           loading="lazy"
+           প্রস্তুত হচ্ছে="lazy"
            onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
     </div>
     <div class="product-card-content">
@@ -1408,12 +1408,12 @@ onValue(trQuery, (snapshot) => {
 <br>
 
 <div class="categories" id="dotdCatsRow">
-<p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+<p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
 </div>
 
 <br>
 <div id="dealsGrid" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
 </div>
 
 <script type="module">
@@ -1510,7 +1510,7 @@ function renderDealCard(id, data, mapInfo){
       ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
       <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
       <img src="${imageUrl}" alt="${data.title || data.name || 'Product'}"
-           loading="lazy"
+           প্রস্তুত হচ্ছে="lazy"
            onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
     </div>
     <div class="product-card-content">
@@ -1593,13 +1593,13 @@ function dotdRenderNextBatch(){
   }
 }
 
-function loadDotdCategoryProducts(catId){var __b2=document.querySelector('#dotdCatsRow .cat[data-cat="'+catId+'"]');var __n2=__b2?__b2.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("dotd:"+catId)||window.MJHCategoryGate.isOff("dotdname:"+window.MJHCategoryGate.norm(__n2)))){document.getElementById("dealsGrid").innerHTML='<p style="text-align:center;color:#888;padding:20px">🔜 Coming Soon...</p>';return;}
+function loadDotdCategoryProducts(catId){var __b2=document.querySelector('#dotdCatsRow .cat[data-cat="'+catId+'"]');var __n2=__b2?__b2.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("dotd:"+catId)||window.MJHCategoryGate.isOff("dotdname:"+window.MJHCategoryGate.norm(__n2)))){document.getElementById("dealsGrid").innerHTML='<p style="text-align:center;color:#888;padding:20px">🛍️ শীঘ্রই আসছে...</p>';return;}
   document.querySelectorAll("#dotdCatsRow .cat").forEach(b => b.classList.remove("active"));
   const activeBtn = document.querySelector(`#dotdCatsRow .cat[data-cat="${catId}"]`);
   if(activeBtn) activeBtn.classList.add("active");
 
   const grid = document.getElementById("dealsGrid");
-  grid.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
+  grid.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
 
   get(ref(dealsDb, "settings/dealsOfDayCategoryProducts/"+catId)).then(async (mapSnap) => {
     const map = mapSnap.exists() ? mapSnap.val() : {};
@@ -1671,11 +1671,11 @@ dotdInitCategories();
 
 
 <div class="categories special-categories-row" id="specialCatsContainer">
-<p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+<p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
 </div>
 <div class="section" id="specialCatProductSection" style="display:none">
 <div id="specialCatCarousel" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
 </div>
 </div>
 
@@ -1702,7 +1702,7 @@ const scCarousel = document.getElementById("specialCatCarousel");
 
 async function loadSpecialCategoryProducts(slug, scroll = true){
   scSection.style.display = "block";
-  scCarousel.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
+  scCarousel.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
   if (scroll) scSection.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const scMapSnap = await get(ref(scDb, "settings/specialCategoryProducts/"+slug)).catch(()=>null);
@@ -1782,7 +1782,7 @@ async function loadSpecialCategoryProducts(slug, scroll = true){
               ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
               <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
               <img src="${imageUrl}" alt="${p.title || "Product"}"
-                   loading="lazy"
+                   প্রস্তুত হচ্ছে="lazy"
                    onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
             </div>
             <div class="product-card-content">
@@ -1967,7 +1967,7 @@ function renderFeatCard(id, p){
       ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
       ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
       <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
-      <img src="${imageUrl}" alt="${p.title || 'Product'}" loading="lazy" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
+      <img src="${imageUrl}" alt="${p.title || 'Product'}" প্রস্তুত হচ্ছে="lazy" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
     </div>
     <div class="product-card-content">
       <h3 class="product-card-title">${p.title || "Unnamed Product"}</h3>
@@ -2026,10 +2026,10 @@ get((typeof query!=="undefined"&&typeof orderByChild!=="undefined"&&typeof equal
 </script>
 
 <div class="section" id="comingSoonSection" style="display:none">
-<h2>🔮 Coming Soon</h2>
+<h2>🔮 শীঘ্রই আসছে</h2>
 <br>
 <div id="comingSoonGrid" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">লোড হচ্ছে...</p>
+  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
 </div>
 </div>
 
@@ -2152,8 +2152,8 @@ onValue(ref(csDb, "futureProducts"), (snapshot)=>{
     card.className = "card";
     card.innerHTML = `
       <div style="position:relative">
-        <img src="${imgUrl}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${item.title || 'Product'}">
-        <span style="position:absolute;top:6px;left:6px;background:#8b5cf6;color:#fff;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px">🔜 Next Coming</span>
+        <img src="${imgUrl}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" প্রস্তুত হচ্ছে="lazy" alt="${item.title || 'Product'}">
+        <span style="position:absolute;top:6px;left:6px;background:#8b5cf6;color:#fff;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px">🔜 নতুন আগমনী</span>
         ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
         ${saveAmount > 0 ? `<span class="save-badge">Save ${csFmtPrice(saveAmount)}</span>` : ""}
       </div>
@@ -2275,7 +2275,7 @@ const gcDb = getDatabase(gcApp);
 /*mjhGcDedup*/let gcLoaded=false;
 function loadGlobalCats(){if(gcLoaded)return;gcLoaded=true;
 const gcSection = document.getElementById("globalCatSection");
-  gcCarousel.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
+  gcCarousel.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
   onValue(ref(gcDb, "settings/globalCategoryProducts/"+catId), async (snapshot) => {
     gcMap = snapshot.val() || {};
     const pids = Object.keys(gcMap);
@@ -2328,7 +2328,7 @@ const gcSection = document.getElementById("globalCatSection");
           ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
           ${saveAmt > 0 ? `<span class="save-badge">Save ${fmtP(saveAmt)}</span>` : ""}
           <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
-          <img src="${imageUrl}" alt="${p.title || "Product"}" loading="lazy" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
+          <img src="${imageUrl}" alt="${p.title || "Product"}" প্রস্তুত হচ্ছে="lazy" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
         </div>
         <div class="product-card-content">
           <h3 class="product-card-title">${p.title || "Unnamed Product"}</h3>
@@ -2402,7 +2402,7 @@ const gcSection = document.getElementById("globalCatSection");
   const row1 = document.getElementById("globalCatsRow1");
   if(!row1) return;
   
-  row1.innerHTML = "<p style='color:#fff; padding:10px;'>লোড হচ্ছে...</p>";
+  row1.innerHTML = "<p style='color:#fff; padding:10px;'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
   
   try {
     // Firebase থেকে ক্যাটাগরি আনা
@@ -2484,7 +2484,7 @@ buildGcRows();
 async function loadGlobalCatProducts(catId){
   const carousel = document.getElementById("globalCatCarousel");
   if(!carousel) return;
-  carousel.innerHTML = "<p style='text-align:center;color:#888'>লোড হচ্ছে...</p>";
+  carousel.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
   try {
     const snap = await get(ref(gcDb, "settings/globalCategoryProducts/" + catId));
     const productMap = snap.val() || {};
@@ -2833,7 +2833,7 @@ console.log("currency-fix-v2 ready");
   /* মূল সেকশন (৩) */
   "Trending Products":"trendingProductsGrid",
   "Featured Products":"featuredProducts",
-  "Coming Soon":"comingSoonGrid",
+  "শীঘ্রই আসছে":"comingSoonGrid",
   /* Global (২০) */
   "Electronics":"globalCatCarousel",
   "Computers":"globalCatCarousel",
@@ -2931,7 +2931,7 @@ console.log("currency-fix-v2 ready");
     var price=+v.price||0;
     var img=(v.images&&v.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
     var c=document.createElement("div");c.className="product-card";c.style.cursor="pointer";
-    c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" loading="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(v.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';
+    c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" প্রস্তুত হচ্ছে="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(v.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';
     c.addEventListener("click",function(){location.href="product-details.html?id="+id;});
     c.style.display=i<LIMIT?"":"none";
     g.appendChild(c);
@@ -2984,7 +2984,7 @@ import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasej
 const ADMIN_EMAIL="mohajonmjh@gmail.com";
 const app=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
 const db=getDatabase(app),auth=getAuth(app);
-const BELL_HTML='<div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div><div class="notif-panel-v2" id="notifPanelV2"><div class="notif-head"><h3>🔔 Admin Notifications</h3></div><div class="notif-cats"><div class="notif-cat active" data-cat="all">সব <span class="cc" id="cc-all">0</span></div><div class="notif-cat" data-cat="orders">🛒 <span class="cc" id="cc-orders">0</span></div><div class="notif-cat" data-cat="sellers">🏪 <span class="cc" id="cc-sellers">0</span></div><div class="notif-cat" data-cat="commission">🤝 <span class="cc" id="cc-commission">0</span></div><div class="notif-cat" data-cat="delivery">🚚 <span class="cc" id="cc-delivery">0</span></div><div class="notif-cat" data-cat="courier">📦 <span class="cc" id="cc-courier">0</span></div></div><div class="notif-body" id="notifBodyV2"><div class="notif-empty">লোড হচ্ছে...</div></div></div>';
+const BELL_HTML='<div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div><div class="notif-panel-v2" id="notifPanelV2"><div class="notif-head"><h3>🔔 Admin Notifications</h3></div><div class="notif-cats"><div class="notif-cat active" data-cat="all">সব <span class="cc" id="cc-all">0</span></div><div class="notif-cat" data-cat="orders">🛒 <span class="cc" id="cc-orders">0</span></div><div class="notif-cat" data-cat="sellers">🏪 <span class="cc" id="cc-sellers">0</span></div><div class="notif-cat" data-cat="commission">🤝 <span class="cc" id="cc-commission">0</span></div><div class="notif-cat" data-cat="delivery">🚚 <span class="cc" id="cc-delivery">0</span></div><div class="notif-cat" data-cat="courier">📦 <span class="cc" id="cc-courier">0</span></div></div><div class="notif-body" id="notifBodyV2"><div class="notif-empty">পণ্য ও অফার প্রস্তুত হচ্ছে</div></div></div>';
 const DAY30=30*86400000;let O={},SA={},CA={},D={},CO={},cat="all",started=false,isAdmin=false;
 function ensureUI(){
  document.querySelectorAll(".notif-bell-wrap").forEach(e=>e.remove());
@@ -3056,7 +3056,7 @@ document.addEventListener("click",function(e){
  var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
  function stuck(id){var g=document.getElementById(id);return g&&g.textContent.indexOf("লোড হচ্ছে")>-1&&g.querySelectorAll(".product-card").length===0;}
  function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"৳"+(+v||0).toFixed(0);}
- function card(id,p){var price=+p.price||0;var img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";var c=document.createElement("div");c.className="product-card";c.style.cursor="pointer";c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" loading="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(p.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';c.addEventListener("click",function(){location.href="product-details.html?id="+id;});return c;}
+ function card(id,p){var price=+p.price||0;var img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";var c=document.createElement("div");c.className="product-card";c.style.cursor="pointer";c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" প্রস্তুত হচ্ছে="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(p.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';c.addEventListener("click",function(){location.href="product-details.html?id="+id;});return c;}
  async function j(u){try{var r=await fetch(BASE+u+".json");return await r.json();}catch(e){return null;}}
  async function loadFlash(){
   if(!stuck("flashSaleProductsGrid"))return;
@@ -3092,7 +3092,7 @@ document.addEventListener("click",function(e){
 /* FlatCats Home v1 */
 (function(){
 var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
-var SECS=[["trending","🔥 Trending Products"],["featured","🌟 Featured Products"],["comingSoon","🔮 Coming Soon"]];
+var SECS=[["trending","🔥 Trending Products"],["featured","🌟 Featured Products"],["comingSoon","🔮 শীঘ্রই আসছে"]];
 function j(p){return fetch(BASE+"/"+p+".json").then(function(r){return r.json();});}
 async function render(){
 var anchor=document.querySelector("footer")||document.body;
@@ -3220,5 +3220,43 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 </div>
 </div>
 </div>
+
+<section style="background:#fff;padding:40px 20px;margin:30px 0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+<div style="max-width:1100px;margin:0 auto">
+<h2 style="color:#1a2330;border-bottom:3px solid #f39c12;padding-bottom:10px">🌟 About Mohajon MJH Marketplace</h2>
+<p style="line-height:1.8;color:#333;font-size:15px">
+<strong>Mohajon MJH</strong> হলো একটি আন্তর্জাতিক অনলাইন মার্কেটপ্লেস যেখানে ক্রেতা ও বিক্রেতারা সরাসরি সংযুক্ত হতে পারেন। আমরা ইলেকট্রনিক্স, ফ্যাশন, গ্রোসারি, কৃষি পণ্য, স্বাস্থ্য সামগ্রী এবং আরও বহু ক্যাটাগরিতে প্রায় ১,৬৫০+ যাচাইকৃত পণ্য অফার করি।
+</p>
+
+<h3 style="color:#2c3e50;margin-top:25px">🛍️ কেন আমাদের বেছে নেবেন?</h3>
+<ul style="line-height:2;color:#444">
+<li><strong>💰 Cash on Delivery:</strong> ঘরে বসে পণ্য পেয়ে পেমেন্ট করুন — সারা বাংলাদেশে উপলব্ধ</li>
+<li><strong>🔄 7-Day Easy Return:</strong> পছন্দ না হলে ৭ দিনের মধ্যে ফেরত দিন, কোনো ঝামেলা নেই</li>
+<li><strong>🔒 Secure Payment:</strong> bKash, Nagad, Rocket এবং ব্যাংক ট্রান্সফার — সব সুরক্ষিত</li>
+<li><strong>🚚 Fast Delivery:</strong> ঢাকায় ১-২ দিন, সারাদেশে ৩-৫ দিনের মধ্যে ডেলিভারি</li>
+<li><strong>🏪 Trusted Sellers:</strong> প্রতিটি বিক্রেতা যাচাইকৃত — আপনাকে প্রতারিত হওয়ার ঝুঁকি নেই</li>
+</ul>
+
+<h3 style="color:#2c3e50;margin-top:25px">🏷️ আমাদের প্রধান ক্যাটাগরি</h3>
+<p style="line-height:1.8;color:#444">
+কৃষি ও খাদ্য পণ্য, এয়ার কন্ডিশনার ও রেফ্রিজারেটর, মোবাইল ফোন ও অ্যাক্সেসরিজ, ল্যাপটপ ও কম্পিউটার, বিউটি ও পার্সোনাল কেয়ার, বই ও স্টেশনারি, বেবি প্রোডাক্টস, বাইসাইকেল ও ই-ভেহিকল, ড্রোন ও অ্যাকশন ক্যামেরা, হেলথ ও মেডিকেল সাপ্লাই, হোম অ্যাপ্লায়েন্স, স্মার্ট হোম ডিভাইস, খেলনা, গেমস এবং আরও ৪০+ ক্যাটাগরিতে আমাদের পণ্য পাওয়া যায়।
+</p>
+
+<h3 style="color:#2c3e50;margin-top:25px">🤝 Sellers-এর জন্য সুযোগ</h3>
+<p style="line-height:1.8;color:#444">
+আপনি কি বিক্রেতা? Mohajon MJH-তে আপনার দোকান খুলুন এবং সারা দেশের লক্ষ ক্রেতার কাছে পৌঁছান। আমাদের Commission Agent Program এবং Affiliate Program-এর মাধ্যমে আপনিও অংশ নিতে পারেন এবং ইনকাম করতে পারেন। বিস্তারিত জানতে <a href="/contact.html" style="color:#2980b9">Contact Us</a> পেজে যান।
+</p>
+
+<h3 style="color:#2c3e50;margin-top:25px">📞 কাস্টমার সাপোর্ট</h3>
+<p style="line-height:1.8;color:#444">
+যেকোনো সমস্যায় আমাদের কাস্টমার সাপোর্ট টিম সবসময় প্রস্তুত। ইমেইল: <strong>mohajonmjh@gmail.com</strong> | WhatsApp: <strong>+966 55 017 1314</strong>।
+</p>
+
+<p style="text-align:center;margin-top:30px">
+<a href="/about.html" style="background:#f39c12;color:#111;padding:12px 28px;text-decoration:none;border-radius:8px;font-weight:700;margin:5px">📖 More About Us</a>
+<a href="/contact.html" style="background:#27ae60;color:#fff;padding:12px 28px;text-decoration:none;border-radius:8px;font-weight:700;margin:5px">📞 Contact Now</a>
+</p>
+</div>
+</section>
 </body>
 </html>

@@ -55,7 +55,7 @@ h1{font-size:22px;font-weight:400;line-height:1.3;margin:4px 0 8px}
 .popup .btns{display:flex;gap:8px;margin-top:10px}
 .popup .btns button{flex:1;padding:8px;border-radius:8px;border:1px solid #d5d9d9;cursor:pointer;font-weight:600;font-size:13px}
 .popup .vc{background:#FFD814;border-color:#FCD200}
-.loading{text-align:center;padding:80px 20px;color:#565959}
+.প্রস্তুত হচ্ছে{text-align:center;padding:80px 20px;color:#565959}
 </style>
 
 <script src="auto-ads-enable.js"></script>
@@ -75,7 +75,7 @@ h1{font-size:22px;font-weight:400;line-height:1.3;margin:4px 0 8px}
 </header>
 <div class="wrap">
 <div class="crumb">Home › Products › <span id="crumbTitle">Product</span></div>
-<div id="content" class="loading">Loading product...</div>
+<div id="content" class="প্রস্তুত হচ্ছে">Loading product...</div>
 </div>
 <div class="popup" id="popup">
 <div><span class="ic">✓</span><b id="popTitle">Added to Cart</b></div>
@@ -138,7 +138,7 @@ function render(P){
 }
 (async function(){
  try{var r=await fetch("https://open.er-api.com/v6/latest/USD");var j=await r.json();if(j&&j.rates&&j.rates.BDT){var B=j.rates.BDT;RATES={BDT:1,SAR:(j.rates.SAR||3.75)/B,USD:1/B,EUR:(j.rates.EUR||0.92)/B,GBP:(j.rates.GBP||0.79)/B,AED:(j.rates.AED||3.67)/B};}}catch(e){}
- try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error loading product</div>';}
+ try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error প্রস্তুত হচ্ছে product</div>';}
 })();
 </script>
 
@@ -165,7 +165,7 @@ function render(P){
     if(!imgs.length&&!vids.length)return;
     var html='<div class="am-head">🎬 '+(p.title||"")+' — Official Showcase</div><div class="am-row">';
     vids.forEach(function(v){html+='<video controls playsinline preload="metadata" src="assets/products/'+slugTitle+'/'+encodeURIComponent(v)+'"></video>';});
-    imgs.forEach(function(f){html+='<img loading="lazy" src="assets/products/'+slugTitle+'/'+encodeURIComponent(f)+'" alt="">';});
+    imgs.forEach(function(f){html+='<img প্রস্তুত হচ্ছে="lazy" src="assets/products/'+slugTitle+'/'+encodeURIComponent(f)+'" alt="">';});
     html+='</div><div class="am-dots">👆 swipe করুন ('+(imgs.length+vids.length)+' items)</div>';
     box.innerHTML=html;box.style.display="block";
     var c=document.getElementById("content");
@@ -175,7 +175,7 @@ function render(P){
     if(p.images&&p.images.main){
      var box=document.getElementById("mjhAdMedia");if(!box)return;
      var src=p.images.main;
-     var html='<div class="am-head">🖼️ '+(p.title||"")+'</div><div class="am-row"><img loading="lazy" src="'+src+'" alt="" style="width:100%"></div>';
+     var html='<div class="am-head">🖼️ '+(p.title||"")+'</div><div class="am-row"><img প্রস্তুত হচ্ছে="lazy" src="'+src+'" alt="" style="width:100%"></div>';
      box.innerHTML=html;box.style.display="block";
      var c=document.getElementById("content");
      if(c&&c.parentNode)c.parentNode.insertBefore(box,c);
