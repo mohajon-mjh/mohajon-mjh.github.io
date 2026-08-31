@@ -1129,7 +1129,7 @@ function fsIsOfferActive(mapInfo){
 
 let fscCatsCache = {};
 
-function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flashCatsRow .cat[data-cat="'+catId+'"]');var __nm=__bn?__bn.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("fsc:"+catId)||window.MJHCategoryGate.isOff("fscname:"+window.MJHCategoryGate.norm(__nm)))){flashSaleGrid.innerHTML='<p style="text-align:center;color:#888;padding:20px">🛍️ শীঘ্রই আসছে...</p>';fsAllItems=[];return;}
+function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flashCatsRow .cat[data-cat="'+catId+'"]');var __nm=__bn?__bn.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("fsc:"+catId)||window.MJHCategoryGate.isOff("fscname:"+window.MJHCategoryGate.norm(__nm)))){flashSaleGrid.innerHTML='<p style="text-align:center;color:#888;padding:20px">🛍️ Hot Deals...</p>';fsAllItems=[];return;}
   document.querySelectorAll("#flashCatsRow .cat").forEach(b => b.classList.remove("active"));
   const activeBtn = document.querySelector(`#flashCatsRow .cat[data-cat="${catId}"]`);
   if(activeBtn) activeBtn.classList.add("active");
@@ -1593,7 +1593,7 @@ function dotdRenderNextBatch(){
   }
 }
 
-function loadDotdCategoryProducts(catId){var __b2=document.querySelector('#dotdCatsRow .cat[data-cat="'+catId+'"]');var __n2=__b2?__b2.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("dotd:"+catId)||window.MJHCategoryGate.isOff("dotdname:"+window.MJHCategoryGate.norm(__n2)))){document.getElementById("dealsGrid").innerHTML='<p style="text-align:center;color:#888;padding:20px">🛍️ শীঘ্রই আসছে...</p>';return;}
+function loadDotdCategoryProducts(catId){var __b2=document.querySelector('#dotdCatsRow .cat[data-cat="'+catId+'"]');var __n2=__b2?__b2.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("dotd:"+catId)||window.MJHCategoryGate.isOff("dotdname:"+window.MJHCategoryGate.norm(__n2)))){document.getElementById("dealsGrid").innerHTML='<p style="text-align:center;color:#888;padding:20px">🛍️ Hot Deals...</p>';return;}
   document.querySelectorAll("#dotdCatsRow .cat").forEach(b => b.classList.remove("active"));
   const activeBtn = document.querySelector(`#dotdCatsRow .cat[data-cat="${catId}"]`);
   if(activeBtn) activeBtn.classList.add("active");
@@ -2026,7 +2026,7 @@ get((typeof query!=="undefined"&&typeof orderByChild!=="undefined"&&typeof equal
 </script>
 
 <div class="section" id="comingSoonSection" style="display:none">
-<h2>🔮 শীঘ্রই আসছে</h2>
+<h2>🔥 Hot Deals</h2>
 <br>
 <div id="comingSoonGrid" class="trending-scroll-wrapper">
   <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
@@ -2833,7 +2833,7 @@ console.log("currency-fix-v2 ready");
   /* মূল সেকশন (৩) */
   "Trending Products":"trendingProductsGrid",
   "Featured Products":"featuredProducts",
-  "শীঘ্রই আসছে":"comingSoonGrid",
+  "Hot Deals":"comingSoonGrid","🔥 Hot Deals":"comingSoonGrid",
   /* Global (২০) */
   "Electronics":"globalCatCarousel",
   "Computers":"globalCatCarousel",
@@ -3092,7 +3092,7 @@ document.addEventListener("click",function(e){
 /* FlatCats Home v1 */
 (function(){
 var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
-var SECS=[["trending","🔥 Trending Products"],["featured","🌟 Featured Products"],["comingSoon","🔮 শীঘ্রই আসছে"]];
+var SECS=[["trending","🔥 Trending Products"],["featured","🌟 Featured Products"],["comingSoon","🔥 Hot Deals"]];
 function j(p){return fetch(BASE+"/"+p+".json").then(function(r){return r.json();});}
 async function render(){
 var anchor=document.querySelector("footer")||document.body;
