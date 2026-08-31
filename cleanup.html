@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cleanup</title>
+<style>body{background:#111;color:#fff;font-family:sans-serif;padding:20px}button{padding:14px 20px;margin:8px 0;border:none;border-radius:8px;font-weight:700;width:100%;font-size:15px}#log{white-space:pre-wrap;background:#222;padding:10px;border-radius:8px;max-height:55vh;overflow:auto;font-size:12px;margin-top:10px}a{color:#7dd3fc}</style>
+</head>
+<body>
+<h2>🧹 Fake Product Cleanup</h2>
+<div id="status">⏳ Login check হচ্ছে...</div>
+<button id="testBtn" disabled style="background:#27ae60;color:#fff">🧪 TEST: ১টা fake product delete</button>
+<button id="fullBtn" disabled style="background:#c0392b;color:#fff">🗑️ FULL DELETE: সব fake product</button>
+<button id="mapBtn" disabled style="background:#2980b9;color:#fff">🧹 Clean category mappings</button>
+<div id="log"></div>
+<script type="module">
+import {initializeApp,getApps,getApp} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import {getDatabase,ref,update} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+const cfg={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
+const app=getApps().length?getApp():initializeApp(cfg);
+const db=getDatabase(app);
+const auth=getAuth(app);
+const logEl=document.getElementById("log");
+function log(t){logEl.textContent+=t+"\n";logEl.scrollTop=logEl.scrollHeight;}
+onAuthStateChanged(auth,u=>{
+  if(u){
+    document.getElementById("status").textContent="✅ Logged in: "+(u.email||u.uid);
+    document.getElementById("testBtn").disabled=false;
+    document.getElementById("fullBtn").disabled=false;
+    document.getElementById("mapBtn").disabled=false;
+  }else{
+    document.getElementById("status").innerHTML='❌ Login নেই! আগে <a href="admin.html">admin.html</a>-এ login করে তারপর এই পেজে ফিরে আসুন।';
+  }
+});
+const BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
+async function getFakeIds(limit){
+  const r=await fetch(BASE+"/products.json");
+  const o=await r.json()||{};
+  const ids=[];
+  for(const pid in o){
+    const img=((o[pid].images||{}).main)||"";
+    if(!img.includes("cloudinary.com")){ids.push(pid);if(limit&&ids.length>=limit)break;}
+  }
+  return ids;
+}
+document.getElementById("testBtn").onclick=async()=>{
+  log("🧪 ১টা fake id আনা হচ্ছে...");
+  const ids=await getFakeIds(1);
+  if(!ids.length){log("✅ কোনো fake product বাকি নেই!");return;}
+  const up={};up["products/"+ids[0]]=null;
+  try{await update(ref(db),up);log("✅ TEST OK: "+ids[0]+" deleted");}
+  catch(e){log("❌ "+e.message);}
+};
+document.getElementById("fullBtn").onclick=async()=>{
+  if(!confirm("সব fake product delete করবেন?"))return;
+  log("📥 Fake id আনা হচ্ছে (একটু সময় লাগবে)...");
+  const ids=await getFakeIds(0);
+  log("❌ Fake count: "+ids.length);
+  let done=0,failed=0;
+  for(let i=0;i<ids.length;i+=100){
+    const batch=ids.slice(i,i+100);
+    const up={};batch.forEach(id=>up["products/"+id]=null);
+    try{await update(ref(db),up);done+=batch.length;}
+    catch(e){failed+=batch.length;log("❌ batch: "+e.message);}
+    log("⏳ "+done+"/"+ids.length+" (failed:"+failed+")");
+  }
+  log("🎉 DONE! deleted="+done+" failed="+failed);
+};
+document.getElementById("mapBtn").onclick=async()=>{
+  log("🧹 Mappings clean হচ্ছে...");
+  const rp=await fetch(BASE+"/products.json?shallow=true");
+  const alive=await rp.json()||{};
+  const cats=["settings/flashSaleCategoryProducts","settings/dealsOfDayCategoryProducts","settings/specialCategoryProducts","settings/globalCategoryProducts"];
+  let cleaned=0;
+  for(const c of cats){
+    const r=await fetch(BASE+"/"+c+".json");
+    const data=await r.json()||{};
+    const up={};let n=0;
+    for(const cid in data){for(const pid in (data[cid]||{})){if(!alive[pid]){up[c+"/"+cid+"/"+pid]=null;n++;}}}
+    if(n>0){try{await update(ref(db),up);cleaned+=n;log("  "+c.split("/").pop()+": "+n);}catch(e){log("  ❌ "+e.message);}}
+  }
+  log("✅ Mappings cleaned: "+cleaned);
+};
+</script>
+</body>
+</html>
