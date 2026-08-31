@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Populate Global Categories (Live)</title>
+<style>body{background:#111;color:#fff;font-family:sans-serif;padding:20px}button{padding:14px;margin:8px 0;border:none;border-radius:8px;font-weight:700;width:100%;font-size:15px;background:#27ae60;color:#fff}.btn2{background:#3498db}#log{white-space:pre-wrap;background:#222;padding:10px;border-radius:8px;max-height:70vh;overflow:auto;font-size:12px}a{color:#7dd3fc}.cat{padding:4px 8px;margin:2px;background:#333;border-radius:4px;display:inline-block;font-size:11px}</style>
+</head><body>
+<h2>📦 Populate Global Categories (Live Detection)</h2>
+<div id="status">⏳ Checking login...</div>
+<button id="detect">🔍 Step 1: Detect categories from live homepage</button>
+<button id="populate" class="btn2" disabled>🚀 Step 2: Populate all detected categories</button>
+<div id="detected" style="margin:10px 0"></div>
+<div id="log"></div>
+<script type="module">
+import {initializeApp,getApps,getApp} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import {getDatabase,ref,update,get} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+var cfg={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
+var app=getApps().length?getApp():initializeApp(cfg);
+var db=getDatabase(app);var auth=getAuth(app);
+
+var logEl=document.getElementById("log");
+var detectedEl=document.getElementById("detected");
+var DETECTED_CATS=[];
+var PRODUCTS={};
+
+function log(t){logEl.textContent+=t+"\n";logEl.scrollTop=logEl.scrollHeight;}
+
+onAuthStateChanged(auth,function(u){
+  if(u){document.getElementById("status").textContent="✅ Logged in: "+(u.email||u.uid);}
+  else{document.getElementById("status").innerHTML='❌ Login নেই! <a href="admin.html">admin.html</a>-এ login করুন।';}
+});
+
+// ===== STEP 1: Detect categories from LIVE homepage =====
+document.getElementById("detect").onclick=async function(){
+  log("🔍 Fetching live homepage HTML...");
+  try{
+    var r=await fetch("index.html?t="+Date.now());
+    var html=await r.text();
+    
+    // Find Global Categories section
+    var gcMatch=html.match(/<h2[^>]*>🌍 Global Categories<\/h2>([\s\S]*?)(?=<h2|<footer|<\/main)/);
+    if(!gcMatch){
+      log("❌ Could not find Global Categories section in homepage!");
+      return;
+    }
+    
+    // Extract category buttons/links (data-cat attributes or category IDs)
+    var catSection=gcMatch[1];
+    
+    // Try 1: Look for data-cat attributes
+    var catIds=[];
+    var catMatches=[...catSection.matchAll(/data-cat=["']([^"']+)["']/g)];
+    catIds=catMatches.map(m=>m[1]);
+    
+    // Try 2: If not found, look for category button text and map to ID
+    if(catIds.length===0){
+      var btnMatches=[...catSection.matchAll(/>([^<]+)<\/button|>([^<]+)<\/a/g);
+      catIds=btnMatches.map(m=>m[1]||m[2]).filter(t=>t&&t.trim().length>2&&t.trim().length<60).map(t=>t.trim().toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,''));
+    }
+    
+    // Deduplicate
+    catIds=[...new Set(catIds)].filter(id=>id.length>3);
+    
+    log("📋 Detected "+catIds.length+" categories from homepage:");
+    catIds.forEach(id=>log("  • "+id));
+    
+    DETECTED_CATS=catIds;
+    detectedEl.innerHTML="<h3>Detected ("+catIds.length+"):</h3>"+catIds.map(id=>'<span class="cat">'+id+"</span>").join("");
+    document.getElementById("populate").disabled=false;
+    
+    // Load products for preview
+    log("\n📦 Loading products...");
+    var snap=await get(ref(db,"products"));
+    if(snap.exists()){
+      PRODUCTS=snap.val();
+      log("✅ Loaded "+Object.keys(PRODUCTS).length+" products");
+      
+      // Count matching products per category
+      log("\n📊 Products per detected category:");
+      var total=0;
+      catIds.forEach(cid=>{
+        var matches=Object.entries(PRODUCTS).filter(([id,p])=>p.categoryId===cid);
+        log("  "+cid+": "+matches.length+" products");
+        total+=matches.length;
+      });
+      log("\nTotal matching products: "+total);
+    }
+    
+  }catch(e){
+    log("❌ Error: "+e.message);
+  }
+};
+
+// ===== STEP 2: Populate all detected categories =====
+document.getElementById("populate").onclick=async function(){
+  if(DETECTED_CATS.length===0){log("❌ No categories detected!");return;}
+  
+  log("\n🚀 Populating "+DETECTED_CATS.length+" categories...");
+  
+  // Build globalCategoryProducts
+  var gcp={};
+  DETECTED_CATS.forEach(cid=>{
+    var matches=Object.keys(PRODUCTS).filter(id=>PRODUCTS[id].categoryId===cid).slice(0,100);
+    var obj={};
+    matches.forEach(id=>obj[id]=true);
+    gcp[cid]=obj;
+    log("  ✅ "+cid+": "+matches.length+" products");
+  });
+  
+  // Also update trending/featured/hotDeals if empty
+  var allEntries=Object.entries(PRODUCTS);
+  var trending=allEntries.filter(([i,p])=>(+p.rating||0)>=4.5).slice(0,120).map(([i])=>i);
+  var featured=allEntries.filter(([i,p])=>(+p.stock||0)>0).slice(0,120).map(([i])=>i);
+  var hot=allEntries.filter(([i,p])=>{var pr=+p.price||0;return pr>0&&pr<1000;}).slice(0,120).map(([i])=>i);
+  
+  var map=function(ids){var o={};ids.forEach(function(i){o[i]=true;});return o;};
+  
+  log("\n📤 Saving to Firebase...");
+  try{
+    await update(ref(db,"settings"),{
+      globalCategoryProducts:gcp,
+      specialCategoryProducts:gcp,
+      trendingProducts:map(trending),
+      featuredProducts:map(featured),
+      hotDealsProducts:map(hot),
+      comingSoonProducts:map(hot)
+    });
+    log("✅ DONE!");
+    log("");
+    log("📊 Summary:");
+    log("  🌍 Global Categories populated: "+DETECTED_CATS.length);
+    log("  🔥 Trending: "+trending.length);
+    log("  🌟 Featured: "+featured.length);
+    log("  🔥 Hot Deals (<1000tk): "+hot.length);
+    log("");
+    log("🎉 Now refresh homepage: https://mohajon-mjh.github.io/");
+  }catch(e){
+    log("❌ Error: "+e.message);
+  }
+};
+</script></body></html>
