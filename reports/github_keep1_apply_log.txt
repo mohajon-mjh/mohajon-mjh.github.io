@@ -1,0 +1,52 @@
+KEEP: Agriculture, Food & Beverage/agriculture_food_beverage.png | deleted 96
+KEEP: Air Conditioners, Refrigerators, Washing Machines/air_conditioner_compressor.png | deleted 61
+KEEP: Appliances (Home Appliances, Large & Small)/air_circulator.png | deleted 108
+KEEP: Art, Collectibles & Crafts/abstract_art.png | deleted 124
+KEEP: Automotive, Vehicle Parts & Accessories/abs_sensor.png | deleted 152
+KEEP: Baby Products, Baby Essentials/activity_gym.png | deleted 140
+KEEP: Beauty & Personal Care/acne_treatment_gel.png | deleted 174
+KEEP: Bicycles, Scooters & Electric Vehicles/adult_scooter.png | deleted 145
+KEEP: Books, Media & Music/academic_books.png | deleted 115
+KEEP: Business & Industrial, Machinery/air_compressor.png | deleted 163
+KEEP: Cameras & Photo/360_camera.png | deleted 127
+KEEP: Clothing, Fashion & Apparel (Men, Women, Kids)/abayas.png | deleted 162
+KEEP: Computers, Tablets & Networking/2_in_1_laptop.png | deleted 185
+KEEP: Construction & Building Materials/aac_blocks.png | deleted 204
+KEEP: Consumer Electronics/aa_batteries.png | deleted 189
+KEEP: Drones & Action Cameras/2_axis_gimbal.png | deleted 151
+KEEP: Electrical Equipment & Supplies/ac_adapter.png | deleted 189
+KEEP: Electronics (TV, Audio, Gaming, etc.)/4k_tv.png | deleted 172
+KEEP: Food & Grocery/beverages.png | deleted 133
+KEEP: Furniture & Home Decor/area_rug.png | deleted 199
+KEEP: Furniture (Sofas, Beds, etc.)/accent_chair.png | deleted 166
+KEEP: Gardening & Outdoor Living/above_ground_pool.png | deleted 198
+KEEP: Gifts & Crafts/acrylic_paint.png | deleted 178
+KEEP: Headphones, Speakers & Audio/3_5mm_audio_cable.png | deleted 144
+KEEP: Health & Medical Supplies/acupressure_mat.png | deleted 174
+KEEP: Health & Wellness/ab_roller.png | deleted 159
+KEEP: Home & Kitchen/air_fryer.png | deleted 212
+KEEP: Home Improvement, Tools & Hardware/acrylic_sealant.png | deleted 215
+KEEP: Industrial Machinery & Equipment/abrasive_wheels.png | deleted 179
+KEEP: Islamic & Religious Products/quran.png | deleted 1
+KEEP: Jewelry, Eyewear & Watches/adjustable_ring.png | deleted 164
+KEEP: Laptops & PCs/2_in_1_convertible_laptop.png | deleted 188
+KEEP: Lighting & Lamps/aquarium_led_light.png | deleted 166
+KEEP: Luggage, Bags & Cases/luggage_bags_cases.png | deleted 1
+KEEP: Makeup, Skincare & Fragrance/acne_treatment_gel.png | deleted 188
+KEEP: Mobile Phones & Accessories/android_smartphone.png | deleted 163
+KEEP: Musical Instruments/acoustic_guitar.png | deleted 1
+KEEP: Office & School Supplies/a3_paper.png | deleted 195
+KEEP: Pet Supplies/agility_tunnel.png | deleted 195
+KEEP: Power Tools & Hand Tools/adjustable_wrench.png | deleted 207
+KEEP: Printing Supplies/black_ink_cartridge.png | deleted 1
+KEEP: Renewable Energy/ac_circuit_breaker.png | deleted 157
+KEEP: Safety & Security/access_control.png | deleted 185
+KEEP: Seasonal & Festival Products/eid_gift_box.png | deleted 1
+KEEP: Second-Hand & Refurbished Goods/refurbished_smartphone.png | deleted 1
+KEEP: Shoes & Accessories/ankle_boots.png | deleted 151
+KEEP: Smart Home & Surveillance/360_security_camera.png | deleted 131
+KEEP: Sports & Outdoors, Fitness/ab_roller.png | deleted 209
+KEEP: Toys, Games & Hobbies/acrylic_paint.png | deleted 173
+KEEP: Vehicles & Transportation/abs_sensor.png | deleted 212
+KEEP: Video Games & Consoles/action_figures.png | deleted 161
+KEEP: Wedding & Event Supplies/wedding_backdrop.png | deleted 1

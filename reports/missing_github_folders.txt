@@ -1,0 +1,6 @@
+featured_only
+flashsale_only
+furniture_sofas_beds_etc
+globalcategory_only
+secondhand_refurbished_goods
+trending_only

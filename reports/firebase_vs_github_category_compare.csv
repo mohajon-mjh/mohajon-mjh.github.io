@@ -1,0 +1,59 @@
+firebase_category,fb_products,github_folder,github_png_count,status
+agriculture_food_beverage,102,"Agriculture, Food & Beverage",97,OK
+air_conditioners_refrigerators_washing_machines,63,"Air Conditioners, Refrigerators, Washing Machines",62,OK
+appliances_home_appliances_large_small,2,"Appliances (Home Appliances, Large & Small)",109,OK
+automotive_vehicle_parts_accessories,2,"Automotive, Vehicle Parts & Accessories",153,OK
+baby_products_baby_essentials,3,"Baby Products, Baby Essentials",141,OK
+bicycles_scooters_electric_vehicles,4,"Bicycles, Scooters & Electric Vehicles",146,OK
+books_media_music,3,"Books, Media & Music",116,OK
+business_industrial_machinery,1,"Business & Industrial, Machinery",164,OK
+cameras_photo,4,"Cameras & Photo",128,OK
+clothing_fashion_apparel_men_women_kids,2,"Clothing, Fashion & Apparel (Men, Women, Kids)",163,OK
+computers_tablets_networking,1,"Computers, Tablets & Networking",186,OK
+construction_building_materials,2,"Construction & Building Materials",205,OK
+consumer_electronics,1,"Consumer Electronics",190,OK
+drones_action_cameras,1,"Drones & Action Cameras",152,OK
+electrical_equipment_supplies,103,"Electrical Equipment & Supplies",190,OK
+electronics_tv_audio_gaming,2,"Electronics (TV, Audio, Gaming, etc.)",173,OK
+featured_only,7,"",0,MISSING_IN_GITHUB
+flashsale_only,116,"",0,MISSING_IN_GITHUB
+food_grocery,3,"Food & Grocery",134,OK
+furniture_home_decor,1,"Furniture & Home Decor",200,OK
+furniture_sofas_beds_etc,3,"",0,MISSING_IN_GITHUB
+gardening_outdoor_living,2,"Gardening & Outdoor Living",199,OK
+gifts_crafts,4,"Gifts & Crafts",179,OK
+globalcategory_only,487,"",0,MISSING_IN_GITHUB
+headphones_speakers_audio,1,"Headphones, Speakers & Audio",145,OK
+health_medical_supplies,2,"Health & Medical Supplies",175,OK
+health_wellness,2,"Health & Wellness",160,OK
+home_improvement_tools_hardware,1,"Home Improvement, Tools & Hardware",216,OK
+home_kitchen,4,"Home & Kitchen",213,OK
+industrial_machinery_equipment,2,"Industrial Machinery & Equipment",180,OK
+jewelry_eyewear_watches,2,"Jewelry, Eyewear & Watches",165,OK
+laptops_pcs,4,"Laptops & PCs",189,OK
+lighting_lamps,192,"Lighting & Lamps",167,OK
+luggage_bags_cases,3,"Luggage, Bags & Cases",2,OK
+makeup_skincare_fragrance,4,"Makeup, Skincare & Fragrance",189,OK
+mobile_phones_accessories,1,"Mobile Phones & Accessories",164,OK
+musical_instruments,110,"Musical Instruments",2,OK
+office_school_supplies,2,"Office & School Supplies",196,OK
+pet_supplies,1,"Pet Supplies",196,OK
+power_tools_hand_tools,2,"Power Tools & Hand Tools",208,OK
+printing_supplies,122,"Printing Supplies",2,OK
+renewable_energy,2,"Renewable Energy",158,OK
+safety_security,3,"Safety & Security",186,OK
+secondhand_refurbished_goods,130,"",0,MISSING_IN_GITHUB
+shoes_accessories,2,"Shoes & Accessories",152,OK
+smart_home_surveillance,2,"Smart Home & Surveillance",132,OK
+sports_outdoors_fitness,3,"Sports & Outdoors, Fitness",210,OK
+toys_games_hobbies,2,"Toys, Games & Hobbies",174,OK
+trending_only,132,"",0,MISSING_IN_GITHUB
+vehicles_transportation,4,"Vehicles & Transportation",213,OK
+video_games_consoles,2,"Video Games & Consoles",162,OK
+,"","Beauty & Personal Care",175,EXTRA_GITHUB_FOLDER
+,"","Furniture (Sofas, Beds, etc.)",167,EXTRA_GITHUB_FOLDER
+,"","Art, Collectibles & Crafts",125,EXTRA_GITHUB_FOLDER
+,"","Islamic & Religious Products",2,EXTRA_GITHUB_FOLDER
+,"","Seasonal & Festival Products",2,EXTRA_GITHUB_FOLDER
+,"","Second-Hand & Refurbished Goods",2,EXTRA_GITHUB_FOLDER
+,"","Wedding & Event Supplies",2,EXTRA_GITHUB_FOLDER
