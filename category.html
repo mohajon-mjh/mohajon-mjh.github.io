@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Category - Mohajon MJH Marketplace</title>
+<meta name="description" content="Explore our products by category. Find the best deals on electronics, fashion, groceries, and more.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f5f5f5;color:#333}
+.header{background:#1a2330;color:#fff;padding:15px 20px;position:sticky;top:0;z-index:100}
+.header h1{font-size:20px;display:inline-block}
+.header a{color:#7dd3fc;text-decoration:none;margin-left:20px}
+.container{max-width:1200px;margin:0 auto;padding:20px}
+.category-header{background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;padding:40px 20px;margin:-20px -20px 30px;text-align:center;border-radius:0 0 12px 12px}
+.category-header h2{font-size:32px;margin-bottom:10px}
+.category-header p{font-size:16px;opacity:0.9}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;margin-bottom:40px}
+.product-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.2s}
+.product-card:hover{transform:translateY(-5px)}
+.product-card img{width:100%;height:200px;object-fit:cover}
+.product-card .info{padding:15px}
+.product-card h3{font-size:16px;margin-bottom:8px;color:#1a2330}
+.product-card .price{color:#e74c3c;font-size:20px;font-weight:bold;margin:10px 0}
+.product-card .old-price{color:#999;text-decoration:line-through;font-size:14px;margin-left:8px}
+.product-card button{width:100%;padding:10px;background:#f39c12;color:#111;border:none;border-radius:6px;font-weight:bold;cursor:pointer;margin-top:10px}
+.product-card button:hover{background:#e67e22;color:#fff}
+.description{background:#fff;padding:30px;border-radius:12px;margin-bottom:30px;box-shadow:0 2px 8px rgba(0,0,0,0.08);line-height:1.8}
+.description h3{color:#1a2330;margin-bottom:15px;border-bottom:2px solid #f39c12;padding-bottom:8px}
+.description p{margin-bottom:15px;color:#444}
+.description ul{margin-left:20px;margin-bottom:15px}
+.description li{margin-bottom:8px}
+.no-products{text-align:center;padding:60px 20px;background:#fff;border-radius:12px}
+.no-products h3{color:#999;font-size:24px;margin-bottom:15px}
+.no-products a{color:#2980b9;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>🛒 Mohajon MJH</h1>
+<a href="/">← Home</a>
+<a href="/contact.html">Contact</a>
+</div>
+
+<div class="container">
+<div class="category-header">
+<h2 id="categoryTitle">Category</h2>
+<p id="categorySubtitle">Explore our collection</p>
+</div>
+
+<div id="descriptionSection" class="description"></div>
+
+<div id="productGrid" class="product-grid"></div>
+</div>
+
+<script>
+const CATEGORY_INFO = {
+  "agriculture_food_beverage": {
+    title: "Agriculture, Food & Beverage",
+    subtitle: "Fresh produce, grains, and packaged foods",
+    description: `<h3>🌾 Agriculture, Food & Beverage - From Farm to Your Table</h3>
+<p>Welcome to our comprehensive Agriculture, Food & Beverage section, where we bring you the finest selection of fresh produce, quality grains, nutritious staples, and packaged foods from trusted suppliers across Bangladesh and beyond.</p>
+
+<p><strong>Why Choose Our Food Products?</strong></p>
+<ul>
+<li>🌱 <strong>Fresh & Quality:</strong> All agricultural products are sourced directly from verified farms, ensuring freshness and quality in every purchase.</li>
+<li>🔬 <strong>Quality Tested:</strong> Each food item undergoes strict quality checks to meet safety standards before reaching your home.</li>
+<li>🚚 <strong>Fast Delivery:</strong> Perishable items are delivered within 1-2 days to maintain freshness.</li>
+<li>💰 <strong>Best Prices:</strong> We work directly with farmers and manufacturers to offer competitive prices without middlemen.</li>
+</ul>
+
+<p><strong>Our Popular Categories:</strong></p>
+<p><strong>Rice & Grains:</strong> From premium Basmati and Miniket rice to wheat, corn, barley, millet, and specialty grains - we have all your staple needs covered. Our rice varieties are perfect for daily meals, biryanis, and special occasions.</p>
+
+<p><strong>Pulses & Legumes:</strong> Discover our wide range of lentils (masoor, moong, cholar), chickpeas, black gram, green gram, and soybeans. These protein-rich foods are essential for a balanced diet and perfect for making dal, curries, and healthy snacks.</p>
+
+<p><strong>Cooking Essentials:</strong> Find everything you need in your kitchen - pure mustard oil, sunflower oil, ghee, butter, salt, sugar, and spices. Our cooking oils are cold-pressed and free from harmful chemicals.</p>
+
+<p><strong>Fresh Produce:</strong> Though we specialize in packaged goods, we also offer seasonal fresh vegetables, fruits, eggs, and dairy products from local farms. All fresh items are carefully packed to maintain their natural flavor and nutrition.</p>
+
+<p><strong>Beverages:</strong> Quench your thirst with our selection of bottled water, fruit juices, herbal teas, coffee, energy drinks, and flavored beverages. We stock both local and international brands.</p>
+
+<p><strong>Specialty Foods:</strong> Looking for something unique? Try our organic honey, dry fruits (almonds, cashews, dates), herbal products, bio-fertilizers for your garden, and traditional Bangladeshi sweets and snacks.</p>
+
+<p><strong>Quality Assurance:</strong></p>
+<p>Every product in this category comes with complete transparency. You can see the source, manufacturing date, expiry date, and nutritional information before purchasing. We believe in building trust through honesty and quality.</p>
+
+<p><strong>Cash on Delivery Available:</strong> Don't want to pay online? No problem! We offer Cash on Delivery across Bangladesh, so you can pay when you receive your order.</p>
+
+<p><strong>Easy Returns:</strong> If you're not satisfied with any food product, you can return it within 7 days for a full refund or exchange. Your satisfaction is our priority.</p>
+
+<p>Start shopping now and experience the convenience of getting farm-fresh and quality food products delivered right to your doorstep. Whether you're cooking for your family, running a restaurant, or just love good food, Mohajon MJH has everything you need!</p>`
+  },
+  "air_conditioners_refrigerators_washing_machines": {
+    title: "Air Conditioners, Refrigerators & Washing Machines",
+    subtitle: "Premium home appliances for comfort and convenience",
+    description: `<h3>❄️ Air Conditioners, Refrigerators & Washing Machines - Complete Home Comfort Solutions</h3>
+<p>Welcome to our comprehensive home appliances section, where we offer the latest and most energy-efficient air conditioners, refrigerators, and washing machines from world-renowned brands. Transform your home into a comfortable, convenient, and modern living space with our carefully curated collection.</p>
+
+<p><strong>Why Choose Our Appliances?</strong></p>
+<ul>
+<li>⚡ <strong>Energy Efficient:</strong> All our appliances come with high energy ratings (3-star to 5-star), helping you save on electricity bills while being environmentally friendly.</li>
+<li>🏆 <strong>Top Brands:</strong> We stock Samsung, LG, Haier, Walton, Gree, Panasonic, Hitachi, and other trusted brands known for durability and performance.</li>
+<li>🔧 <strong>Installation Support:</strong> Professional installation service available for air conditioners and large appliances.</li>
+<li>🛡️ <strong>Warranty:</strong> All products come with manufacturer warranty ranging from 1 to 10 years depending on the model.</li>
+</ul>
+
+<p><strong>Air Conditioners - Stay Cool All Year Round:</strong></p>
+<p>Beat the heat with our extensive range of air conditioners. Choose from split ACs (most popular for homes), window ACs (budget-friendly), portable ACs (move anywhere), cassette ACs (for offices), and central air conditioning systems (for large spaces). Our inverter ACs use advanced technology to save up to 60% electricity compared to conventional models. Available in 1 ton, 1.5 ton, and 2 ton capacities to suit rooms of all sizes.</p>
+
+<p><strong>Refrigerators - Keep Food Fresh Longer:</strong></p>
+<p>Our refrigerator collection includes single-door models (perfect for small families), double-door refrigerators (most popular choice), side-by-side models (for large families), French door refrigerators (premium choice), and triple-door options. Features include frost-free technology, digital temperature control, vegetable crispers, ice makers, and smart connectivity. Capacity ranges from 150 liters to 600+ liters.</p>
+
+<p><strong>Washing Machines - Effortless Laundry:</strong></p>
+<p>Say goodbye to hand washing with our modern washing machines. We offer fully automatic machines (top-load and front-load), semi-automatic machines (budget-friendly), twin-tub machines, and compact portable machines for small spaces. Features include multiple wash programs, quick wash, steam wash, child lock, and energy-saving modes. Capacity options from 6 kg to 12 kg to handle everything from delicate clothes to heavy bedding.</p>
+
+<p><strong>Special Features Across All Products:</strong></p>
+<ul>
+<li>📱 <strong>Smart Connectivity:</strong> Many models offer WiFi connectivity, allowing you to control and monitor your appliances from your smartphone.</li>
+<li>🔇 <strong>Quiet Operation:</strong> Advanced compressor technology ensures whisper-quiet operation.</li>
+<li>🌡️ <strong>Temperature Control:</strong> Precise digital controls for optimal performance.</li>
+<li>💧 <strong>Water Efficiency:</strong> Washing machines use 30-50% less water than traditional methods.</li>
+</ul>
+
+<p><strong>Pricing & Offers:</strong></p>
+<p>We offer competitive prices with regular discounts and seasonal offers. You can save 10-30% on selected models. EMI options available for purchases above ৳20,000 through major banks and financial institutions.</p>
+
+<p><strong>Delivery & Installation:</strong></p>
+<p>Free delivery within Dhaka city. Nationwide delivery in 3-7 days. Professional installation service for air conditioners (additional charge applies). Our technicians will set up your appliance and explain all features before leaving.</p>
+
+<p><strong>After-Sales Support:</strong></p>
+<p>Our service doesn't end with delivery. We provide comprehensive after-sales support including warranty claims, spare parts, and maintenance services. Contact our customer support anytime for assistance.</p>
+
+<p>Upgrade your home today with premium appliances that offer comfort, convenience, and energy savings. Browse our collection and find the perfect appliance for your needs!</p>`
+  },
+  "lighting_lamps": {
+    title: "Lighting & Lamps",
+    subtitle: "Illuminate your space with modern lighting solutions",
+    description: `<h3>💡 Lighting & Lamps - Transform Your Space with Perfect Illumination</h3>
+<p>Welcome to our comprehensive Lighting & Lamps section, where we offer everything from energy-efficient LED bulbs to decorative chandeliers, outdoor lighting, and smart lighting solutions. Create the perfect ambiance for every room and occasion with our carefully selected lighting products.</p>
+
+<p><strong>Why Choose Our Lighting Products?</strong></p>
+<ul>
+<li>💡 <strong>Energy Efficient:</strong> LED technology saves up to 80% energy compared to traditional bulbs, reducing your electricity bills significantly.</li>
+<li>🎨 <strong>Wide Variety:</strong> From functional to decorative, we have lighting solutions for every need and style preference.</li>
+<li>⏰ <strong>Long Lifespan:</strong> LED bulbs last 25,000-50,000 hours, meaning years of reliable service without replacement.</li>
+<li>🌍 <strong>Eco-Friendly:</strong> No mercury, no UV emissions, and fully recyclable - better for you and the environment.</li>
+</ul>
+
+<p><strong>Indoor Lighting Solutions:</strong></p>
+<p><strong>LED Bulbs:</strong> Our most popular category includes LED bulbs in various wattages (3W to 20W), color temperatures (warm white, cool white, daylight), and bases (E27, B22, GU10). Perfect for homes, offices, and commercial spaces.</p>
+
+<p><strong>Tube Lights:</strong> LED tube lights in 2ft, 4ft, and 5ft lengths for offices, shops, and large rooms. They provide bright, uniform lighting while consuming minimal energy.</p>
+
+<p><strong>Decorative Lamps:</strong> Add style to your space with our collection of table lamps, floor lamps, bedside lamps, and desk lamps. Available in modern, traditional, and contemporary designs to match any decor.</p>
+
+<p><strong>Ceiling Lights:</strong> Flush mount ceiling lights, pendant lights, and chandeliers for living rooms, dining areas, and bedrooms. Choose from crystal chandeliers for elegance or minimalist designs for modern homes.</p>
+
+<p><strong>Smart Lighting:</strong> Control your lights with your smartphone or voice commands through Google Home or Alexa. Smart bulbs can change colors, dim automatically, and create schedules for different times of day.</p>
+
+<p><strong>Outdoor Lighting:</strong></p>
+<p><strong>Garden Lights:</strong> Solar-powered garden lights that charge during the day and illuminate your garden at night. No electricity needed!</p>
+
+<p><strong>Security Lights:</strong> Motion-sensor floodlights and security lights that automatically turn on when they detect movement, keeping your property safe.</p>
+
+<p><strong>Street Lights:</strong> LED street lights and pole lights for roads, parking areas, and public spaces. Durable, weather-resistant, and energy-efficient.</p>
+
+<p><strong>Specialty Lighting:</strong></p>
+<ul>
+<li>🎭 <strong>Stage & Event Lighting:</strong> For parties, weddings, and events</li>
+<li>📸 <strong>Photography Lighting:</strong> Ring lights, softboxes, and studio lights</li>
+<li>🏥 <strong>Medical Lighting:</strong> Surgical lights and examination lamps</li>
+<li>🏭 <strong>Industrial Lighting:</strong> High-bay lights for warehouses and factories</li>
+</ul>
+
+<p><strong>Color Temperature Guide:</strong></p>
+<p>2700K-3000K (Warm White): Cozy, relaxing light for bedrooms and living rooms</p>
+<p>4000K-4500K (Cool White): Bright, neutral light for kitchens and offices</p>
+<p>5000K-6500K (Daylight): Bright, energizing light for workspaces and reading</p>
+
+<p><strong>Installation & Support:</strong></p>
+<p>Most of our lighting products are easy to install yourself. For complex installations like chandeliers or outdoor lighting, we recommend professional electricians. All products come with manufacturer warranty and our customer support team is always ready to help with any questions.</p>
+
+<p><strong>Pricing:</strong></p>
+<p>LED bulbs start from just ৳150, making energy-efficient lighting affordable for everyone. Bulk discounts available for businesses and contractors.</p>
+
+<p>Illuminate your world with our quality lighting solutions. Whether you need functional lighting for daily tasks or decorative lighting to create ambiance, we have the perfect product for you!</p>`
+  },
+  "default": {
+    title: "Products",
+    subtitle: "Quality products at great prices",
+    description: `<h3>Welcome to Our Product Collection</h3>
+<p>Explore our carefully curated selection of quality products across various categories. At Mohajon MJH Marketplace, we believe in offering the best products at competitive prices with excellent customer service.</p>
+
+<p><strong>What You'll Find Here:</strong></p>
+<ul>
+<li>✅ Quality-assured products from trusted sellers</li>
+<li>💰 Competitive prices with regular discounts</li>
+<li>🚚 Fast delivery across Bangladesh</li>
+<li>💵 Cash on Delivery available</li>
+<li>🔄 7-day easy return policy</li>
+<li>📞 24/7 customer support</li>
+</ul>
+
+<p>Browse through our products and find exactly what you're looking for. If you have any questions, don't hesitate to contact our support team!</p>`
+  }
+};
+
+const FIREBASE_BASE = "https://mohajon-mjh-default-rtdb.firebaseio.com";
+
+function getCategoryFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id') || 'agriculture_food_beverage';
+}
+
+function formatCategoryName(slug) {
+  return slug.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
+async function loadCategory() {
+  const categoryId = getCategoryFromURL();
+  const info = CATEGORY_INFO[categoryId] || CATEGORY_INFO.default;
+  
+  document.getElementById('categoryTitle').textContent = info.title;
+  document.getElementById('categorySubtitle').textContent = info.subtitle;
+  document.getElementById('descriptionSection').innerHTML = info.description;
+  document.title = `${info.title} - Mohajon MJH Marketplace`;
+  
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = '<p style="text-align:center;padding:40px;color:#999">Loading products...</p>';
+  
+  try {
+    const res = await fetch(`${FIREBASE_BASE}/products.json`);
+    const products = await res.json();
+    
+    const categoryProducts = Object.entries(products)
+      .filter(([id, p]) => p.categoryId === categoryId)
+      .map(([id, p]) => ({id, ...p}));
+    
+    if (categoryProducts.length === 0) {
+      grid.innerHTML = `<div class="no-products"><h3>No products found in this category</h3><p><a href="/">← Back to Home</a></p></div>`;
+      return;
+    }
+    
+    grid.innerHTML = categoryProducts.slice(0, 20).map(p => `
+      <div class="product-card" onclick="window.location.href='/product-details.html?id=${p.id}'">
+        <img src="${p.images?.main || '/assets/images/categories/' + categoryId + '.png'}" alt="${p.title}" onerror="this.src='/assets/images/categories/default.png'">
+        <div class="info">
+          <h3>${p.title}</h3>
+          <div class="price">৳${p.price || 0}${p.oldPrice ? `<span class="old-price">৳${p.oldPrice}</span>` : ''}</div>
+          <button>View Details</button>
+        </div>
+      </div>
+    `).join('');
+    
+    if (categoryProducts.length > 20) {
+      grid.innerHTML += `<p style="grid-column:1/-1;text-align:center;padding:20px;color:#666">Showing 20 of ${categoryProducts.length} products. <a href="/home-products.html" style="color:#2980b9">View all →</a></p>`;
+    }
+  } catch (err) {
+    grid.innerHTML = `<div class="no-products"><h3>Error loading products</h3><p>Please try again later or <a href="/">go to homepage</a></p></div>`;
+  }
+}
+
+loadCategory();
+</script>
+</body>
+</html>
