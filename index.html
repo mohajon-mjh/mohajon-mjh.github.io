@@ -1893,148 +1893,45 @@ get((typeof query!=="undefined"&&typeof orderByChild!=="undefined"&&typeof equal
 
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, push, set, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-const csFirebaseConfig = {
-  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
-  authDomain: "mohajon-mjh.firebaseapp.com",
-  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
-  projectId: "mohajon-mjh",
-  storageBucket: "mohajon-mjh.firebasestorage.app",
-  messagingSenderId: "526105903976",
-  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd",
-  measurementId: "G-RX6CCQZHSH"
-};
+const cfg = { apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw", databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com" };
+const app = getApps().some(a => a.name === "hdApp") ? getApps().find(a => a.name === "hdApp") : initializeApp(cfg, "hdApp");
+const db = getDatabase(app);
+const grid = document.getElementById("comingSoonGrid");
 
-const csApp = getApps().some(a=>a.name==="mjhMain") ? getApps().find(a=>a.name==="mjhMain") : initializeApp(csFirebaseConfig, "mjhMain");
-const csDb = getDatabase(csApp);
-const csAuth = getAuth(csApp);
+function fmt(v) { return window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : "৳" + (+v || 0).toFixed(0); }
 
-let csCurrentUid = null;
-onAuthStateChanged(csAuth, (user)=>{
-  if(user){ csCurrentUid = user.uid; }
-});
-
-const csSection = document.getElementById("comingSoonSection");
-const csGrid = document.getElementById("comingSoonGrid");
-
-function csParseDate(str, endOfDay){
-  if(!str) return null;
-  const parts = String(str).split("-");
-  if(parts.length !== 3) return null;
-  const d = parseInt(parts[0]), m = parseInt(parts[1]), y = parseInt(parts[2]);
-  if(!d || !m || !y) return null;
-  return endOfDay ? new Date(y, m-1, d, 23, 59, 59) : new Date(y, m-1, d, 0, 0, 0);
-}
-function csIsOfferActive(item){
-  const start = csParseDate(item.startDate, false);
-  const end = csParseDate(item.endDate, true);
-  const now = new Date();
-  if(start && now < start) return false;
-  if(end && now > end) return false;
-  return true;
-}
-function csFmtPrice(bdtPrice){
-  if(window.MJHCurrency && typeof window.MJHCurrency.formatPrice === 'function'){
-    return window.MJHCurrency.formatPrice(bdtPrice);
-  }
-  return window.MJHCurrency ? window.MJHCurrency.formatPrice(parseFloat(bdtPrice)||0) : '৳' + (parseFloat(bdtPrice) || 0).toFixed(0);
-}
-
-async function csNotifyMe(productId, btn){
-  if(!csCurrentUid){
-    try{
-      await signInAnonymously(csAuth);
-    }catch(err){
-      alert("লগইন সমস্যা: " + err.message);
+async function loadHotDeals() {
+  if (!grid) return;
+  grid.innerHTML = '<p style="text-align:center;color:#888">🔥 লোড হচ্ছে...</p>';
+  try {
+    const [pidsSnap, prodSnap] = await Promise.all([
+      get(ref(db, "settings/hotDealsProducts")),
+      get(ref(db, "products"))
+    ]);
+    if (!pidsSnap.exists() || !prodSnap.exists()) {
+      grid.innerHTML = '<p style="text-align:center;color:#888">Hot Deals আসছে...</p>';
       return;
     }
-  }
-  const uid = csAuth.currentUser ? csAuth.currentUser.uid : csCurrentUid;
-  if(!uid){ alert("লগইন দরকার"); return; }
-  try{
-    await set(ref(csDb, "futureNotify/" + productId + "/" + uid), true);
-    btn.textContent = "✅ কন্ফার্ম হয়েছে";
-    btn.disabled = true;
-  }catch(err){
-    alert("সমস্যা: " + err.message);
-  }
+    const pids = Object.keys(pidsSnap.val() || {}).slice(0, 30);
+    const prods = prodSnap.val() || {};
+    grid.innerHTML = "";
+    pids.forEach(pid => {
+      const p = prods[pid]; if (!p) return;
+      const img = (p.images && p.images.main) || "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+      const price = +p.price || 0, oldPrice = +p.oldPrice || 0;
+      const disc = oldPrice > price ? Math.round((oldPrice - price) * 100 / oldPrice) : 0;
+      const card = document.createElement("div");
+      card.style.cssText = "background:#fff;border-radius:10px;padding:10px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.08);min-width:160px;max-width:160px";
+      card.onclick = () => { location.href = "product-details.html?id=" + pid; };
+      card.innerHTML = '<div style="position:relative"><img src="' + img + '" style="width:100%;height:130px;object-fit:cover;border-radius:8px">' + (disc > 0 ? '<span style="position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">-' + disc + '%</span>' : '') + '</div><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">' + (p.title || "") + '</b><div style="font-weight:800;margin-bottom:6px">' + fmt(price) + (disc > 0 ? ' <span style="color:#999;text-decoration:line-through;font-weight:400;font-size:11px">' + fmt(oldPrice) + '</span>' : '') + '</div><a href="product-details.html?id=' + pid + '" style="display:block;text-align:center;background:#e74c3c;color:#fff;padding:6px;border-radius:6px;font-weight:700;text-decoration:none;font-size:12px">🔥 Grab Deal</a>';
+      grid.appendChild(card);
+    });
+  } catch (e) { grid.innerHTML = '<p style="text-align:center;color:#c33">Error</p>'; }
 }
-window.csNotifyMe = csNotifyMe;
-
-onValue(ref(csDb, "futureProducts"), (snapshot)=>{
-  const data = snapshot.val() || {};
-  const entries = Object.entries(data).filter(([id, item]) => !item.released);
-
-  if(entries.length === 0){
-    csSection.style.display = "none";
-    return;
-  }
-
-  csSection.style.display = "block";
-  csGrid.innerHTML = "";
-
-  entries.sort((a,b) => (b[1].createdAt||0) - (a[1].createdAt||0));
-
-  const CS_LIMIT = 10;
-  let csRendered = 0;
-
-  function csRemoveArrow(){
-    const oldArrow = csGrid.querySelector(".scroll-arrow-card");
-    if(oldArrow) oldArrow.remove();
-  }
-  function csAddArrow(){
-    csRemoveArrow();
-    const arrowCard = document.createElement("div");
-    arrowCard.className = "scroll-arrow-card";
-    arrowCard.innerHTML = "<span>→</span>";
-    arrowCard.addEventListener("click", () => { csRenderNext(); });
-    csGrid.appendChild(arrowCard);
-  }
-  function csBuildCard(id, item){
-    const imgUrl = (item.images && item.images.main) ? item.images.main : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
-    const price = parseFloat(item.expectedPrice) || 0;
-    const priceDisplay = csFmtPrice(price);
-    const hasOldPrice = item.marketPrice !== null && item.marketPrice !== undefined && item.marketPrice !== "" && parseFloat(item.marketPrice) > 0;
-    const oldPrice = hasOldPrice ? parseFloat(item.marketPrice) : 0;
-    const discount = (hasOldPrice && oldPrice > price && price > 0) ? Math.round((1 - price/oldPrice) * 100) : (parseInt(item.discountPercent) || 0);
-    const saveAmount = hasOldPrice ? (oldPrice - price) : 0;
-    const oldPriceDisplay = hasOldPrice ? csFmtPrice(oldPrice) : "";
-    let csDateHTML = "";
-    if(item.startDate || item.endDate){
-      const dateText = (item.startDate && item.endDate) ? ("⏰ অফার: " + item.startDate + " থেকে " + item.endDate + " পর্যন্ত") : (item.endDate ? ("⏰ অফার শেষ: " + item.endDate) : ("⏰ অফার শুরু: " + item.startDate));
-      csDateHTML = '<div style="font-size:11px;color:#e67e22;margin:4px 0;font-weight:600">' + dateText + '</div>';
-    }
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div style="position:relative">
-        <img src="${imgUrl}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${item.title || 'Product'}">
-        <span style="position:absolute;top:6px;left:6px;background:#8b5cf6;color:#fff;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px">🔜 নতুন আগমনী</span>
-        ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
-        ${saveAmount > 0 ? `<span class="save-badge">Save ${csFmtPrice(saveAmount)}</span>` : ""}
-      </div>
-      <h3>${item.title || "Unnamed Product"}</h3>
-      <p><b>${priceDisplay}</b> ${hasOldPrice ? `<span style="text-decoration:line-through;color:#888;font-size:0.85em;margin-left:6px">${oldPriceDisplay}</span>` : ""}</p>
-      ${csDateHTML}
-      <button class="btn-add-to-cart" disabled style="width:100%;background:#94a3b8;cursor:not-allowed">Add to Cart</button>
-      <button class="btn-buy-now" disabled style="width:100%;background:#fbbf24;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:not-allowed;opacity:0.7">⚡ Buy Now</button>
-      <button class="cs-notify-btn" style="width:100%;background:#2563eb;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer">🔔 Notify Me</button>
-    `;
-    const notifyBtn = card.querySelector(".cs-notify-btn");
-    notifyBtn.addEventListener("click", ()=> csNotifyMe(id, notifyBtn));
-    return card;
-  }
-  function csRenderNext(){
-    csRemoveArrow();
-    const next = entries.slice(csRendered, csRendered + CS_LIMIT);
-    next.forEach(([id, item]) => csGrid.appendChild(csBuildCard(id, item)));
-    csRendered += next.length;
-    if(csRendered < entries.length){ csAddArrow(); }
-  }
-  csRenderNext();
-}, { onlyOnce: true });
+loadHotDeals();
+document.addEventListener("currencyChanged", loadHotDeals);
 </script>
 
 <script>
