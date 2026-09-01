@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
 <script>/*speed-v1*/
 (function(){var n=0;var t=setInterval(function(){n++;if(n>15){clearInterval(t);return;}
- document.querySelectorAll("img:not([প্রস্তুত হচ্ছে])").forEach(function(im){im.প্রস্তুত হচ্ছে="lazy";im.decoding="async";});
+ document.querySelectorAll("img:not([প্রস্তুত হচ্ছে])").forEach(function(im){im.loading="lazy";im.decoding="async";});
 },2000);})();
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
@@ -1017,7 +1017,7 @@ function renderFlashSaleCard(id, data, mapInfo){
       ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
       <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
       <img src="${imageUrl}" alt="${data.title || data.name || 'Product'}"
-           প্রস্তুত হচ্ছে="lazy"
+           loading="lazy"
            onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
     </div>
     <div class="product-card-content">
@@ -1227,55 +1227,32 @@ fsInitCategories();
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-
-const cfg = {
-  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
-  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com"
-};
+const cfg = { apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw", databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com" };
 const app = getApps().some(a => a.name === "trApp") ? getApps().find(a => a.name === "trApp") : initializeApp(cfg, "trApp");
 const db = getDatabase(app);
 const grid = document.getElementById("trendingProductsGrid");
-
-function fmt(v) {
-  return window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : "৳" + (+v || 0).toFixed(0);
-}
-
+function fmt(v) { return window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : "৳" + (+v || 0).toFixed(0); }
 async function loadTrending() {
   if (!grid) return;
   grid.innerHTML = '<p style="text-align:center;color:#888">🛍️ লোড হচ্ছে...</p>';
   try {
-    const [pidsSnap, prodSnap] = await Promise.all([
-      get(ref(db, "settings/trendingProducts")),
-      get(ref(db, "products"))
-    ]);
-    if (!pidsSnap.exists() || !prodSnap.exists()) {
-      grid.innerHTML = '<p style="text-align:center;color:#888">Trending products আসছে...</p>';
-      return;
-    }
-    const pids = Object.keys(pidsSnap.val() || {}).slice(0, 30);
-    const prods = prodSnap.val() || {};
+    const [a, b] = await Promise.all([get(ref(db, "settings/trendingProducts")), get(ref(db, "products"))]);
+    if (!a.exists() || !b.exists()) { grid.innerHTML = '<p style="text-align:center;color:#888">Trending products আসছে...</p>'; return; }
+    const pids = Object.keys(a.val() || {}).slice(0, 30);
+    const prods = b.val() || {};
     grid.innerHTML = "";
     pids.forEach(pid => {
-      const p = prods[pid];
-      if (!p) return;
+      const p = prods[pid]; if (!p) return;
       const img = (p.images && p.images.main) || "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
-      const price = +p.price || 0;
-      const oldPrice = +p.oldPrice || 0;
+      const price = +p.price || 0, oldPrice = +p.oldPrice || 0;
       const disc = oldPrice > price ? Math.round((oldPrice - price) * 100 / oldPrice) : 0;
       const card = document.createElement("div");
-      card.className = "card";
       card.style.cssText = "background:#fff;border-radius:10px;padding:10px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.08);min-width:160px;max-width:160px";
       card.onclick = () => { location.href = "product-details.html?id=" + pid; };
-      card.innerHTML = '<div style="position:relative"><img src="'+img+'" style="width:100%;height:130px;object-fit:cover;border-radius:8px" onerror="this.src=\'https://dummyimage.com/300x300/eeeeee/555555&text=MJH\'">' +
-        (disc > 0 ? '<span style="position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">-'+disc+'%</span>' : '') +
-        '</div><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">'+(p.title || "")+'</b>' +
-        '<div style="font-weight:800;margin-bottom:6px">'+fmt(price) + (disc > 0 ? ' <span style="color:#999;text-decoration:line-through;font-weight:400;font-size:11px">'+fmt(oldPrice)+'</span>' : '') + '</div>' +
-        '<a href="product-details.html?id='+pid+'" style="display:block;text-align:center;background:#3498db;color:#fff;border:none;padding:6px;border-radius:6px;font-weight:700;text-decoration:none;font-size:12px">🛒 View</a>';
+      card.innerHTML = '<div style="position:relative"><img src="' + img + '" style="width:100%;height:130px;object-fit:cover;border-radius:8px">' + (disc > 0 ? '<span style="position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">-' + disc + '%</span>' : '') + '</div><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">' + (p.title || "") + '</b><div style="font-weight:800;margin-bottom:6px">' + fmt(price) + (disc > 0 ? ' <span style="color:#999;text-decoration:line-through;font-weight:400;font-size:11px">' + fmt(oldPrice) + '</span>' : '') + '</div><a href="product-details.html?id=' + pid + '" style="display:block;text-align:center;background:#3498db;color:#fff;padding:6px;border-radius:6px;font-weight:700;text-decoration:none;font-size:12px">🛒 View</a>';
       grid.appendChild(card);
     });
-  } catch (e) {
-    grid.innerHTML = '<p style="text-align:center;color:#c33">Error: ' + e.message + '</p>';
-  }
+  } catch (e) { grid.innerHTML = '<p style="text-align:center;color:#c33">Error</p>'; }
 }
 loadTrending();
 document.addEventListener("currencyChanged", loadTrending);
@@ -1391,7 +1368,7 @@ function renderDealCard(id, data, mapInfo){
       ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
       <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
       <img src="${imageUrl}" alt="${data.title || data.name || 'Product'}"
-           প্রস্তুত হচ্ছে="lazy"
+           loading="lazy"
            onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
     </div>
     <div class="product-card-content">
@@ -1663,7 +1640,7 @@ async function loadSpecialCategoryProducts(slug, scroll = true){
               ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
               <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
               <img src="${imageUrl}" alt="${p.title || "Product"}"
-                   প্রস্তুত হচ্ছে="lazy"
+                   loading="lazy"
                    onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
             </div>
             <div class="product-card-content">
@@ -1848,7 +1825,7 @@ function renderFeatCard(id, p){
       ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
       ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
       <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
-      <img src="${imageUrl}" alt="${p.title || 'Product'}" প্রস্তুত হচ্ছে="lazy" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
+      <img src="${imageUrl}" alt="${p.title || 'Product'}" loading="lazy" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
     </div>
     <div class="product-card-content">
       <h3 class="product-card-title">${p.title || "Unnamed Product"}</h3>
@@ -2033,7 +2010,7 @@ onValue(ref(csDb, "futureProducts"), (snapshot)=>{
     card.className = "card";
     card.innerHTML = `
       <div style="position:relative">
-        <img src="${imgUrl}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" প্রস্তুত হচ্ছে="lazy" alt="${item.title || 'Product'}">
+        <img src="${imgUrl}" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';" loading="lazy" alt="${item.title || 'Product'}">
         <span style="position:absolute;top:6px;left:6px;background:#8b5cf6;color:#fff;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:6px">🔜 নতুন আগমনী</span>
         ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
         ${saveAmount > 0 ? `<span class="save-badge">Save ${csFmtPrice(saveAmount)}</span>` : ""}
@@ -2209,7 +2186,7 @@ const gcSection = document.getElementById("globalCatSection");
           ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
           ${saveAmt > 0 ? `<span class="save-badge">Save ${fmtP(saveAmt)}</span>` : ""}
           <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
-          <img src="${imageUrl}" alt="${p.title || "Product"}" প্রস্তুত হচ্ছে="lazy" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
+          <img src="${imageUrl}" alt="${p.title || "Product"}" loading="lazy" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
         </div>
         <div class="product-card-content">
           <h3 class="product-card-title">${p.title || "Unnamed Product"}</h3>
@@ -2812,7 +2789,7 @@ console.log("currency-fix-v2 ready");
     var price=+v.price||0;
     var img=(v.images&&v.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
     var c=document.createElement("div");c.className="product-card";c.style.cursor="pointer";
-    c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" প্রস্তুত হচ্ছে="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(v.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';
+    c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" loading="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(v.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';
     c.addEventListener("click",function(){location.href="product-details.html?id="+id;});
     c.style.display=i<LIMIT?"":"none";
     g.appendChild(c);
@@ -2937,7 +2914,7 @@ document.addEventListener("click",function(e){
  var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
  function stuck(id){var g=document.getElementById(id);return g&&g.textContent.indexOf("লোড হচ্ছে")>-1&&g.querySelectorAll(".product-card").length===0;}
  function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"৳"+(+v||0).toFixed(0);}
- function card(id,p){var price=+p.price||0;var img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";var c=document.createElement("div");c.className="product-card";c.style.cursor="pointer";c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" প্রস্তুত হচ্ছে="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(p.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';c.addEventListener("click",function(){location.href="product-details.html?id="+id;});return c;}
+ function card(id,p){var price=+p.price||0;var img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";var c=document.createElement("div");c.className="product-card";c.style.cursor="pointer";c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" loading="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(p.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';c.addEventListener("click",function(){location.href="product-details.html?id="+id;});return c;}
  async function j(u){try{var r=await fetch(BASE+u+".json");return await r.json();}catch(e){return null;}}
  async function loadFlash(){
   if(!stuck("flashSaleProductsGrid"))return;
@@ -3001,7 +2978,7 @@ for(var i=0;i<pids.length;i++){
 var p=await j("products/"+pids[i]);if(!p)continue;
 var d=document.createElement("div");d.style.cssText="min-width:160px;background:#fff;border-radius:10px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,.15)";
 var img=(p.images&&p.images.main)?p.images.main:"";
-d.innerHTML="<a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:110px;object-fit:cover;border-radius:8px'><b style='font-size:13px'>"+(p.title||"")+"</b></a><div style='font-weight:700'>'+(window.MJHCurrency?window.MJHCurrency.formatPrice(p.price||0):"৳"+(p.price||0))+'</div>";
+d.innerHTML="<a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:110px;object-fit:cover;border-radius:8px'><b style='font-size:13px'>"+(p.title||"")+"</b></a><div style='font-weight:700'>"+(window.MJHCurrency?window.MJHCurrency.formatPrice(p.price||0):"৳"+(p.price||0))+"</div>";
 box.appendChild(d);}}
 if(document.readyState==="complete")render();else window.addEventListener("load",render);
 })();
@@ -3077,7 +3054,7 @@ var p=await j("products/"+pids[i]);if(!p)continue;
 var d=document.createElement("div");d.style.cssText="min-width:170px;background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.12)";
 var img=(p.images&&p.images.main)?p.images.main:"";
 var disc=p.discountPercent||0;var fin=disc>0?(p.price*(100-disc)/100):p.price;
-d.innerHTML="<div style='position:relative'><a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:120px;object-fit:cover;border-radius:8px'></a><span style='position:absolute;top:4px;left:4px;background:#2ecc71;color:#fff;padding:3px 7px;border-radius:4px;font-size:11px'>IN STOCK</span>"+(disc>0?"<span style='position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:3px 7px;border-radius:4px;font-size:11px'>-"+disc+"%</span>":"")+"</div><b style='font-size:13px;display:block;margin:8px 0'>"+(p.title||"")+"</b><div style='font-weight:800;margin-bottom:8px'>'+(window.MJHCurrency?window.MJHCurrency.formatPrice(fin):"৳"+fin)+' "+(disc>0?"<span style='color:#999;text-decoration:line-through;font-weight:400'>'+(window.MJHCurrency?window.MJHCurrency.formatPrice(p.price):"৳"+p.price)+'</span>":"")+"</div><a href='product-details.html?id="+pids[i]+"'><button style='width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px'>🛒 Add to Cart</button></a><a href='product-details.html?id="+pids[i]+"&buy=1'><button style='width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700'>⚡ Buy Now</button></a>";
+d.innerHTML="<div style='position:relative'><a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:120px;object-fit:cover;border-radius:8px'></a><span style='position:absolute;top:4px;left:4px;background:#2ecc71;color:#fff;padding:3px 7px;border-radius:4px;font-size:11px'>IN STOCK</span>"+(disc>0?"<span style='position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:3px 7px;border-radius:4px;font-size:11px'>-"+disc+"%</span>":"")+"</div><b style='font-size:13px;display:block;margin:8px 0'>"+(p.title||"")+"</b><div style='font-weight:800;margin-bottom:8px'>"+(window.MJHCurrency?window.MJHCurrency.formatPrice(fin):"৳"+fin)+" "+(disc>0?"<span style='color:#999;text-decoration:line-through;font-weight:400'>"+(window.MJHCurrency?window.MJHCurrency.formatPrice(p.price):"৳"+p.price)+"</span>":"")+"</div><a href='product-details.html?id="+pids[i]+"'><button style='width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px'>🛒 Add to Cart</button></a><a href='product-details.html?id="+pids[i]+"&buy=1'><button style='width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700'>⚡ Buy Now</button></a>";
 box.appendChild(d);}
 }
 if(document.readyState==="complete")run();else window.addEventListener("load",run);
@@ -3139,42 +3116,8 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 </p>
 </div>
 </section>
-
-<script>
-(function(){
-  if (localStorage.getItem("selectedCurrency")) return;
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const lang = (navigator.language || "en").toLowerCase();
-    let cur = "BDT";
-    if (tz.includes("Riyadh") || tz.includes("Kuwait") || tz.includes("Qatar") || lang.includes("ar-sa")) cur = "SAR";
-    else if (tz.includes("Dubai")) cur = "AED";
-    else if (tz.includes("New_York") || tz.includes("Chicago") || tz.includes("Los_Angeles") || lang.startsWith("en-us")) cur = "USD";
-    else if (tz.includes("London") || lang.startsWith("en-gb")) cur = "GBP";
-    else if (tz.includes("Paris") || tz.includes("Berlin") || tz.includes("Rome")) cur = "EUR";
-    else if (tz.includes("Kolkata") || lang.startsWith("en-in")) cur = "INR";
-    else if (tz.includes("Kuala_Lumpur") || tz.includes("Singapore")) cur = "MYR";
-    else if (tz.includes("Karachi")) cur = "PKR";
-    else if (tz.includes("Kathmandu")) cur = "NPR";
-    else if (tz.includes("Dhaka") || lang.startsWith("bn")) cur = "BDT";
-    if (window.MJHCurrency && window.MJHCurrency.setSelectedCurrency) {
-      window.MJHCurrency.setSelectedCurrency(cur);
-    } else {
-      localStorage.setItem("selectedCurrency", cur);
-    }
-    console.log("Auto-currency:", cur, "(tz:", tz + ")");
-  } catch(e) {}
-})();
-</script>
-
 <script>/*currency-poll-v1*/
-(function(){
-  var last = localStorage.getItem("selectedCurrency") || "BDT";
-  setInterval(function(){
-    var now = localStorage.getItem("selectedCurrency") || "BDT";
-    if (now !== last) { location.reload(); }
-  }, 1200);
-})();
+(function(){var last=localStorage.getItem("selectedCurrency")||"BDT";setInterval(function(){var now=localStorage.getItem("selectedCurrency")||"BDT";if(now!==last){location.reload();}},1200);})();
 </script>
 </body>
 </html>
