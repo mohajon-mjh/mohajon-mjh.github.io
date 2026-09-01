@@ -2976,5 +2976,31 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
   document.addEventListener("currencyChanged",function(){ var g=document.getElementById("comingSoonGrid"); if(g){ g.innerHTML=""; fill(g); } });
 })();
 </script>
+
+<script>/*arrow-fix-v1*/
+(function(){
+  function makeArrow(grid){
+    var a=document.createElement('div');
+    a.className='scroll-arrow-card';
+    a.style.cssText='min-width:42px;max-width:42px;flex:0 0 42px;border:2px solid #2ecc71;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#2ecc71;font-size:22px;cursor:pointer;background:#fff;align-self:stretch;';
+    a.innerHTML='→';
+    a.onclick=function(){ grid.scrollBy({left:grid.clientWidth*0.8,behavior:'smooth'}); };
+    return a;
+  }
+  function fix(grid){
+    var cards=Array.prototype.slice.call(grid.children).filter(function(c){return !c.classList.contains('scroll-arrow-card');});
+    var has=grid.querySelector('.scroll-arrow-card');
+    if(has || cards.length<=10) return;
+    for(var i=10;i<cards.length;i+=10){
+      grid.insertBefore(makeArrow(grid), cards[i]);
+    }
+  }
+  function run(){
+    document.querySelectorAll('.trending-scroll-wrapper').forEach(function(g){ fix(g); });
+  }
+  setInterval(run,4000);
+  setTimeout(run,2000);
+})();
+</script>
 </body>
 </html>
