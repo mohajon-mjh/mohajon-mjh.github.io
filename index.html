@@ -947,457 +947,58 @@ drawDots();
 
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst, startAfter, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-const fsFirebaseConfig = {
+const cfg = {
   apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
-  authDomain: "mohajon-mjh.firebaseapp.com",
-  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
-  projectId: "mohajon-mjh",
-  storageBucket: "mohajon-mjh.firebasestorage.app",
-  messagingSenderId: "526105903976",
-  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd",
-  measurementId: "G-RX6CCQZHSH"
+  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com"
 };
+const app = getApps().some(a => a.name === "trApp") ? getApps().find(a => a.name === "trApp") : initializeApp(cfg, "trApp");
+const db = getDatabase(app);
+const grid = document.getElementById("trendingProductsGrid");
 
-const fsApp = getApps().some(a=>a.name==="mjhMain") ? getApps().find(a=>a.name==="mjhMain") : initializeApp(fsFirebaseConfig, "mjhMain");
-const fsDb = getDatabase(fsApp);
-
-function fsIsWished(id){
-  const list = JSON.parse(localStorage.getItem("wishlist") || "[]");
-  return list.some(i => i.id === id);
+function fmt(v) {
+  return window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : "৳" + (+v || 0).toFixed(0);
 }
 
-function renderFlashSaleCard(id, data, mapInfo){
-  mapInfo = mapInfo || {};
-  const salePrice = parseFloat(data.price) || 0;
-  const hasOldPrice = data.discountPrice !== null && data.discountPrice !== undefined && data.discountPrice !== "" && parseFloat(data.discountPrice) > 0;
-  const oldPrice = hasOldPrice ? parseFloat(data.discountPrice) : 0;
-  const discount = parseInt(mapInfo.discountPercent) || 0;
-  const saveAmount = hasOldPrice ? (oldPrice - salePrice) : 0;
-  const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
-  const priceDisplay = fmtP(salePrice);
-  const oldPriceDisplay = hasOldPrice ? fmtP(oldPrice) : "";
-  const stock = parseInt(data.stock) || 0;
-
-  const imageUrl =
-    data.images && data.images.main && data.images.main.trim() !== ""
-      ? data.images.main
-      : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
-
-  const wished = fsIsWished(id);
-
-  let dateRangeHTML = "";
-  if(mapInfo.startDate || mapInfo.endDate){
-    let dateText = "";
-    if(mapInfo.startDate && mapInfo.endDate){
-      dateText = "⏰ অফার: " + mapInfo.startDate + " থেকে " + mapInfo.endDate + " পর্যন্ত";
-    } else if(mapInfo.endDate){
-      dateText = "⏰ অফার শেষ: " + mapInfo.endDate;
-    } else if(mapInfo.startDate){
-      dateText = "⏰ অফার শুরু: " + mapInfo.startDate;
-    }
-    dateRangeHTML = '<div class="offer-date-badge" style="font-size:11px;color:#e67e22;margin:4px 0;font-weight:600">' + dateText + '</div>';
-  }
-
-  const stockBadge = stock <= 0
-    ? '<span class="stock-badge out-of-stock">Out of Stock</span>'
-    : (stock <= 5
-        ? '<span class="stock-badge low-stock">Low Stock</span>'
-        : '<span class="stock-badge in-stock">In Stock</span>');
-
-  const card = document.createElement("div");
-  card.className = "product-card";
-  card.style.cursor = "pointer";
-
-  card.innerHTML = `
-    <div class="product-card-image">
-      ${stockBadge}
-      ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
-      ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
-      <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
-      <img src="${imageUrl}" alt="${data.title || data.name || 'Product'}"
-           প্রস্তুত হচ্ছে="lazy"
-           onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
-    </div>
-    <div class="product-card-content">
-      <h3 class="product-card-title">${data.title || data.name || "Unnamed Product"}</h3>
-      <div class="product-card-price">
-        <span class="current-price" data-price-bdt="${salePrice}">${priceDisplay}</span>
-        ${hasOldPrice ? `<span class="old-price" data-old-price-bdt="${oldPrice}">${oldPriceDisplay}</span>` : ""}
-      </div>
-      ${dateRangeHTML}
-      <div class="product-card-actions" style="flex-direction:column">
-        <button class="btn-add-to-cart" ${stock<=0 ? "disabled" : ""} style="width:100%">${stock<=0 ? "Out of Stock" : "🛒 Add to Cart"}</button>
-        <button class="btn-buy-now" ${stock<=0 ? "disabled" : ""} style="width:100%;background:#f59e0b;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer">⚡ Buy Now</button>
-      </div>
-    </div>
-  `;
-
-  const cartBtn = card.querySelector(".btn-add-to-cart");
-  if(cartBtn && stock > 0){
-    cartBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if(typeof addCart === "function"){
-        addCart(id, data.title || data.name, salePrice);
-      }
-      cartBtn.textContent = "Added ✓";
-      setTimeout(()=>{ cartBtn.textContent = "🛒 Add to Cart"; }, 1200);
-    });
-  }
-
-  const buyBtn = card.querySelector(".btn-buy-now");
-  if(buyBtn && stock > 0){
-    buyBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if(typeof addCart === "function"){
-        addCart(id, data.title || data.name, salePrice);
-      }
-      window.location.href = "cart.html";
-    });
-  }
-
-  const wishBtn = card.querySelector(".btn-wishlist-overlay");
-  if(wishBtn){
-    wishBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if(typeof toggleWishlist === "function"){
-        toggleWishlist(id, data.title || data.name);
-      }
-      wishBtn.classList.toggle("active");
-    });
-  }
-
-  card.addEventListener("click", () => {
-    window.location.href = `product-details.html?id=${id}`;
-  });
-
-  return card;
-}
-
-// (পুরনো লেবেল লোডিং সরানো হয়েছে, এখন ক্যাটাগরি নাম ডাইনামিক)
-
-const flashSaleGrid = document.getElementById("flashSaleProductsGrid");
-const FS_STRIP_LIMIT = 20;
-let fsAllItems = [];
-let fsRenderedCount = 0;
-let fsGlobalDiscount = 0;
-
-function fsRemoveArrow(){
-  const old = flashSaleGrid.querySelector(".scroll-arrow-card");
-  if(old) old.remove();
-}
-
-function fsAddArrow(){
-  fsRemoveArrow();
-  const arrowCard = document.createElement("div");
-  arrowCard.className = "scroll-arrow-card";
-    arrowCard.style.cssText = "flex:0 0 60px;min-width:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border-radius:12px;margin-left:6px;border:2px solid #16a34a;box-shadow:0 2px 8px rgba(22,163,74,.25);";
-  arrowCard.innerHTML = "<span>→</span>";
-    arrowCard.firstChild.style.cssText = "color:#16a34a;font-weight:900;font-size:36px;line-height:1;";
-  arrowCard.addEventListener("click", () => { fsRenderNextBatch(); });
-  flashSaleGrid.appendChild(arrowCard);
-}
-
-function fsRenderNextBatch(){
-  fsRemoveArrow();
-  const nextItems = fsAllItems.slice(fsRenderedCount, fsRenderedCount + FS_STRIP_LIMIT);
-  nextItems.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data, it.mapInfo)));
-  fsRenderedCount += nextItems.length;
-  if(fsRenderedCount < fsAllItems.length){
-    fsAddArrow();
-  }
-}
-
-function fsParseDate(str, endOfDay){
-  if(!str) return null;
-  const parts = str.split("-");
-  if(parts.length !== 3) return null;
-  const d = parseInt(parts[0]), m = parseInt(parts[1]), y = parseInt(parts[2]);
-  if(!d || !m || !y) return null;
-  return endOfDay ? new Date(y, m-1, d, 23, 59, 59) : new Date(y, m-1, d, 0, 0, 0);
-}
-
-function fsIsOfferActive(mapInfo){
-  const start = fsParseDate(mapInfo.startDate, false);
-  const end = fsParseDate(mapInfo.endDate, true);
-  const now = new Date();
-  if(start && now < start) return false;
-  if(end && now > end) return false;
-  return true;
-}
-
-let fscCatsCache = {};
-
-function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flashCatsRow .cat[data-cat="'+catId+'"]');var __nm=__bn?__bn.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("fsc:"+catId)||window.MJHCategoryGate.isOff("fscname:"+window.MJHCategoryGate.norm(__nm)))){flashSaleGrid.innerHTML='<p style="text-align:center;color:#888;padding:20px">🛍️ Hot Deals...</p>';fsAllItems=[];return;}
-  document.querySelectorAll("#flashCatsRow .cat").forEach(b => b.classList.remove("active"));
-  const activeBtn = document.querySelector(`#flashCatsRow .cat[data-cat="${catId}"]`);
-  if(activeBtn) activeBtn.classList.add("active");
-
-  flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
-
-  get(ref(fsDb, "settings/flashSaleCategoryProducts/"+catId)).then(async (mapSnap) => {
-    const map = mapSnap.exists() ? mapSnap.val() : {};
-    const pids = Object.keys(map);
-    if(pids.length === 0){
-      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো প্রোডাক্ট যোগ করা হয়নি।</p>";
-      fsAllItems = [];
+async function loadTrending() {
+  grid.innerHTML = '<p style="text-align:center;color:#888">🛍️ লোড হচ্ছে...</p>';
+  try {
+    const [pidsSnap, prodSnap] = await Promise.all([
+      get(ref(db, "settings/trendingProducts")),
+      get(ref(db, "products"))
+    ]);
+    if (!pidsSnap.exists() || !prodSnap.exists()) {
+      grid.innerHTML = '<p style="text-align:center;color:#888">Trending products আসছে...</p>';
       return;
     }
-    const results = await Promise.all(pids.map(async (pid) => {
-      try{
-        const pSnap = await get(ref(fsDb, "products/"+pid));
-        if(!pSnap.exists()) return null;
-        const data = pSnap.val();
-        if(data.status !== "active") return null;
-        const mapInfo = map[pid] || {};
-        /* date filter removed */
-        return { id: pid, data, mapInfo };
-      }catch(e){ return null; }
-    }));
-    fsAllItems = results.filter(Boolean);
-    fsRenderedCount = 0;
-    flashSaleGrid.innerHTML = "";
-    if(fsAllItems.length === 0){
-      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো প্রোডাক্ট যোগ করা হয়নি।</p>";
-      return;
-    }
-    fsRenderNextBatch();
-  }).catch((err) => {
-    flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>লোড করতে সমস্যা হয়েছে।</p>";
-    console.error(err);
-  });
-}
-window.loadFlashCategoryProducts = loadFlashCategoryProducts;
-
-function fsInitCategories(){
-  const catsRow = document.getElementById("flashCatsRow");
-  onValue(ref(fsDb, "settings/flashSaleCategories"), (snapshot) => {
-    fscCatsCache = snapshot.val() || {};
-    const entries = Object.entries(fscCatsCache).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
-    catsRow.innerHTML = "";
-    if(entries.length === 0){
-      catsRow.innerHTML = "<p style='text-align:center;color:#888'>কোনো Flash Sale ক্যাটাগরি নেই</p>";
-      flashSaleGrid.innerHTML = "";
-      return;
-    }
-    entries.forEach(([id, item], idx) => {
-      const a = document.createElement("a");
-      a.href = "javascript:void(0)";
-      a.className = "cat";
-      a.dataset.cat = id;
-      a.textContent = item.name || "Unnamed";
-      a.onclick = () => loadFlashCategoryProducts(id);
-      catsRow.appendChild(a);
+    const pids = Object.keys(pidsSnap.val() || {}).slice(0, 30);
+    const prods = prodSnap.val() || {};
+    grid.innerHTML = "";
+    pids.forEach(pid => {
+      const p = prods[pid];
+      if (!p) return;
+      const img = (p.images && p.images.main) || "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+      const price = +p.price || 0;
+      const oldPrice = +p.oldPrice || 0;
+      const disc = oldPrice > price ? Math.round((oldPrice - price) * 100 / oldPrice) : 0;
+      const card = document.createElement("div");
+      card.className = "card";
+      card.style.cssText = "background:#fff;border-radius:10px;padding:10px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.08);min-width:160px;max-width:160px";
+      card.onclick = () => { location.href = "product-details.html?id=" + pid; };
+      card.innerHTML = '<div style="position:relative"><img src="'+img+'" style="width:100%;height:130px;object-fit:cover;border-radius:8px" onerror="this.src=\'https://dummyimage.com/300x300/eeeeee/555555&text=MJH\'">' +
+        (disc > 0 ? '<span style="position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">-'+disc+'%</span>' : '') +
+        '</div><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">'+(p.title || "")+'</b>' +
+        '<div style="font-weight:800;margin-bottom:6px">'+fmt(price) + (disc > 0 ? ' <span style="color:#999;text-decoration:line-through;font-weight:400;font-size:11px">'+fmt(oldPrice)+'</span>' : '') + '</div>' +
+        '<a href="product-details.html?id='+pid+'" style="display:block;text-align:center;background:#3498db;color:#fff;border:none;padding:6px;border-radius:6px;font-weight:700;text-decoration:none;font-size:12px">🛒 View</a>';
+      grid.appendChild(card);
     });
-    const firstId = entries[0][0];
-    loadFlashCategoryProducts(firstId);
-  });
-}
-
-fsInitCategories();
-</script>
-
-</div>
-
-<div class="section" id="globalCatSection">
-<h2>🌍 Global Categories</h2>
-<br>
-<style>
-.gc-row{display:flex;overflow-x:auto;gap:12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:6px}
-.gc-row::-webkit-scrollbar{display:none}
-.gc-row .cat{flex:0 0 auto;min-width:150px;cursor:pointer;padding:25px !important;border-radius:12px !important;border:2px solid #f39c12 !important;background:#111 !important;color:#fff !important;font-weight:700 !important;font-size:18px !important;text-align:center !important;white-space:normal !important;max-width:220px !important;box-sizing:border-box !important;line-height:1.2 !important;display:inline-flex !important;align-items:center !important;justify-content:center !important}
-.gc-row .cat.active{background:#2563eb;color:#fff}
-</style>
-<div id="globalCatsRow1" class="gc-row"></div>
-<br>
-<div id="globalCatCarousel" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
-</div>
-</div>
-
-<div class="section">
-<h2>🔥 Trending Products</h2>
-<br>
-
-<div id="trendingProductsGrid" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
-</div>
-
-<script type="module">
-import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, get, onValue, query, orderByChild, equalTo, limitToFirst } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-
-const trendingFirebaseConfig = {
-  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
-  authDomain: "mohajon-mjh.firebaseapp.com",
-  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
-  projectId: "mohajon-mjh",
-  storageBucket: "mohajon-mjh.firebasestorage.app",
-  messagingSenderId: "526105903976",
-  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd",
-  measurementId: "G-RX6CCQZHSH"
-};
-
-const trendingApp = getApps().some(a=>a.name==="mjhMain") ? getApps().find(a=>a.name==="mjhMain") : initializeApp(trendingFirebaseConfig, "mjhMain");
-const trendingDb = getDatabase(trendingApp);
-
-function trIsWished(id){
-  const list = JSON.parse(localStorage.getItem("wishlist") || "[]");
-  return list.some(i => i.id === id);
-}
-
-function renderTrendingCard(id, data){
-  const price = parseFloat(data.price) || 0;
-  const salePrice = price;
-  const salePrice = price;
-  const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
-  const priceDisplay = fmtP(price);
-  const hasOldPrice = data.discountPrice !== null && data.discountPrice !== undefined && data.discountPrice !== "" && parseFloat(data.discountPrice) > 0;
-  const oldPrice = hasOldPrice ? parseFloat(data.discountPrice) : 0;
-  const discount = (hasOldPrice && price > 0) ? Math.round((1 - price/oldPrice) * 100) : 0;
-  const saveAmount = hasOldPrice ? (oldPrice - price) : 0;
-  let dateHTML = "";
-  if(data.startDate || data.endDate){
-    const t = (data.startDate && data.endDate) ? ("⏰ অফার: " + data.startDate + " থেকে " + data.endDate + " পর্যন্ত") : (data.endDate ? ("⏰ অফার শেষ: " + data.endDate) : ("⏰ অফার শুরু: " + data.startDate));
-    dateHTML = '<div style="font-size:11px;color:#e67e22;margin:4px 0;font-weight:600">' + t + '</div>';
-  }
-  const oldPriceDisplay = hasOldPrice ? fmtP(oldPrice) : "";
-  const stock = parseInt(data.stock) || 0;
-
-  const imageUrl =
-    data.images && data.images.main && data.images.main.trim() !== ""
-      ? data.images.main
-      : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
-
-  const wished = trIsWished(id);
-
-  const stockBadge = stock <= 0
-    ? '<span class="stock-badge out-of-stock">Out of Stock</span>'
-    : (stock <= 5
-        ? '<span class="stock-badge low-stock">Low Stock</span>'
-        : '<span class="stock-badge in-stock">In Stock</span>');
-
-  const card = document.createElement("div");
-  card.className = "product-card";
-  card.style.cursor = "pointer";
-
-  card.innerHTML = `
-    <div class="product-card-image">
-      ${stockBadge}
-      ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
-      ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
-      <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
-      <img src="${imageUrl}" alt="${data.title || data.name || 'Product'}"
-           প্রস্তুত হচ্ছে="lazy"
-           onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
-    </div>
-    <div class="product-card-content">
-      <h3 class="product-card-title">${data.title || data.name || "Unnamed Product"}</h3>
-      <div class="product-card-price">
-        <span class="current-price" data-price-bdt="${salePrice}">${priceDisplay}</span>
-        ${hasOldPrice ? `<span class="old-price" data-old-price-bdt="${oldPrice}">${oldPriceDisplay}</span>` : ""}
-      </div>
-      ${dateHTML}
-      <div class="product-card-actions" style="flex-direction:column">
-        <button class="btn-add-to-cart" ${stock<=0 ? "disabled" : ""} style="width:100%">${stock<=0 ? "Out of Stock" : "🛒 Add to Cart"}</button>
-        <button class="btn-buy-now" ${stock<=0 ? "disabled" : ""} style="width:100%;background:#f59e0b;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer">⚡ Buy Now</button>
-      </div>
-    </div>
-  `;
-
-  const cartBtn = card.querySelector(".btn-add-to-cart");
-  if(cartBtn && stock > 0){
-    cartBtn.addEventListener("click", () => {
-      if(typeof addCart === "function"){
-        addCart(id, data.title || data.name, price);
-      }
-      cartBtn.textContent = "Added ✓";
-      setTimeout(()=>{ cartBtn.textContent = "🛒 Add to Cart"; }, 1200);
-    });
-  }
-
-  const buyBtn = card.querySelector(".btn-buy-now");
-  if(buyBtn && stock > 0){
-    buyBtn.addEventListener("click", () => {
-      if(typeof addCart === "function"){
-        addCart(id, data.title || data.name, price);
-      }
-      window.location.href = "cart.html";
-    });
-  }
-
-  const wishBtn = card.querySelector(".btn-wishlist-overlay");
-  if(wishBtn){
-    wishBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if(typeof toggleWishlist === "function"){
-        toggleWishlist(id, data.title || data.name);
-      }
-      wishBtn.classList.toggle("active");
-    });
-  }
-
-  if(cartBtn){
-    cartBtn.addEventListener("click", (e) => { e.stopPropagation(); });
-  }
-  if(buyBtn){
-    buyBtn.addEventListener("click", (e) => { e.stopPropagation(); });
-  }
-
-  card.addEventListener("click", () => {
-    window.location.href = `product-details.html?id=${id}`;
-  });
-
-  return card;
-}
-
-const trendingGrid = document.getElementById("trendingProductsGrid");
-const TR_STRIP_LIMIT = 20;
-let trAllItems = [];
-let trRenderedCount = 0;
-
-function trRemoveArrow(){
-  const old = trendingGrid.querySelector(".scroll-arrow-card");
-  if(old) old.remove();
-}
-
-function trAddArrow(){
-  trRemoveArrow();
-  const arrowCard = document.createElement("div");
-  arrowCard.className = "scroll-arrow-card";
-  arrowCard.innerHTML = "<span>→</span>";
-  arrowCard.addEventListener("click", () => { trRenderNextBatch(); });
-  trendingGrid.appendChild(arrowCard);
-}
-
-function trRenderNextBatch(){
-  trRemoveArrow();
-  const nextItems = trAllItems.slice(trRenderedCount, trRenderedCount + TR_STRIP_LIMIT);
-  nextItems.forEach(it => trendingGrid.appendChild(renderTrendingCard(it.id, it.data)));
-  trRenderedCount += nextItems.length;
-  if(trRenderedCount < trAllItems.length){
-    trAddArrow();
+  } catch (e) {
+    grid.innerHTML = '<p style="text-align:center;color:#c33">Error: ' + e.message + '</p>';
   }
 }
-
-const trQuery = query(ref(trendingDb, "products"), orderByChild("isTrending"), equalTo(true), limitToFirst(500));
-onValue(trQuery, (snapshot) => {
-  trendingGrid.innerHTML = "";
-  trAllItems = [];
-  trRenderedCount = 0;
-  snapshot.forEach(child => {
-    const v=child.val();
-    if(v && v.status === "active" && v.isTrending === true){
-      trAllItems.push({ id: child.key, data: v });
-    }
-  });
-  if(trAllItems.length === 0){
-    trendingGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Trending প্রোডাক্ট যোগ করা হয়নি।</p>";
-    return;
-  }
-  trRenderNextBatch();
-}, { onlyOnce: true });
+loadTrending();
+document.addEventListener("currencyChanged", loadTrending);
 </script>
 
 </div>
@@ -2081,7 +1682,7 @@ function csFmtPrice(bdtPrice){
   if(window.MJHCurrency && typeof window.MJHCurrency.formatPrice === 'function'){
     return window.MJHCurrency.formatPrice(bdtPrice);
   }
-  return '৳' + (parseFloat(bdtPrice) || 0).toFixed(0);
+  return window.MJHCurrency ? window.MJHCurrency.formatPrice(parseFloat(bdtPrice)||0) : "৳"+(parseFloat(bdtPrice)||0).toFixed(0);
 }
 
 async function csNotifyMe(productId, btn){
@@ -2512,8 +2113,8 @@ async function loadGlobalCatProducts(catId){
         html += '</div><div style="padding:12px">';
         html += '<a href="product-details.html?id=' + pid + '" style="text-decoration:none;color:inherit"><h3 style="margin:0 0 8px;font-size:14px;color:#333">' + (p.title || 'Product') + '</h3></a>';
         html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">';
-        html += '<span style="font-size:18px;font-weight:700;color:#111">৳' + finalPrice + '</span>';
-        if(disc > 0) html += '<span style="font-size:13px;color:#999;text-decoration:line-through">৳' + price + '</span>';
+        html += '<span style="font-size:18px;font-weight:700;color:#111">"+(window.MJHCurrency?window.MJHCurrency.formatPrice(fin):"৳"+fin)alPrice + '</span>';
+        if(disc > 0) html += '<span style="font-size:13px;color:#999;text-decoration:line-through">"+(window.MJHCurrency?window.MJHCurrency.formatPrice(price):"৳"+price) + '</span>';
         html += '</div>';
         html += '<button data-cart="' + pid + '" style="width:100%;background:#3498db;color:#fff;border:none;padding:10px;border-radius:6px;cursor:pointer;font-weight:600;margin-bottom:6px">🛒 Add to Cart</button>';
         html += '<a href="product-details.html?id=' + pid + '&buy=1" style="text-decoration:none"><button style="width:100%;background:#f39c12;color:#111;border:none;padding:10px;border-radius:6px;cursor:pointer;font-weight:600">⚡ Buy Now</button></a>';
@@ -2613,7 +2214,7 @@ function updateMiniStats(){
     const el2 = document.getElementById("mini-revenue");
 
     if(el1) el1.textContent = total;
-    if(el2) el2.textContent = "৳" + revenue;
+    if(el2) el2.textContent = (window.MJHCurrency?window.MJHCurrency.formatPrice(revenue):"৳"+revenue);
   });
 }
 
@@ -2992,7 +2593,7 @@ function ensureUI(){
 }
 function ago(t){const s=Math.floor((Date.now()-t)/1000);if(s<60)return s+"s";if(s<3600)return Math.floor(s/60)+"m";if(s<86400)return Math.floor(s/3600)+"h";return Math.floor(s/86400)+"d";}
 function gather(){const now=Date.now(),it=[];
-Object.entries(O).forEach(([id,o])=>{if((o.createdAt||0)<now-DAY30)return;it.push({cat:"orders",id,t:o.createdAt,icon:"🛒",title:"নতুন অর্ডার — ৳"+(o.total||0),desc:((o.shippingAddress||{}).name||"")});});
+Object.entries(O).forEach(([id,o])=>{if((o.createdAt||0)<now-DAY30)return;it.push({cat:"orders",id,t:o.createdAt,icon:"🛒",title:"নতুন অর্ডার — "+(window.MJHCurrency?window.MJHCurrency.formatPrice(o.total||0):"৳"+(o.total||0)),desc:((o.shippingAddress||{}).name||"")});});
 Object.entries(SA).forEach(([id,s])=>{if((s.createdAt||0)<now-DAY30||s.status!=="pending")return;it.push({cat:"sellers",id,t:s.createdAt,icon:"🏪",title:"সেলার আবেদন",desc:s.storeName||"",act:[["approveS","Approve","ok"],["rejectS","Reject","no"]]});});
 Object.entries(CA).forEach(([id,c])=>{if((c.createdAt||0)<now-DAY30||c.status!=="pending")return;it.push({cat:"commission",id,t:c.createdAt,icon:"🤝",title:"কমিশন এজেন্ট",desc:c.name||"",act:[["approveC","Approve","ok"],["rejectC","Reject","no"]]});});
 Object.entries(D).forEach(([id,d])=>{if((d.createdAt||0)<now-DAY30||d.status==="delivered")return;it.push({cat:"delivery",id,t:d.createdAt,icon:"🚚",title:"ডেলিভারি pending",desc:d.orderId||id,act:[["markDeliv","Delivered","ok"]]});});
@@ -3120,7 +2721,7 @@ for(var i=0;i<pids.length;i++){
 var p=await j("products/"+pids[i]);if(!p)continue;
 var d=document.createElement("div");d.style.cssText="min-width:160px;background:#fff;border-radius:10px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,.15)";
 var img=(p.images&&p.images.main)?p.images.main:"";
-d.innerHTML="<a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:110px;object-fit:cover;border-radius:8px'><b style='font-size:13px'>"+(p.title||"")+"</b></a><div style='font-weight:700'>৳"+(p.price||0)+"</div>";
+d.innerHTML="<a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:110px;object-fit:cover;border-radius:8px'><b style='font-size:13px'>"+(p.title||"")+"</b></a><div style='font-weight:700'>"+(window.MJHCurrency?window.MJHCurrency.formatPrice(p.price||0):"৳"+(p.price||0))+"</div>";
 box.appendChild(d);}}
 if(document.readyState==="complete")render();else window.addEventListener("load",render);
 })();
@@ -3196,7 +2797,7 @@ var p=await j("products/"+pids[i]);if(!p)continue;
 var d=document.createElement("div");d.style.cssText="min-width:170px;background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 8px rgba(0,0,0,.12)";
 var img=(p.images&&p.images.main)?p.images.main:"";
 var disc=p.discountPercent||0;var fin=disc>0?(p.price*(100-disc)/100):p.price;
-d.innerHTML="<div style='position:relative'><a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:120px;object-fit:cover;border-radius:8px'></a><span style='position:absolute;top:4px;left:4px;background:#2ecc71;color:#fff;padding:3px 7px;border-radius:4px;font-size:11px'>IN STOCK</span>"+(disc>0?"<span style='position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:3px 7px;border-radius:4px;font-size:11px'>-"+disc+"%</span>":"")+"</div><b style='font-size:13px;display:block;margin:8px 0'>"+(p.title||"")+"</b><div style='font-weight:800;margin-bottom:8px'>৳"+fin+" "+(disc>0?"<span style='color:#999;text-decoration:line-through;font-weight:400'>৳"+p.price+"</span>":"")+"</div><a href='product-details.html?id="+pids[i]+"'><button style='width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px'>🛒 Add to Cart</button></a><a href='product-details.html?id="+pids[i]+"&buy=1'><button style='width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700'>⚡ Buy Now</button></a>";
+d.innerHTML="<div style='position:relative'><a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:120px;object-fit:cover;border-radius:8px'></a><span style='position:absolute;top:4px;left:4px;background:#2ecc71;color:#fff;padding:3px 7px;border-radius:4px;font-size:11px'>IN STOCK</span>"+(disc>0?"<span style='position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:3px 7px;border-radius:4px;font-size:11px'>-"+disc+"%</span>":"")+"</div><b style='font-size:13px;display:block;margin:8px 0'>"+(p.title||"")+"</b><div style='font-weight:800;margin-bottom:8px'>৳"+fin+" "+(disc>0?"<span style='color:#999;text-decoration:line-through;font-weight:400'>"+(window.MJHCurrency?window.MJHCurrency.formatPrice(p.price):"৳"+p.price)+"</span>":"")+"</div><a href='product-details.html?id="+pids[i]+"'><button style='width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px'>🛒 Add to Cart</button></a><a href='product-details.html?id="+pids[i]+"&buy=1'><button style='width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700'>⚡ Buy Now</button></a>";
 box.appendChild(d);}
 }
 if(document.readyState==="complete")run();else window.addEventListener("load",run);
@@ -3258,5 +2859,33 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 </p>
 </div>
 </section>
+
+<script>
+(function(){
+  if (localStorage.getItem("selectedCurrency")) return;
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const lang = (navigator.language || "en").toLowerCase();
+    let cur = "BDT";
+    if (tz.includes("Riyadh") || tz.includes("Kuwait") || tz.includes("Qatar") || tz.includes("Dubai") || lang.includes("ar-sa")) cur = "SAR";
+    else if (tz.includes("Dubai")) cur = "AED";
+    else if (tz.includes("New_York") || tz.includes("Chicago") || tz.includes("Los_Angeles") || lang.startsWith("en-us")) cur = "USD";
+    else if (tz.includes("London") || lang.startsWith("en-gb")) cur = "GBP";
+    else if (tz.includes("Paris") || tz.includes("Berlin") || tz.includes("Rome") || tz.includes("Madrid")) cur = "EUR";
+    else if (tz.includes("Kolkata") || tz.includes("Colombo") || lang.startsWith("en-in")) cur = "INR";
+    else if (tz.includes("Kuala_Lumpur") || tz.includes("Singapore")) cur = "MYR";
+    else if (tz.includes("Karachi")) cur = "PKR";
+    else if (tz.includes("Kathmandu")) cur = "NPR";
+    else if (tz.includes("Dhaka") || lang.startsWith("bn")) cur = "BDT";
+    if (window.MJHCurrency && window.MJHCurrency.setSelectedCurrency) {
+      window.MJHCurrency.setSelectedCurrency(cur);
+    } else {
+      localStorage.setItem("selectedCurrency", cur);
+      location.reload();
+    }
+    console.log("Auto-currency:", cur, "(tz:", tz + ")");
+  } catch(e) {}
+})();
+</script>
 </body>
 </html>
