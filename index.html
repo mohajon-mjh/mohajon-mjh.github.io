@@ -1755,132 +1755,44 @@ onValue(ref(scDb, "settings/specialCategories"), (snapshot) => {
 </div>
 <script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst, startAfter, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
-  authDomain: "mohajon-mjh.firebaseapp.com",
-  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
-  projectId: "mohajon-mjh",
-  storageBucket: "mohajon-mjh.firebasestorage.app",
-  messagingSenderId: "526105903976",
-  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"
-};
-
-const app = getApps().some(a=>a.name==="mjhMain") ? getApps().find(a=>a.name==="mjhMain") : initializeApp(firebaseConfig, "mjhMain");
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const cfg = { apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw", databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com" };
+const app = getApps().some(a => a.name === "ftApp") ? getApps().find(a => a.name === "ftApp") : initializeApp(cfg, "ftApp");
 const db = getDatabase(app);
-
-try{
-  const menuBtnEl = document.getElementById("menuBtn");
-  const navEl = document.getElementById("sideMenu");
-  if(menuBtnEl && navEl){
-    menuBtnEl.onclick = function(){
-      navEl.style.display=(navEl.style.display==="block")?"none":"block";
-    };
+function findGrid() {
+  var h2s = document.querySelectorAll("h2");
+  for (var i = 0; i < h2s.length; i++) {
+    if ((h2s[i].textContent || "").indexOf("Featured Products") > -1) {
+      var sec = h2s[i].parentElement;
+      var g = sec.querySelector(".trending-scroll-wrapper");
+      if (g) return g;
+    }
   }
-}catch(e){ console.error("menu btn setup failed:", e); }
-
-
-
-const badgeEl = document.getElementById("cartCount");
-if(badgeEl) badgeEl.textContent = localStorage.getItem("cartCount") || 0;
-
-window.addCart = function(id){
-  let c=parseInt(localStorage.getItem("cartCount")||0);
-  c++;
-  localStorage.setItem("cartCount",c);
-  const badgeEl2 = document.getElementById("cartCount");
-  if(badgeEl2) badgeEl2.textContent=c;
-  alert("Added To Cart");
-};
-
-const box=document.getElementById("featuredProducts");
-
-function ftIsWished(id){
-  const list = JSON.parse(localStorage.getItem("wishlist") || "[]");
-  return list.some(i => i.id === id);
+  return null;
 }
-function renderFeatCard(id, p){
-  const price = parseFloat(p.price) || 0;
-  const fmtP = (v) => window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : '৳'+v.toFixed(0);
-  const hasOldPrice = p.discountPrice !== null && p.discountPrice !== undefined && p.discountPrice !== "" && parseFloat(p.discountPrice) > 0;
-  const oldPrice = hasOldPrice ? parseFloat(p.discountPrice) : 0;
-  const discount = (hasOldPrice && price > 0) ? Math.round((1 - price/oldPrice) * 100) : 0;
-  const saveAmount = hasOldPrice ? (oldPrice - price) : 0;
-  const stock = parseInt(p.stock) || 0;
-  let dateHTML = "";
-  if(p.startDate || p.endDate){
-    const t = (p.startDate && p.endDate) ? ("⏰ অফার: " + p.startDate + " থেকে " + p.endDate + " পর্যন্ত") : (p.endDate ? ("⏰ অফার শেষ: " + p.endDate) : ("⏰ অফার শুরু: " + p.startDate));
-    dateHTML = '<div style="font-size:11px;color:#e67e22;margin:4px 0;font-weight:600">' + t + '</div>';
-  }
-  const imageUrl = (p.images && p.images.main && p.images.main.trim() !== "") ? p.images.main : "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
-  const wished = ftIsWished(id);
-  const stockBadge = stock <= 0 ? '<span class="stock-badge out-of-stock">Out of Stock</span>' : (stock <= 5 ? '<span class="stock-badge low-stock">Low Stock</span>' : '<span class="stock-badge in-stock">In Stock</span>');
-  const card = document.createElement("div");
-  card.className = "product-card";
-  card.style.cursor = "pointer";
-  card.innerHTML = `
-    <div class="product-card-image">
-      ${stockBadge}
-      ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ""}
-      ${saveAmount > 0 ? `<span class="save-badge">Save ${fmtP(saveAmount)}</span>` : ""}
-      <button class="btn-wishlist-overlay ${wished ? 'active' : ''}">❤</button>
-      <img src="${imageUrl}" alt="${p.title || 'Product'}" loading="lazy" onerror="this.onerror=null;this.src='https://dummyimage.com/300x300/eeeeee/555555&text=MJH';">
-    </div>
-    <div class="product-card-content">
-      <h3 class="product-card-title">${p.title || "Unnamed Product"}</h3>
-      <div class="product-card-price">
-        <span class="current-price">${fmtP(price)}</span>
-        ${hasOldPrice ? `<span class="old-price">${fmtP(oldPrice)}</span>` : ""}
-      </div>
-      ${dateHTML}
-      <div class="product-card-actions" style="flex-direction:column">
-        <button class="btn-add-to-cart" ${stock<=0 ? "disabled" : ""} style="width:100%">${stock<=0 ? "Out of Stock" : "🛒 Add to Cart"}</button>
-        <button class="btn-buy-now" ${stock<=0 ? "disabled" : ""} style="width:100%;background:#f59e0b;color:#fff;margin-top:6px;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer">⚡ Buy Now</button>
-      </div>
-    </div>`;
-  const cartBtn = card.querySelector(".btn-add-to-cart");
-  if(cartBtn && stock > 0) cartBtn.addEventListener("click", (e) => { e.stopPropagation(); if(typeof addCart === "function"){ addCart(id, p.title, price); cartBtn.textContent = "Added ✓"; setTimeout(()=>{ cartBtn.textContent = "🛒 Add to Cart"; }, 1200); } });
-  const buyBtn = card.querySelector(".btn-buy-now");
-  if(buyBtn && stock > 0) buyBtn.addEventListener("click", (e) => { e.stopPropagation(); if(typeof addCart === "function") addCart(id, p.title, price); window.location.href = "cart.html"; });
-  const wishBtn = card.querySelector(".btn-wishlist-overlay");
-  if(wishBtn) wishBtn.addEventListener("click", (e) => { e.stopPropagation(); if(typeof toggleWishlist === "function") toggleWishlist(id, p.title); wishBtn.classList.toggle("active"); });
-  card.addEventListener("click", () => { window.location.href = `product-details.html?id=${id}`; });
-  return card;
+function fmt(v) { return window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : "৳" + (+v || 0).toFixed(0); }
+async function loadFeatured() {
+  const grid = findGrid(); if (!grid) return;
+  try {
+    const [a, b] = await Promise.all([get(ref(db, "settings/featuredProducts")), get(ref(db, "products"))]);
+    if (!a.exists() || !b.exists()) return;
+    const pids = Object.keys(a.val() || {}).slice(0, 30);
+    const prods = b.val() || {};
+    grid.innerHTML = "";
+    pids.forEach(pid => {
+      const p = prods[pid]; if (!p) return;
+      const img = (p.images && p.images.main) || "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+      const price = +p.price || 0, oldPrice = +p.oldPrice || 0;
+      const disc = oldPrice > price ? Math.round((oldPrice - price) * 100 / oldPrice) : 0;
+      const card = document.createElement("div");
+      card.style.cssText = "background:#fff;border-radius:10px;padding:10px;box-shadow:0 2px 6px rgba(0,0,0,0.08);min-width:160px;max-width:160px;flex:0 0 auto";
+      card.innerHTML = '<div style="position:relative"><a href="product-details.html?id=' + pid + '"><img src="' + img + '" style="width:100%;height:130px;object-fit:cover;border-radius:8px"></a>' + (disc > 0 ? '<span style="position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">-' + disc + '%</span>' : '') + '</div><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">' + (p.title || "") + '</b><div style="font-weight:800;margin-bottom:6px">' + fmt(price) + (disc > 0 ? ' <span style="color:#999;text-decoration:line-through;font-weight:400;font-size:11px">' + fmt(oldPrice) + '</span>' : '') + '</div><a href="product-details.html?id=' + pid + '"><button style="width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px">🛒 Add to Cart</button></a><a href="product-details.html?id=' + pid + '&buy=1"><button style="width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700">⚡ Buy Now</button></a>';
+      grid.appendChild(card);
+    });
+  } catch (e) { console.error(e); }
 }
-
-get((typeof query!=="undefined"&&typeof orderByChild!=="undefined"&&typeof equalTo!=="undefined"&&typeof limitToFirst!=="undefined")?query(ref(db,"products"),orderByChild("isFeatured"),equalTo(true),limitToFirst(200)):ref(db,"products")).then(function(snapRaw){
-  const _d=snapRaw.val()||{};const _f={};Object.keys(_d).forEach(function(id){var p=_d[id]||{};if(p.isFeatured===true||p.featured===true||p.isFeatured==="true")_f[id]=p;});
-  const snapshot={val:function(){return _f;}};
-  (function(){
-  const data = snapshot.val() || {};
-  const items = Object.entries(data).filter(([id, p]) => p.status === "active");
-  box.innerHTML = "";
-  if(items.length === 0){
-    box.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো Featured প্রোডাক্ট যোগ করা হয়নি।</p>";
-    return;
-  }
-  let ftRendered = 0;
-  const FT_LIMIT = 20;
-  function ftRemoveArrow(){ const a = box.querySelector(".scroll-arrow-card"); if(a) a.remove(); }
-  function ftAddArrow(){
-    ftRemoveArrow();
-    const ar = document.createElement("div");
-    ar.className = "scroll-arrow-card";
-    ar.innerHTML = "<span>→</span>";
-    ar.addEventListener("click", () => ftRenderNext());
-    box.appendChild(ar);
-  }
-  function ftRenderNext(){
-    ftRemoveArrow();
-    const next = items.slice(ftRendered, ftRendered + FT_LIMIT);
-    next.forEach(([id, p]) => box.appendChild(renderFeatCard(id, p)));
-    ftRendered += next.length;
-    if(ftRendered < items.length) ftAddArrow();
-  }
-  ftRenderNext();
-  })();
-}).catch(function(e){console.error("feat err",e);});
+loadFeatured();
+document.addEventListener("currencyChanged", loadFeatured);
 </script>
 
 <div class="section" id="comingSoonSection" style="display:none">
