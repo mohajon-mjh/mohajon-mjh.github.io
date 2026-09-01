@@ -3016,5 +3016,53 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 <script>/*currency-poll-v1*/
 (function(){var last=localStorage.getItem("selectedCurrency")||"BDT";setInterval(function(){var now=localStorage.getItem("selectedCurrency")||"BDT";if(now!==last){location.reload();}},1200);})();
 </script>
+
+<script>/*hotdeals-restore-v1*/
+(function(){
+  function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"৳"+(+v||0).toFixed(0);}
+  function fill(grid){
+    fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/hotDealsProducts.json").then(function(r){return r.json();}).then(function(ids){
+      if(!ids) return;
+      var pids=Object.keys(ids).slice(0,30);
+      fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/products.json").then(function(r){return r.json();}).then(function(prods){
+        grid.innerHTML="";
+        pids.forEach(function(pid){
+          var p=prods[pid]; if(!p) return;
+          var img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+          var price=+p.price||0, old=+p.oldPrice||0;
+          var disc= old>price? Math.round((old-price)*100/old):0;
+          var card=document.createElement("div");
+          card.style.cssText="background:#fff;border-radius:10px;padding:10px;min-width:160px;max-width:160px;box-shadow:0 2px 6px rgba(0,0,0,.08);flex:0 0 auto";
+          card.innerHTML='<a href="product-details.html?id='+pid+'"><img src="'+img+'" style="width:100%;height:130px;object-fit:cover;border-radius:8px"></a><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">'+(p.title||"")+'</b><div style="font-weight:800">'+fmt(price)+(disc>0?' <s style="color:#999;font-weight:400;font-size:11px">'+fmt(old)+'</s>':'')+'</div><a href="product-details.html?id='+pid+'"><button style="width:100%;background:#e74c3c;color:#fff;border:none;padding:6px;border-radius:6px;font-weight:700;margin-top:6px">🔥 Grab Deal</button></a>';
+          grid.appendChild(card);
+        });
+      });
+    });
+  }
+  function build(){
+    var sec=document.getElementById("comingSoonSection");
+    if(!sec){
+      var h2s=document.querySelectorAll("h2");
+      for(var i=0;i<h2s.length;i++){ if((h2s[i].textContent||"").indexOf("Hot Deals")>-1){ sec=h2s[i].closest("section")||h2s[i].parentElement; break; } }
+    }
+    if(!sec){
+      sec=document.createElement("section");
+      sec.innerHTML='<h2>🔥 Hot Deals</h2>';
+      var footer=document.querySelector("footer");
+      if(footer){ document.body.insertBefore(sec, footer); } else { document.body.appendChild(sec); }
+    }
+    sec.style.display="block"; sec.removeAttribute("hidden");
+    var grid=document.getElementById("comingSoonGrid");
+    if(!grid){
+      grid=document.createElement("div"); grid.id="comingSoonGrid";
+      grid.style.cssText="display:flex;gap:10px;overflow-x:auto;padding:10px 0";
+      sec.appendChild(grid);
+    }
+    if(!grid.children.length){ fill(grid); }
+  }
+  setTimeout(build,1500);
+  document.addEventListener("currencyChanged",function(){ var g=document.getElementById("comingSoonGrid"); if(g){ g.innerHTML=""; fill(g); } });
+})();
+</script>
 </body>
 </html>
