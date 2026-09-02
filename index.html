@@ -1238,7 +1238,7 @@ async function loadTrending() {
   try {
     const [a, b] = await Promise.all([get(ref(db, "settings/trendingProducts")), get(ref(db, "products"))]);
     if (!a.exists() || !b.exists()) { grid.innerHTML = '<p style="text-align:center;color:#888">Trending products আসছে...</p>'; return; }
-    const pids = Object.keys(a.val() || {}).slice(0, 120);
+    const pids = Object.keys(a.val() || {}).slice(0, 600);
     const prods = b.val() || {};
     grid.innerHTML = "";
     pids.forEach(pid => {
@@ -1776,7 +1776,7 @@ async function loadFeatured() {
   try {
     const [a, b] = await Promise.all([get(ref(db, "settings/featuredProducts")), get(ref(db, "products"))]);
     if (!a.exists() || !b.exists()) return;
-    const pids = Object.keys(a.val() || {}).slice(0, 120);
+    const pids = Object.keys(a.val() || {}).slice(0, 600);
     const prods = b.val() || {};
     grid.innerHTML = "";
     pids.forEach(pid => {
@@ -1826,7 +1826,7 @@ async function loadHotDeals() {
       grid.innerHTML = '<p style="text-align:center;color:#888">Hot Deals আসছে...</p>';
       return;
     }
-    const pids = Object.keys(pidsSnap.val() || {}).slice(0, 120);
+    const pids = Object.keys(pidsSnap.val() || {}).slice(0, 600);
     const prods = prodSnap.val() || {};
     grid.innerHTML = "";
     pids.forEach(pid => {
@@ -1915,7 +1915,8 @@ setInterval(()=>{ reg.update(); }, 60000);
 © 2026 Mohajon-MJH Marketplace. All Rights Reserved.
 </p>
 
-<section id="mega-offers-section-v1" style="padding:20px 15px;background:#fff;margin:20px 0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)"><h2 style="font-size:22px;font-weight:800;color:#1a2330;margin-bottom:15px">🎁 Mega Offers</h2><div id="megaOffersCats" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:15px"></div><div id="megaOffersProducts" class="trending-scroll-wrapper" style="display:flex;gap:12px;overflow-x:auto;padding:10px 0"></div></section>
+
+<section id="mega-offers-section-final" style="padding:20px 15px;background:#fff;margin:20px 0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)"><h2 style="font-size:22px;font-weight:800;color:#1a2330;margin-bottom:15px">🎁 Mega Offers</h2><div id="megaOffersCats" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:15px"></div><div id="megaOffersProducts" class="trending-scroll-wrapper" style="display:flex;gap:12px;overflow-x:auto;padding:10px 0"></div></section>
 </footer>
 <script src="products-data.js"></script>
 <script src="product-render.js?v=3"></script>
@@ -2981,11 +2982,15 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 
 
 
-<script type="module">/*mega-loader-v1*/
+
+
+
+
+<script type="module">/*mega-loader-final*/
 import{initializeApp,getApps}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import{getDatabase,ref,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 const cfg={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com"};
-const app=getApps().some(a=>a.name==="megaApp")?getApps().find(a=>a.name==="megaApp"):initializeApp(cfg,"megaApp");
+const app=getApps().some(a=>a.name==="megaFinal")?getApps().find(a=>a.name==="megaFinal"):initializeApp(cfg,"megaFinal");
 const db=getDatabase(app);
 function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"৳"+(+v||0).toFixed(0);}
 async function loadMega(){
@@ -2999,62 +3004,22 @@ async function loadMega(){
   allCats=allCats.filter(c=>c.ids.length>0);if(allCats.length===0)return;
   catBox.innerHTML="";
   allCats.forEach((c,i)=>{const btn=document.createElement("button");btn.style.cssText="padding:8px 16px;border:2px solid #3498db;background:#fff;color:#3498db;border-radius:20px;font-weight:700;cursor:pointer;white-space:nowrap;"+(i===0?"background:#3498db;color:#fff;":"");btn.textContent=c.name;btn.onclick=()=>{catBox.querySelectorAll("button").forEach(b=>{b.style.background="#fff";b.style.color="#3498db";});btn.style.background="#3498db";btn.style.color="#fff";renderCat(c.ids);};catBox.appendChild(btn);});
-  function renderCat(ids){grid.innerHTML="";ids.slice(0,30).forEach(pid=>{const p=prods[pid];if(!p)return;const img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";const price=+p.price||0,old=+p.oldPrice||0;const disc=old>price?Math.round((old-price)*100/old):0;const card=document.createElement("div");card.style.cssText="background:#fff;border-radius:10px;padding:10px;min-width:160px;max-width:160px;flex:0 0 auto;box-shadow:0 2px 6px rgba(0,0,0,0.08)";card.innerHTML='<a href="product-details.html?id='+pid+'"><img src="'+img+'" style="width:100%;height:130px;object-fit:cover;border-radius:8px"></a><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">'+(p.title||"")+'</b><div style="font-weight:800;margin-bottom:6px">'+fmt(price)+(disc>0?' <s style="color:#999;font-weight:400;font-size:11px">'+fmt(old)+'</s>':'')+'</div><a href="product-details.html?id='+pid+'"><button style="width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px">🛒 Add to Cart</button></a><a href="product-details.html?id='+pid+'&buy=1"><button style="width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700">⚡ Buy Now</button></a>';grid.appendChild(card);});}
+  function renderCat(ids){grid.innerHTML="";ids.slice(0,60).forEach(pid=>{const p=prods[pid];if(!p)return;const img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";const price=+p.price||0,old=+p.oldPrice||0;const disc=old>price?Math.round((old-price)*100/old):0;const card=document.createElement("div");card.style.cssText="background:#fff;border-radius:10px;padding:10px;min-width:160px;max-width:160px;flex:0 0 auto;box-shadow:0 2px 6px rgba(0,0,0,0.08)";card.innerHTML='<a href="product-details.html?id='+pid+'"><img src="'+img+'" style="width:100%;height:130px;object-fit:cover;border-radius:8px"></a><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">'+(p.title||"")+'</b><div style="font-weight:800;margin-bottom:6px">'+fmt(price)+(disc>0?' <s style="color:#999;font-weight:400;font-size:11px">'+fmt(old)+'</s>':'')+'</div><a href="product-details.html?id='+pid+'"><button style="width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px">🛒 Add to Cart</button></a><a href="product-details.html?id='+pid+'&buy=1"><button style="width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700">⚡ Buy Now</button></a>';grid.appendChild(card);});}
   if(allCats.length>0)renderCat(allCats[0].ids);
 }
 loadMega();document.addEventListener("currencyChanged",loadMega);
 </script>
-
-
-<script>/*arrow-fix-v9*/
+<script>/*arrow-fix-v11*/
 (function(){
-  function mk(grid){
-    var a=document.createElement('div');
-    a.className='scroll-arrow-card';
-    a.style.cssText='min-width:42px;max-width:42px;flex:0 0 42px;border:2px solid #2ecc71;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#2ecc71;font-size:22px;cursor:pointer;background:#fff;align-self:stretch;';
-    a.innerHTML='→';
-    a.onclick=function(){grid.scrollBy({left:grid.clientWidth*0.8,behavior:'smooth'});};
-    return a;
-  }
-  function fix(grid){
-    if(!grid) return;
-
-    // আগে সব existing arrow remove করি, যেন duplicate না থাকে
-    var existing=Array.prototype.slice.call(grid.querySelectorAll('.scroll-arrow-card'));
-    existing.forEach(function(a){a.remove();});
-
-    var cards=Array.prototype.slice.call(grid.children).filter(function(c){
-      return !c.classList.contains('scroll-arrow-card');
-    });
-
-    if(cards.length<=10) return;
-
-    // প্রতি 10টা product পর arrow
-    for(var i=10;i<cards.length;i+=10){
-      grid.insertBefore(mk(grid),cards[i]);
-    }
-  }
+  function mk(grid){var a=document.createElement('div');a.className='scroll-arrow-card';a.style.cssText='min-width:42px;max-width:42px;flex:0 0 42px;border:2px solid #2ecc71;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#2ecc71;font-size:22px;cursor:pointer;background:#fff;align-self:stretch;';a.innerHTML='→';a.onclick=function(){grid.scrollBy({left:grid.clientWidth*0.8,behavior:'smooth'});};return a;}
+  function fix(grid){if(!grid)return;Array.prototype.slice.call(grid.querySelectorAll('.scroll-arrow-card')).forEach(function(a){a.remove();});var cards=Array.prototype.slice.call(grid.children).filter(function(c){return !c.classList.contains('scroll-arrow-card');});if(cards.length<=10)return;for(var i=10;i<cards.length;i+=10){grid.insertBefore(mk(grid),cards[i]);}}
   function run(){
-    // class-based sections:
-    // Flash Sale, Trending, Deals, Featured, Hot Deals, Mega Offers
     document.querySelectorAll('.trending-scroll-wrapper').forEach(fix);
-
-    // ID-based sections:
-    // Global Categories
-    var g=document.getElementById('globalCatCarousel');
-    if(g) fix(g);
-
-    // Special Categories
-    var s=document.getElementById('specialCatCarousel');
-    if(s) fix(s);
-
-    // Mega Offers
-    var m=document.getElementById('megaOffersProducts');
-    if(m) fix(m);
+    var g=document.getElementById('globalCatCarousel');if(g)fix(g);
+    var s=document.getElementById('specialCatCarousel');if(s)fix(s);
+    var m=document.getElementById('megaOffersProducts');if(m)fix(m);
   }
-
-  setTimeout(run,1500);
-  setInterval(run,5000);
+  setTimeout(run,1500);setInterval(run,5000);
 })();
 </script>
 </body>
