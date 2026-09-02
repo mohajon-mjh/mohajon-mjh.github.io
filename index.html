@@ -1915,6 +1915,7 @@ setInterval(()=>{ reg.update(); }, 60000);
 © 2026 Mohajon-MJH Marketplace. All Rights Reserved.
 </p>
 
+<section id="mega-offers-section-v1" style="padding:20px 15px;background:#fff;margin:20px 0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)"><h2 style="font-size:22px;font-weight:800;color:#1a2330;margin-bottom:15px">🎁 Mega Offers</h2><div id="megaOffersCats" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:15px"></div><div id="megaOffersProducts" class="trending-scroll-wrapper" style="display:flex;gap:12px;overflow-x:auto;padding:10px 0"></div></section>
 </footer>
 <script src="products-data.js"></script>
 <script src="product-render.js?v=3"></script>
@@ -2979,7 +2980,31 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 
 
 
-<script>/*arrow-fix-v2*/
+
+<script type="module">/*mega-loader-v1*/
+import{initializeApp,getApps}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const cfg={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com"};
+const app=getApps().some(a=>a.name==="megaApp")?getApps().find(a=>a.name==="megaApp"):initializeApp(cfg,"megaApp");
+const db=getDatabase(app);
+function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"৳"+(+v||0).toFixed(0);}
+async function loadMega(){
+  const[secsSnap,prodsSnap]=await Promise.all([get(ref(db,"settings/customSections")),get(ref(db,"products"))]);
+  if(!secsSnap.exists()||!prodsSnap.exists())return;
+  const secs=secsSnap.val()||{};const prods=prodsSnap.val()||{};
+  const catBox=document.getElementById("megaOffersCats");const grid=document.getElementById("megaOffersProducts");
+  if(!catBox||!grid)return;
+  let allCats=[];
+  Object.entries(secs).forEach(([sid,sec])=>{if(!sec.cats)return;Object.entries(sec.cats).forEach(([cid,c])=>{const prodsMap=(sec.catProducts&&sec.catProducts[cid])||{};allCats.push({name:c.name||cid,ids:Object.keys(prodsMap)});});});
+  allCats=allCats.filter(c=>c.ids.length>0);if(allCats.length===0)return;
+  catBox.innerHTML="";
+  allCats.forEach((c,i)=>{const btn=document.createElement("button");btn.style.cssText="padding:8px 16px;border:2px solid #3498db;background:#fff;color:#3498db;border-radius:20px;font-weight:700;cursor:pointer;white-space:nowrap;"+(i===0?"background:#3498db;color:#fff;":"");btn.textContent=c.name;btn.onclick=()=>{catBox.querySelectorAll("button").forEach(b=>{b.style.background="#fff";b.style.color="#3498db";});btn.style.background="#3498db";btn.style.color="#fff";renderCat(c.ids);};catBox.appendChild(btn);});
+  function renderCat(ids){grid.innerHTML="";ids.slice(0,30).forEach(pid=>{const p=prods[pid];if(!p)return;const img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";const price=+p.price||0,old=+p.oldPrice||0;const disc=old>price?Math.round((old-price)*100/old):0;const card=document.createElement("div");card.style.cssText="background:#fff;border-radius:10px;padding:10px;min-width:160px;max-width:160px;flex:0 0 auto;box-shadow:0 2px 6px rgba(0,0,0,0.08)";card.innerHTML='<a href="product-details.html?id='+pid+'"><img src="'+img+'" style="width:100%;height:130px;object-fit:cover;border-radius:8px"></a><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">'+(p.title||"")+'</b><div style="font-weight:800;margin-bottom:6px">'+fmt(price)+(disc>0?' <s style="color:#999;font-weight:400;font-size:11px">'+fmt(old)+'</s>':'')+'</div><a href="product-details.html?id='+pid+'"><button style="width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px">🛒 Add to Cart</button></a><a href="product-details.html?id='+pid+'&buy=1"><button style="width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700">⚡ Buy Now</button></a>';grid.appendChild(card);});}
+  if(allCats.length>0)renderCat(allCats[0].ids);
+}
+loadMega();document.addEventListener("currencyChanged",loadMega);
+</script>
+<script>/*arrow-fix-v8*/
 (function(){
   function mk(grid){
     var a=document.createElement('div');
@@ -2989,28 +3014,26 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
     a.onclick=function(){grid.scrollBy({left:grid.clientWidth*0.8,behavior:'smooth'});};
     return a;
   }
-  function arrows(grid){
-    if(!grid||grid.dataset.af)return;
-    var cards=Array.prototype.slice.call(grid.children);
-    if(cards.length<12)return;
-    grid.dataset.af='1';
-    for(var i=10;i<cards.length;i+=10){grid.insertBefore(mk(grid),cards[i]);}
-  }
-  function featGrid(){
-    var h2s=document.querySelectorAll('h2');
-    for(var i=0;i<h2s.length;i++){
-      if((h2s[i].textContent||'').indexOf('Featured Products')>-1){
-        var g=h2s[i].parentElement.querySelector('.trending-scroll-wrapper');
-        if(g)return g;
-      }
+  function fix(grid){
+    if(!grid||grid.dataset.arrowFixed)return;
+    var cards=Array.prototype.slice.call(grid.children).filter(function(c){return !c.classList.contains('scroll-arrow-card');});
+    if(cards.length<=10)return;
+    grid.dataset.arrowFixed='1';
+    var existing=Array.prototype.slice.call(grid.querySelectorAll('.scroll-arrow-card'));
+    existing.forEach(function(a){a.remove();});
+    cards=Array.prototype.slice.call(grid.children).filter(function(c){return !c.classList.contains('scroll-arrow-card');});
+    for(var i=10;i<cards.length;i+=10){
+      grid.insertBefore(mk(grid),cards[i]);
     }
-    return null;
   }
-  setInterval(function(){
-    arrows(document.getElementById('trendingProductsGrid'));
-    arrows(document.getElementById('comingSoonGrid'));
-    arrows(featGrid());
-  },4000);
+  function run(){
+    document.querySelectorAll('.trending-scroll-wrapper').forEach(fix);
+    var g=document.getElementById('globalCatCarousel');if(g)fix(g);
+    var s=document.getElementById('specialCatCarousel');if(s)fix(s);
+    var m=document.getElementById('megaOffersProducts');if(m)fix(m);
+  }
+  setInterval(run,3000);
+  setTimeout(run,1500);
 })();
 </script>
 </body>
