@@ -3051,5 +3051,21 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
   load("clearanceOutletProducts","clearanceOutletGrid");
 })();
 </script>
+<script>/*hideOldSectionsJS*/
+(function(){
+  function hideOld(){
+    ["trendingProductsGrid","featuredProducts","comingSoonGrid"].forEach(function(id){
+      var g=document.getElementById(id);
+      if(g){var sec=g.closest("section")||g.parentElement;if(sec)sec.style.display="none";}
+    });
+    ["Trending Products","Featured Products","Hot Deals"].forEach(function(t){
+      document.querySelectorAll("h2,h3").forEach(function(h){
+        if((h.textContent||"").indexOf(t)>-1){var sec=h.closest("section")||h.parentElement;if(sec)sec.style.display="none";}
+      });
+    });
+  }
+  setTimeout(hideOld,800);setInterval(hideOld,4000);
+})();
+</script>
 </body>
 </html>
