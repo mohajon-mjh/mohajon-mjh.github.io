@@ -3036,5 +3036,12 @@ loadMega();document.addEventListener("currencyChanged",loadMega);
   setTimeout(run,1500);
 })();
 </script>
+<script>/*arrow-fix-v6*/
+(function(){
+  function mk(grid){var a=document.createElement('div');a.className='scroll-arrow-card';a.style.cssText='min-width:42px;max-width:42px;flex:0 0 42px;border:2px solid #2ecc71;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#2ecc71;font-size:22px;cursor:pointer;background:#fff;align-self:stretch;';a.innerHTML='→';a.onclick=function(){grid.scrollBy({left:grid.clientWidth*0.8,behavior:'smooth'});};return a;}
+  function fix(grid){if(!grid||grid.dataset.arrowFixed)return;var cards=Array.prototype.slice.call(grid.children).filter(function(c){return !c.classList.contains('scroll-arrow-card');});if(cards.length<=10)return;grid.dataset.arrowFixed='1';var existing=Array.prototype.slice.call(grid.querySelectorAll('.scroll-arrow-card'));existing.forEach(function(a){a.remove();});cards=Array.prototype.slice.call(grid.children).filter(function(c){return !c.classList.contains('scroll-arrow-card');});for(var i=10;i<cards.length;i+=10){grid.insertBefore(mk(grid),cards[i]);}}
+  setInterval(function(){document.querySelectorAll('.trending-scroll-wrapper').forEach(fix);},3000);
+})();
+</script>
 </body>
 </html>
