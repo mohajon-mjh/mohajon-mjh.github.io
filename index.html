@@ -778,6 +778,7 @@ text-decoration:none;
   display: none !important;
 }
 </style>
+<style id="arrowDedup">.scroll-arrow-card ~ .scroll-arrow-card{display:none !important}</style>
 </head>
 
 
@@ -3040,24 +3041,6 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
     c.addEventListener("click",function(){location.href="product-details.html?id="+id;});
     return c;
   }
-  function renderBatch(arr,grid,items,from){
-    var end=from+10;
-    for(var i=from;i<end&&i<arr.length;i++){
-      if(items[arr[i]])grid.appendChild(card(arr[i],items[arr[i]]));
-    }
-    return end;
-  }
-  function removeArrow(grid){var o=grid.querySelector(".scroll-arrow-card");if(o)o.remove();}
-  function addArrow(grid,onClick){
-    removeArrow(grid);
-    var ac=document.createElement("div");
-    ac.className="scroll-arrow-card";
-    ac.style.cssText="flex:0 0 60px;min-width:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border-radius:12px;margin-left:6px;border:2px solid #16a34a;box-shadow:0 2px 8px rgba(22,163,74,.25);";
-    ac.innerHTML="<span>→</span>";
-    ac.firstChild.style.cssText="color:#16a34a;font-weight:900;font-size:36px;line-height:1;";
-    ac.addEventListener("click",onClick);
-    grid.appendChild(ac);
-  }
   async function setup(prefix,catsId,gridId){
     var catsDiv=document.getElementById(catsId),grid=document.getElementById(gridId);
     if(!catsDiv||!grid)return;
@@ -3067,23 +3050,15 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
     var ids=Object.keys(cats).sort(function(a,b){return (cats[a].order||0)-(cats[b].order||0);});
     if(!ids.length){catsDiv.style.display="none";return;}
     catsDiv.innerHTML="";
-    var state={current:null,count:0,ids:[]};
     function renderCat(catId){
-      state.current=catId;state.count=0;
-      state.ids=Object.keys(catProds[catId]||{});
       grid.innerHTML="";
-      state.count=renderBatch(state.ids,grid,all,0);
-      if(state.count<state.ids.length)addArrow(grid,()=>nextBatch());
-    }
-    function nextBatch(){
-      removeArrow(grid);
-      state.count=renderBatch(state.ids,grid,all,state.count);
-      if(state.count<state.ids.length)addArrow(grid,()=>nextBatch());
+      var list=Object.keys(catProds[catId]||{});
+      list.forEach(function(id){if(all[id])grid.appendChild(card(id,all[id]));});
+      if(!list.length)grid.innerHTML='<div style="padding:20px;color:#888">পণ্য যোগ করা হয়নি</div>';
     }
     ids.forEach(function(cid,i){
       var b=document.createElement("div");
       b.className="cat";
-      b.dataset.cat=cid;
       b.textContent=cats[cid].name||cid;
       b.style.cursor="pointer";
       b.onclick=function(){
@@ -3114,6 +3089,26 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
     });
   }
   setTimeout(hideOld,800);setInterval(hideOld,4000);
+})();
+</script>
+<script>/*arrowEnsure*/
+(function(){
+  var IDS=["flashSaleProductsGrid","globalCatCarousel","dealsGrid","specialCatCarousel","everydayLowPriceGrid","comboOffersGrid","clearanceOutletGrid"];
+  function ensure(){
+    IDS.forEach(function(id){
+      var g=document.getElementById(id);if(!g)return;
+      var arrows=g.querySelectorAll(".scroll-arrow-card");
+      if(arrows.length===0&&g.children.length>10){
+        var ac=document.createElement("div");
+        ac.className="scroll-arrow-card";
+        ac.style.cssText="flex:0 0 60px;min-width:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border-radius:12px;margin-left:6px;border:2px solid #16a34a;box-shadow:0 2px 8px rgba(22,163,74,.25);";
+        ac.innerHTML="<span style='color:#16a34a;font-weight:900;font-size:36px;line-height:1'>→</span>";
+        ac.addEventListener("click",function(){g.scrollBy({left:g.clientWidth*0.8,behavior:"smooth"});});
+        g.appendChild(ac);
+      }
+    });
+  }
+  setInterval(ensure,3000);setTimeout(ensure,2000);
 })();
 </script>
 </body>
