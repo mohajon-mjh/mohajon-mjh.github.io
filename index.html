@@ -3093,9 +3093,9 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 </script>
 
 
+
 <script>/*arrowController*/
 (function(){
-  // 1 delegated click - arrow replace হলেও handler হারাবে না
   document.addEventListener("click",function(e){
     var t=e.target;
     var el=null;
@@ -3126,11 +3126,16 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
     var sig=cards.length+"|"+(cards[0].textContent||"").slice(0,25);
     if(g.__sig!==sig){g.__sig=sig;g.__show=10;}
     var n=g.__show||10;
-    for(var k=0;k<cards.length;k++)cards[k].style.display=(k<n)?"":"none";
-    // পুরনো arrow গুলো সরাই (নিজেরটা ছাড়া)
+    
+    // ✅ FIXED: proper loop with index
+    for(var i=0;i<cards.length;i++){
+      cards[i].style.display=(i<n)?"":"none";
+    }
+    
     kids.forEach(function(c){
       if(c.classList&&c.classList.contains("scroll-arrow-card")&&c!==g.__arrow)c.remove();
     });
+    
     if(!g.__arrow||!g.__arrow.isConnected){
       var ac=document.createElement("div");
       ac.className="scroll-arrow-card";
@@ -3138,6 +3143,7 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
       ac.innerHTML="<span style='color:#16a34a;font-weight:900;font-size:36px;line-height:1'>→</span>";
       g.__arrow=ac;
     }
+    
     if(n>=cards.length){
       if(g.__arrow.isConnected)g.__arrow.remove();
     }else{
