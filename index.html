@@ -1273,17 +1273,17 @@ document.addEventListener("currencyChanged", loadTrending);
 <div class="section">
 <section style="padding:20px 15px;background:#fff;margin:20px 0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
   <h2 style="font-size:22px;font-weight:800;color:#1a2330;margin-bottom:15px">🏷️ Everyday Low Price</h2>
-  <div id="everydayLowPriceCats" style="display:flex;gap:10px;overflow-x:auto;margin:0 0 12px;padding:4px 0"></div>
+  <div id="everydayLowPriceCats" class="categories" style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex;gap:12px;flex-wrap:nowrap;padding:8px 0"  style="display:flex;gap:10px;overflow-x:auto;margin:0 0 12px;padding:4px 0"></div>
 <div id="everydayLowPriceGrid" class="trending-scroll-wrapper" style="display:flex;gap:12px;overflow-x:auto;padding:10px 0"></div>
 </section>
 <section style="padding:20px 15px;background:#fff;margin:20px 0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
   <h2 style="font-size:22px;font-weight:800;color:#1a2330;margin-bottom:15px">🎯 Combo Offers</h2>
-  <div id="comboOffersCats" style="display:flex;gap:10px;overflow-x:auto;margin:0 0 12px;padding:4px 0"></div>
+  <div id="comboOffersCats" class="categories" style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex;gap:12px;flex-wrap:nowrap;padding:8px 0"  style="display:flex;gap:10px;overflow-x:auto;margin:0 0 12px;padding:4px 0"></div>
 <div id="comboOffersGrid" class="trending-scroll-wrapper" style="display:flex;gap:12px;overflow-x:auto;padding:10px 0"></div>
 </section>
 <section style="padding:20px 15px;background:#fff;margin:20px 0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
   <h2 style="font-size:22px;font-weight:800;color:#1a2330;margin-bottom:15px">💥 Clearance Outlet</h2>
-  <div id="clearanceOutletCats" style="display:flex;gap:10px;overflow-x:auto;margin:0 0 12px;padding:4px 0"></div>
+  <div id="clearanceOutletCats" class="categories" style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;display:flex;gap:12px;flex-wrap:nowrap;padding:8px 0"  style="display:flex;gap:10px;overflow-x:auto;margin:0 0 12px;padding:4px 0"></div>
 <div id="clearanceOutletGrid" class="trending-scroll-wrapper" style="display:flex;gap:12px;overflow-x:auto;padding:10px 0"></div>
 </section><h2>⭐ Deals Of The Day</h2>
 <br>
@@ -3040,10 +3040,23 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
     c.addEventListener("click",function(){location.href="product-details.html?id="+id;});
     return c;
   }
-  function fill(grid,map,all){
-    grid.innerHTML="";var n=0;
-    Object.keys(map).forEach(function(id){if(all[id]){grid.appendChild(card(id,all[id]));n++;}});
-    if(!n)grid.innerHTML='<div style="padding:20px;color:#888">পণ্য যোগ করা হয়নি</div>';
+  function renderBatch(arr,grid,items,from){
+    var end=from+10;
+    for(var i=from;i<end&&i<arr.length;i++){
+      if(items[arr[i]])grid.appendChild(card(arr[i],items[arr[i]]));
+    }
+    return end;
+  }
+  function removeArrow(grid){var o=grid.querySelector(".scroll-arrow-card");if(o)o.remove();}
+  function addArrow(grid,onClick){
+    removeArrow(grid);
+    var ac=document.createElement("div");
+    ac.className="scroll-arrow-card";
+    ac.style.cssText="flex:0 0 60px;min-width:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border-radius:12px;margin-left:6px;border:2px solid #16a34a;box-shadow:0 2px 8px rgba(22,163,74,.25);";
+    ac.innerHTML="<span>→</span>";
+    ac.firstChild.style.cssText="color:#16a34a;font-weight:900;font-size:36px;line-height:1;";
+    ac.addEventListener("click",onClick);
+    grid.appendChild(ac);
   }
   async function setup(prefix,catsId,gridId){
     var catsDiv=document.getElementById(catsId),grid=document.getElementById(gridId);
@@ -3052,19 +3065,34 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
     var catProds=await j("settings/"+prefix+"CategoryProducts")||{};
     var all=await j("products")||{};
     var ids=Object.keys(cats).sort(function(a,b){return (cats[a].order||0)-(cats[b].order||0);});
-    if(!ids.length){catsDiv.style.display="none";fill(grid,await j("settings/"+prefix+"Products")||{},all);return;}
+    if(!ids.length){catsDiv.style.display="none";return;}
     catsDiv.innerHTML="";
+    var state={current:null,count:0,ids:[]};
+    function renderCat(catId){
+      state.current=catId;state.count=0;
+      state.ids=Object.keys(catProds[catId]||{});
+      grid.innerHTML="";
+      state.count=renderBatch(state.ids,grid,all,0);
+      if(state.count<state.ids.length)addArrow(grid,()=>nextBatch());
+    }
+    function nextBatch(){
+      removeArrow(grid);
+      state.count=renderBatch(state.ids,grid,all,state.count);
+      if(state.count<state.ids.length)addArrow(grid,()=>nextBatch());
+    }
     ids.forEach(function(cid,i){
-      var b=document.createElement("button");
+      var b=document.createElement("div");
+      b.className="cat";
+      b.dataset.cat=cid;
       b.textContent=cats[cid].name||cid;
-      b.style.cssText="flex:0 0 auto;padding:10px 16px;border-radius:10px;border:2px solid #FF9900;background:"+(i===0?"#1a73e8":"#111")+";color:#fff;font-weight:700;cursor:pointer";
+      b.style.cursor="pointer";
       b.onclick=function(){
-        catsDiv.querySelectorAll("button").forEach(function(x){x.style.background="#111";});
-        b.style.background="#1a73e8";
-        fill(grid,catProds[cid]||{},all);
+        catsDiv.querySelectorAll(".cat").forEach(function(x){x.classList.remove("active");});
+        b.classList.add("active");
+        renderCat(cid);
       };
       catsDiv.appendChild(b);
-      if(i===0)fill(grid,catProds[cid]||{},all);
+      if(i===0){b.classList.add("active");renderCat(cid);}
     });
   }
   setup("everydayLowPrice","everydayLowPriceCats","everydayLowPriceGrid");
