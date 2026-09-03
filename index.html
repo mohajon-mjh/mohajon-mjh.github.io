@@ -3092,36 +3092,62 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 })();
 </script>
 
+
 <script>/*arrowController*/
 (function(){
-  var IDS=["flashSaleProductsGrid","globalCatCarousel","dealsGrid","specialCatCarousel","everydayLowPriceGrid","comboOffersGrid","clearanceOutletGrid"];
-  function makeArrow(g){
-    var ac=document.createElement("div");
-    ac.className="scroll-arrow-card";
-    ac.style.cssText="flex:0 0 60px;min-width:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border-radius:12px;margin-left:6px;border:2px solid #16a34a;box-shadow:0 2px 8px rgba(22,163,74,.25);";
-    ac.innerHTML="<span style='color:#16a34a;font-weight:900;font-size:36px;line-height:1'>→</span>";
-    ac.addEventListener("click",function(){g.__show=(g.__show||10)+10;apply(g);});
-    return ac;
+  // 1 delegated click - arrow replace হলেও handler হারাবে না
+  document.addEventListener("click",function(e){
+    var t=e.target;
+    var el=null;
+    while(t&&t!==document){if(t.classList&&t.classList.contains("scroll-arrow-card")){el=t;break;}t=t.parentNode;}
+    if(!el)return;
+    var g=el.parentNode;
+    if(!g||!g.__isArrowGrid)return;
+    e.preventDefault();e.stopPropagation();
+    g.__show=(g.__show||10)+10;
+    apply(g);
+  },true);
+
+  function grids(){
+    var out=[];
+    ["flashSaleProductsGrid","globalCatCarousel","dealsGrid","specialCatCarousel","everydayLowPriceGrid","comboOffersGrid","clearanceOutletGrid"].forEach(function(id){
+      var g=document.getElementById(id);if(g)out.push(g);
+    });
+    var ms=document.querySelectorAll(".mh2Prods");
+    for(var i=0;i<ms.length;i++)out.push(ms[i]);
+    return out;
   }
+
   function apply(g){
-    if(!g||!g.children)return;
-    var cards=[].slice.call(g.children).filter(function(c){return c.className!=="scroll-arrow-card";});
-    if(cards.length<1)return;
-    var img=cards[0].getElementsByTagName?cards[0].getElementsByTagName("img")[0]:null;
-    var sig=cards.length+"|"+(img?img.src:"x");
+    var kids=[].slice.call(g.children);
+    var cards=kids.filter(function(c){return !(c.classList&&c.classList.contains("scroll-arrow-card"));});
+    if(cards.length<11){g.__isArrowGrid=false;return;}
+    g.__isArrowGrid=true;
+    var sig=cards.length+"|"+(cards[0].textContent||"").slice(0,25);
     if(g.__sig!==sig){g.__sig=sig;g.__show=10;}
     var n=g.__show||10;
-    if(cards.length<=n)return;
-    [].slice.call(g.querySelectorAll(".scroll-arrow-card")).forEach(function(a){a.remove();});
     for(var k=0;k<cards.length;k++)cards[k].style.display=(k<n)?"":"none";
-    var ac=makeArrow(g);
-    if(cards[n])g.insertBefore(ac,cards[n]);else g.appendChild(ac);
+    // পুরনো arrow গুলো সরাই (নিজেরটা ছাড়া)
+    kids.forEach(function(c){
+      if(c.classList&&c.classList.contains("scroll-arrow-card")&&c!==g.__arrow)c.remove();
+    });
+    if(!g.__arrow||!g.__arrow.isConnected){
+      var ac=document.createElement("div");
+      ac.className="scroll-arrow-card";
+      ac.style.cssText="flex:0 0 60px;min-width:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border-radius:12px;margin-left:6px;border:2px solid #16a34a;box-shadow:0 2px 8px rgba(22,163,74,.25);";
+      ac.innerHTML="<span style='color:#16a34a;font-weight:900;font-size:36px;line-height:1'>→</span>";
+      g.__arrow=ac;
+    }
+    if(n>=cards.length){
+      if(g.__arrow.isConnected)g.__arrow.remove();
+    }else{
+      g.__arrow.style.display="flex";
+      g.insertBefore(g.__arrow,cards[n]);
+    }
   }
-  function tick(){
-    IDS.forEach(function(id){apply(document.getElementById(id));});
-    [].slice.call(document.querySelectorAll(".mh2Prods")).forEach(function(b){apply(b);});
-  }
-  setInterval(tick,1200);setTimeout(tick,1000);
+
+  setInterval(function(){grids().forEach(function(g){try{apply(g);}catch(e){}});},1200);
+  setTimeout(function(){grids().forEach(function(g){try{apply(g);}catch(e){}});},1000);
 })();
 </script>
 </body>
