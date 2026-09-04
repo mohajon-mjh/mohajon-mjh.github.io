@@ -670,48 +670,6 @@ text-decoration:none;
  .notif-cat{font-size:10px;min-width:60px;padding:8px 4px}
 }
 </style>
-<style id="bellV2CSS">
-.notif-bell-v2{position:fixed;top:14px;right:14px;cursor:pointer;z-index:1100;background:#111;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.5);border:2px solid #333;transition:transform .15s}
-.notif-bell-v2:hover{transform:scale(1.08)}
-.notif-bell-v2 .bell-icon{font-size:30px;line-height:1}
-.notif-bell-v2 .bell-badge{position:absolute;top:-4px;right:-4px;background:#e74c3c;color:#fff;font-size:13px;font-weight:900;border-radius:50%;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid #111}
-.notif-panel-v2{display:none;position:fixed;top:80px;right:14px;background:#1a1a1a;border:1px solid #333;border-radius:12px;width:380px;max-height:75vh;overflow:hidden;z-index:1099;box-shadow:0 10px 40px rgba(0,0,0,.6)}
-.notif-panel-v2.active{display:block}
-.notif-head{padding:14px 16px;background:#222;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center}
-.notif-head h3{margin:0;color:#fff;font-size:16px;font-weight:700}
-.notif-head .mark-all{background:transparent;border:1px solid #555;color:#aaa;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer}
-.notif-head .mark-all:hover{background:#333;color:#fff}
-.notif-cats{display:flex;border-bottom:1px solid #333;background:#1f1f1f;overflow-x:auto}
-.notif-cat{flex:1;padding:10px 8px;text-align:center;font-size:11px;color:#888;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;min-width:70px}
-.notif-cat.active{color:#fff;border-bottom-color:#FFD814;background:#252525}
-.notif-cat .cc{display:inline-block;background:#444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:3px;font-weight:700}
-.notif-cat.active .cc{background:#FFD814;color:#000}
-.notif-body{max-height:calc(75vh - 110px);overflow-y:auto}
-.notif-empty{padding:30px;text-align:center;color:#666;font-size:14px}
-.notif-item{padding:12px 14px;border-bottom:1px solid #2a2a2a;border-left:4px solid #555;cursor:pointer;transition:background .1s}
-.notif-item:hover{background:#252525}
-.notif-item .ni-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.notif-item .ni-icon{font-size:18px}
-.notif-item .ni-title{flex:1;color:#fff;font-size:13px;font-weight:600}
-.notif-item .ni-time{font-size:10px;color:#888}
-.notif-item .ni-desc{font-size:12px;color:#bbb;margin-bottom:8px}
-.notif-item .ni-actions{display:flex;gap:6px;flex-wrap:wrap}
-.notif-item .ni-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:opacity .1s}
-.notif-item .ni-btn:hover{opacity:.85}
-.ni-btn.ok{background:#22c55e;color:#fff}
-.ni-btn.no{background:#ef4444;color:#fff}
-.ni-btn.view{background:#3b82f6;color:#fff}
-.ni-btn.ship{background:#f59e0b;color:#fff}
-.cat-orders{border-left-color:#FFD814}
-.cat-sellers{border-left-color:#3b82f6}
-.cat-commission{border-left-color:#22c55e}
-.cat-delivery{border-left-color:#f59e0b}
-.cat-courier{border-left-color:#a855f7}
-@media(max-width:500px){
-.notif-panel-v2{width:calc(100vw - 28px);right:14px}
-.notif-cat{font-size:10px;min-width:60px;padding:8px 4px}
-}
-</style>
 <style id="mjhAllCatBtnCSS">
 /* সব ক্যাটাগরি বাটন এক সাইজ */
 #flashCatsRow .cat,
@@ -774,21 +732,7 @@ text-decoration:none;
 
 
 <body>
-<div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div>
-<div class="notif-panel-v2" id="notifPanelV2">
-<div class="notif-head"><h3>🔔 Admin Notifications</h3><button class="mark-all" id="markAllV2">Mark all read</button></div>
-<div class="notif-cats">
-<div class="notif-cat active" data-cat="all">সব <span class="cc" id="cc-all">0</span></div>
-<div class="notif-cat" data-cat="orders">🛒 অর্ডার <span class="cc" id="cc-orders">0</span></div>
-<div class="notif-cat" data-cat="sellers">🏪 সেলার <span class="cc" id="cc-sellers">0</span></div>
-<div class="notif-cat" data-cat="commission">🤝 কমিশন <span class="cc" id="cc-commission">0</span></div>
-<div class="notif-cat" data-cat="delivery">🚚 ডেলিভারি <span class="cc" id="cc-delivery">0</span></div>
-<div class="notif-cat" data-cat="courier">📦 কুরিয়ার <span class="cc" id="cc-courier">0</span></div>
-</div>
-<div class="notif-body" id="notifBodyV2"><div class="notif-empty">পণ্য ও অফার প্রস্তুত হচ্ছে</div></div>
-</div>
-<div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div>
-<div class="notif-panel-v2" id="notifPanelV2">
+
  <div class="notif-head">
   <h3>🔔 Admin Notifications</h3>
   <button class="mark-all" id="markAllV2">Mark all read</button>
@@ -1512,10 +1456,7 @@ dotdInitCategories();
 <div class="categories special-categories-row" id="specialCatsContainer">
 <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
 </div>
-<div class="section" id="specialCatProductSection" style="display:none">
-<div id="specialCatCarousel" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
-</div>
+
 </div>
 
 <script type="module">
@@ -1535,7 +1476,7 @@ const scFirebaseConfig = {
 const scApp = getApps().some(a=>a.name==="mjhMain") ? getApps().find(a=>a.name==="mjhMain") : initializeApp(scFirebaseConfig, "mjhMain");
 const scDb = getDatabase(scApp);
 
-const scSection = document.getElementById("specialCatProductSection");
+
 const scTitle = document.getElementById("specialCatProductTitle");
 const scCarousel = document.getElementById("specialCatCarousel");
 
@@ -2512,32 +2453,6 @@ console.log("currency-fix-v2 ready");
 })();
 </script>
 
-<style id="mjhBellCSS">
-.notif-bell-v2{position:fixed;top:120px;right:6px;z-index:9999;cursor:pointer;background:#131921;border:1px solid #FF9900;border-radius:50%;width:64px;height:64px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.4)}
-.notif-bell-v2 .bell-icon{font-size:30px;line-height:1}
-.notif-bell-v2 .bell-badge{position:absolute;top:-4px;right:-4px;background:#e74c3c;color:#fff;font-size:13px;font-weight:900;border-radius:50%;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid #131921}
-.notif-panel-v2{display:none;position:fixed;top:190px;right:6px;background:#1a1a1a;border:1px solid #333;border-radius:12px;width:380px;max-height:70vh;overflow:hidden;z-index:9998;box-shadow:0 10px 40px rgba(0,0,0,.6)}
-.notif-panel-v2.active{display:block}
-.notif-head{padding:14px 16px;background:#222;border-bottom:1px solid #333}
-.notif-head h3{margin:0;color:#fff;font-size:16px;font-weight:700}
-.notif-cats{display:flex;border-bottom:1px solid #333;background:#1f1f1f;overflow-x:auto}
-.notif-cat{flex:1;padding:10px 6px;text-align:center;font-size:11px;color:#888;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;min-width:64px}
-.notif-cat.active{color:#fff;border-bottom-color:#FFD814;background:#252525}
-.notif-cat .cc{display:inline-block;background:#444;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:3px;font-weight:700}
-.notif-cat.active .cc{background:#FFD814;color:#000}
-.notif-body{max-height:calc(70vh - 110px);overflow-y:auto}
-.notif-empty{padding:30px;text-align:center;color:#666;font-size:14px}
-.notif-item{padding:12px 14px;border-bottom:1px solid #2a2a2a;border-left:4px solid #555}
-.notif-item .ni-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.notif-item .ni-icon{font-size:18px}
-.notif-item .ni-title{flex:1;color:#fff;font-size:13px;font-weight:600}
-.notif-item .ni-time{font-size:10px;color:#888}
-.notif-item .ni-desc{font-size:12px;color:#bbb;margin-bottom:8px}
-.notif-item .ni-actions{display:flex;gap:6px;flex-wrap:wrap}
-.ni-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;border:none;cursor:pointer}
-.ni-btn.ok{background:#22c55e;color:#fff}.ni-btn.no{background:#ef4444;color:#fff}
-@media(max-width:500px){.notif-panel-v2{width:calc(100vw - 20px)}}
-</style>
 <script type="module" id="mjhBellGate">
 import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import{getDatabase,ref,onValue,update,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
