@@ -407,7 +407,7 @@ location.href = "category-products.html?sec=" + encodeURIComponent(sec) + "&cat=
 
 /* FlatSectionBtns v1 */
 (function(){
-var FLAT=[{name:"🔮 Coming Soon",sec:"settings/csProducts",flag:"",cs:1}];
+var FLAT=[];
 setInterval(function(){
 for(var i=0;i<FLAT.length;i++){
 var hs=[].slice.call(document.querySelectorAll("h1,h2,h3"));
@@ -446,7 +446,7 @@ function renderCustomBtns(){var host=sideHost();if(!host)return;
 [].slice.call(document.querySelectorAll(".mjhCustomBtn")).forEach(function(x){x.remove();});
 Object.keys(CUSTOM).forEach(function(id){var b=document.createElement("button");b.className="btn mjhCustomBtn";b.style.cssText="display:flex;gap:6px;align-items:center;margin:4px 8px;padding:8px;background:#16a085;color:#fff;border-radius:8px";b.innerHTML="<span style='flex:1'>🧩 "+(CUSTOM[id].name||id)+"</span>";b.onclick=function(){openCustom(id);};addMinis(b,id,true);host.appendChild(b);});
 if(!document.getElementById("mjhAddSec")){var nb=document.createElement("button");nb.id="mjhAddSec";nb.className="btn";nb.style.cssText="margin:4px 8px;padding:8px;background:#8e44ad;color:#fff;border-radius:8px;width:calc(100% - 16px)";nb.textContent="➕ নতুন সেকশন";nb.onclick=function(){var n=prompt("নতুন সেকশনের নাম:");if(!n)return;var id=n.toLowerCase().replace(/[^a-z0-9]+/g,"_");set(ref(db,"settings/customSections/"+id),{name:n,order:Date.now(),createdAt:Date.now()}).then(function(){toast("✅ নতুন সেকশন: "+n);loadCustom();});};host.appendChild(nb);}}
-function addMinisToBuiltins(){var MAP={"Flash Sale":"fsc","Global Categories":"gc","Deals of The Day":"dod","Special Categories":"spc","Coming Soon":"cs"};
+function addMinisToBuiltins(){var MAP={"Flash Sale":"fsc","Global Categories":"gc","Deals of The Day":"dod","Special Categories":"spc"};
 var btns=[].slice.call(document.querySelectorAll("button"));
 btns.forEach(function(b){if(b.dataset.mjhSec)return;var t=(b.textContent||"").trim();
 Object.keys(MAP).forEach(function(nm){if(t.indexOf(nm)>-1&&t.length<nm.length+8){b.dataset.mjhSec="1";addMinis(b,MAP[nm],false);}});});}
