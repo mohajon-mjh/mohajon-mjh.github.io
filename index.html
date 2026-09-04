@@ -794,7 +794,7 @@ text-decoration:none;
 <div class="notif-cat" data-cat="delivery">🚚 ডেলিভারি <span class="cc" id="cc-delivery">0</span></div>
 <div class="notif-cat" data-cat="courier">📦 কুরিয়ার <span class="cc" id="cc-courier">0</span></div>
 </div>
-<div class="notif-body" id="notifBodyV2"><div class="notif-empty">পণ্য ও অফার প্রস্তুত হচ্ছে</div></div>
+<div class="notif-body" id="notifBodyV2"><div class="notif-empty"> </div></div>
 </div>
 <div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div>
 <div class="notif-panel-v2" id="notifPanelV2">
@@ -810,7 +810,7 @@ text-decoration:none;
   <div class="notif-cat" data-cat="delivery">🚚 ডেলিভারি <span class="cc" id="cc-delivery">0</span></div>
   <div class="notif-cat" data-cat="courier">📦 কুরিয়ার <span class="cc" id="cc-courier">0</span></div>
  </div>
- <div class="notif-body" id="notifBodyV2"><div class="notif-empty">পণ্য ও অফার প্রস্তুত হচ্ছে</div></div>
+ <div class="notif-body" id="notifBodyV2"><div class="notif-empty"> </div></div>
 </div><div style="background:linear-gradient(90deg,#FF9900,#FFD814);padding:14px 10px;text-align:center">
 <div style="font-size:20px;font-weight:900;color:#111;margin-bottom:10px">💰 এই সাইটে ইনকাম করুন!</div>
 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
@@ -946,16 +946,16 @@ drawDots();
 <br>
 
 <div class="categories" id="flashCatsRow">
-<p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+<p style="text-align:center;color:#888"> </p>
 </div>
 
 <br>
 <div id="flashSaleProductsGrid" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+  <p style="text-align:center;color:#888"> </p>
 </div>
 
 
-<script type="module">
+<script>/*MJHProducts-cache-v1*/window.MJHProducts=(function(){var c=null,p=null;function load(){if(c)return Promise.resolve(c);if(!p){p=fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/products.json").then(function(r){return r.json();}).then(function(d){c=d||{};return c;}).catch(function(e){p=null;throw e;});}return p;}return{get:load};})();</script><script type="module">
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, query, orderByChild, equalTo, limitToFirst, startAfter, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
@@ -1144,13 +1144,13 @@ function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flas
   const activeBtn = document.querySelector(`#flashCatsRow .cat[data-cat="${catId}"]`);
   if(activeBtn) activeBtn.classList.add("active");
 
-  flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
+  flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'> </p>";
 
   get(ref(fsDb, "settings/flashSaleCategoryProducts/"+catId)).then(async (mapSnap) => {
     const map = mapSnap.exists() ? mapSnap.val() : {};
     const pids = Object.keys(map);
     if(pids.length === 0){
-      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো প্রোডাক্ট যোগ করা হয়নি।</p>";
+      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'> ।</p>";
       fsAllItems = [];
       return;
     }
@@ -1169,7 +1169,7 @@ function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flas
     fsRenderedCount = 0;
     flashSaleGrid.innerHTML = "";
     if(fsAllItems.length === 0){
-      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো প্রোডাক্ট যোগ করা হয়নি।</p>";
+      flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'> ।</p>";
       return;
     }
     fsRenderNextBatch();
@@ -1222,7 +1222,7 @@ fsInitCategories();
 <div id="globalCatsRow1" class="gc-row"></div>
 <br>
 <div id="globalCatCarousel" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+  <p style="text-align:center;color:#888"> </p>
 </div>
 </div>
 
@@ -1231,7 +1231,7 @@ fsInitCategories();
 <br>
 
 <div id="trendingProductsGrid" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+  <p style="text-align:center;color:#888"> </p>
 </div>
 
 <script type="module">
@@ -1244,7 +1244,7 @@ const grid = document.getElementById("trendingProductsGrid");
 function fmt(v) { return window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : "৳" + (+v || 0).toFixed(0); }
 async function loadTrending() {
   if (!grid) return;
-  grid.innerHTML = '<p style="text-align:center;color:#888">🛍️ লোড হচ্ছে...</p>';
+  grid.innerHTML = '<p style="text-align:center;color:#888">🛍️  ...</p>';
   try {
     const [a, b] = await Promise.all([get(ref(db, "settings/trendingProducts")), get(ref(db, "products"))]);
     if (!a.exists() || !b.exists()) { grid.innerHTML = '<p style="text-align:center;color:#888">Trending products আসছে...</p>'; return; }
@@ -1290,12 +1290,12 @@ document.addEventListener("currencyChanged", loadTrending);
 <br>
 
 <div class="categories" id="dotdCatsRow">
-<p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+<p style="text-align:center;color:#888"> </p>
 </div>
 
 <br>
 <div id="dealsGrid" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+  <p style="text-align:center;color:#888"> </p>
 </div>
 
 <script type="module">
@@ -1481,32 +1481,28 @@ function loadDotdCategoryProducts(catId){var __b2=document.querySelector('#dotdC
   if(activeBtn) activeBtn.classList.add("active");
 
   const grid = document.getElementById("dealsGrid");
-  grid.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
+  grid.innerHTML = "<p style='text-align:center;color:#888'> </p>";
 
   get(ref(dealsDb, "settings/dealsOfDayCategoryProducts/"+catId)).then(async (mapSnap) => {
     const map = mapSnap.exists() ? mapSnap.val() : {};
     const pids = Object.keys(map);
     if(pids.length === 0){
-      grid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো প্রোডাক্ট যোগ করা হয়নি।</p>";
+      grid.innerHTML = "<p style='text-align:center;color:#888'> ।</p>";
       dotdAllItems = [];
       return;
     }
-    const results = await Promise.all(pids.map(async (pid) => {
-      try{
-        const pSnap = await get(ref(dealsDb, "products/"+pid));
-        if(!pSnap.exists()) return null;
-        const data = pSnap.val();
-        if(data.status !== "active") return null;
-        const mapInfo = map[pid] || {};
-        /* date filter removed */
-        return { id: pid, data, mapInfo };
-      }catch(e){ return null; }
-    }));
+    const ALL_PRODUCTS = window.MJHProducts ? await window.MJHProducts.get() : {};
+    const results = pids.map(pid => {
+      const data = ALL_PRODUCTS[pid];
+      if(!data || data.status !== "active") return null;
+      const mapInfo = map[pid] || {};
+      return { id: pid, data, mapInfo };
+    });
     dotdAllItems = results.filter(Boolean);
     dotdRenderedCount = 0;
     grid.innerHTML = "";
     if(dotdAllItems.length === 0){
-      grid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো প্রোডাক্ট যোগ করা হয়নি।</p>";
+      grid.innerHTML = "<p style='text-align:center;color:#888'> ।</p>";
       return;
     }
     dotdRenderNextBatch();
@@ -1553,11 +1549,11 @@ dotdInitCategories();
 
 
 <div class="categories special-categories-row" id="specialCatsContainer">
-<p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+<p style="text-align:center;color:#888"> </p>
 </div>
 <div class="section" id="specialCatProductSection" style="display:none">
 <div id="specialCatCarousel" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+  <p style="text-align:center;color:#888"> </p>
 </div>
 </div>
 
@@ -1584,18 +1580,29 @@ const scCarousel = document.getElementById("specialCatCarousel");
 
 async function loadSpecialCategoryProducts(slug, scroll = true){
   scSection.style.display = "block";
-  scCarousel.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
+  scCarousel.innerHTML = "<p style='text-align:center;color:#888'> </p>";
   if (scroll) scSection.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const scMapSnap = await get(ref(scDb, "settings/specialCategoryProducts/"+slug)).catch(()=>null);
   const scMap = (scMapSnap && scMapSnap.exists()) ? scMapSnap.val() : {};
-  const scQuery = query(ref(scDb, "products"), orderByChild("categoryId"), equalTo(slug), limitToFirst(500));
-      onValue(scQuery, async (snapshot) => {
-        const data = snapshot.val() || {};
-        let matched = Object.entries(data).filter(([id, p]) => p.status === "active"); const __have={}; matched.forEach(function(en){__have[en[0]]=1;}); for(const __pid in scMap){ if(!__have[__pid]){ try{ const __s=await get(ref(scDb,"products/"+__pid)); if(__s.exists()){ const __pv=__s.val(); if(__pv&&__pv.status==="active") matched.push([__pid,__pv]); } }catch(e2){} } }
+  const ALL_PRODUCTS = window.MJHProducts ? await window.MJHProducts.get() : {};
+        let matched = [];
+        const __have={};
+        for(const pid in ALL_PRODUCTS){
+          const p=ALL_PRODUCTS[pid];
+          if(p && p.status==="active" && p.categoryId===slug){
+            matched.push([pid,p]);
+            __have[pid]=1;
+          }
+        }
+        for(const __pid in scMap){
+          if(!__have[__pid] && ALL_PRODUCTS[__pid] && ALL_PRODUCTS[__pid].status==="active"){
+            matched.push([__pid, ALL_PRODUCTS[__pid]]);
+          }
+        }
 
         if (matched.length === 0) {
-          scCarousel.innerHTML = "<p style='text-align:center;color:#888'>শীঘ্রই পণ্য যুক্ত হবে...</p>";
+          scCarousel.innerHTML = "<p style='text-align:center;color:#888'> ...</p>";
           return;
         }
 
@@ -1823,7 +1830,7 @@ document.addEventListener("currencyChanged", loadFeatured);
 <h2>🔥 Hot Deals</h2>
 <br>
 <div id="comingSoonGrid" class="trending-scroll-wrapper">
-  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+  <p style="text-align:center;color:#888"> </p>
 </div>
 </div>
 
@@ -1840,7 +1847,7 @@ function fmt(v) { return window.MJHCurrency ? window.MJHCurrency.formatPrice(v) 
 
 async function loadHotDeals() {
   if (!grid) return;
-  grid.innerHTML = '<p style="text-align:center;color:#888">🔥 লোড হচ্ছে...</p>';
+  grid.innerHTML = '<p style="text-align:center;color:#888">🔥  ...</p>';
   try {
     const [pidsSnap, prodSnap] = await Promise.all([
       get(ref(db, "settings/hotDealsProducts")),
@@ -1968,12 +1975,12 @@ const gcDb = getDatabase(gcApp);
 /*mjhGcDedup*/let gcLoaded=false;
 function loadGlobalCats(){if(gcLoaded)return;gcLoaded=true;
 const gcSection = document.getElementById("globalCatSection");
-  gcCarousel.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
+  gcCarousel.innerHTML = "<p style='text-align:center;color:#888'> </p>";
   onValue(ref(gcDb, "settings/globalCategoryProducts/"+catId), async (snapshot) => {
     gcMap = snapshot.val() || {};
     const pids = Object.keys(gcMap);
     if(pids.length === 0){
-      gcCarousel.innerHTML = "<p style='text-align:center;color:#888'>শীঘ্রই পণ্য যুক্ত হবে...</p>";
+      gcCarousel.innerHTML = "<p style='text-align:center;color:#888'> ...</p>";
       return;
     }
     const rows = (await Promise.all(pids.map(async (pid) => {
@@ -2095,7 +2102,7 @@ const gcSection = document.getElementById("globalCatSection");
   const row1 = document.getElementById("globalCatsRow1");
   if(!row1) return;
   
-  row1.innerHTML = "<p style='color:#fff; padding:10px;'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
+  row1.innerHTML = "<p style='color:#fff; padding:10px;'> </p>";
   
   try {
     // Firebase থেকে ক্যাটাগরি আনা
@@ -2178,7 +2185,7 @@ buildGcRows();
 async function loadGlobalCatProducts(catId){
   const carousel = document.getElementById("globalCatCarousel");
   if(!carousel) return;
-  carousel.innerHTML = "<p style='text-align:center;color:#888'>পণ্য ও অফার প্রস্তুত হচ্ছে</p>";
+  carousel.innerHTML = "<p style='text-align:center;color:#888'> </p>";
   try {
     const snap = await get(ref(gcDb, "settings/globalCategoryProducts/" + catId));
     const productMap = snap.val() || {};
@@ -2641,7 +2648,7 @@ console.log("currency-fix-v2 ready");
    }
   }).catch(function(e){console.error("trend load err",e);});
  }
- setTimeout(function(){var g=document.getElementById("trendingProductsGrid");if(g&&g.textContent.indexOf("লোড হচ্ছে")>-1&&g.querySelectorAll(".product-card").length===0)load();},6000);
+ setTimeout(function(){var g=document.getElementById("trendingProductsGrid");if(g&&g.textContent.indexOf(" ")>-1&&g.querySelectorAll(".product-card").length===0)load();},6000);
 })();
 </script>
 
@@ -2678,7 +2685,7 @@ import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasej
 const ADMIN_EMAIL="mohajonmjh@gmail.com";
 const app=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
 const db=getDatabase(app),auth=getAuth(app);
-const BELL_HTML='<div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div><div class="notif-panel-v2" id="notifPanelV2"><div class="notif-head"><h3>🔔 Admin Notifications</h3></div><div class="notif-cats"><div class="notif-cat active" data-cat="all">সব <span class="cc" id="cc-all">0</span></div><div class="notif-cat" data-cat="orders">🛒 <span class="cc" id="cc-orders">0</span></div><div class="notif-cat" data-cat="sellers">🏪 <span class="cc" id="cc-sellers">0</span></div><div class="notif-cat" data-cat="commission">🤝 <span class="cc" id="cc-commission">0</span></div><div class="notif-cat" data-cat="delivery">🚚 <span class="cc" id="cc-delivery">0</span></div><div class="notif-cat" data-cat="courier">📦 <span class="cc" id="cc-courier">0</span></div></div><div class="notif-body" id="notifBodyV2"><div class="notif-empty">পণ্য ও অফার প্রস্তুত হচ্ছে</div></div></div>';
+const BELL_HTML='<div class="notif-bell-v2" id="notifBellV2" style="display:none"><span class="bell-icon">🔔</span><span class="bell-badge" id="bellBadgeV2" style="display:none">0</span></div><div class="notif-panel-v2" id="notifPanelV2"><div class="notif-head"><h3>🔔 Admin Notifications</h3></div><div class="notif-cats"><div class="notif-cat active" data-cat="all">সব <span class="cc" id="cc-all">0</span></div><div class="notif-cat" data-cat="orders">🛒 <span class="cc" id="cc-orders">0</span></div><div class="notif-cat" data-cat="sellers">🏪 <span class="cc" id="cc-sellers">0</span></div><div class="notif-cat" data-cat="commission">🤝 <span class="cc" id="cc-commission">0</span></div><div class="notif-cat" data-cat="delivery">🚚 <span class="cc" id="cc-delivery">0</span></div><div class="notif-cat" data-cat="courier">📦 <span class="cc" id="cc-courier">0</span></div></div><div class="notif-body" id="notifBodyV2"><div class="notif-empty"> </div></div></div>';
 const DAY30=30*86400000;let O={},SA={},CA={},D={},CO={},cat="all",started=false,isAdmin=false;
 function ensureUI(){
  document.querySelectorAll(".notif-bell-wrap").forEach(e=>e.remove());
@@ -2748,7 +2755,7 @@ document.addEventListener("click",function(e){
 <script>/*mjhLoaderWatchdog*/
 (function(){
  var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
- function stuck(id){var g=document.getElementById(id);return g&&g.textContent.indexOf("লোড হচ্ছে")>-1&&g.querySelectorAll(".product-card").length===0;}
+ function stuck(id){var g=document.getElementById(id);return g&&g.textContent.indexOf(" ")>-1&&g.querySelectorAll(".product-card").length===0;}
  function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"৳"+(+v||0).toFixed(0);}
  function card(id,p){var price=+p.price||0;var img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";var c=document.createElement("div");c.className="product-card";c.style.cursor="pointer";c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" loading="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(p.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';c.addEventListener("click",function(){location.href="product-details.html?id="+id;});return c;}
  async function j(u){try{var r=await fetch(BASE+u+".json");return await r.json();}catch(e){return null;}}
