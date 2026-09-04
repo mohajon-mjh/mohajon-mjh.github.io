@@ -295,7 +295,7 @@ var snap=await get(ref(db,"settings/customSections"));
 var data=snap.val()||{};
 if(!window.__secHost){
 var all=[].slice.call(document.querySelectorAll("button,a,div"));
-for(var i=0;i<all.length;i++){if(false){window.__secHost=all[i].parentNode;break;}}
+for(var i=0;i<all.length;i++){if((all[i].textContent||"").indexOf("Flash Sale")>-1){window.__secHost=all[i].parentNode;break;}}
 }
 var host=window.__secHost;if(!host)return;
 if(!document.getElementById("addSecBtn")){
@@ -434,7 +434,7 @@ break;}
 (function(){
 var CUSTOM={};
 function loadCustom(){get(ref(db,"settings/customSections")).then(function(sn){CUSTOM=sn.val()||{};renderCustomBtns();}).catch(function(){});}
-function sideHost(){var bs=[].slice.call(document.querySelectorAll("button"));for(var i=0;i<bs.length;i++){if(false)return bs[i].parentNode;}return null;}
+function sideHost(){var bs=[].slice.call(document.querySelectorAll("button"));for(var i=0;i<bs.length;i++){if((bs[i].textContent||"").indexOf("Flash Sale")>-1)return bs[i].parentNode;}return null;}
 function addMinis(btn,id,isCustom){
 var mk=function(txt,fn){var s=document.createElement("span");s.textContent=txt;s.style.cssText="cursor:pointer;font-size:12px";s.onclick=function(ev){ev.stopPropagation();fn();};btn.appendChild(s);};
 mk("✏️",function(){var nn=prompt("সেকশনের নতুন নাম:");if(!nn)return;var p=isCustom?("settings/customSections/"+id+"/name"):("settings/sectionMeta/"+id+"/name");var up={};up[p]=nn;update(ref(db),up).then(function(){toast("✅ নাম সেভ হয়েছে");loadCustom();});});
