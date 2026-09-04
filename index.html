@@ -864,18 +864,6 @@ drawDots();
 
 
 <div class="section">
-<h2>🎁 Mega Offers</h2>
-<br>
-<div class="categories" id="megaCatsRow">
-<p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
-</div>
-<br>
-<div id="megaOffersGrid" class="trending-scroll-wrapper">
-<p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
-</div>
-</div>
-
-<div class="section">
 <h2>⚡ Flash Sale</h2>
 <br>
 
@@ -2599,9 +2587,8 @@ var BTN="padding:25px 26px;border-radius:12px;border:2px solid #f39c12;backgroun
 async function run(){
 try{
 var secs=await j("settings/customSections")||{};
-var matches=[].slice.call(document.querySelectorAll("a")).filter(function(x){return (x.textContent||"").indexOf("Seller Dashboard")>-1;});
-var link=matches.length?matches[matches.length-1]:null;
-var anchor=link?link.parentNode:(document.querySelector("footer")||document.body);
+var fs=document.getElementById("flashCatsRow");
+var anchor=(fs&&fs.closest(".section"))||document.querySelector("footer")||document.body;
 for(var id in secs){
 if(document.getElementById("mh2_"+id))continue;
 var wrap=document.createElement("section");wrap.id="mh2_"+id;wrap.style.cssText="padding:18px 12px";
