@@ -36,11 +36,8 @@ var PLACEHOLDER="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'
 var SECTIONS=[
 {key:"fsc",name:"⚡ Flash Sale",hasCats:1,catNode:"settings/flashSaleCategories",prodPath:"settings/flashSaleCategoryProducts"},
 {key:"gc",name:"🌐 Global Categories",hasCats:1,catNode:"settings/globalCategories",prodPath:"settings/globalCategoryProducts"},
-{key:"tr",name:"🔥 Trending Products",hasCats:1,catNode:"settings/trendingCategories",prodPath:"settings/trendingCategoryProducts",flag:"isTrending"},
 {key:"dotd",name:"⭐ Deals of The Day",hasCats:1,catNode:"settings/dealsOfDayCategories",prodPath:"settings/dealsOfDayCategoryProducts"},
 {key:"sc",name:"🌟 Special Categories",hasCats:1,catNode:"settings/specialCategories",prodPath:"settings/specialCategoryProducts"},
-{key:"feat",name:"🌟 Featured Products",hasCats:0,flag:"isFeatured"},
-{key:"cs",name:"🔮 Coming Soon",hasCats:1,catNode:"settings/comingSoonCategories",prodPath:"settings/comingSoonCategoryProducts",cs:1}
 ];
 var CURSEC=null,CURCAT=null,ALL=null,MODE="own",pending=[];
 var PLACEHOLDER="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='46' height='46'><rect width='46' height='46' fill='%23232f3e'/></svg>";
@@ -298,7 +295,7 @@ var snap=await get(ref(db,"settings/customSections"));
 var data=snap.val()||{};
 if(!window.__secHost){
 var all=[].slice.call(document.querySelectorAll("button,a,div"));
-for(var i=0;i<all.length;i++){if((all[i].textContent||"").indexOf("Coming Soon")>-1){window.__secHost=all[i].parentNode;break;}}
+for(var i=0;i<all.length;i++){if(false){window.__secHost=all[i].parentNode;break;}}
 }
 var host=window.__secHost;if(!host)return;
 if(!document.getElementById("addSecBtn")){
@@ -410,7 +407,7 @@ location.href = "category-products.html?sec=" + encodeURIComponent(sec) + "&cat=
 
 /* FlatSectionBtns v1 */
 (function(){
-var FLAT=[{name:"🔥 Trending Products",sec:"settings/trProducts",flag:"isTrending",cs:false},{name:"🌟 Featured Products",sec:"settings/featProducts",flag:"isFeatured",cs:false},{name:"🔮 Coming Soon",sec:"settings/csProducts",flag:"",cs:1}];
+var FLAT=[{name:"🔮 Coming Soon",sec:"settings/csProducts",flag:"",cs:1}];
 setInterval(function(){
 for(var i=0;i<FLAT.length;i++){
 var hs=[].slice.call(document.querySelectorAll("h1,h2,h3"));
@@ -437,7 +434,7 @@ break;}
 (function(){
 var CUSTOM={};
 function loadCustom(){get(ref(db,"settings/customSections")).then(function(sn){CUSTOM=sn.val()||{};renderCustomBtns();}).catch(function(){});}
-function sideHost(){var bs=[].slice.call(document.querySelectorAll("button"));for(var i=0;i<bs.length;i++){if((bs[i].textContent||"").indexOf("Coming Soon")>-1)return bs[i].parentNode;}return null;}
+function sideHost(){var bs=[].slice.call(document.querySelectorAll("button"));for(var i=0;i<bs.length;i++){if(false)return bs[i].parentNode;}return null;}
 function addMinis(btn,id,isCustom){
 var mk=function(txt,fn){var s=document.createElement("span");s.textContent=txt;s.style.cssText="cursor:pointer;font-size:12px";s.onclick=function(ev){ev.stopPropagation();fn();};btn.appendChild(s);};
 mk("✏️",function(){var nn=prompt("সেকশনের নতুন নাম:");if(!nn)return;var p=isCustom?("settings/customSections/"+id+"/name"):("settings/sectionMeta/"+id+"/name");var up={};up[p]=nn;update(ref(db),up).then(function(){toast("✅ নাম সেভ হয়েছে");loadCustom();});});
@@ -449,7 +446,7 @@ function renderCustomBtns(){var host=sideHost();if(!host)return;
 [].slice.call(document.querySelectorAll(".mjhCustomBtn")).forEach(function(x){x.remove();});
 Object.keys(CUSTOM).forEach(function(id){var b=document.createElement("button");b.className="btn mjhCustomBtn";b.style.cssText="display:flex;gap:6px;align-items:center;margin:4px 8px;padding:8px;background:#16a085;color:#fff;border-radius:8px";b.innerHTML="<span style='flex:1'>🧩 "+(CUSTOM[id].name||id)+"</span>";b.onclick=function(){openCustom(id);};addMinis(b,id,true);host.appendChild(b);});
 if(!document.getElementById("mjhAddSec")){var nb=document.createElement("button");nb.id="mjhAddSec";nb.className="btn";nb.style.cssText="margin:4px 8px;padding:8px;background:#8e44ad;color:#fff;border-radius:8px;width:calc(100% - 16px)";nb.textContent="➕ নতুন সেকশন";nb.onclick=function(){var n=prompt("নতুন সেকশনের নাম:");if(!n)return;var id=n.toLowerCase().replace(/[^a-z0-9]+/g,"_");set(ref(db,"settings/customSections/"+id),{name:n,order:Date.now(),createdAt:Date.now()}).then(function(){toast("✅ নতুন সেকশন: "+n);loadCustom();});};host.appendChild(nb);}}
-function addMinisToBuiltins(){var MAP={"Flash Sale":"fsc","Global Categories":"gc","Trending Products":"tr","Deals of The Day":"dod","Special Categories":"spc","Featured Products":"fp","Coming Soon":"cs"};
+function addMinisToBuiltins(){var MAP={"Flash Sale":"fsc","Global Categories":"gc","Deals of The Day":"dod","Special Categories":"spc","Coming Soon":"cs"};
 var btns=[].slice.call(document.querySelectorAll("button"));
 btns.forEach(function(b){if(b.dataset.mjhSec)return;var t=(b.textContent||"").trim();
 Object.keys(MAP).forEach(function(nm){if(t.indexOf(nm)>-1&&t.length<nm.length+8){b.dataset.mjhSec="1";addMinis(b,MAP[nm],false);}});});}
