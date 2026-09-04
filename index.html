@@ -864,6 +864,18 @@ drawDots();
 
 
 <div class="section">
+<h2>🎁 Mega Offers</h2>
+<br>
+<div class="categories" id="megaCatsRow">
+<p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+</div>
+<br>
+<div id="megaOffersGrid" class="trending-scroll-wrapper">
+<p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+</div>
+</div>
+
+<div class="section">
 <h2>⚡ Flash Sale</h2>
 <br>
 
@@ -2447,11 +2459,10 @@ import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasej
 const ADMIN_EMAIL="mohajonmjh@gmail.com";
 const app=getApps().length?getApp():initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
 const db=getDatabase(app),auth=getAuth(app);
-const BELL_HTML='<div class="notif-cats"><div class="notif-cat active" data-cat="all">সব <span class="cc" id="cc-all">0</span></div><div class="notif-cat" data-cat="orders">🛒 <span class="cc" id="cc-orders">0</span></div><div class="notif-cat" data-cat="sellers">🏪 <span class="cc" id="cc-sellers">0</span></div><div class="notif-cat" data-cat="commission">🤝 <span class="cc" id="cc-commission">0</span></div><div class="notif-cat" data-cat="delivery">🚚 <span class="cc" id="cc-delivery">0</span></div><div class="notif-cat" data-cat="courier">📦 <span class="cc" id="cc-courier">0</span></div></div><div class="notif-body" id="notifBodyV2"><div class="notif-empty">পণ্য ও অফার প্রস্তুত হচ্ছে</div></div></div>';
 const DAY30=30*86400000;let O={},SA={},CA={},D={},CO={},cat="all",started=false,isAdmin=false;
 function ensureUI(){
  document.querySelectorAll(".notif-bell-wrap").forEach(e=>e.remove());
- if(!document.getElementById("notifBellV2"))document.body.insertAdjacentHTML("beforeend",BELL_HTML);
+ 
 }
 function ago(t){const s=Math.floor((Date.now()-t)/1000);if(s<60)return s+"s";if(s<3600)return Math.floor(s/60)+"m";if(s<86400)return Math.floor(s/3600)+"h";return Math.floor(s/86400)+"d";}
 function gather(){const now=Date.now(),it=[];
@@ -2469,7 +2480,7 @@ const body=document.getElementById("notifBodyV2");if(!body)return;
 const sh=cat==="all"?all:all.filter(i=>i.cat===cat);
 body.innerHTML=sh.length?sh.slice(0,60).map(i=>'<div class="notif-item"><div class="ni-top"><span class="ni-icon">'+i.icon+'</span><span class="ni-title">'+i.title+'</span><span class="ni-time">'+ago(i.t)+'</span></div><div class="ni-desc">'+i.desc+'</div>'+(i.act?'<div class="ni-actions">'+i.act.map(a=>'<button class="ni-btn '+a[2]+'" data-k="'+a[0]+'" data-id="'+i.id+'">'+a[1]+'</button>').join("")+'</div>':"")+'</div>').join(""):'<div class="notif-empty">কিছু নেই</div>';}
 document.addEventListener("click",function(ev){
-const b=ev.target.closest("#notifBellV2");if(b){ev.stopPropagation();const p=document.getElementById("notifPanelV2");p.classList.toggle("active");render();return;}
+
 const t=ev.target.closest(".notif-cat");if(t){document.querySelectorAll(".notif-cat").forEach(x=>x.classList.remove("active"));t.classList.add("active");cat=t.dataset.cat;render();return;}
 const btn=ev.target.closest(".ni-btn");if(btn){const k=btn.dataset.k,id=btn.dataset.id;
 if(k==="approveS")update(ref(db,"sellerApps/"+id),{status:"approved"});
@@ -2478,7 +2489,7 @@ if(k==="approveC")update(ref(db,"commissionAgents/"+id),{status:"approved"});
 if(k==="rejectC")update(ref(db,"commissionAgents/"+id),{status:"rejected"});
 if(k==="markDeliv")update(ref(db,"deliveries/"+id),{status:"delivered"});
 setTimeout(render,500);return;}
-if(!ev.target.closest(".notif-panel-v2")){const p=document.getElementById("notifPanelV2");if(p)p.classList.remove("active");}
+
 },true);
 function start(){if(started)return;started=true;
 onValue(ref(db,"orders"),s=>{O=s.val()||{};render();});
@@ -2495,7 +2506,7 @@ function setBoth(isA){
    ic.onclick=function(){location.href="admin.html";};document.body.appendChild(ic);}
   ic.style.display="block";
  }else if(ic){ic.style.display="none";}
- const bell=document.getElementById("notifBellV2"),panel=document.getElementById("notifPanelV2");
+ 
  if(bell)bell.style.display=isA?"flex":"none";
  if(!isA&&panel)panel.classList.remove("active");
  if(isA)start();
@@ -2709,7 +2720,7 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
     document.querySelectorAll('.trending-scroll-wrapper').forEach(fix);
     var g=document.getElementById('globalCatCarousel');if(g)fix(g);
     var s=document.getElementById('specialCatCarousel');if(s)fix(s);
-    var m=findByH2('Mega Offers');if(m)fix(m);
+    
   }
   setTimeout(run,1500);setInterval(run,5000);
 })();
