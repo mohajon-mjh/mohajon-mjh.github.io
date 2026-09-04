@@ -2118,13 +2118,14 @@ const gcSection = document.getElementById("globalCatSection");
 
     // DB এবং ডিফল্ট লিস্ট মার্জ করা
     var merged = [];
-    Object.keys(dbData).forEach(k => { merged.push([k, (dbData[k] && dbData[k].name) ? dbData[k].name : k]); });
-    if (merged.length === 0) { merged = defaultCats.map(c => [c.id, c.name]); }
+    Object.keys(dbData).forEach(k => { merged.push([k, (dbData[k] && dbData[k].name) ? dbData[k].name : k, dbData[k].order || 0]); });
+    merged.sort((a,b)=>a[2]-b[2]);
+    if (merged.length === 0) { row1.innerHTML = "<p style='color:#888; padding:10px;'>ক্যাটাগরি পাওয়া যায়নি</p>"; return; }
 
     row1.innerHTML = ""; // লোডিং টেক্সট মুছে ফেলা
 
     // বাটন তৈরি করা
-    merged.forEach(([id, name], index) => {
+    merged.forEach(([id, name, order], index) => {
       const div = document.createElement("div");
       div.className = "cat" + (index === 0 ? " active" : "");
       div.textContent = name || id;
