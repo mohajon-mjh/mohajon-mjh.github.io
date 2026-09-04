@@ -719,6 +719,9 @@ text-decoration:none;
 #specialCatsContainer .cat,
 .special-categories-row .cat,
 #globalCatCarousel .cat,
+#trendingCatsRow .cat,
+#featuredCatsRow .cat,
+#comingSoonCatsRow .cat,
 #dealsCatsRow .cat,
 .csCats button,
 .fcCats button,
@@ -768,7 +771,13 @@ text-decoration:none;
   border-color:#f39c12 !important;
 }
 </style>
-
+<style id="hideOldSections">
+#trendingProductsGrid,
+#featuredProducts,
+#comingSoonGrid {
+  display: none !important;
+}
+</style>
 <style id="arrowDedup">.scroll-arrow-card ~ .scroll-arrow-card{display:none !important}</style>
 </head>
 
@@ -1130,7 +1139,7 @@ function fsIsOfferActive(mapInfo){
 
 let fscCatsCache = {};
 
-function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flashCatsRow .cat[data-cat="'+catId+'"]');var __nm=__bn?__bn.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("fsc:"+catId)||window.MJHCategoryGate.isOff("fscname:"+window.MJHCategoryGate.norm(__nm)))){flashSaleGrid.innerHTML='<p style="text-align:center;color:#888;padding:20px">পণ্য লোড হচ্ছে...</p>';fsAllItems=[];return;}
+function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flashCatsRow .cat[data-cat="'+catId+'"]');var __nm=__bn?__bn.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("fsc:"+catId)||window.MJHCategoryGate.isOff("fscname:"+window.MJHCategoryGate.norm(__nm)))){flashSaleGrid.innerHTML='<p style="text-align:center;color:#888;padding:20px">🛍️ Hot Deals...</p>';fsAllItems=[];return;}
   document.querySelectorAll("#flashCatsRow .cat").forEach(b => b.classList.remove("active"));
   const activeBtn = document.querySelector(`#flashCatsRow .cat[data-cat="${catId}"]`);
   if(activeBtn) activeBtn.classList.add("active");
@@ -1218,12 +1227,46 @@ fsInitCategories();
 </div>
 
 <div class="section">
-
+<h2>🔥 Trending Products</h2>
 <br>
 
+<div id="trendingProductsGrid" class="trending-scroll-wrapper">
+  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+</div>
 
-
-
+<script type="module">
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const cfg = { apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw", databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com" };
+const app = getApps().some(a => a.name === "trApp") ? getApps().find(a => a.name === "trApp") : initializeApp(cfg, "trApp");
+const db = getDatabase(app);
+const grid = document.getElementById("trendingProductsGrid");
+function fmt(v) { return window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : "৳" + (+v || 0).toFixed(0); }
+async function loadTrending() {
+  if (!grid) return;
+  grid.innerHTML = '<p style="text-align:center;color:#888">🛍️ লোড হচ্ছে...</p>';
+  try {
+    const [a, b] = await Promise.all([get(ref(db, "settings/trendingProducts")), get(ref(db, "products"))]);
+    if (!a.exists() || !b.exists()) { grid.innerHTML = '<p style="text-align:center;color:#888">Trending products আসছে...</p>'; return; }
+    const pids = Object.keys(a.val() || {}).slice(0, 600);
+    const prods = b.val() || {};
+    grid.innerHTML = "";
+    pids.forEach(pid => {
+      const p = prods[pid]; if (!p) return;
+      const img = (p.images && p.images.main) || "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+      const price = +p.price || 0, oldPrice = +p.oldPrice || 0;
+      const disc = oldPrice > price ? Math.round((oldPrice - price) * 100 / oldPrice) : 0;
+      const card = document.createElement("div");
+      card.style.cssText = "background:#fff;border-radius:10px;padding:10px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.08);min-width:160px;max-width:160px";
+      card.onclick = () => { location.href = "product-details.html?id=" + pid; };
+      card.innerHTML = '<div style="position:relative"><img src="' + img + '" style="width:100%;height:130px;object-fit:cover;border-radius:8px">' + (disc > 0 ? '<span style="position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">-' + disc + '%</span>' : '') + '</div><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">' + (p.title || "") + '</b><div style="font-weight:800;margin-bottom:6px">' + fmt(price) + (disc > 0 ? ' <span style="color:#999;text-decoration:line-through;font-weight:400;font-size:11px">' + fmt(oldPrice) + '</span>' : '') + '</div><a href="product-details.html?id=' + pid + '"><button style="width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px">🛒 Add to Cart</button></a><a href="product-details.html?id=' + pid + '&buy=1"><button style="width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700">⚡ Buy Now</button></a>';
+      grid.appendChild(card);
+    });
+  } catch (e) { grid.innerHTML = '<p style="text-align:center;color:#c33">Error</p>'; }
+}
+loadTrending();
+document.addEventListener("currencyChanged", loadTrending);
+</script>
 
 </div>
 
@@ -1432,7 +1475,7 @@ function dotdRenderNextBatch(){
   }
 }
 
-function loadDotdCategoryProducts(catId){var __b2=document.querySelector('#dotdCatsRow .cat[data-cat="'+catId+'"]');var __n2=__b2?__b2.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("dotd:"+catId)||window.MJHCategoryGate.isOff("dotdname:"+window.MJHCategoryGate.norm(__n2)))){document.getElementById("dealsGrid").innerHTML='<p style="text-align:center;color:#888;padding:20px">পণ্য লোড হচ্ছে...</p>';return;}
+function loadDotdCategoryProducts(catId){var __b2=document.querySelector('#dotdCatsRow .cat[data-cat="'+catId+'"]');var __n2=__b2?__b2.textContent:"";if(window.MJHCategoryGate&&(window.MJHCategoryGate.isOff("dotd:"+catId)||window.MJHCategoryGate.isOff("dotdname:"+window.MJHCategoryGate.norm(__n2)))){document.getElementById("dealsGrid").innerHTML='<p style="text-align:center;color:#888;padding:20px">🛍️ Hot Deals...</p>';return;}
   document.querySelectorAll("#dotdCatsRow .cat").forEach(b => b.classList.remove("active"));
   const activeBtn = document.querySelector(`#dotdCatsRow .cat[data-cat="${catId}"]`);
   if(activeBtn) activeBtn.classList.add("active");
@@ -1729,16 +1772,103 @@ onValue(ref(scDb, "settings/specialCategories"), (snapshot) => {
 <div class="section">
 
 
-
+<h2>Featured Products</h2>
 <br>
 
+<div id="featuredProducts" class="trending-scroll-wrapper"></div>
+</div>
+<script type="module">
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+const cfg = { apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw", databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com" };
+const app = getApps().some(a => a.name === "ftApp") ? getApps().find(a => a.name === "ftApp") : initializeApp(cfg, "ftApp");
+const db = getDatabase(app);
+function findGrid() {
+  var h2s = document.querySelectorAll("h2");
+  for (var i = 0; i < h2s.length; i++) {
+    if ((h2s[i].textContent || "").indexOf("Featured Products") > -1) {
+      var sec = h2s[i].parentElement;
+      var g = sec.querySelector(".trending-scroll-wrapper");
+      if (g) return g;
+    }
+  }
+  return null;
+}
+function fmt(v) { return window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : "৳" + (+v || 0).toFixed(0); }
+async function loadFeatured() {
+  const grid = findGrid(); if (!grid) return;
+  try {
+    const [a, b] = await Promise.all([get(ref(db, "settings/featuredProducts")), get(ref(db, "products"))]);
+    if (!a.exists() || !b.exists()) return;
+    const pids = Object.keys(a.val() || {}).slice(0, 600);
+    const prods = b.val() || {};
+    grid.innerHTML = "";
+    pids.forEach(pid => {
+      const p = prods[pid]; if (!p) return;
+      const img = (p.images && p.images.main) || "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+      const price = +p.price || 0, oldPrice = +p.oldPrice || 0;
+      const disc = oldPrice > price ? Math.round((oldPrice - price) * 100 / oldPrice) : 0;
+      const card = document.createElement("div");
+      card.style.cssText = "background:#fff;border-radius:10px;padding:10px;box-shadow:0 2px 6px rgba(0,0,0,0.08);min-width:160px;max-width:160px;flex:0 0 auto";
+      card.innerHTML = '<div style="position:relative"><a href="product-details.html?id=' + pid + '"><img src="' + img + '" style="width:100%;height:130px;object-fit:cover;border-radius:8px"></a>' + (disc > 0 ? '<span style="position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">-' + disc + '%</span>' : '') + '</div><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">' + (p.title || "") + '</b><div style="font-weight:800;margin-bottom:6px">' + fmt(price) + (disc > 0 ? ' <span style="color:#999;text-decoration:line-through;font-weight:400;font-size:11px">' + fmt(oldPrice) + '</span>' : '') + '</div><a href="product-details.html?id=' + pid + '"><button style="width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px">🛒 Add to Cart</button></a><a href="product-details.html?id=' + pid + '&buy=1"><button style="width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700">⚡ Buy Now</button></a>';
+      grid.appendChild(card);
+    });
+  } catch (e) { console.error(e); }
+}
+loadFeatured();
+document.addEventListener("currencyChanged", loadFeatured);
+</script>
 
+<div class="section" id="comingSoonSection" style="display:none">
+<h2>🔥 Hot Deals</h2>
+<br>
+<div id="comingSoonGrid" class="trending-scroll-wrapper">
+  <p style="text-align:center;color:#888">পণ্য ও অফার প্রস্তুত হচ্ছে</p>
+</div>
 </div>
 
+<script type="module">
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
+const cfg = { apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw", databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com" };
+const app = getApps().some(a => a.name === "hdApp") ? getApps().find(a => a.name === "hdApp") : initializeApp(cfg, "hdApp");
+const db = getDatabase(app);
+const grid = document.getElementById("comingSoonGrid");
 
+function fmt(v) { return window.MJHCurrency ? window.MJHCurrency.formatPrice(v) : "৳" + (+v || 0).toFixed(0); }
 
-
+async function loadHotDeals() {
+  if (!grid) return;
+  grid.innerHTML = '<p style="text-align:center;color:#888">🔥 লোড হচ্ছে...</p>';
+  try {
+    const [pidsSnap, prodSnap] = await Promise.all([
+      get(ref(db, "settings/hotDealsProducts")),
+      get(ref(db, "products"))
+    ]);
+    if (!pidsSnap.exists() || !prodSnap.exists()) {
+      grid.innerHTML = '<p style="text-align:center;color:#888">Hot Deals আসছে...</p>';
+      return;
+    }
+    const pids = Object.keys(pidsSnap.val() || {}).slice(0, 600);
+    const prods = prodSnap.val() || {};
+    grid.innerHTML = "";
+    pids.forEach(pid => {
+      const p = prods[pid]; if (!p) return;
+      const img = (p.images && p.images.main) || "https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+      const price = +p.price || 0, oldPrice = +p.oldPrice || 0;
+      const disc = oldPrice > price ? Math.round((oldPrice - price) * 100 / oldPrice) : 0;
+      const card = document.createElement("div");
+      card.style.cssText = "background:#fff;border-radius:10px;padding:10px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.08);min-width:160px;max-width:160px";
+      card.onclick = () => { location.href = "product-details.html?id=" + pid; };
+      card.innerHTML = '<div style="position:relative"><img src="' + img + '" style="width:100%;height:130px;object-fit:cover;border-radius:8px">' + (disc > 0 ? '<span style="position:absolute;top:4px;right:4px;background:#e74c3c;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">-' + disc + '%</span>' : '') + '</div><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">' + (p.title || "") + '</b><div style="font-weight:800;margin-bottom:6px">' + fmt(price) + (disc > 0 ? ' <span style="color:#999;text-decoration:line-through;font-weight:400;font-size:11px">' + fmt(oldPrice) + '</span>' : '') + '</div><a href="product-details.html?id=' + pid + '"><button style="width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin-bottom:6px">🛒 Add to Cart</button></a><a href="product-details.html?id=' + pid + '&buy=1"><button style="width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700">⚡ Buy Now</button></a>';
+      grid.appendChild(card);
+    });
+  } catch (e) { grid.innerHTML = '<p style="text-align:center;color:#c33">Error</p>'; }
+}
+loadHotDeals();
+document.addEventListener("currencyChanged", loadHotDeals);
+</script>
 
 <script>
 if('serviceWorker' in navigator){
@@ -1988,14 +2118,13 @@ const gcSection = document.getElementById("globalCatSection");
 
     // DB এবং ডিফল্ট লিস্ট মার্জ করা
     var merged = [];
-    Object.keys(dbData).forEach(k => { merged.push([k, (dbData[k] && dbData[k].name) ? dbData[k].name : k, dbData[k].order || 0]); });
-    merged.sort((a,b)=>a[2]-b[2]);
-    if (merged.length === 0) { row1.innerHTML = "<p style='color:#888; padding:10px;'>ক্যাটাগরি পাওয়া যায়নি</p>"; return; }
+    Object.keys(dbData).forEach(k => { merged.push([k, (dbData[k] && dbData[k].name) ? dbData[k].name : k]); });
+    if (merged.length === 0) { merged = defaultCats.map(c => [c.id, c.name]); }
 
     row1.innerHTML = ""; // লোডিং টেক্সট মুছে ফেলা
 
     // বাটন তৈরি করা
-    merged.forEach(([id, name, order], index) => {
+    merged.forEach(([id, name], index) => {
       const div = document.createElement("div");
       div.className = "cat" + (index === 0 ? " active" : "");
       div.textContent = name || id;
@@ -2395,6 +2524,9 @@ console.log("currency-fix-v2 ready");
   "Islamic & Religious Products":"specialCatCarousel",
   "Wedding & Event Supplies":"specialCatCarousel",
   /* মূল সেকশন (৩) */
+  "Trending Products":"trendingProductsGrid",
+  "Featured Products":"featuredProducts",
+  "Hot Deals":"comingSoonGrid","🔥 Hot Deals":"comingSoonGrid",
   /* Global (২০) */
   "Electronics":"globalCatCarousel",
   "Computers":"globalCatCarousel",
@@ -2649,7 +2781,43 @@ document.addEventListener("click",function(e){
 
 
 
-
+<script>
+/* FlatCats Home v1 */
+(function(){
+var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var SECS=[["trending","🔥 Trending Products"],["featured","🌟 Featured Products"],["comingSoon","🔥 Hot Deals"]];
+function j(p){return fetch(BASE+"/"+p+".json").then(function(r){return r.json();});}
+async function render(){
+var anchor=document.querySelector("footer")||document.body;
+for(var i=0;i<SECS.length;i++){
+var key=SECS[i][0];
+if(document.getElementById("fch_"+key))continue;
+var cats=await j("settings/"+key+"Categories");
+if(!cats)continue;
+var wrap=document.createElement("section");wrap.id="fch_"+key;wrap.style.cssText="padding:16px 12px";
+wrap.innerHTML="<h2 style='margin:0 0 10px;font-size:20px'>"+SECS[i][1]+"</h2><div class='fcCats' style='display:flex;gap:8px;overflow-x:auto'></div><div class='fcProds' style='display:flex;gap:10px;overflow-x:auto;margin-top:10px'></div>";
+if(anchor&&anchor.parentNode){anchor.parentNode.insertBefore(wrap,anchor);}else{document.body.appendChild(wrap);}
+fill(wrap,key,cats);
+}}
+async function fill(wrap,key,cats){
+var box=wrap.querySelector(".fcCats");var ids=Object.keys(cats);
+if(!ids.length){wrap.style.display="none";return;}
+ids.forEach(function(cid){var b=document.createElement("button");b.className="mjhCatBtn";b.textContent=cats[cid].name||cid;b.className="mjhCatBtn";b.onclick=function(){prods(wrap,key,cid);};box.appendChild(b);});
+prods(wrap,key,ids[0]);}
+async function prods(wrap,key,cid){
+var map=await j("settings/"+key+"CategoryProducts/"+cid);
+var box=wrap.querySelector(".fcProds");box.innerHTML="";
+var pids=Object.keys(map||{});
+if(!pids.length){box.innerHTML="<span style='color:#888'>পণ্য নেই</span>";return;}
+for(var i=0;i<pids.length;i++){
+var p=await j("products/"+pids[i]);if(!p)continue;
+var d=document.createElement("div");d.style.cssText="min-width:160px;background:#fff;border-radius:10px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,.15)";
+var img=(p.images&&p.images.main)?p.images.main:"";
+d.innerHTML="<a href='product-details.html?id="+pids[i]+"'><img src='"+img+"' style='width:100%;height:110px;object-fit:cover;border-radius:8px'><b style='font-size:13px'>"+(p.title||"")+"</b></a><div style='font-weight:700'>"+(window.MJHCurrency?window.MJHCurrency.formatPrice(p.price||0):"৳"+(p.price||0))+"</div>";
+box.appendChild(d);}}
+if(document.readyState==="complete")render();else window.addEventListener("load",render);
+})();
+</script>
 
 
 
@@ -2787,7 +2955,53 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 (function(){var last=localStorage.getItem("selectedCurrency")||"BDT";setInterval(function(){var now=localStorage.getItem("selectedCurrency")||"BDT";if(now!==last){location.reload();}},1200);})();
 </script>
 
-
+<script>/*hotdeals-restore-v1*/
+(function(){
+  function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"৳"+(+v||0).toFixed(0);}
+  function fill(grid){
+    fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/hotDealsProducts.json").then(function(r){return r.json();}).then(function(ids){
+      if(!ids) return;
+      var pids=Object.keys(ids).slice(0,30);
+      fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/products.json").then(function(r){return r.json();}).then(function(prods){
+        grid.innerHTML="";
+        pids.forEach(function(pid){
+          var p=prods[pid]; if(!p) return;
+          var img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+          var price=+p.price||0, old=+p.oldPrice||0;
+          var disc= old>price? Math.round((old-price)*100/old):0;
+          var card=document.createElement("div");
+          card.style.cssText="background:#fff;border-radius:10px;padding:10px;min-width:160px;max-width:160px;box-shadow:0 2px 6px rgba(0,0,0,.08);flex:0 0 auto";
+          card.innerHTML='<a href="product-details.html?id='+pid+'"><img src="'+img+'" style="width:100%;height:130px;object-fit:cover;border-radius:8px"></a><b style="font-size:13px;display:block;margin:8px 0;min-height:32px;overflow:hidden">'+(p.title||"")+'</b><div style="font-weight:800">'+fmt(price)+(disc>0?' <s style="color:#999;font-weight:400;font-size:11px">'+fmt(old)+'</s>':'')+'</div><a href="product-details.html?id='+pid+'"><button style="width:100%;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700;margin:6px 0">🛒 Add to Cart</button></a><a href="product-details.html?id='+pid+'&buy=1"><button style="width:100%;background:#f39c12;color:#111;border:none;padding:8px;border-radius:6px;font-weight:700">⚡ Buy Now</button></a>';
+          grid.appendChild(card);
+        });
+      });
+    });
+  }
+  function build(){
+    var sec=document.getElementById("comingSoonSection");
+    if(!sec){
+      var h2s=document.querySelectorAll("h2");
+      for(var i=0;i<h2s.length;i++){ if((h2s[i].textContent||"").indexOf("Hot Deals")>-1){ sec=h2s[i].closest("section")||h2s[i].parentElement; break; } }
+    }
+    if(!sec){
+      sec=document.createElement("section");
+      sec.innerHTML='<h2>🔥 Hot Deals</h2>';
+      var footer=document.querySelector("footer");
+      if(footer){ document.body.insertBefore(sec, footer); } else { document.body.appendChild(sec); }
+    }
+    sec.style.display="block"; sec.removeAttribute("hidden");
+    var grid=document.getElementById("comingSoonGrid");
+    if(!grid){
+      grid=document.createElement("div"); grid.id="comingSoonGrid";
+      grid.style.cssText="display:flex;gap:10px;overflow-x:auto;padding:10px 0";
+      sec.appendChild(grid);
+    }
+    if(!grid.children.length){ fill(grid); }
+  }
+  setTimeout(build,1500);
+  document.addEventListener("currencyChanged",function(){ var g=document.getElementById("comingSoonGrid"); if(g){ g.innerHTML=""; fill(g); } });
+})();
+</script>
 
 
 
@@ -2861,7 +3075,22 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
   setup("clearanceOutlet","clearanceOutletCats","clearanceOutletGrid");
 })();
 </script>
-
+<script>/*hideOldSectionsJS*/
+(function(){
+  function hideOld(){
+    ["trendingProductsGrid","featuredProducts","comingSoonGrid"].forEach(function(id){
+      var g=document.getElementById(id);
+      if(g){var sec=g.closest("section")||g.parentElement;if(sec)sec.style.display="none";}
+    });
+    ["Trending Products","Featured Products","Hot Deals"].forEach(function(t){
+      document.querySelectorAll("h2,h3").forEach(function(h){
+        if((h.textContent||"").indexOf(t)>-1){var sec=h.closest("section")||h.parentElement;if(sec)sec.style.display="none";}
+      });
+    });
+  }
+  setTimeout(hideOld,800);setInterval(hideOld,4000);
+})();
+</script>
 
 
 
