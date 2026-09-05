@@ -478,5 +478,44 @@ document.body.appendChild(b);
 if(document.readyState==="complete")addBtn();else window.addEventListener("load",addBtn);
 })();
 </script>
+<script src="admin-extras.js"></script>
+<div id="mjhBogoPanel" style="background:#102027;border:2px solid #f39c12;border-radius:10px;padding:12px;margin:12px 0;color:#fff">
+<b style="color:#f39c12;font-size:15px">🎁 BOGO — Buy 1 Get 1 (textarea এর ID গুলোতে প্রয়োগ হবে)</b><br><br>
+<label><input type="checkbox" id="bgEn"> Enable BOGO</label>
+<select id="bgType" style="margin-left:8px;padding:6px;border-radius:6px"><option value="same">Same Product (Buy1→Same1 Free)</option><option value="specific">Specific Free Product</option></select>
+<input id="bgFree" placeholder="Free Product ID" style="margin-left:6px;padding:6px;width:150px;border-radius:6px;border:1px solid #444">
+Max: <input id="bgMax" type="number" value="1" min="1" style="width:50px;padding:6px;border-radius:6px;border:1px solid #444">
+<button id="bgApply" style="background:#27ae60;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-weight:700;cursor:pointer">🎁 BOGO বসান</button>
+<button id="bgClear" style="background:#c0392b;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-weight:700;cursor:pointer">🚫 BOGO মুছুন</button>
+<span id="bgSt" style="margin-left:8px"></span>
+</div>
+<script>
+(function(){
+ function ids(){var ta=document.querySelector("textarea");var out=[];if(ta&&ta.value){ta.value.split(/[\n,]+/).forEach(function(x){x=x.trim().split(/\s/)[0];if(/^[-A-Za-z0-9_]{4,}$/.test(x))out.push(x);});}return out;}
+ function wait(){
+  var a=document.getElementById("bgApply");if(!a)return setTimeout(wait,700);
+  a.onclick=function(){
+   var en=document.getElementById("bgEn").checked;
+   var tp=document.getElementById("bgType").value;
+   var fr=document.getElementById("bgFree").value.trim();
+   var mx=+document.getElementById("bgMax").value||1;
+   var list=ids();var st=document.getElementById("bgSt");
+   if(!list.length){st.textContent="❌ textarea তে ID দিন";return;}
+   st.textContent="⏳ "+list.length+" টে বসছে...";
+   var done=0;
+   list.forEach(function(id){
+    var cfg=en?{enabled:true,type:tp,freeProductId:fr||null,maxFreeQuantity:mx}:null;
+    window.MJHBogo.set(id,cfg).then(function(){done++;if(done===list.length)st.textContent="✅ "+list.length+" টে BOGO "+(en?"বসল":"মুছল");});
+   });
+  };
+  document.getElementById("bgClear").onclick=function(){
+   var list=ids();var st=document.getElementById("bgSt");
+   if(!list.length){st.textContent="❌ ID নেই";return;}
+   var done=0;list.forEach(function(id){window.MJHBogo.clear(id).then(function(){done++;if(done===list.length)st.textContent="✅ BOGO মুছেছে";});});
+  };
+ }
+ wait();
+})();
+</script>
 </body>
 </html>
