@@ -296,6 +296,51 @@ function run(){
 run();
 })();
 </script>
+<script>/*mjhThumbs v1 - auto color thumbnails + quick buy*/
+(function(){
+var m=location.search.match(/id=([^&]+)/);if(!m)return;
+var id=decodeURIComponent(m[1]);
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
+function run(){
+ var gal=document.querySelector(".gal");
+ var thumbs=document.querySelector(".thumbs");
+ var mi=document.getElementById("mainImg");
+ if(!gal||!thumbs||!mi)return setTimeout(run,600);
+ if(document.getElementById("mjhThumbsDone"))return;
+ var done=document.createElement("span");done.id="mjhThumbsDone";done.style.display="none";gal.appendChild(done);
+ if(!document.getElementById("mjhQuickBuy")){
+  var bar=document.createElement("div");bar.id="mjhQuickBuy";
+  bar.style.cssText="display:flex;gap:8px;margin:10px 0";
+  bar.innerHTML='<button id="qAddBtn" style="flex:1;background:#FFD814;border:none;padding:12px;border-radius:20px;font-weight:700;cursor:pointer;font-size:14px">🛒 Add to Cart</button><button id="qBuyBtn" style="flex:1;background:#FF9900;border:none;padding:12px;border-radius:20px;font-weight:700;color:#111;cursor:pointer;font-size:14px">⚡ Buy Now</button>';
+  gal.parentNode.insertBefore(bar,gal.nextSibling);
+  document.getElementById("qAddBtn").onclick=function(){var b=document.getElementById("addBtn");if(b)b.click();};
+  document.getElementById("qBuyBtn").onclick=function(){var b=document.getElementById("buyBtn");if(b)b.click();};
+ }
+ fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){
+  if(!p||!p.title)return;
+  var BASE="assets/products/"+slug(p.title)+"/";
+  fetch(BASE+"media.json").then(function(r){return r.ok?r.json():null;}).then(function(mj){
+   var urls=[];
+   if(mj&&mj.images)urls=mj.images.map(function(f){return BASE+encodeURIComponent(f);});
+   if(!urls.length&&p.images&&p.images.gallery)urls=p.images.gallery;
+   if(!urls.length&&p.images&&p.images.main)urls=[p.images.main];
+   if(!urls.length)return;
+   var cur=mi.src||"";
+   thumbs.innerHTML="";
+   urls.forEach(function(u,i){
+    var im=document.createElement("img");
+    im.src=u;im.loading="lazy";
+    if(u===cur||(!cur&&i===0))im.className="on";
+    im.onclick=function(){if(window.setImg)setImg(im,u);else mi.src=u;};
+    thumbs.appendChild(im);
+   });
+  }).catch(function(){});
+ }).catch(function(){});
+}
+run();
+})();
+</script>
 </body>
 <script>
 /* mjhVariants v1 */
