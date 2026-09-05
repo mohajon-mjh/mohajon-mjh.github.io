@@ -1,1 +1,21 @@
-{"images":["img1.jpg","img2.jpg","img3.jpg","img4.jpg","img5.jpg","img6.jpg","img7.jpg","img8.jpg","img9.png"],"videos":["video1.mp4"]}
+{
+ "images": [
+  "img1.jpg",
+  "img2.jpg",
+  "img3.jpg",
+  "img4.jpg",
+  "img5.jpg",
+  "img6.jpg",
+  "img7.jpg",
+  "img8.jpg",
+  "img9.png"
+ ],
+ "videos": [
+  "video1.mp4"
+ ],
+ "colorMap": {
+  "copper": "img1.jpg",
+  "light blue": "img2.jpg",
+  "black": "img3.jpg"
+ }
+}

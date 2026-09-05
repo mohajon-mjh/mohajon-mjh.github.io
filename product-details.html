@@ -259,7 +259,7 @@ function run(){
 run();
 })();
 </script>
-<script>/*mjhColorImg v1*/
+<script>/*mjhColorImg v2*/
 (function(){
 var m=location.search.match(/id=([^&]+)/);if(!m)return;
 var id=decodeURIComponent(m[1]);
@@ -267,21 +267,27 @@ var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
 var USERKEY="mjhUser";
 function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
 function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"");}
-var IMGS=[];
+var BASE="",MAP={},IMGS=[];
 fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){
  if(!p||!p.title)return;
- fetch("assets/products/"+slug(p.title)+"/media.json").then(function(r){return r.ok?r.json():null;}).then(function(mj){
-  if(mj&&mj.images){IMGS=mj.images.map(function(f){return {n:norm(f),u:"assets/products/"+slug(p.title)+"/"+encodeURIComponent(f)};});}
+ BASE="assets/products/"+slug(p.title)+"/";
+ fetch(BASE+"media.json").then(function(r){return r.ok?r.json():null;}).then(function(mj){
+  if(!mj)return;
+  IMGS=(mj.images||[]).map(function(f){return {n:norm(f),u:BASE+encodeURIComponent(f)};});
+  var cm=mj.colorMap||{};
+  for(var k in cm){MAP[norm(k)]=BASE+encodeURIComponent(cm[k]);}
  }).catch(function(){});
 }).catch(function(){});
 window.__mjhSetColor=function(name){
- var nn=norm(name);if(!nn||!IMGS.length)return;
- for(var i=0;i<IMGS.length;i++){if(IMGS[i].n.indexOf(nn)>-1){var mi=document.getElementById("mainImg");if(mi){mi.src=IMGS[i].u;}return;}}
+ var nn=norm(name);if(!nn)return;
+ var url=MAP[nn];
+ if(!url){for(var i=0;i<IMGS.length;i++){if(IMGS[i].n.indexOf(nn)>-1){url=IMGS[i].u;break;}}}
+ if(url){var mi=document.getElementById("mainImg");if(mi)mi.src=url;}
 };
 document.addEventListener("click",function(e){
  var t=e.target;
  if(t.closest&&(t.closest("#addBtn")||t.closest("#buyBtn")||t.closest("#mainImg"))){
-  if(!localStorage.getItem(USERKEY)){e.stopImmediatePropagation();e.preventDefault();location.href="login.html?next="+encodeURIComponent(location.href);return;}
+  try{if(!localStorage.getItem(USERKEY)){e.stopImmediatePropagation();e.preventDefault();location.href="login.html?next="+encodeURIComponent(location.href);return;}}catch(err){}
  }
  var vb=t.closest?t.closest("#mjhVariants button"):null;
  if(vb){var part=(vb.textContent||"").split("-").pop().trim();window.__mjhSetColor(part);return;}
