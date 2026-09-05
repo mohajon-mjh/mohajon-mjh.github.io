@@ -96,6 +96,13 @@ cartCount();
 function addCart(P,qty){var c=JSON.parse(localStorage.getItem("cart")||"[]");var it=c.find(function(i){return i.id===P.id;});if(it){it.qty=(it.qty||1)+qty;}else{c.push({id:P.id,name:P.title,price:+P.price||0,qty:qty,sellerId:P.sellerId||"admin"});}localStorage.setItem("cart",JSON.stringify(c));cartCount();}
 function setImg(el,u){document.getElementById("mainImg").src=u;document.querySelectorAll(".thumbs img").forEach(function(t){t.classList.remove("on");});el.classList.add("on");}
 function stars(r){var f=Math.floor(r);return "★".repeat(f)+"☆".repeat(5-f);}
+function autoBrand(P){
+ if(P&&P.brand&&String(P.brand).trim()&&String(P.brand).trim().toLowerCase()!=="mohajon mjh")return String(P.brand).trim();
+ var t=String((P&&P.title)||"").toLowerCase();
+ var map=[["iphone","Apple"],["apple","Apple"],["samsung","Samsung"],["galaxy","Samsung"],["xiaomi","Xiaomi"],["redmi","Redmi"],["poco","POCO"],["oneplus","OnePlus"],["oppo","OPPO"],["vivo","Vivo"],["realme","realme"],["huawei","Huawei"],["honor","Honor"],["pixel","Google"],["google","Google"],["nokia","Nokia"],["motorola","Motorola"],["asus","ASUS"],["lenovo","Lenovo"],["dell","Dell"],["walton","Walton"],["symphony","Symphony"],["techno","Tecno"],["infinix","Infinix"],["itel","Itel"],["kemei","Kemei"],["philips","Philips"],["huggies","Huggies"],["nike","Nike"],["adidas","Adidas"]];
+ for(var i=0;i<map.length;i++){if(t.indexOf(map[i][0])>-1)return map[i][1];}
+ return "Mohajon MJH";
+}
 function render(P){
  if(!P){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">প্রোডাক্ট পাওয়া যায়নি</div>';return;}
  P.id=id;
@@ -119,7 +126,7 @@ function render(P){
  document.getElementById("content").className="";
  document.getElementById("content").innerHTML='<div class="main">'+
  '<div class="gal"><div class="thumbs">'+thumbsHtml+'</div><div class="main-img"><img id="mainImg" src="'+imgs[0]+'"></div></div>'+
- '<div><div class="brand">'+(P.brand||"Mohajon MJH")+'</div><h1>'+(P.title||"Unnamed")+'</h1>'+
+ '<div><div class="brand">'+autoBrand(P)+'</div><h1>'+(P.title||"Unnamed")+'</h1>'+
  '<div class="rating-bar"><span class="stars">'+stars(rating)+'</span><span class="count">'+rating.toFixed(1)+' ('+reviews.toLocaleString()+' reviews)</span></div>'+
  '<hr class="sep"><div class="price-box">'+(disc>0?'<span class="disc-badge">-'+disc+'%</span>':'')+'<span class="price-big">'+fmt(price,cur)+'</span>'+(hasOld?'<span class="old-price">'+fmt(old,cur)+'</span> <span class="save-txt">Save '+fmt(old-price,cur)+'</span>':'')+'<div class="price-sar">≈ '+fmt(price,"SAR")+' in Saudi Riyal</div></div>'+
  '<div class="highlights"><h3>About this item</h3><ul>'+(highlights.length?highlights:["Mohajon MJH-এর অরিজিনাল প্রোডাক্ট","দ্রুত ডেলিভারি সারাদেশে","৭ দিনের সহজ রিটার্ন","Cash on Delivery available","নিরাপদ পেমেন্ট","সেরা মানের নিশ্চয়তা"]).map(function(l){return "<li>"+l+"</li>";}).join("")+'</ul></div>'+
@@ -216,6 +223,38 @@ function run(){
   var box=document.getElementById("mjhReviews");box.insertBefore(d2,box.lastElementChild);
   document.getElementById("mjhRevTxt").value="";
  };
+}
+run();
+})();
+</script>
+<script>/*mjhLayout v1*/
+(function(){
+function run(){
+ var c=document.getElementById("content");
+ if(!c||!document.getElementById("addBtn"))return setTimeout(run,800);
+ if(document.getElementById("mjhLayoutDone"))return;
+ var done=document.createElement("span");done.id="mjhLayoutDone";done.style.display="none";c.appendChild(done);
+ var mi=document.getElementById("mainImg");
+ if(mi&&!document.getElementById("mjhLightbox")){
+  mi.style.cursor="zoom-in";
+  var lb=document.createElement("div");lb.id="mjhLightbox";
+  lb.style.cssText="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;align-items:center;justify-content:center;flex-direction:column;padding:16px";
+  lb.innerHTML='<img id="mjhLbImg" style="max-width:96%;max-height:76vh;border-radius:8px;background:#fff"><div id="mjhLbCap" style="color:#fff;margin-top:10px;font-size:14px;text-align:center"></div><button id="mjhLbClose" style="margin-top:12px;background:#f39c12;border:none;padding:10px 22px;border-radius:8px;font-weight:700;cursor:pointer">✖ Close</button>';
+  document.body.appendChild(lb);
+  window.__mjhOpenLb=function(){lb.style.display="flex";document.getElementById("mjhLbImg").src=mi.src;var col=window.__mjhColor||"";var h=c.querySelector("h1");document.getElementById("mjhLbCap").textContent=(h?h.textContent:"")+(col?" — Colour: "+col:"");};
+  mi.addEventListener("click",function(){window.__mjhOpenLb();});
+  document.getElementById("mjhLbClose").onclick=function(){lb.style.display="none";};
+  lb.addEventListener("click",function(e){if(e.target===lb)lb.style.display="none";});
+ }
+ var gal=c.querySelector(".gal");
+ var buy=c.querySelector(".buybox");
+ var vr=document.getElementById("mjhVariants");
+ var rev=document.getElementById("mjhReviews");
+ if(gal){
+  if(vr&&vr.parentNode&&gal.nextSibling!==vr)gal.parentNode.insertBefore(vr,gal.nextSibling);
+  if(buy){var afterVr=document.getElementById("mjhVariants")||gal;if(buy.parentNode&&afterVr.nextSibling!==buy)afterVr.parentNode.insertBefore(buy,afterVr.nextSibling);}
+  if(rev&&buy&&rev.previousSibling!==buy)buy.parentNode.insertBefore(rev,buy.nextSibling);
+ }
 }
 run();
 })();
@@ -341,7 +380,7 @@ function varBlock(){
    window.__mjhColor=o.l;
    var mi=document.getElementById("mainImg");
    if(o.i>=0){var t=document.querySelectorAll(".thumbs img")[o.i];if(t)t.click();if(mi)mi.style.filter="";}
-   else if(mi){mi.style.filter="";}
+   else if(mi){mi.style.filter="";}if(window.__mjhOpenLb)window.__mjhOpenLb();
   };});
  });
 }
