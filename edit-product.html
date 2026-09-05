@@ -51,6 +51,38 @@
 
 <br><br>
 
+
+<h3 style="margin-top:20px;border-top:2px solid #f39c12;padding-top:14px">🎁 BOGO — Buy 1 Get 1 (Buy 1 Get 1 Free ক্যাটাগরিতে)</h3>
+<label style="display:flex;gap:8px;align-items:center;margin:8px 0">
+ <input type="checkbox" id="bogoEnabled"> Enable BOGO for this product
+</label>
+<div id="bogoOptions" style="display:none;padding:12px;background:#fff8e1;border-radius:8px;margin:8px 0">
+ <label>Type:
+  <select id="bogoType" style="margin-left:8px;padding:6px;border:1px solid #ddd;border-radius:6px">
+   <option value="same">Same Product BOGO (Buy 1 → Same 1 Free)</option>
+   <option value="specific">Specific Free Product</option>
+  </select>
+ </label>
+ <div id="bogoSpecificWrap" style="display:none;margin-top:8px">
+  <label>Free Product ID:
+   <input id="bogoFreeId" placeholder="যেমন: phone-case-001" style="margin-left:8px;padding:6px;border:1px solid #ddd;border-radius:6px;width:200px">
+  </label>
+ </div>
+ <label style="margin-top:8px;display:block">Max Free Quantity per paid unit:
+  <input type="number" id="bogoMaxQty" value="1" min="1" max="10" style="margin-left:8px;padding:6px;border:1px solid #ddd;border-radius:6px;width:80px">
+ </label>
+</div>
+<script>
+(function(){
+ var en=document.getElementById("bogoEnabled"),
+     opts=document.getElementById("bogoOptions"),
+     tp=document.getElementById("bogoType"),
+     sw=document.getElementById("bogoSpecificWrap");
+ if(!en)return;
+ en.addEventListener("change",function(){opts.style.display=en.checked?"block":"none";});
+ tp.addEventListener("change",function(){sw.style.display=tp.value==="specific"?"block":"none";});
+})();
+</script>
 <button id="saveBtn">Update Product</button>
 
 <script type="module" src="edit-product.js"></script>
@@ -58,5 +90,33 @@
 <script src="cart.js"></script>
 <script src="wishlist.js"></script>
 <script src="js/global-menu.js?v=2"></script>
+<script>
+/* bogo-data loader for edit page */
+window.__loadBogoData=function(p){
+ var en=document.getElementById("bogoEnabled");
+ var tp=document.getElementById("bogoType");
+ var fid=document.getElementById("bogoFreeId");
+ var mq=document.getElementById("bogoMaxQty");
+ var opts=document.getElementById("bogoOptions");
+ var sw=document.getElementById("bogoSpecificWrap");
+ if(!en)return;
+ if(p&&p.bogo&&p.bogo.enabled){
+  en.checked=true;
+  if(opts)opts.style.display="block";
+  if(tp&&p.bogo.type){tp.value=p.bogo.type;}
+  if(fid&&p.bogo.freeProductId){fid.value=p.bogo.freeProductId;}
+  if(mq&&p.bogo.maxFreeQuantity){mq.value=p.bogo.maxFreeQuantity;}
+  if(sw){sw.style.display=(p.bogo.type==="specific")?"block":"none";}
+ }
+};
+(function(){
+ var iv=setInterval(function(){
+  if(window.__currentProduct){window.__loadBogoData(window.__currentProduct);clearInterval(iv);}
+  else if(document.getElementById("bogoEnabled")){
+   setTimeout(function(){clearInterval(iv);},3000);
+  }
+ },500);
+})();
+</script>
 </body>
 </html>

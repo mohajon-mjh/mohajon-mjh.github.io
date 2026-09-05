@@ -52,4 +52,5 @@ function chg(idx,d){const c=getCart();c[idx].qty=Math.max(1,(c[idx].qty||1)+d);s
 function del(idx){const c=getCart();c.splice(idx,1);saveCart(c)}
 render();
 </script><script>try{const u=JSON.parse(localStorage.getItem("mjhUser")||"null");if(u)document.querySelectorAll(".hiName").forEach(e=>e.textContent="Hello, "+u.name);}catch(e){}</script>
+<script src="bogo-manager.js"></script>
 </body></html>
