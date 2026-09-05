@@ -227,38 +227,7 @@ function run(){
 run();
 })();
 </script>
-<script>/*mjhLayout v1*/
-(function(){
-function run(){
- var c=document.getElementById("content");
- if(!c||!document.getElementById("addBtn"))return setTimeout(run,800);
- if(document.getElementById("mjhLayoutDone"))return;
- var done=document.createElement("span");done.id="mjhLayoutDone";done.style.display="none";c.appendChild(done);
- var mi=document.getElementById("mainImg");
- if(mi&&!document.getElementById("mjhLightbox")){
-  mi.style.cursor="zoom-in";
-  var lb=document.createElement("div");lb.id="mjhLightbox";
-  lb.style.cssText="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;align-items:center;justify-content:center;flex-direction:column;padding:16px";
-  lb.innerHTML='<img id="mjhLbImg" style="max-width:96%;max-height:76vh;border-radius:8px;background:#fff"><div id="mjhLbCap" style="color:#fff;margin-top:10px;font-size:14px;text-align:center"></div><button id="mjhLbClose" style="margin-top:12px;background:#f39c12;border:none;padding:10px 22px;border-radius:8px;font-weight:700;cursor:pointer">✖ Close</button>';
-  document.body.appendChild(lb);
-  window.__mjhOpenLb=function(){lb.style.display="flex";document.getElementById("mjhLbImg").src=mi.src;var col=window.__mjhColor||"";var h=c.querySelector("h1");document.getElementById("mjhLbCap").textContent=(h?h.textContent:"")+(col?" — Colour: "+col:"");};
-  /* mjhColorImg v3: image click = login gate only */
-  document.getElementById("mjhLbClose").onclick=function(){lb.style.display="none";};
-  lb.addEventListener("click",function(e){if(e.target===lb)lb.style.display="none";});
- }
- var gal=c.querySelector(".gal");
- var buy=c.querySelector(".buybox");
- var vr=document.getElementById("mjhVariants");
- var rev=document.getElementById("mjhReviews");
- if(gal){
-  if(vr&&vr.parentNode&&gal.nextSibling!==vr)gal.parentNode.insertBefore(vr,gal.nextSibling);
-  if(buy){var afterVr=document.getElementById("mjhVariants")||gal;if(buy.parentNode&&afterVr.nextSibling!==buy)afterVr.parentNode.insertBefore(buy,afterVr.nextSibling);}
-  if(rev&&buy&&rev.previousSibling!==buy)buy.parentNode.insertBefore(rev,buy.nextSibling);
- }
-}
-run();
-})();
-</script>
+
 <script src="color-detect.js"></script>
 <script>/*mjhColorImg v4 - universal auto color system*/
 (function(){
@@ -268,7 +237,7 @@ var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
 var USERKEY="mjhUser";
 function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
 function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]+/g,"");}
-var BASE="",MAP={},IMGS=[],GALS=[],AUTO={};
+var BASE="",MAP={},IMGS=[],GALS=[],AUTO={},LOW={};
 function tryAuto(url){if(!window.MJHColor)return;MJHColor.detectFromUrl(url,function(dc){if(dc&&!AUTO[dc.canonical])AUTO[dc.canonical]=url;});}
 fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){
  if(!p||!p.title)return;
@@ -280,8 +249,7 @@ fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.
  fetch(BASE+"media.json").then(function(r){return r.ok?r.json():null;}).then(function(mj){
   if(!mj)return;
   IMGS=(mj.images||[]).map(function(f){return {n:norm(f),u:BASE+encodeURIComponent(f)};});
-  var cm=mj.colorMap||{};
-  for(var k in cm){MAP[norm(k)]=BASE+encodeURIComponent(cm[k]);}
+  var cm=mj.colorMap||{};for(var k in cm){LOW[norm(k)]=BASE+encodeURIComponent(cm[k]);}
   IMGS.forEach(function(o){tryAuto(o.u);});
  }).catch(function(){});
 }).catch(function(){});
@@ -290,7 +258,7 @@ window.__mjhSetColor=function(name){
  var can=window.MJHColor?MJHColor.canonical(name):nn;
  var url=MAP[nn]||"";
  if(!url){for(var i=0;i<IMGS.length;i++){if(IMGS[i].n.indexOf(nn)>-1){url=IMGS[i].u;break;}}}
- if(!url&&can)url=AUTO[can]||"";
+ if(!url&&can)url=AUTO[can]||"";if(!url)url=LOW[nn]||"";
  if(!url){for(var g=0;g<GALS.length;g++){if(norm(GALS[g]).indexOf(nn)>-1){url=GALS[g];break;}}}
  if(url){var mi=document.getElementById("mainImg");if(mi)mi.src=url;}
 };
@@ -304,6 +272,28 @@ document.addEventListener("click",function(e){
  var v5=t.closest?t.closest(".v5opt"):null;
  if(v5){var lb=v5.querySelector("div:last-child");window.__mjhSetColor(lb?lb.textContent:"");}
 },true);
+})();
+</script>
+<script>/*mjhLayout v2*/
+(function(){
+function run(){
+ var c=document.getElementById("content");
+ if(!c)return setTimeout(run,600);
+ var main=c.querySelector(".main");
+ var gal=main&&main.querySelector(".gal");
+ var buy=main&&main.querySelector(".buybox");
+ var info=gal&&gal.nextElementSibling;
+ var rev=document.getElementById("mjhReviews");
+ if(!main||!gal||!buy||!info||!rev)return setTimeout(run,600);
+ if(main.querySelector("#mjhLayoutDone2"))return;
+ if(info&&info.classList&&info.classList.contains("buybox"))return setTimeout(run,600);
+ main.appendChild(info);
+ main.appendChild(rev);
+ main.appendChild(buy);
+ var s=document.createElement("span");s.id="mjhLayoutDone2";s.style.display="none";
+ main.appendChild(s);
+}
+run();
 })();
 </script>
 </body>

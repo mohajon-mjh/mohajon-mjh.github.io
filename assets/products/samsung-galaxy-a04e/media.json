@@ -13,9 +13,5 @@
  "videos": [
   "video1.mp4"
  ],
- "colorMap": {
-  "copper": "img1.jpg",
-  "light blue": "img3.jpg",
-  "black": "img5.jpg"
- }
+ "colorMap": {}
 }

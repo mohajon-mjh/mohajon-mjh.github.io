@@ -1,4 +1,4 @@
-/* MJH Color Detect v1 - universal auto color system */
+/* MJH Color Detect v2 - voting based auto color */
 (function(){
 var DB=[
 ["black",["black","কালো"],[25,25,25]],
@@ -29,32 +29,33 @@ function canonical(name){
  return n.replace(/[^a-z0-9\u0980-\u09ff]+/g,"");
 }
 function dist(a,b){var dr=a[0]-b[0],dg=a[1]-b[1],db=a[2]-b[2];return dr*dr+dg*dg+db*db;}
-function nameFromRgb(rgb){var best=null,bd=1e18;for(var i=0;i<DB.length;i++){var d=dist(rgb,DB[i][2]);if(d<bd){bd=d;best=DB[i][0];}}return best;}
+function nearest(p){var best=null,bd=1e18;for(var i=0;i<DB.length;i++){var d=dist(p,DB[i][2]);if(d<bd){bd=d;best=DB[i][0];}}return best;}
 function label(can){for(var i=0;i<DB.length;i++)if(DB[i][0]===can)return DB[i][1][1]||DB[i][1][0];return can;}
 function detectFromUrl(url,cb){
  var img=new Image();img.crossOrigin="anonymous";
  img.onload=function(){
   try{
-   var S=48,c=document.createElement("canvas");c.width=S;c.height=S;
+   var S=56,c=document.createElement("canvas");c.width=S;c.height=S;
    var x=c.getContext("2d");x.drawImage(img,0,0,S,S);
    var d=x.getImageData(0,0,S,S).data;
    function px(i){return [d[i],d[i+1],d[i+2]];}
    var bg=[0,0,0];
    [px(0),px((S-1)*4),px((S*S-S)*4),px((S*S-1)*4)].forEach(function(p){bg[0]+=p[0]/4;bg[1]+=p[1]/4;bg[2]+=p[2]/4;});
-   var sum=[0,0,0],n=0;
-   for(var i=0;i<d.length;i+=16){
+   var tally={},n=0;
+   for(var i=0;i<d.length;i+=8){
     var p=px(i);
     if(dist(p,bg)<900)continue;
-    sum[0]+=p[0];sum[1]+=p[1];sum[2]+=p[2];n++;
+    var v=nearest(p);
+    tally[v]=(tally[v]||0)+1;n++;
    }
    if(!n){cb(null);return;}
-   var rgb=[sum[0]/n,sum[1]/n,sum[2]/n];
-   var can=nameFromRgb(rgb);
-   cb({canonical:can,label:label(can),rgb:rgb});
+   var best=null,bv=0;
+   for(var k in tally){if(tally[k]>bv){bv=tally[k];best=k;}}
+   cb({canonical:best,label:label(best)});
   }catch(e){cb(null);}
  };
  img.onerror=function(){cb(null);};
  img.src=url;
 }
-window.MJHColor={canonical:canonical,detectFromUrl:detectFromUrl,nameFromRgb:nameFromRgb,label:label,DB:DB};
+window.MJHColor={canonical:canonical,detectFromUrl:detectFromUrl,label:label,DB:DB};
 })();
