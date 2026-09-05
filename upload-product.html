@@ -30,7 +30,7 @@ sellerId: window.USER_ID || "guest",
   id: Date.now(),
   name: document.getElementById('name').value,
   price: parseInt(document.getElementById('price').value),
-  image: document.getElementById('image').value,
+  image: document.getElementById('image').value, colors: (window.__mjhAutoColor?window.__mjhAutoColor.label:''), colorImages: (window.__mjhAutoColor?(function(){var o={};o[window.__mjhAutoColor.label]=document.getElementById('image').value;return o;})():{}),
   weight: document.getElementById('weight').value,
   category: document.getElementById('category').value
 , stock: parseInt(document.getElementById('stock').value||0)
@@ -125,8 +125,9 @@ onAuthStateChanged(auth,(user)=>{
 <script src="wishlist.js"></script>
 <script src="js/global-menu.js?v=2"></script>
 <script src="cloudinary.js"></script>
+<script src="color-detect.js"></script>
 <script>
-document.getElementById("imageFile").addEventListener("change",async function(){var f=this.files[0];if(!f)return;var st=document.getElementById("imgStatus");if(!window.MJHCloud||!MJHCloud.ready()){st.textContent="⚠️ cloudinary.js-এ config বসান";return;}st.textContent="⏳ Cloudinary-তে upload হচ্ছে...";try{var r=await MJHCloud.upload(f);document.getElementById("image").value=r.url;st.textContent="✅ ছবি upload হয়েছে — URL auto বসে গেছে!";}catch(e){st.textContent="❌ "+e.message;}});
+document.getElementById("imageFile").addEventListener("change",async function(){var f=this.files[0];if(!f)return;var st=document.getElementById("imgStatus");if(!window.MJHCloud||!MJHCloud.ready()){st.textContent="⚠️ cloudinary.js-এ config বসান";return;}st.textContent="⏳ Cloudinary-তে upload হচ্ছে...";try{var r=await MJHCloud.upload(f);document.getElementById("image").value=r.url;st.textContent="✅ upload হয়েছে! 🎨 color detect হচ্ছে...";try{var dc=await new Promise(function(res){MJHColor.detectFromUrl(r.url,function(x){res(x);});});if(dc){window.__mjhAutoColor=dc;st.textContent="✅ upload হয়েছে! 🎨 Auto color: "+dc.label;}}catch(e2){}}catch(e){st.textContent="❌ "+e.message;}});
 </script>
 </body>
 

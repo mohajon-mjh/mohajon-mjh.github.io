@@ -259,31 +259,38 @@ function run(){
 run();
 })();
 </script>
-<script>/*mjhColorImg v3 - universal color image system*/
+<script src="color-detect.js"></script>
+<script>/*mjhColorImg v4 - universal auto color system*/
 (function(){
 var m=location.search.match(/id=([^&]+)/);if(!m)return;
 var id=decodeURIComponent(m[1]);
 var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
 var USERKEY="mjhUser";
 function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
-function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"");}
-var BASE="",MAP={},IMGS=[],GALS=[];
+function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9\u0980-\u09ff]+/g,"");}
+var BASE="",MAP={},IMGS=[],GALS=[],AUTO={};
+function tryAuto(url){if(!window.MJHColor)return;MJHColor.detectFromUrl(url,function(dc){if(dc&&!AUTO[dc.canonical])AUTO[dc.canonical]=url;});}
 fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){
  if(!p||!p.title)return;
  BASE="assets/products/"+slug(p.title)+"/";
  if(p.images&&p.images.gallery)GALS=p.images.gallery;
  if(p.images&&p.images.main)GALS.push(p.images.main);
+ if(p.colorImages){for(var k in p.colorImages){MAP[norm(k)]=p.colorImages[k];if(window.MJHColor){var cc=MJHColor.canonical(k);if(cc&&!AUTO[cc])AUTO[cc]=p.colorImages[k];}}}
+ GALS.forEach(tryAuto);
  fetch(BASE+"media.json").then(function(r){return r.ok?r.json():null;}).then(function(mj){
   if(!mj)return;
   IMGS=(mj.images||[]).map(function(f){return {n:norm(f),u:BASE+encodeURIComponent(f)};});
   var cm=mj.colorMap||{};
   for(var k in cm){MAP[norm(k)]=BASE+encodeURIComponent(cm[k]);}
+  IMGS.forEach(function(o){tryAuto(o.u);});
  }).catch(function(){});
 }).catch(function(){});
 window.__mjhSetColor=function(name){
  var nn=norm(name);if(!nn)return;
+ var can=window.MJHColor?MJHColor.canonical(name):nn;
  var url=MAP[nn]||"";
  if(!url){for(var i=0;i<IMGS.length;i++){if(IMGS[i].n.indexOf(nn)>-1){url=IMGS[i].u;break;}}}
+ if(!url&&can)url=AUTO[can]||"";
  if(!url){for(var g=0;g<GALS.length;g++){if(norm(GALS[g]).indexOf(nn)>-1){url=GALS[g];break;}}}
  if(url){var mi=document.getElementById("mainImg");if(mi)mi.src=url;}
 };
