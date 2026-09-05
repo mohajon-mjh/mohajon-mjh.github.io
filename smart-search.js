@@ -1,6 +1,6 @@
 (function(){
 "use strict";
-var DBURL="https://mohajon-mjh-default-rtdb.firebaseio.com/products.json";
+var DBURL="data/products-search.json";
 var CK="mjh_pcache",CT="mjh_pcache_t";
 var grid=null,inp=null,ALL=[];
 var MAP={"প্রজেক্টর":"projector","প্রোজেক্টর":"projector","হেডফোন":"headphone","ইয়ারফোন":"earphone","ইয়ারবাড":"earbuds","ঘড়ি":"watch","স্মার্টওয়াচ":"smart watch","পাওয়ার ব্যাংক":"power bank","পাওয়ার":"power","মোবাইল":"phone","ফোন":"phone","গাড়ি":"car","কার":"car","লাইট":"light","বাল্ব":"bulb","কুকার":"cooker","ফ্রাইয়ার":"fryer","স্ট্রলার":"stroller","শার্ট":"shirt","টিশার্ট":"tshirt","প্যান্ট":"pant","জুতা":"shoe","ব্যাগ":"bag","ক্যামেরা":"camera","স্পিকার":"speaker","চার্জার":"charger","কেবল":"cable","হোল্ডার":"holder","ড্যাশক্যাম":"dashcam","ট্যাবলেট":"tablet","ল্যাপটপ":"laptop","টিভি":"tv","ফ্রিজ":"refrigerator","রেফ্রিজারেটর":"refrigerator","চেয়ার":"chair","টেবিল":"table","সোফা":"sofa","ল্যাম্প":"lamp","পেইন্টিং":"painting","ছবি":"painting","বই":"book","তাসবিহ":"tasbih","জায়নামাজ":"prayer mat","সিরাম":"serum","ক্রিম":"cream","ট্রিমার":"trimmer","শেভার":"shaver","সোলার":"solar","জিম":"gym","বেঞ্চ":"bench","গ্লাভস":"gloves","কিচেন":"kitchen","চপার":"chopper","কেটলি":"kettle","রাইস":"rice","هاتف":"phone","ساعة":"watch","سماعات":"headphone","شاحن":"charger","كاميرا":"camera","بروجكتر":"projector","مصباح":"light"};
@@ -53,7 +53,7 @@ function load(){
   }
  }catch(e){}
  fetch(DBURL).then(function(r){return r.json();}).then(function(data){
-  ALL=Object.keys(data||{}).map(function(id){var p=data[id]||{};p.id=id;return p;});
+  ALL=Array.isArray(data)?data:Object.keys(data||{}).map(function(id){var p=data[id]||{};p.id=id;return p;});
   try{localStorage.setItem(CK,JSON.stringify(ALL.map(slim)));localStorage.setItem(CT,String(Date.now()));}catch(e){}
   afterLoad();
  }).catch(function(e){if(grid)grid.innerHTML='<div class="loading-placeholder">❌ '+e.message+'</div>';});
