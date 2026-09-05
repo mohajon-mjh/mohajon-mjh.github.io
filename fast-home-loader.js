@@ -14,7 +14,7 @@ var ids=Object.keys(cats).sort(function(a,b){return((cats[a]||{}).order||0)-((ca
 if(!ids.length)return;catsEl.innerHTML="";
 function show(cid){row(gridEl,Object.keys(prods[cid]||{}).slice(0,20));}
 ids.forEach(function(cid,i){var b=document.createElement("div");b.textContent=((cats[cid]||{}).name)||cid;
-b.style.cssText="padding:12px 16px;border-radius:10px;border:2px solid #f39c12;background:"+(i===0?"#2563eb":"#111")+";color:#fff;font-weight:700;min-width:110px;text-align:center;cursor:pointer;flex:0 0 auto";
+b.style.cssText="padding:20px 26px;border-radius:12px;border:2px solid #f39c12;background:"+(i===0?"#2563eb":"#111")+";color:#fff;font-weight:700;font-size:16px;min-width:150px;max-width:220px;white-space:normal;text-align:center;cursor:pointer;flex:0 0 auto";
 b.onclick=function(){var xs=catsEl.children;for(var x=0;x<xs.length;x++)xs[x].style.background="#111";b.style.background="#2563eb";show(cid);};
 catsEl.appendChild(b);if(i===0)show(cid);});}
 function renderAll(){
