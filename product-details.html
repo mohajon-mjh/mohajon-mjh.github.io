@@ -259,6 +259,37 @@ function run(){
 run();
 })();
 </script>
+<script>/*mjhColorImg v1*/
+(function(){
+var m=location.search.match(/id=([^&]+)/);if(!m)return;
+var id=decodeURIComponent(m[1]);
+var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var USERKEY="mjhUser";
+function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
+function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"");}
+var IMGS=[];
+fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){
+ if(!p||!p.title)return;
+ fetch("assets/products/"+slug(p.title)+"/media.json").then(function(r){return r.ok?r.json():null;}).then(function(mj){
+  if(mj&&mj.images){IMGS=mj.images.map(function(f){return {n:norm(f),u:"assets/products/"+slug(p.title)+"/"+encodeURIComponent(f)};});}
+ }).catch(function(){});
+}).catch(function(){});
+window.__mjhSetColor=function(name){
+ var nn=norm(name);if(!nn||!IMGS.length)return;
+ for(var i=0;i<IMGS.length;i++){if(IMGS[i].n.indexOf(nn)>-1){var mi=document.getElementById("mainImg");if(mi){mi.src=IMGS[i].u;}return;}}
+};
+document.addEventListener("click",function(e){
+ var t=e.target;
+ if(t.closest&&(t.closest("#addBtn")||t.closest("#buyBtn")||t.closest("#mainImg"))){
+  if(!localStorage.getItem(USERKEY)){e.stopImmediatePropagation();e.preventDefault();location.href="login.html?next="+encodeURIComponent(location.href);return;}
+ }
+ var vb=t.closest?t.closest("#mjhVariants button"):null;
+ if(vb){var part=(vb.textContent||"").split("-").pop().trim();window.__mjhSetColor(part);return;}
+ var v5=t.closest?t.closest(".v5opt"):null;
+ if(v5){var lb=v5.querySelector("div:last-child");window.__mjhSetColor(lb?lb.textContent:"");}
+},true);
+})();
+</script>
 </body>
 <script>
 /* mjhVariants v1 */
