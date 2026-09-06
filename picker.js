@@ -78,8 +78,9 @@ document.getElementById("pkSave").onclick=function(){
  var key="ov_"+Date.now();
  var obj={selector:sel,css:css,at:Date.now(),label:(selected.textContent||selected.tagName).trim().slice(0,30)||selected.tagName};
  if(ih)obj.imgCss={height:ih+"px"};
- fetch(DB+"/settings/uiOverrides/"+key+".json",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)})
- .then(function(r){document.getElementById("pkMsg").textContent=r.ok?"✅ Saved!":"❌ failed";});
+ (window.MJHFB?MJHFB.put("settings/uiOverrides/"+key,obj):Promise.reject(new Error("fb-token.js load হয়নি")))
+ .then(function(){document.getElementById("pkMsg").textContent="✅ Saved! সব device এ apply হবে";})
+ .catch(function(e){document.getElementById("pkMsg").textContent="❌ "+(e.message||"failed");});
 };
 document.getElementById("pkClose").onclick=function(){panel.style.display="none";hl.style.display="none";selected=null;};
 })();
