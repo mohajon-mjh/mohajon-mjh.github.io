@@ -270,6 +270,7 @@ onAuthStateChanged(auth,async u=>{
     <button class="tab-btn" data-tab="dotd">⭐ Deals of the Day</button>
     <button class="tab-btn" data-tab="finance">💰 Finance</button>
     <button class="tab-btn" data-tab="allorders">📦 All Orders</button>
+    <button class="tab-btn" data-tab="uisettings" onclick="showTab('uisettings')">🎨 UI Settings</button>
     <button class="tab-btn" data-tab="payments" onclick="showPayPanel()">💳 Payment Settings</button>
     <button class="tab-btn" data-tab="currency">🌍 Currency</button>
     <button class="tab-btn" data-tab="bulkupload">📤 Bulk Upload</button>
@@ -306,6 +307,101 @@ onAuthStateChanged(auth,async u=>{
 
     <section id="tab-notepad" class="tab-section">
       <div id="admin-notepad"></div>
+    </section>
+
+    
+    <section id="tab-uisettings" class="tab-section">
+        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px;border-radius:12px;color:#fff;margin-bottom:20px">
+            <h2 style="margin:0">🎨 UI Settings Panel</h2>
+            <p style="margin:8px 0 0;opacity:0.9">Category button, product card, section header - সব customize করুন</p>
+        </div>
+        
+        <div style="background:#fff;padding:20px;border-radius:12px;margin-bottom:20px">
+            <h3>📐 Category Button Size</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px">
+                <label>
+                    Padding (px)
+                    <input type="number" id="catPadV" value="20" min="10" max="50">
+                </label>
+                <label>
+                    Padding Horizontal (px)
+                    <input type="number" id="catPadH" value="26" min="10" max="60">
+                </label>
+                <label>
+                    Font Size (px)
+                    <input type="number" id="catFont" value="16" min="12" max="24">
+                </label>
+                <label>
+                    Min Width (px)
+                    <input type="number" id="catMinW" value="150" min="100" max="300">
+                </label>
+                <label>
+                    Max Width (px)
+                    <input type="number" id="catMaxW" value="220" min="150" max="400">
+                </label>
+                <label>
+                    Border Radius (px)
+                    <input type="number" id="catRadius" value="12" min="0" max="30">
+                </label>
+            </div>
+        </div>
+        
+        <div style="background:#fff;padding:20px;border-radius:12px;margin-bottom:20px">
+            <h3>📦 Product Card Size</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px">
+                <label>
+                    Min Width (px)
+                    <input type="number" id="prodMinW" value="150" min="120" max="250">
+                </label>
+                <label>
+                    Max Width (px)
+                    <input type="number" id="prodMaxW" value="150" min="120" max="300">
+                </label>
+                <label>
+                    Image Height (px)
+                    <input type="number" id="prodImgH" value="150" min="100" max="300">
+                </label>
+                <label>
+                    Title Font Size (px)
+                    <input type="number" id="prodTitleFont" value="14" min="12" max="20">
+                </label>
+                <label>
+                    Price Font Size (px)
+                    <input type="number" id="prodPriceFont" value="16" min="14" max="24">
+                </label>
+                <label>
+                    Card Padding (px)
+                    <input type="number" id="prodPad" value="10" min="5" max="20">
+                </label>
+            </div>
+        </div>
+        
+        <div style="background:#fff;padding:20px;border-radius:12px;margin-bottom:20px">
+            <h3>📝 Section Header</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px">
+                <label>
+                    Font Size (px)
+                    <input type="number" id="secFont" value="24" min="18" max="36">
+                </label>
+                <label>
+                    Margin Bottom (px)
+                    <input type="number" id="secMargin" value="20" min="10" max="40">
+                </label>
+            </div>
+        </div>
+        
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button id="saveUI" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">💾 Save Settings</button>
+            <button id="resetUI" style="background:#f39c12;color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">🔄 Reset to Default</button>
+            <button id="undoUI" style="background:#e74c3c;color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">↩️ Undo Last Change</button>
+        </div>
+        
+        <div id="uiStatus" style="margin-top:15px;padding:12px;border-radius:8px;display:none"></div>
+        
+        <div style="background:#f7f7f7;padding:15px;border-radius:8px;margin-top:20px">
+            <h4>📜 History (Last 5 Changes)</h4>
+            <div id="uiHistory" style="font-size:13px;color:#666"></div>
+        </div>
     </section>
 
     <section id="tab-sellerreq" class="tab-section">
