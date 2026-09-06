@@ -343,7 +343,9 @@ onAuthStateChanged(auth,async u=>{
                     Border Radius (px)
                     <input type="number" id="catRadius" value="12" min="0" max="30"></label>
 <label>Width (px) (0 = auto)<input type="number" id="catW" value="0" min="0" max="400"></label>
-<label>Height (px) (0 = auto)<input type="number" id="catH" value="0" min="0" max="200">
+<label>Height (px) (0 = auto)<input type="number" id="catH" value="0" min="0" max="200"></label>
+<label>🎨 Background Color (hex)<input type="text" id="catBg" placeholder="খালি = default (#111)"></label>
+<label>✍️ Text Color (hex)<input type="text" id="catTxt" placeholder="খালি = default (#fff)">
                 </label>
             </div>
         </div>
@@ -362,7 +364,9 @@ onAuthStateChanged(auth,async u=>{
                 <label>
                     Image Height (px)
                     <input type="number" id="prodImgH" value="150" min="100" max="300"></label>
-<label>Image Width (px) (0 = auto)<input type="number" id="prodImgW" value="0" min="0" max="400">
+<label>Image Width (px) (0 = auto)<input type="number" id="prodImgW" value="0" min="0" max="400"></label>
+<label>🎨 Card Background (hex)<input type="text" id="prodBg" placeholder="খালি = default (#fff)"></label>
+<label>✍️ Card Text (hex)<input type="text" id="prodTxt" placeholder="খালি = default (#111)">
                 </label>
                 <label>
                     Title Font Size (px)
@@ -394,9 +398,9 @@ onAuthStateChanged(auth,async u=>{
         </div>
         
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button id="saveUI" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">💾 Save Settings</button>
-            <button id="resetUI" style="background:#f39c12;color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">🔄 Reset to Default</button>
-            <button id="undoUI" style="background:#e74c3c;color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">↩️ Undo Last Change</button>
+            <button id="saveUI" onclick="window.mjhUISave&&window.mjhUISave()" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">💾 Save Settings</button>
+            <button id="resetUI" onclick="window.mjhUIReset&&window.mjhUIReset()" style="background:#f39c12;color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">🔄 Reset to Default</button>
+            <button id="undoUI" onclick="window.mjhUIUndo&&window.mjhUIUndo()" style="background:#e74c3c;color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">↩️ Undo Last Change</button>
         </div>
         
         

@@ -1,90 +1,69 @@
-// MJH Admin UI Settings Manager
+// MJH Admin UI Settings Manager v3 (clean + colors + popup)
 (function(){
-const DB='https://mohajon-mjh-default-rtdb.firebaseio.com';
-function fbPut(p,o){return window.MJHFB?MJHFB.put(p,o):fetch(DB+'/'+p+'.json',{method:'PUT',body:JSON.stringify(o),headers:{'Content-Type':'application/json'}});}
-const DEFAULT={catPadV:20,catPadH:26,catFont:16,catMinW:150,catMaxW:220,catRadius:12,catW:0,catH:0,prodMinW:150,prodMaxW:150,prodImgH:150,prodImgW:0,prodTitleFont:14,prodPriceFont:16,prodPad:10,secFont:24,secMargin:20};
+var DB='https://mohajon-mjh-default-rtdb.firebaseio.com';
+var COLORS={catBg:1,catTxt:1,prodBg:1,prodTxt:1};
+var DEFAULT={catPadV:20,catPadH:26,catFont:16,catMinW:150,catMaxW:220,catRadius:12,catW:0,catH:0,catBg:'',catTxt:'',prodMinW:150,prodMaxW:150,prodImgH:150,prodImgW:0,prodBg:'',prodTxt:'',prodTitleFont:14,prodPriceFont:16,prodPad:10,secFont:24,secMargin:20};
 
-function showStatus(msg,color){
-  var s=document.getElementById('uiStatus');
-  if(s){s.textContent=msg;s.style.display='block';s.style.background=color==='success'?'#27ae60':color==='error'?'#e74c3c':'#3498db';s.style.color='#fff';setTimeout(function(){s.style.display='none';},4000);}
+function toast(msg,ok){
+ try{
   var t=document.createElement('div');
   t.textContent=msg;
-  t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;padding:14px 24px;border-radius:10px;color:#fff;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.4);background:'+(color==='success'?'#27ae60':color==='error'?'#e74c3c':'#3498db');
+  t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;padding:14px 26px;border-radius:10px;color:#fff;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.5);background:'+(ok?'#27ae60':'#e74c3c');
   document.body.appendChild(t);
   setTimeout(function(){t.remove();},4000);
+ }catch(e){}
 }
-
+function fbPut(p,o){
+ if(window.MJHFB)return MJHFB.put(p,o);
+ return fetch(DB+'/'+p+'.json',{method:'PUT',body:JSON.stringify(o),headers:{'Content-Type':'application/json'}}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
+}
+function fbGet(p){return fetch(DB+'/'+p+'.json').then(function(r){return r.json();});}
+function readForm(){
+ var c={};
+ for(var k in DEFAULT){
+  var el=document.getElementById(k);
+  if(!el){c[k]=DEFAULT[k];continue;}
+  c[k]=COLORS[k]?el.value.trim():(el.value===''?0:+el.value);
+ }
+ return c;
+}
+function fillForm(c){for(var k in DEFAULT){var el=document.getElementById(k);if(el&&c[k]!==undefined)el.value=c[k];}}
 function loadHistory(){
-  fetch(`${DB}/settings/uiHistory.json`).then(r=>r.json()).then(h=>{
-    const el=document.getElementById('uiHistory');
-    if(!el)return;
-    if(!h||!Object.keys(h).length){el.innerHTML='<p>কোনো history নেই</p>';return;}
-    const arr=Object.entries(h).sort((a,b)=>b[1].at-a[1].at).slice(0,5);
-    el.innerHTML=arr.map(([k,v])=>`<div style="padding:6px;border-bottom:1px solid #ddd"><b>${new Date(v.at).toLocaleString()}</b>: ${v.desc||'UI updated'}</div>`).join('');
-  });
+ fbGet('settings/uiHistory').then(function(h){
+  var el=document.getElementById('uiHistory');if(!el)return;
+  if(!h||!Object.keys(h).length){el.innerHTML='<p style="color:#888">কোনো history নেই</p>';return;}
+  var arr=Object.keys(h).map(function(k){return h[k];}).sort(function(a,b){return (b.at||0)-(a.at||0);}).slice(0,5);
+  el.innerHTML=arr.map(function(v){return '<div style="padding:6px;border-bottom:1px solid #ddd;color:#333"><b>'+new Date(v.at).toLocaleString()+'</b>: '+(v.desc||'UI updated')+'</div>';}).join('');
+ }).catch(function(){});
 }
-
-function loadSettings(){
-  fetch(`${DB}/settings/uiConfig.json`).then(r=>r.json()).then(cfg=>{
-    const c=cfg||DEFAULT;
-    for(const k in c){
-      const el=document.getElementById(k);
-      if(el)el.value=c[k];
-    }
-    loadHistory();
-  });
+function loadSettings(){fbGet('settings/uiConfig').then(function(c){if(c)fillForm(c);loadHistory();}).catch(function(){});}
+function saveSettings(){
+ var c=readForm();
+ fbGet('settings/uiConfig').then(function(old){fbPut('settings/uiHistory/'+Date.now(),{at:Date.now(),desc:'UI updated',config:old||DEFAULT});}).catch(function(){});
+ fbPut('settings/uiConfig',c).then(function(){toast('✅ Settings saved to Firebase!',true);loadHistory();}).catch(function(e){toast('❌ Save failed: '+(e.message||e),false);});
 }
-
-function saveSettings(desc='UI updated'){
-  const c={};
-  for(const k in DEFAULT){
-    const el=document.getElementById(k);
-    c[k]=el?+el.value:DEFAULT[k];
-  }
-  
-  // Backup current state before save
-  fetch(`${DB}/settings/uiConfig.json`).then(r=>r.json()).then(old=>{
-    const histKey=Date.now();
-    const hist={at:Date.now(),desc:desc,config:old||DEFAULT};
-    fbPut(`settings/uiHistory/${histKey}`,hist);
-  });
-  
-  fbPut('settings/uiConfig',c)
-    .then(function(){showStatus('✅ Settings saved to Firebase!','success');loadHistory();})
-    .catch(e=>showStatus('❌ Error: '+e.message,'error'));
-}
-
 function resetSettings(){
-  if(!confirm('সব settings default এ ফিরিয়ে আনবেন?'))return;
-  fbPut('settings/uiConfig',DEFAULT)
-    .then(function(){showStatus('✅ Reset to default!','success');loadSettings();});
+ if(!confirm('সব settings default এ ফিরিয়ে আনবেন?'))return;
+ fbPut('settings/uiConfig',DEFAULT).then(function(){toast('✅ Reset to default!',true);fillForm(DEFAULT);}).catch(function(e){toast('❌ '+(e.message||e),false);});
 }
-
 function undoLastChange(){
-  fetch(`${DB}/settings/uiHistory.json`).then(r=>r.json()).then(h=>{
-    if(!h||!Object.keys(h).length){showStatus('❌ কোনো history নেই','error');return;}
-    const arr=Object.entries(h).sort((a,b)=>b[1].at-a[1].at);
-    const last=arr[0][1];
-    if(!confirm(`Undo করতে চান?\nTime: ${new Date(last.at).toLocaleString()}\nDesc: ${last.desc}`))return;
-    
-    fbPut('settings/uiConfig',last.config)
-      .then(function(){showStatus('✅ Undo successful!','success');loadSettings();});
-  });
+ fbGet('settings/uiHistory').then(function(h){
+  if(!h||!Object.keys(h).length){toast('❌ কোনো history নেই',false);return;}
+  var arr=Object.keys(h).map(function(k){return h[k];}).sort(function(a,b){return (b.at||0)-(a.at||0);});
+  var last=arr[0];
+  if(!confirm('Undo করবেন?\n'+new Date(last.at).toLocaleString()))return;
+  fbPut('settings/uiConfig',last.config).then(function(){toast('✅ Undo successful!',true);fillForm(last.config);}).catch(function(e){toast('❌ '+(e.message||e),false);});
+ });
 }
-
-document.addEventListener('DOMContentLoaded',()=>{
-  const save=document.getElementById('saveUI');
-  const reset=document.getElementById('resetUI');
-  const undo=document.getElementById('undoUI');
-  if(save)save.onclick=()=>saveSettings();
-  if(reset)reset.onclick=resetSettings;
-  if(undo)undo.onclick=undoLastChange;
-  loadSettings();
-});
-/*__uiBinder*/
-setTimeout(function(){
-  var sv=document.getElementById('saveUI');if(sv)sv.onclick=function(){saveSettings();};
-  var rs=document.getElementById('resetUI');if(rs)rs.onclick=resetSettings;
-  var un=document.getElementById('undoUI');if(un)un.onclick=undoLastChange;
-},800);
+window.mjhUISave=saveSettings;
+window.mjhUIReset=resetSettings;
+window.mjhUIUndo=undoLastChange;
+function bind(){
+ var sv=document.getElementById('saveUI');if(sv)sv.onclick=saveSettings;
+ var rs=document.getElementById('resetUI');if(rs)rs.onclick=resetSettings;
+ var un=document.getElementById('undoUI');if(un)un.onclick=undoLastChange;
+ loadSettings();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else setTimeout(bind,300);
+setTimeout(bind,1200);
 })();

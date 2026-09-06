@@ -2893,6 +2893,11 @@ fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiOverrides.json
   for(var q in (o.imgCss||{}))irules+=q+":"+o.imgCss[q]+" !important;";
   if(irules)css+=o.selector+" img{"+irules+"}\n";
  }
+ var CATS='#everydayLowPriceCats>*,#comboOffersCats>*,#clearanceOutletCats>*,#flashCatsRow>*,#globalCatsRow>*,#dotdCatsRow>*,#specialCatsContainer>*';
+ if(c.catBg)css+=CATS+"{background:"+c.catBg+" !important;}";
+ if(c.catTxt)css+=CATS+"{color:"+c.catTxt+" !important;}";
+ if(c.prodBg)css+=".trending-scroll-wrapper>div{background:"+c.prodBg+" !important;}";
+ if(c.prodTxt)css+=".trending-scroll-wrapper>div{color:"+c.prodTxt+" !important;}";
  if(css){var st=document.createElement("style");st.id="mjhUiOverrides";st.textContent=css;document.head.appendChild(st);}
 }).catch(function(){});
 })();
