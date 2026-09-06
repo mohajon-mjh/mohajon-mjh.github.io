@@ -33,6 +33,9 @@
   --prod-pad: 10px;
   --sec-font: 24px;
   --sec-margin: 20px;
+  --cat-w: auto;
+  --cat-h: auto;
+  --prod-img-w: 100%;
 }
 
 
@@ -2905,9 +2908,9 @@ fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiConfig.json')
   .then(c=>{
     if(!c)return;
     const root=document.documentElement;
-    const map={catPadV:'--cat-pad-v',catPadH:'--cat-pad-h',catFont:'--cat-font',catMinW:'--cat-min-w',catMaxW:'--cat-max-w',catRadius:'--cat-radius',prodMinW:'--prod-min-w',prodMaxW:'--prod-max-w',prodImgH:'--prod-img-h',prodTitleFont:'--prod-title-font',prodPriceFont:'--prod-price-font',prodPad:'--prod-pad',secFont:'--sec-font',secMargin:'--sec-margin'};
+    const map={catPadV:'--cat-pad-v',catPadH:'--cat-pad-h',catFont:'--cat-font',catMinW:'--cat-min-w',catMaxW:'--cat-max-w',catRadius:'--cat-radius',catW:'--cat-w',catH:'--cat-h',prodMinW:'--prod-min-w',prodMaxW:'--prod-max-w',prodImgH:'--prod-img-h',prodImgW:'--prod-img-w',prodTitleFont:'--prod-title-font',prodPriceFont:'--prod-price-font',prodPad:'--prod-pad',secFont:'--sec-font',secMargin:'--sec-margin'};
     for(const k in map){
-      if(c[k]!==undefined){
+      if(c[k]!==undefined&&+c[k]>0){
         root.style.setProperty(map[k],c[k]+'px');
       }
     }

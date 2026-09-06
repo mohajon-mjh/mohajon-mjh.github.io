@@ -310,7 +310,7 @@ onAuthStateChanged(auth,async u=>{
     </section>
 
     
-    <section id="tab-uisettings" class="tab-section">
+    <section id="tab-uisettings" class="tab-section"><style>#tab-uisettings label{color:#000 !important;font-weight:700 !important;font-size:13px}#tab-uisettings h3{color:#000 !important}#tab-uisettings p{color:#333 !important}</style>
         <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px;border-radius:12px;color:#fff;margin-bottom:20px">
             <h2 style="margin:0">🎨 UI Settings Panel</h2>
             <p style="margin:8px 0 0;opacity:0.9">Category button, product card, section header - সব customize করুন</p>
@@ -341,7 +341,9 @@ onAuthStateChanged(auth,async u=>{
                 </label>
                 <label>
                     Border Radius (px)
-                    <input type="number" id="catRadius" value="12" min="0" max="30">
+                    <input type="number" id="catRadius" value="12" min="0" max="30"></label>
+<label>Width (px) (0 = auto)<input type="number" id="catW" value="0" min="0" max="400"></label>
+<label>Height (px) (0 = auto)<input type="number" id="catH" value="0" min="0" max="200">
                 </label>
             </div>
         </div>
@@ -359,7 +361,8 @@ onAuthStateChanged(auth,async u=>{
                 </label>
                 <label>
                     Image Height (px)
-                    <input type="number" id="prodImgH" value="150" min="100" max="300">
+                    <input type="number" id="prodImgH" value="150" min="100" max="300"></label>
+<label>Image Width (px) (0 = auto)<input type="number" id="prodImgW" value="0" min="0" max="400">
                 </label>
                 <label>
                     Title Font Size (px)

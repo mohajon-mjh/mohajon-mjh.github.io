@@ -2,7 +2,7 @@
 (function(){
 const DB='https://mohajon-mjh-default-rtdb.firebaseio.com';
 function fbPut(p,o){return window.MJHFB?MJHFB.put(p,o):fetch(DB+'/'+p+'.json',{method:'PUT',body:JSON.stringify(o),headers:{'Content-Type':'application/json'}});}
-const DEFAULT={catPadV:20,catPadH:26,catFont:16,catMinW:150,catMaxW:220,catRadius:12,prodMinW:150,prodMaxW:150,prodImgH:150,prodTitleFont:14,prodPriceFont:16,prodPad:10,secFont:24,secMargin:20};
+const DEFAULT={catPadV:20,catPadH:26,catFont:16,catMinW:150,catMaxW:220,catRadius:12,catW:0,catH:0,prodMinW:150,prodMaxW:150,prodImgH:150,prodImgW:0,prodTitleFont:14,prodPriceFont:16,prodPad:10,secFont:24,secMargin:20};
 
 function showStatus(msg,color){
   const s=document.getElementById('uiStatus');
