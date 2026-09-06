@@ -5,13 +5,13 @@ function fbPut(p,o){return window.MJHFB?MJHFB.put(p,o):fetch(DB+'/'+p+'.json',{m
 const DEFAULT={catPadV:20,catPadH:26,catFont:16,catMinW:150,catMaxW:220,catRadius:12,catW:0,catH:0,prodMinW:150,prodMaxW:150,prodImgH:150,prodImgW:0,prodTitleFont:14,prodPriceFont:16,prodPad:10,secFont:24,secMargin:20};
 
 function showStatus(msg,color){
-  const s=document.getElementById('uiStatus');
-  if(!s)return;
-  s.textContent=msg;
-  s.style.display='block';
-  s.style.background=color==='success'?'#27ae60':color==='error'?'#e74c3c':'#3498db';
-  s.style.color='#fff';
-  setTimeout(()=>{s.style.display='none';},4000);
+  var s=document.getElementById('uiStatus');
+  if(s){s.textContent=msg;s.style.display='block';s.style.background=color==='success'?'#27ae60':color==='error'?'#e74c3c':'#3498db';s.style.color='#fff';setTimeout(function(){s.style.display='none';},4000);}
+  var t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;padding:14px 24px;border-radius:10px;color:#fff;font-weight:800;box-shadow:0 4px 14px rgba(0,0,0,.4);background:'+(color==='success'?'#27ae60':color==='error'?'#e74c3c':'#3498db');
+  document.body.appendChild(t);
+  setTimeout(function(){t.remove();},4000);
 }
 
 function loadHistory(){
@@ -50,14 +50,14 @@ function saveSettings(desc='UI updated'){
   });
   
   fbPut('settings/uiConfig',c)
-    .then(r=>{if(r.ok){showStatus('✅ Settings saved to Firebase!','success');loadHistory();}else{showStatus('❌ Save failed','error');}})
+    .then(function(){showStatus('✅ Settings saved to Firebase!','success');loadHistory();})
     .catch(e=>showStatus('❌ Error: '+e.message,'error'));
 }
 
 function resetSettings(){
   if(!confirm('সব settings default এ ফিরিয়ে আনবেন?'))return;
   fbPut('settings/uiConfig',DEFAULT)
-    .then(r=>{if(r.ok){showStatus('✅ Reset to default!','success');loadSettings();}else{showStatus('❌ Reset failed','error');}});
+    .then(function(){showStatus('✅ Reset to default!','success');loadSettings();});
 }
 
 function undoLastChange(){
@@ -68,7 +68,7 @@ function undoLastChange(){
     if(!confirm(`Undo করতে চান?\nTime: ${new Date(last.at).toLocaleString()}\nDesc: ${last.desc}`))return;
     
     fbPut('settings/uiConfig',last.config)
-      .then(r=>{if(r.ok){showStatus('✅ Undo successful!','success');loadSettings();}else{showStatus('❌ Undo failed','error');}});
+      .then(function(){showStatus('✅ Undo successful!','success');loadSettings();});
   });
 }
 
@@ -81,4 +81,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(undo)undo.onclick=undoLastChange;
   loadSettings();
 });
+/*__uiBinder*/
+setTimeout(function(){
+  var sv=document.getElementById('saveUI');if(sv)sv.onclick=function(){saveSettings();};
+  var rs=document.getElementById('resetUI');if(rs)rs.onclick=resetSettings;
+  var un=document.getElementById('undoUI');if(un)un.onclick=undoLastChange;
+},800);
 })();
