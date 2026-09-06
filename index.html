@@ -2901,6 +2901,13 @@ fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiOverrides.json
  if(c&&c.prodBgOn&&c.prodBg)extra+=".trending-scroll-wrapper>div{background:"+c.prodBg+" !important;}";
  if(c&&c.prodTxtOn&&c.prodTxt)extra+=".trending-scroll-wrapper>div{color:"+c.prodTxt+" !important;}";
  if(extra){var st2=document.createElement("style");st2.id="mjhUiColors";st2.textContent=extra;document.head.appendChild(st2);}
+ function applyC(){var els=document.querySelectorAll('[id*="Cats"]>*,[id*="Cats"] .cat');els.forEach(function(el){
+  if(c&&c.catBgOn&&c.catBg)el.style.setProperty("background",c.catBg,"important");
+  if(c&&c.catTxtOn&&c.catTxt)el.style.setProperty("color",c.catTxt,"important");
+  if(c&&+c.catW>0)el.style.setProperty("width",c.catW+"px","important");
+  if(c&&+c.catH>0)el.style.setProperty("height",c.catH+"px","important");
+ });}
+ applyC();setTimeout(applyC,1000);setTimeout(applyC,2200);setTimeout(applyC,4000);setTimeout(applyC,6000);
  }).catch(function(){});
  if(css){var st=document.createElement("style");st.id="mjhUiOverrides";st.textContent=css;document.head.appendChild(st);}
 }).catch(function(){});
