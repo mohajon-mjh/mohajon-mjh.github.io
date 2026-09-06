@@ -1,8 +1,8 @@
 // MJH Admin UI Settings Manager v3 (clean + colors + popup)
 (function(){
 var DB='https://mohajon-mjh-default-rtdb.firebaseio.com';
-var COLORS={catBg:1,catTxt:1,prodBg:1,prodTxt:1};
-var DEFAULT={catPadV:20,catPadH:26,catFont:16,catMinW:150,catMaxW:220,catRadius:12,catW:0,catH:0,catBg:'',catTxt:'',prodMinW:150,prodMaxW:150,prodImgH:150,prodImgW:0,prodBg:'',prodTxt:'',prodTitleFont:14,prodPriceFont:16,prodPad:10,secFont:24,secMargin:20};
+var COLORS={catBg:1,catTxt:1,prodBg:1,prodTxt:1};var ON={catBgOn:1,catTxtOn:1,prodBgOn:1,prodTxtOn:1};
+var DEFAULT={catPadV:20,catPadH:26,catFont:16,catMinW:150,catMaxW:220,catRadius:12,catW:0,catH:0,catBgOn:0,catBg:'#111111',catTxtOn:0,catTxt:'#ffffff',prodMinW:150,prodMaxW:150,prodImgH:150,prodImgW:0,prodBgOn:0,prodBg:'#ffffff',prodTxtOn:0,prodTxt:'#111111',prodTitleFont:14,prodPriceFont:16,prodPad:10,secFont:24,secMargin:20};
 
 function toast(msg,ok){
  try{
@@ -23,11 +23,11 @@ function readForm(){
  for(var k in DEFAULT){
   var el=document.getElementById(k);
   if(!el){c[k]=DEFAULT[k];continue;}
-  c[k]=COLORS[k]?el.value.trim():(el.value===''?0:+el.value);
+  c[k]=ON[k]?el.checked:(COLORS[k]?el.value.trim():(el.value===''?0:+el.value));
  }
  return c;
 }
-function fillForm(c){for(var k in DEFAULT){var el=document.getElementById(k);if(el&&c[k]!==undefined)el.value=c[k];}}
+function fillForm(c){for(var k in DEFAULT){var el=document.getElementById(k);if(el&&c[k]!==undefined){if(ON[k])el.checked=!!c[k];else el.value=c[k];}}}
 function loadHistory(){
  fbGet('settings/uiHistory').then(function(h){
   var el=document.getElementById('uiHistory');if(!el)return;

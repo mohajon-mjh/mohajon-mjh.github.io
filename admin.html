@@ -344,7 +344,7 @@ onAuthStateChanged(auth,async u=>{
                     <input type="number" id="catRadius" value="12" min="0" max="30"></label>
 <label>Width (px) (0 = auto)<input type="number" id="catW" value="0" min="0" max="400"></label>
 <label>Height (px) (0 = auto)<input type="number" id="catH" value="0" min="0" max="200"></label>
-<label>🎨 Background Color (hex)<input type="text" id="catBg" placeholder="খালি = default (#111)"></label>
+<label>🎨 Background Color <input type="checkbox" id="catBgOn"> <input type="color" id="catBg" value="#111111" style="width:70px;height:32px;vertical-align:middle;border:1px solid #444;border-radius:5px"></label>
 <label>✍️ Text Color (hex)<input type="text" id="catTxt" placeholder="খালি = default (#fff)">
                 </label>
             </div>
@@ -365,7 +365,7 @@ onAuthStateChanged(auth,async u=>{
                     Image Height (px)
                     <input type="number" id="prodImgH" value="150" min="100" max="300"></label>
 <label>Image Width (px) (0 = auto)<input type="number" id="prodImgW" value="0" min="0" max="400"></label>
-<label>🎨 Card Background (hex)<input type="text" id="prodBg" placeholder="খালি = default (#fff)"></label>
+<label>🎨 Card Background <input type="checkbox" id="prodBgOn"> <input type="color" id="prodBg" value="#ffffff" style="width:70px;height:32px;vertical-align:middle;border:1px solid #444;border-radius:5px"></label>
 <label>✍️ Card Text (hex)<input type="text" id="prodTxt" placeholder="খালি = default (#111)">
                 </label>
                 <label>
