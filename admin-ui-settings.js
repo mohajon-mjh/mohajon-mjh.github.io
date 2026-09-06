@@ -1,6 +1,7 @@
 // MJH Admin UI Settings Manager
 (function(){
 const DB='https://mohajon-mjh-default-rtdb.firebaseio.com';
+function fbPut(p,o){return window.MJHFB?MJHFB.put(p,o):fetch(DB+'/'+p+'.json',{method:'PUT',body:JSON.stringify(o),headers:{'Content-Type':'application/json'}});}
 const DEFAULT={catPadV:20,catPadH:26,catFont:16,catMinW:150,catMaxW:220,catRadius:12,prodMinW:150,prodMaxW:150,prodImgH:150,prodTitleFont:14,prodPriceFont:16,prodPad:10,secFont:24,secMargin:20};
 
 function showStatus(msg,color){
@@ -45,17 +46,17 @@ function saveSettings(desc='UI updated'){
   fetch(`${DB}/settings/uiConfig.json`).then(r=>r.json()).then(old=>{
     const histKey=Date.now();
     const hist={at:Date.now(),desc:desc,config:old||DEFAULT};
-    fetch(`${DB}/settings/uiHistory/${histKey}.json`,{method:'PUT',body:JSON.stringify(hist),headers:{'Content-Type':'application/json'}});
+    fbPut(`settings/uiHistory/${histKey}`,hist);
   });
   
-  fetch(`${DB}/settings/uiConfig.json`,{method:'PUT',body:JSON.stringify(c),headers:{'Content-Type':'application/json'}})
+  fbPut('settings/uiConfig',c)
     .then(r=>{if(r.ok){showStatus('✅ Settings saved to Firebase!','success');loadHistory();}else{showStatus('❌ Save failed','error');}})
     .catch(e=>showStatus('❌ Error: '+e.message,'error'));
 }
 
 function resetSettings(){
   if(!confirm('সব settings default এ ফিরিয়ে আনবেন?'))return;
-  fetch(`${DB}/settings/uiConfig.json`,{method:'PUT',body:JSON.stringify(DEFAULT),headers:{'Content-Type':'application/json'}})
+  fbPut('settings/uiConfig',DEFAULT)
     .then(r=>{if(r.ok){showStatus('✅ Reset to default!','success');loadSettings();}else{showStatus('❌ Reset failed','error');}});
 }
 
@@ -66,7 +67,7 @@ function undoLastChange(){
     const last=arr[0][1];
     if(!confirm(`Undo করতে চান?\nTime: ${new Date(last.at).toLocaleString()}\nDesc: ${last.desc}`))return;
     
-    fetch(`${DB}/settings/uiConfig.json`,{method:'PUT',body:JSON.stringify(last.config),headers:{'Content-Type':'application/json'}})
+    fbPut('settings/uiConfig',last.config)
       .then(r=>{if(r.ok){showStatus('✅ Undo successful!','success');loadSettings();}else{showStatus('❌ Undo failed','error');}});
   });
 }
