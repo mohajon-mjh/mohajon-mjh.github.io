@@ -345,7 +345,7 @@ onAuthStateChanged(auth,async u=>{
 <label>Width (px) (0 = auto)<input type="number" id="catW" value="0" min="0" max="400"></label>
 <label>Height (px) (0 = auto)<input type="number" id="catH" value="0" min="0" max="200"></label>
 <label>🎨 Background Color <input type="checkbox" id="catBgOn"> <input type="color" id="catBg" value="#111111" style="width:70px;height:32px;vertical-align:middle;border:1px solid #444;border-radius:5px"></label>
-<label>✍️ Text Color (hex)<input type="text" id="catTxt" placeholder="খালি = default (#fff)">
+<label>✍️ Text Color <input type="checkbox" id="catTxtOn"> <input type="color" id="catTxt" value="#ffffff" style="width:70px;height:32px;vertical-align:middle;border:1px solid #444;border-radius:5px">
                 </label>
             </div>
         </div>
@@ -366,7 +366,7 @@ onAuthStateChanged(auth,async u=>{
                     <input type="number" id="prodImgH" value="150" min="100" max="300"></label>
 <label>Image Width (px) (0 = auto)<input type="number" id="prodImgW" value="0" min="0" max="400"></label>
 <label>🎨 Card Background <input type="checkbox" id="prodBgOn"> <input type="color" id="prodBg" value="#ffffff" style="width:70px;height:32px;vertical-align:middle;border:1px solid #444;border-radius:5px"></label>
-<label>✍️ Card Text (hex)<input type="text" id="prodTxt" placeholder="খালি = default (#111)">
+<label>✍️ Card Text <input type="checkbox" id="prodTxtOn"> <input type="color" id="prodTxt" value="#111111" style="width:70px;height:32px;vertical-align:middle;border:1px solid #444;border-radius:5px">
                 </label>
                 <label>
                     Title Font Size (px)
@@ -398,7 +398,10 @@ onAuthStateChanged(auth,async u=>{
         </div>
         
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button id="saveUI" onclick="window.mjhUISave&&window.mjhUISave()" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">💾 Save Settings</button>
+            <button onclick="window.mjhSaveCat&&window.mjhSaveCat()" style="background:#16a34a;color:#fff;padding:12px 20px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:15px">💾 Category Save</button>
+        <button onclick="window.mjhSaveCard&&window.mjhSaveCard()" style="background:#0ea5e9;color:#fff;padding:12px 20px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:15px">💾 Card Save</button>
+        <button onclick="window.mjhSaveHead&&window.mjhSaveHead()" style="background:#9333ea;color:#fff;padding:12px 20px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:15px">💾 Header Save</button>
+        <button id="saveUI" onclick="window.mjhUISave&&window.mjhUISave()" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">💾 Save Settings</button>
             <button id="resetUI" onclick="window.mjhUIReset&&window.mjhUIReset()" style="background:#f39c12;color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">🔄 Reset to Default</button>
             <button id="undoUI" onclick="window.mjhUIUndo&&window.mjhUIUndo()" style="background:#e74c3c;color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">↩️ Undo Last Change</button>
         </div>
