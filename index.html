@@ -2908,6 +2908,17 @@ fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiOverrides.json
   if(c&&+c.catH>0)el.style.setProperty("height",c.catH+"px","important");
  });}
  applyC();setTimeout(applyC,1000);setTimeout(applyC,2200);setTimeout(applyC,4000);setTimeout(applyC,6000);
+ function applyP(){var cards=document.querySelectorAll('.trending-scroll-wrapper>div,.mh2Prods>div');cards.forEach(function(cd){
+  if(c&&+c.prodMinW>0)cd.style.setProperty('min-width',c.prodMinW+'px','important');
+  if(c&&+c.prodMaxW>0)cd.style.setProperty('max-width',c.prodMaxW+'px','important');
+  var W=(c&&+c.prodImgW>0)?c.prodImgW:0;
+  if(W){cd.style.setProperty('min-width',W+'px','important');cd.style.setProperty('max-width',W+'px','important');}
+  if(c&&c.prodBgOn&&c.prodBg)cd.style.setProperty('background',c.prodBg,'important');
+  if(c&&c.prodTxtOn&&c.prodTxt)cd.style.setProperty('color',c.prodTxt,'important');
+  var im=cd.querySelector('img');
+  if(im){if(c&&+c.prodImgH>0)im.style.setProperty('height',c.prodImgH+'px','important');if(W)im.style.setProperty('width','100%','important');}
+ });}
+ applyP();setTimeout(applyP,1000);setTimeout(applyP,2200);setTimeout(applyP,4000);setTimeout(applyP,6000);
  }).catch(function(){});
  if(css){var st=document.createElement("style");st.id="mjhUiOverrides";st.textContent=css;document.head.appendChild(st);}
 }).catch(function(){});
