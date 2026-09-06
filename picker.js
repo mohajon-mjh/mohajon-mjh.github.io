@@ -1,23 +1,30 @@
-/* MJH Element Picker v1 */
+/* MJH Element Picker v2 - size + background/text color */
 (function(){
 if(location.search.indexOf("picker=1")===-1)return;
 var isAdmin=false;
 try{if(localStorage.getItem("mjhUser")||localStorage.getItem("user"))isAdmin=true;}catch(e){}
 if(!isAdmin)return;
-var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
 var selected=null;
 document.body.style.cursor="crosshair";
 var tip=document.createElement("div");
-tip.style.cssText="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:9999;background:#e74c3c;color:#fff;padding:8px 18px;border-radius:20px;font-weight:700;font-size:13px";
+tip.style.cssText="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:9999;background:#e74c3c;color:#fff;padding:8px 18px;border-radius:20px;font-weight:700;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.4)";
 tip.textContent="🎯 Picker Mode: যেকোনো element এ ক্লিক করুন";
 document.body.appendChild(tip);
 var hl=document.createElement("div");
 hl.style.cssText="position:fixed;border:3px dashed #e74c3c;background:rgba(231,76,60,.12);pointer-events:none;z-index:9998;display:none;border-radius:6px";
 document.body.appendChild(hl);
 var panel=document.createElement("div");
-panel.style.cssText="position:fixed;right:8px;bottom:8px;z-index:9999;background:#0f172a;color:#fff;border:2px solid #f39c12;border-radius:12px;padding:14px;width:290px;max-height:85vh;overflow:auto;display:none;font-size:12px";
-panel.innerHTML='<b style="color:#f39c12">🎯 Selected Element</b><div id="pkSel" style="word-break:break-all;color:#8be9fd;margin:4px 0"></div><b>📏 বর্তমান Size:</b> <span id="pkCur" style="color:#7bed9f"></span><hr style="border-color:#333"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><label>Width (px)<input id="pkW" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Height (px)<input id="pkH" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Min-Width<input id="pkMinW" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Max-Width<input id="pkMaxW" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Padding<input id="pkPad" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Font Size<input id="pkFont" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Radius<input id="pkRad" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>ভিতরের ছবি Height<input id="pkImgH" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label></div><div style="display:flex;gap:6px;margin-top:10px"><button id="pkPrev" style="flex:1;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700">👁 Preview</button><button id="pkSave" style="flex:1;background:#27ae60;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700">💾 Save</button><button id="pkClose" style="background:#c0392b;color:#fff;border:none;padding:8px 10px;border-radius:6px">✖</button></div><div id="pkMsg" style="margin-top:6px;color:#7bed9f"></div>';
+panel.style.cssText="position:fixed;right:8px;bottom:8px;z-index:9999;background:#0f172a;color:#fff;border:2px solid #f39c12;border-radius:12px;padding:14px;width:300px;max-height:88vh;overflow:auto;display:none;font-size:12px";
+panel.innerHTML='<b style="color:#f39c12">🎯 Selected Element</b><div id="pkSel" style="word-break:break-all;color:#8be9fd;margin:4px 0"></div><b>📏 বর্তমান Size:</b> <span id="pkCur" style="color:#7bed9f"></span><hr style="border-color:#333"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><label>Width (px)<input id="pkW" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Height (px)<input id="pkH" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Min-Width<input id="pkMinW" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Max-Width<input id="pkMaxW" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Padding<input id="pkPad" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Font Size<input id="pkFont" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>Radius<input id="pkRad" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>ভিতরের ছবি Height<input id="pkImgH" style="width:100%;padding:5px;border-radius:5px;border:1px solid #444;background:#1e293b;color:#fff"></label><label>🎨 Background Color<input type="color" id="pkBg" style="width:100%;height:34px;padding:2px;border-radius:5px;border:1px solid #444;background:#1e293b"></label><label>✍️ Text Color<input type="color" id="pkTxt" style="width:100%;height:34px;padding:2px;border-radius:5px;border:1px solid #444;background:#1e293b"></label></div><div style="display:flex;gap:6px;margin-top:10px"><button id="pkPrev" style="flex:1;background:#3498db;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700">👁 Preview</button><button id="pkSave" style="flex:1;background:#27ae60;color:#fff;border:none;padding:8px;border-radius:6px;font-weight:700">💾 Save</button><button id="pkClose" style="background:#c0392b;color:#fff;border:none;padding:8px 10px;border-radius:6px">✖</button></div><div id="pkMsg" style="margin-top:6px;color:#7bed9f"></div>';
 document.body.appendChild(panel);
+
+function rgb2hex(rgb){
+ var m=String(rgb).match(/(\d+\.?\d*)/g);
+ if(!m||m.length<3)return "#000000";
+ var h="#";
+ for(var i=0;i<3;i++){h+=("0"+Math.round(+m[i]).toString(16)).slice(-2);}
+ return h;
+}
 function selectorFor(el){
  if(el.id)return "#"+el.id;
  var path=[],cur=el;
@@ -40,7 +47,7 @@ document.addEventListener("click",function(e){
  hl.style.width=(r.width+4)+"px";hl.style.height=(r.height+4)+"px";
  var c=getComputedStyle(selected);
  document.getElementById("pkSel").textContent=selectorFor(selected);
- document.getElementById("pkCur").textContent=c.width+" × "+c.height+" | pad:"+c.padding+" | font:"+c.fontSize;
+ document.getElementById("pkCur").textContent=c.width+" × "+c.height+" | bg:"+c.backgroundColor+" | text:"+c.color;
  document.getElementById("pkW").value=parseInt(c.width)||"";
  document.getElementById("pkH").value=parseInt(c.height)||"";
  document.getElementById("pkMinW").value=parseInt(c.minWidth)||"";
@@ -48,10 +55,13 @@ document.addEventListener("click",function(e){
  document.getElementById("pkPad").value=c.padding;
  document.getElementById("pkFont").value=parseInt(c.fontSize)||"";
  document.getElementById("pkRad").value=parseInt(c.borderRadius)||"";
+ document.getElementById("pkBg").value=rgb2hex(c.backgroundColor);
+ document.getElementById("pkTxt").value=rgb2hex(c.color);
  var img=selected.tagName==="IMG"?selected:selected.querySelector("img");
  document.getElementById("pkImgH").value=img?parseInt(getComputedStyle(img).height)||"":"";
  panel.style.display="block";
 },true);
+
 function buildCss(){
  var css={},v=function(id){return document.getElementById(id).value.trim();};
  if(v("pkW"))css["width"]=v("pkW")+"px";
@@ -61,6 +71,8 @@ function buildCss(){
  if(v("pkPad"))css["padding"]=v("pkPad");
  if(v("pkFont"))css["font-size"]=v("pkFont")+"px";
  if(v("pkRad"))css["border-radius"]=v("pkRad")+"px";
+ if(v("pkBg"))css["background"]=v("pkBg");
+ if(v("pkTxt"))css["color"]=v("pkTxt");
  return css;
 }
 document.getElementById("pkPrev").onclick=function(){
