@@ -2894,7 +2894,7 @@ fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiOverrides.json
   if(irules)css+=o.selector+" img{"+irules+"}\n";
  }
  fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiConfig.json").then(function(r){return r.json();}).then(function(c){
- var CATS='#everydayLowPriceCats>*,#comboOffersCats>*,#clearanceOutletCats>*,#flashCatsRow>*,#globalCatsRow>*,#dotdCatsRow>*,#specialCatsContainer>*';
+ var CATS='[id*="Cats"]>*,[id*="Cats"] .cat,[id*="Cats"] button';
  var extra="";
  if(c&&c.catBgOn&&c.catBg)extra+=CATS+"{background:"+c.catBg+" !important;}";
  if(c&&c.catTxtOn&&c.catTxt)extra+=CATS+"{color:"+c.catTxt+" !important;}";
