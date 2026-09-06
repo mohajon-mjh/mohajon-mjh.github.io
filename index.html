@@ -2894,14 +2894,14 @@ fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiOverrides.json
   if(irules)css+=o.selector+" img{"+irules+"}\n";
  }
  fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiConfig.json").then(function(r){return r.json();}).then(function(c){
- var CATS='[id*="Cats"]>*,[id*="Cats"] .cat,[id*="Cats"] button';
+ var CATS='[id*="Cats"]>*,[id*="Cats"] .cat,[id*="Cats"] button,.mh2Cats button';
  var extra="";
  if(c&&c.catBgOn&&c.catBg)extra+=CATS+"{background:"+c.catBg+" !important;}";
  if(c&&c.catTxtOn&&c.catTxt)extra+=CATS+"{color:"+c.catTxt+" !important;}";
  if(c&&c.prodBgOn&&c.prodBg)extra+=".trending-scroll-wrapper>div{background:"+c.prodBg+" !important;}";
  if(c&&c.prodTxtOn&&c.prodTxt)extra+=".trending-scroll-wrapper>div{color:"+c.prodTxt+" !important;}";
  if(extra){var st2=document.createElement("style");st2.id="mjhUiColors";st2.textContent=extra;document.head.appendChild(st2);}
- function applyC(){var els=document.querySelectorAll('[id*="Cats"]>*,[id*="Cats"] .cat');els.forEach(function(el){
+ function applyC(){var els=document.querySelectorAll('[id*="Cats"]>*,[id*="Cats"] .cat,.mh2Cats button');els.forEach(function(el){
   if(c&&c.catBgOn&&c.catBg)el.style.setProperty("background",c.catBg,"important");
   if(c&&c.catTxtOn&&c.catTxt)el.style.setProperty("color",c.catTxt,"important");
   if(c&&+c.catW>0)el.style.setProperty("width",c.catW+"px","important");
