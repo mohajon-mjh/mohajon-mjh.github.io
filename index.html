@@ -2893,11 +2893,15 @@ fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiOverrides.json
   for(var q in (o.imgCss||{}))irules+=q+":"+o.imgCss[q]+" !important;";
   if(irules)css+=o.selector+" img{"+irules+"}\n";
  }
+ fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiConfig.json").then(function(r){return r.json();}).then(function(c){
  var CATS='#everydayLowPriceCats>*,#comboOffersCats>*,#clearanceOutletCats>*,#flashCatsRow>*,#globalCatsRow>*,#dotdCatsRow>*,#specialCatsContainer>*';
- if(c.catBgOn&&c.catBg)css+=CATS+"{background:"+c.catBg+" !important;}";
- if(c.catTxtOn&&c.catTxt)css+=CATS+"{color:"+c.catTxt+" !important;}";
- if(c.prodBgOn&&c.prodBg)css+=".trending-scroll-wrapper>div{background:"+c.prodBg+" !important;}";
- if(c.prodTxtOn&&c.prodTxt)css+=".trending-scroll-wrapper>div{color:"+c.prodTxt+" !important;}";
+ var extra="";
+ if(c&&c.catBgOn&&c.catBg)extra+=CATS+"{background:"+c.catBg+" !important;}";
+ if(c&&c.catTxtOn&&c.catTxt)extra+=CATS+"{color:"+c.catTxt+" !important;}";
+ if(c&&c.prodBgOn&&c.prodBg)extra+=".trending-scroll-wrapper>div{background:"+c.prodBg+" !important;}";
+ if(c&&c.prodTxtOn&&c.prodTxt)extra+=".trending-scroll-wrapper>div{color:"+c.prodTxt+" !important;}";
+ if(extra){var st2=document.createElement("style");st2.id="mjhUiColors";st2.textContent=extra;document.head.appendChild(st2);}
+ }).catch(function(){});
  if(css){var st=document.createElement("style");st.id="mjhUiOverrides";st.textContent=css;document.head.appendChild(st);}
 }).catch(function(){});
 })();
