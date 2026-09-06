@@ -396,33 +396,6 @@ onAuthStateChanged(auth,async u=>{
             <button id="undoUI" style="background:#e74c3c;color:#fff;padding:12px 30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:16px">↩️ Undo Last Change</button>
         </div>
         
-        
-        <div style="background:#fff;padding:20px;border-radius:12px;margin-top:20px">
-            <h3>🎯 Advanced Element Editor (একটা বাটন/ছবি আলাদাভাবে)</h3>
-            <p style="color:#666;font-size:13px">১. 🎯 বাটনে ক্লিক → live site picker mode<br>২. Mobile Combo বাটন / পণ্যের ছবি তে ক্লিক<br>৩. 📏 বর্তমান size দেখাবে → নতুন value → 💾 Save</p>
-            <button onclick="window.open('index.html?picker=1','_blank')" style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;padding:12px 25px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:15px">🎯 Element Picker খুলুন</button>
-            <button onclick="loadOverridesList()" style="background:#3498db;color:#fff;padding:12px 25px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:15px;margin-left:8px">📋 Saved Overrides</button>
-            <div id="ovList" style="margin-top:12px"></div>
-        </div>
-        <script>
-        function loadOverridesList(){
-          fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiOverrides.json").then(function(r){return r.json();}).then(function(ov){
-            var el=document.getElementById("ovList");
-            if(!ov||!Object.keys(ov).length){el.innerHTML="<p style='color:#888'>কোনো saved override নেই</p>";return;}
-            var html="";
-            Object.keys(ov).sort().reverse().forEach(function(k){
-              var o=ov[k];
-              html+='<div style="background:#f7f7f7;padding:10px;border-radius:8px;margin:6px 0;display:flex;justify-content:space-between;align-items:center"><div><b>'+o.label+'</b><br><small style="color:#888">'+o.selector+'</small></div><button onclick="delOverride(''+k+'')" style="background:#e74c3c;color:#fff;border:none;padding:6px 12px;border-radius:6px">🗑 Delete</button></div>';
-            });
-            el.innerHTML=html;
-          });
-        }
-        function delOverride(k){
-          if(!confirm("Delete করবেন?"))return;
-          fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiOverrides/"+k+".json",{method:"DELETE"}).then(function(){loadOverridesList();});
-        }
-        </script>
-
         <div id="uiStatus" style="margin-top:15px;padding:12px;border-radius:8px;display:none"></div>
         
         <div style="background:#f7f7f7;padding:15px;border-radius:8px;margin-top:20px">

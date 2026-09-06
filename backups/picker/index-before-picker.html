@@ -2877,23 +2877,6 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
   setTimeout(function(){SECTIONS.forEach(setup);},7000);
 })();
 </script>
-<script>/* MJH UI Overrides Loader */
-(function(){
-fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiOverrides.json").then(function(r){return r.json();}).then(function(ov){
- if(!ov)return;
- var css="";
- for(var k in ov){
-  var o=ov[k];var rules="";
-  for(var p in (o.css||{}))rules+=p+":"+o.css[p]+" !important;";
-  if(rules)css+=o.selector+"{"+rules+"}\n";
-  var irules="";
-  for(var q in (o.imgCss||{}))irules+=q+":"+o.imgCss[q]+" !important;";
-  if(irules)css+=o.selector+" img{"+irules+"}\n";
- }
- if(css){var st=document.createElement("style");st.id="mjhUiOverrides";st.textContent=css;document.head.appendChild(st);}
-}).catch(function(){});
-})();
-</script>
 <script src="fast-home-loader.js?v=2" defer></script>
 <script src="bogo-manager.js"></script>
 
@@ -2917,6 +2900,5 @@ fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiConfig.json')
 })();
 </script>
 
-<script src="picker.js" defer></script>
 </body>
 </html>
