@@ -6,6 +6,9 @@
 (function(){
   const DB_URL="https://mohajon-mjh-default-rtdb.firebaseio.com";
   let PRODUCTS_CACHE={};
+let BOGO_OFFERS_CACHE=null;
+async function loadBogoOffersMap(){if(BOGO_OFFERS_CACHE)return BOGO_OFFERS_CACHE;try{const r=await fetch(`${DB_URL}/settings/bogoOffers.json`);BOGO_OFFERS_CACHE=(await r.json())||{};}catch(e){BOGO_OFFERS_CACHE={};}return BOGO_OFFERS_CACHE;}
+async function getBogoOffer(id){const m=await loadBogoOffersMap();return m[id]||null;}
 
   async function fetchProduct(id){
     if(PRODUCTS_CACHE[id])return PRODUCTS_CACHE[id];
@@ -23,8 +26,8 @@
     for(const item of cart){
       if(item.isFree)continue;
       const p=await fetchProduct(item.id);
-      if(!p||!p.bogo||!p.bogo.enabled)continue;
-      const b=p.bogo;
+      const off=(await getBogoOffer(item.id))||(p&&p.bogo)||null;if(!p||!off||!off.enabled)continue;
+      const b=off;
       const paidQty=Math.max(1,item.qty||1);
       const maxFree=Math.max(1,b.maxFreeQuantity||1);
       const freeQty=Math.min(paidQty*maxFree, paidQty);
