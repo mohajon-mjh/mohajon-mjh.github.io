@@ -7,7 +7,7 @@
   const DB_URL="https://mohajon-mjh-default-rtdb.firebaseio.com";
   let PRODUCTS_CACHE={};
 let BOGO_OFFERS_CACHE=null;
-async function loadBogoOffersMap(){if(BOGO_OFFERS_CACHE)return BOGO_OFFERS_CACHE;try{const r=await fetch(`${DB_URL}/settings/bogoOffers.json`);BOGO_OFFERS_CACHE=(await r.json())||{};}catch(e){BOGO_OFFERS_CACHE={};}return BOGO_OFFERS_CACHE;}
+async function loadBogoOffersMap(){if(BOGO_OFFERS_CACHE)return BOGO_OFFERS_CACHE;try{const r=await fetch(`${DB_URL}/settings/customSections/mega/catProducts/b1g1.json`);const m0=(await r.json())||{};BOGO_OFFERS_CACHE={};Object.keys(m0).forEach(k=>{if(m0[k]&&m0[k].bogo)BOGO_OFFERS_CACHE[k]=m0[k].bogo;});}catch(e){BOGO_OFFERS_CACHE={};}return BOGO_OFFERS_CACHE;}
 async function getBogoOffer(id){const m=await loadBogoOffersMap();return m[id]||null;}
 
   async function fetchProduct(id){

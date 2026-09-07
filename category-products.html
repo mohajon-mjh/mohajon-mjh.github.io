@@ -1149,5 +1149,83 @@ async function loadBogoOffers(){
   } catch(e){ document.getElementById('bogoList').innerHTML = '❌ ' + e.message; }
 }
 </script>
+
+<script>
+/* BOGO v9 single-path - offer data b1g1 category entry তেই: {id,addedAt,bogo:{...},title,price,image} */
+async function loadBogoOffers(){
+  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
+  try {
+    var snap = await db.ref(SEC + "/" + CAT).once("value");
+    var map = snap.val() || {};
+    BOGO_PRODUCTS = Object.keys(map).filter(function(k){ return map[k] && map[k].bogo && map[k].bogo.enabled; })
+      .map(function(k){ return {id:k, title: map[k].title || k, bogo: map[k].bogo, price: map[k].price || 0}; });
+    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
+    renderBogoList();
+  } catch(e){ document.getElementById('bogoList').innerHTML = '❌ ' + e.message; }
+}
+
+async function bulkEnableBogo(){
+  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
+  if (!confirm('⚠️ ' + count + ' টা low-price product Buy 1 Get 1 এ যোগ হবে। Continue?')) return;
+  var st = document.getElementById('bogoBulkStatus');
+  st.textContent = '⏳ Products লোড হচ্ছে...';
+  try {
+    var allSnap = await db.ref("products").once("value");
+    var all = allSnap.val() || {};
+    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
+      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0, p:all[k]}; });
+    arr.sort(function(x,y){ return x.price - y.price; });
+    var low = arr.slice(0, count);
+    var ok = 0, fail = 0;
+    for (var i = 0; i < low.length; i++) {
+      var it = low[i];
+      try {
+        await db.ref(SEC + "/" + CAT + "/" + it.id).set({
+          id: it.id, addedAt: Date.now(),
+          bogo: {enabled:true, type:"same", maxFreeQuantity:1},
+          title: it.p.title || it.id, price: it.price,
+          image: (it.p.images && (it.p.images.main || it.p.images.i0)) || ''
+        });
+        ok++;
+      } catch(e) { fail++; if (fail === 1 && ok === 0) { alert('❌ ' + e.message); return; } }
+      st.textContent = '⏳ (' + (i+1) + '/' + count + ') ok:' + ok + ' fail:' + fail;
+    }
+    st.textContent = ok > 0 ? ('✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!') : '❌ সব fail';
+    await loadBogoOffers();
+  } catch(e){ st.textContent = '❌ ' + e.message; }
+}
+
+async function addBogoOffer(){
+  var val = (document.getElementById('bogoBuyInput')||{}).value || '';
+  var buyId = TITLE2ID[val] || val;
+  var type = document.getElementById('bogoType').value;
+  var freeId = document.getElementById('bogoFreeProduct').value;
+  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
+  if (!buyId) { alert('⚠️ Product বাছুন বা ID লিখুন'); return; }
+  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
+  try {
+    var ps = await db.ref("products/" + buyId).once("value");
+    var p = ps.val() || {};
+    var entry = {id: buyId, addedAt: Date.now(), bogo: {enabled:true, type:type, maxFreeQuantity:maxQty},
+      title: p.title || buyId, price: p.price || 0, image: (p.images && (p.images.main || p.images.i0)) || ''};
+    if (type === 'specific') entry.bogo.freeProductId = freeId;
+    await db.ref(SEC + "/" + CAT + "/" + buyId).set(entry);
+    alert('✅ BOGO offer save হয়েছে!');
+    await loadBogoOffers();
+  } catch(e){ alert('❌ ' + e.message); }
+}
+
+async function deleteBogoOffer(id){
+  if (!confirm('BOGO offer বন্ধ করবেন? (পণ্য category তে থাকবে, শুধু free offer যাবে)')) return;
+  try {
+    var s = await db.ref(SEC + "/" + CAT + "/" + id).once("value");
+    var v = s.val() || {};
+    delete v.bogo;
+    await db.ref(SEC + "/" + CAT + "/" + id).set(v);
+    alert('✅ Offer বন্ধ হয়েছে!');
+    await loadBogoOffers();
+  } catch(e){ alert('❌ ' + e.message); }
+}
+</script>
 </body>
 </html>
