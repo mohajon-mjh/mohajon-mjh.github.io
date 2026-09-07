@@ -705,5 +705,128 @@ document.getElementById('bogoType').addEventListener('change', function() {
 document.getElementById('bogoSearch').addEventListener('input', renderBogoList);
 </script>
 
+
+<script>
+/* BOGO Manager v2 cache - auto login detect + fast single-fetch */
+var BOGO_ALL = null;
+var TITLE2ID = {};
+
+async function loadAllProducts(){
+  if (BOGO_ALL) return BOGO_ALL;
+  var r = await fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/products.json");
+  BOGO_ALL = (await r.json()) || {};
+  return BOGO_ALL;
+}
+
+function showBogoManager(){
+  document.getElementById('bogoManager').style.display = 'block';
+  loadBogoOffers();
+  buildBogoPicker();
+}
+
+// Override: একবারে সব product load
+async function loadBogoOffers(){
+  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
+  try {
+    var all = await loadAllProducts();
+    BOGO_PRODUCTS = Object.keys(all).filter(function(k){ return all[k] && all[k].bogo && all[k].bogo.enabled; })
+      .map(function(k){ return {id:k, title:all[k].title||k, bogo:all[k].bogo, price:all[k].price||0}; });
+    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
+    renderBogoList();
+  } catch(e){ document.getElementById('bogoList').innerHTML = '❌ ' + e.message; }
+}
+
+// Override: select এর বদলে search input + datalist (দ্রুত)
+async function buildBogoPicker(){
+  var sel = document.getElementById('bogoBuyProduct');
+  if (!sel || sel.tagName !== 'SELECT') return;
+  var all = await loadAllProducts();
+  var inp = document.createElement('input');
+  inp.id = 'bogoBuyInput';
+  inp.setAttribute('list', 'bogoDL');
+  inp.placeholder = '🔍 Product এর নাম লিখুন...';
+  inp.style.cssText = 'flex:1;min-width:200px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333';
+  sel.parentNode.replaceChild(inp, sel);
+  var dl = document.createElement('datalist');
+  dl.id = 'bogoDL';
+  var opts = [];
+  Object.keys(all).forEach(function(k){
+    var p = all[k]; if(!p) return;
+    var t = (p.title||k).substring(0,50);
+    TITLE2ID[t] = k;
+    opts.push('<option value="' + t.replace(/"/g,'&quot;') + '">৳' + (p.price||0) + '</option>');
+  });
+  dl.innerHTML = opts.join('');
+  document.body.appendChild(dl);
+}
+
+// Override: add — input থেকে id বের করা
+async function addBogoOffer(){
+  var val = (document.getElementById('bogoBuyInput')||{}).value || '';
+  var buyId = TITLE2ID[val] || val;
+  var type = document.getElementById('bogoType').value;
+  var freeId = document.getElementById('bogoFreeProduct').value;
+  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
+  if (!buyId) { alert('⚠️ Product বাছুন বা ID লিখুন'); return; }
+  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
+  var bogo = {enabled:true, type:type, maxFreeQuantity:maxQty};
+  if (type === 'specific') bogo.freeProductId = freeId;
+  try {
+    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(buyId) + '/bogo.json?auth=' + BOGO_TOKEN, {
+      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(bogo)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    BOGO_ALL = null;
+    alert('✅ BOGO offer save হয়েছে!');
+    await loadBogoOffers();
+  } catch(e){ alert('❌ ' + e.message); }
+}
+
+// Override: bulk — cache থেকে sort
+async function bulkEnableBogo(){
+  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
+  if (!confirm('⚠️ ' + count + ' টা low-price product এ BOGO enable হবে। Continue?')) return;
+  var st = document.getElementById('bogoBulkStatus');
+  st.textContent = '⏳ Products লোড হচ্ছে...';
+  try {
+    var all = await loadAllProducts();
+    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
+      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0}; });
+    arr.sort(function(x,y){ return x.price - y.price; });
+    var low = arr.slice(0, count);
+    var ok = 0;
+    for (var i=0;i<low.length;i++){
+      var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(low[i].id) + '/bogo.json?auth=' + BOGO_TOKEN, {
+        method:'PUT', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({enabled:true, type:'same', maxFreeQuantity:1})
+      });
+      if (r.ok) ok++;
+      st.textContent = '⏳ Enable হচ্ছে (' + ok + '/' + count + ')...';
+    }
+    BOGO_ALL = null;
+    st.textContent = '✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!';
+    await loadBogoOffers();
+  } catch(e){ st.textContent = '❌ ' + e.message; }
+}
+
+// Auto login detect (persisted session সহ)
+(function(){
+  var tries = 0;
+  var iv = setInterval(function(){
+    tries++;
+    try {
+      var u = window.firebase && firebase.auth && firebase.auth().currentUser;
+      if (u) {
+        clearInterval(iv);
+        u.getIdToken().then(function(t){ BOGO_TOKEN = t; showBogoManager(); });
+      } else if (tries > 40) {
+        clearInterval(iv);
+        var lb = document.getElementById('loginBox');
+        if (lb) lb.style.display = 'flex';
+      }
+    } catch(e){}
+  }, 1500);
+})();
+</script>
 </body>
 </html>
