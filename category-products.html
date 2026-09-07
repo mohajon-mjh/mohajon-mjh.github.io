@@ -946,5 +946,97 @@ async function deleteBogoOffer(id){
   } catch(e){ alert('❌ ' + e.message); }
 }
 </script>
+
+<script>
+/* BOGO v5 page db - পাশের ফাংশনের মতো page এর নিজের db/auth ব্যবহার করে, কোনো extra login নেই */
+function bogoDb(){ return window.db || firebase.database(); }
+
+async function loadAllProducts(){
+  if (BOGO_ALL) return BOGO_ALL;
+  var snap = await bogoDb().ref("products").once("value");
+  BOGO_ALL = snap.val() || {};
+  return BOGO_ALL;
+}
+
+async function loadBogoOffers(){
+  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
+  try {
+    var all = await loadAllProducts();
+    BOGO_PRODUCTS = Object.keys(all).filter(function(k){ return all[k] && all[k].bogo && all[k].bogo.enabled; })
+      .map(function(k){ return {id:k, title:all[k].title||k, bogo:all[k].bogo, price:all[k].price||0}; });
+    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
+    renderBogoList();
+  } catch(e){ document.getElementById('bogoList').innerHTML = '❌ ' + e.message; }
+}
+
+async function bulkEnableBogo(){
+  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
+  if (!confirm('⚠️ ' + count + ' টা low-price product এ BOGO enable হবে। Continue?')) return;
+  var st = document.getElementById('bogoBulkStatus');
+  st.textContent = '⏳ Products লোড হচ্ছে...';
+  try {
+    var all = await loadAllProducts();
+    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
+      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0}; });
+    arr.sort(function(x,y){ return x.price - y.price; });
+    var low = arr.slice(0, count);
+    var ok = 0, fail = 0;
+    for (var i = 0; i < low.length; i++) {
+      try {
+        await bogoDb().ref("products/" + low[i].id + "/bogo").set({enabled:true, type:"same", maxFreeQuantity:1});
+        ok++;
+      } catch(e) {
+        fail++;
+        if (fail === 1 && ok === 0) { alert('❌ প্রথম write ই fail: ' + e.message); return; }
+      }
+      st.textContent = '⏳ (' + (i+1) + '/' + count + ') ok:' + ok + ' fail:' + fail;
+    }
+    BOGO_ALL = null;
+    st.textContent = ok > 0 ? ('✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!') : '❌ সব fail';
+    await loadBogoOffers();
+  } catch(e){ st.textContent = '❌ ' + e.message; }
+}
+
+async function addBogoOffer(){
+  var val = (document.getElementById('bogoBuyInput')||{}).value || '';
+  var buyId = TITLE2ID[val] || val;
+  var type = document.getElementById('bogoType').value;
+  var freeId = document.getElementById('bogoFreeProduct').value;
+  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
+  if (!buyId) { alert('⚠️ Product বাছুন বা ID লিখুন'); return; }
+  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
+  var bogo = {enabled:true, type:type, maxFreeQuantity:maxQty};
+  if (type === 'specific') bogo.freeProductId = freeId;
+  try {
+    await bogoDb().ref("products/" + buyId + "/bogo").set(bogo);
+    BOGO_ALL = null;
+    alert('✅ BOGO offer save হয়েছে!');
+    await loadBogoOffers();
+  } catch(e){ alert('❌ ' + e.message); }
+}
+
+async function deleteBogoOffer(id){
+  if (!confirm('এই BOGO offer delete করবেন?')) return;
+  try {
+    await bogoDb().ref("products/" + id + "/bogo").remove();
+    BOGO_ALL = null;
+    alert('✅ Delete হয়েছে!');
+    await loadBogoOffers();
+  } catch(e){ alert('❌ ' + e.message); }
+}
+
+// Page এর নিজের auth state — extra login নেই
+(function(){
+  try {
+    firebase.auth().onAuthStateChanged(function(u){
+      if (u) { showBogoManager(); }
+      else {
+        var lb = document.getElementById('loginBox');
+        if (lb) lb.style.display = 'flex';
+      }
+    });
+  } catch(e){}
+})();
+</script>
 </body>
 </html>
