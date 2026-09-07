@@ -860,5 +860,91 @@ async function bulkEnableBogo(){
   } catch(e){ st.textContent = '❌ ' + e.message; }
 }
 </script>
+
+<script>
+/* BOGO v4 admin token - নিজের admin login ব্যবহার করবে */
+var BOGO_ADMIN_TOKEN = sessionStorage.getItem('bogo_admin_token') || null;
+
+async function ensureAdminToken(){
+  if (BOGO_ADMIN_TOKEN) return BOGO_ADMIN_TOKEN;
+  var em = prompt('📧 Admin Gmail দিন:');
+  if (!em) throw new Error('Email দেওয়া হয়নি');
+  var pw = prompt('🔑 Password দিন:');
+  if (!pw) throw new Error('Password দেওয়া হয়নি');
+  var r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({email:em, password:pw, returnSecureToken:true})
+  });
+  if (!r.ok) throw new Error('Admin login fail: HTTP ' + r.status);
+  var j = await r.json();
+  BOGO_ADMIN_TOKEN = j.idToken;
+  sessionStorage.setItem('bogo_admin_token', BOGO_ADMIN_TOKEN);
+  return BOGO_ADMIN_TOKEN;
+}
+
+async function bulkEnableBogo(){
+  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
+  if (!confirm('⚠️ ' + count + ' টা low-price product এ BOGO enable হবে। Continue?')) return;
+  var st = document.getElementById('bogoBulkStatus');
+  st.textContent = '🔐 Admin login চাই...';
+  try {
+    var token = await ensureAdminToken();
+    st.textContent = '⏳ Products লোড হচ্ছে...';
+    var all = await loadAllProducts();
+    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
+      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0}; });
+    arr.sort(function(x,y){ return x.price - y.price; });
+    var low = arr.slice(0, count);
+    var ok = 0, fail = 0, lastErr = '';
+    for (var i = 0; i < low.length; i++) {
+      var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(low[i].id) + '/bogo.json?auth=' + token, {
+        method:'PUT', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({enabled:true, type:'same', maxFreeQuantity:1})
+      });
+      if (r.ok) ok++;
+      else { fail++; if (!lastErr) lastErr = 'HTTP ' + r.status + ' → ' + (await r.text()).slice(0,150); }
+      st.textContent = '⏳ (' + (i+1) + '/' + count + ') ok:' + ok + ' fail:' + fail;
+      if (fail >= 1 && ok === 0) { sessionStorage.removeItem('bogo_admin_token'); BOGO_ADMIN_TOKEN = null; alert('❌ প্রথম write ই fail:\n' + lastErr + '\n\nআবার Enable click করুন — নতুন login চাইবে'); return; }
+    }
+    BOGO_ALL = null;
+    st.textContent = ok > 0 ? ('✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!') : ('❌ সব fail: ' + lastErr);
+    await loadBogoOffers();
+  } catch(e){ st.textContent = '❌ ' + e.message; }
+}
+
+async function addBogoOffer(){
+  var val = (document.getElementById('bogoBuyInput')||{}).value || '';
+  var buyId = TITLE2ID[val] || val;
+  var type = document.getElementById('bogoType').value;
+  var freeId = document.getElementById('bogoFreeProduct').value;
+  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
+  if (!buyId) { alert('⚠️ Product বাছুন বা ID লিখুন'); return; }
+  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
+  var bogo = {enabled:true, type:type, maxFreeQuantity:maxQty};
+  if (type === 'specific') bogo.freeProductId = freeId;
+  try {
+    var token = await ensureAdminToken();
+    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(buyId) + '/bogo.json?auth=' + token, {
+      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(bogo)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    BOGO_ALL = null;
+    alert('✅ BOGO offer save হয়েছে!');
+    await loadBogoOffers();
+  } catch(e){ alert('❌ ' + e.message); }
+}
+
+async function deleteBogoOffer(id){
+  if (!confirm('এই BOGO offer delete করবেন?')) return;
+  try {
+    var token = await ensureAdminToken();
+    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(id) + '/bogo.json?auth=' + token, {method:'DELETE'});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    BOGO_ALL = null;
+    alert('✅ Delete হয়েছে!');
+    await loadBogoOffers();
+  } catch(e){ alert('❌ ' + e.message); }
+}
+</script>
 </body>
 </html>
