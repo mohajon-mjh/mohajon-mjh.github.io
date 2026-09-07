@@ -24,10 +24,26 @@ try:
     token = json.loads(urllib.request.urlopen(req, timeout=40).read())["idToken"]
     print("✅ Login OK")
     
-    # Firebase DB dump
-    print("⏳ Firebase DB dump...")
-    firebase_db = urllib.request.urlopen(f"{DB_URL}/.json?format=export&auth={token}", timeout=180).read()
-    print(f"✅ DB: {len(firebase_db)//1024} KB")
+    # Firebase DB dump (child-key approach - 401 bypass)
+    print("⏳ Firebase DB dump (child-key পদ্ধতি)...")
+    keys = None
+    try:
+        sh = json.loads(urllib.request.urlopen(f"{DB_URL}/.json?shallow=true&auth={token}", timeout=60).read())
+        keys = list(sh.keys())
+        print(f"✅ Found {len(keys)} root keys")
+    except Exception as e:
+        print(f"⚠️ Shallow failed: {e} — using known keys")
+        keys = ["settings","products","orders","users","sellers","sellerApplications","affiliates","withdrawals","commissions","notifications","bogoOffers","customSections","customSectionProducts","flashSaleCategories","flashSaleCategoryProducts","globalCategories","globalCategoryProducts","dealsOfDayCategories","dealsOfDayCategoryProducts","dealsCategories","dealsCategoryProducts","specialCategories","specialCategoryProducts","everydayLowPriceCategories","everydayLowPriceCategoryProducts","comboOffersCategories","comboOffersCategoryProducts","clearanceOutletCategories","clearanceOutletCategoryProducts","megaCategories","megaCategoryProducts","reviews","payments","paymentSettings","currency","notepad","agents","commissionAgents","couriers","pathaoOrders","carts","wishlist","counters","logs","banners","coupons","homePageProducts"]
+    data = {}
+    for idx, k in enumerate(keys):
+        try:
+            r = urllib.request.urlopen(f"{DB_URL}/{k}.json?auth={token}", timeout=120)
+            data[k] = json.loads(r.read())
+            print(f"  ✅ {k} ({idx+1}/{len(keys)})")
+        except Exception as e:
+            print(f"  ⚠️ skip {k}: {e}")
+    firebase_db = json.dumps(data, ensure_ascii=False).encode()
+    print(f"✅ DB: {len(firebase_db)//1024} KB ({len(data)} keys saved)")
     
     # Firebase rules dump
     print("⏳ Firebase rules...")

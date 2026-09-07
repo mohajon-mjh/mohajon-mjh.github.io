@@ -106,6 +106,7 @@ var DB_URL = "https://mohajon-mjh-default-rtdb.firebaseio.com";
 var STORAGE_KEY = "mjh_backups_v5";
 var ADMIN_TOKEN = null;
 var ADMIN_EMAIL = null;
+var FALLBACK_KEYS = ["settings","products","orders","users","sellers","sellerApplications","affiliates","withdrawals","commissions","notifications","bogoOffers","customSections","customSectionProducts","flashSaleCategories","flashSaleCategoryProducts","globalCategories","globalCategoryProducts","dealsOfDayCategories","dealsOfDayCategoryProducts","dealsCategories","dealsCategoryProducts","specialCategories","specialCategoryProducts","everydayLowPriceCategories","everydayLowPriceCategoryProducts","comboOffersCategories","comboOffersCategoryProducts","clearanceOutletCategories","clearanceOutletCategoryProducts","megaCategories","megaCategoryProducts","reviews","payments","paymentSettings","currency","notepad","agents","commissionAgents","couriers","pathaoOrders","carts","wishlist","counters","logs","banners","coupons","homePageProducts"];
 
 // Page load এ localStorage থেকে login check
 window.addEventListener("DOMContentLoaded", function() {
@@ -183,22 +184,40 @@ function saveBackups(b) {
 }
 
 async function takeBackup() {
-  showStatus("backupStatus", "⏳ Firebase data dump হচ্ছে...", "info");
+  showStatus("backupStatus", "⏳ Firebase data dump হচ্ছে (child-key পদ্ধতি)...", "info");
   try {
-    // First get all top-level keys
-    var shallow = await fetch(DB_URL + "/.json?shallow=true&auth=" + ADMIN_TOKEN);
-    if (!shallow.ok) throw new Error("Cannot read database structure: HTTP " + shallow.status);
-    var keys = Object.keys(await shallow.json());
+    // First try shallow - if fail, use fallback keys
+    var keys = null;
+    try {
+      var shallow = await fetch(DB_URL + "/.json?shallow=true&auth=" + ADMIN_TOKEN);
+      if (shallow.ok) keys = Object.keys(await shallow.json());
+    } catch(e) { console.warn("Shallow failed:", e); }
+    if (!keys) {
+      keys = FALLBACK_KEYS.slice();
+      showStatus("backupStatus", "⚠️ Shallow blocked — " + keys.length + " known keys ধরা হচ্ছে", "warn");
+    }
     
     var data = {};
+    var success = 0, skipped = 0;
     for (var i = 0; i < keys.length; i++) {
       var k = keys[i];
-      showStatus("backupStatus", "⏳ Dumping: " + k + " (" + (i+1) + "/" + keys.length + ")", "info");
+      showStatus("backupStatus", "⏳ Dumping: " + k + " (" + (i+1) + "/" + keys.length + ") [✅" + success + " ⚠️" + skipped + "]", "info");
       try {
         var r = await fetch(DB_URL + "/" + k + ".json?auth=" + ADMIN_TOKEN);
-        if (r.ok) data[k] = await r.json();
-      } catch(e) { console.warn("Skip " + k, e); }
+        if (r.ok) {
+          data[k] = await r.json();
+          success++;
+        } else {
+          console.warn("Skip " + k + ": HTTP " + r.status);
+          skipped++;
+        }
+      } catch(e) { 
+        console.warn("Skip " + k, e);
+        skipped++;
+      }
     }
+    
+    if (success === 0) throw new Error("কোনো data read করা যায়নি! সব key বন্ধ।");
     
     var ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
     var name = "mohajon-mjh-backup-" + ts;
@@ -242,16 +261,21 @@ async function restoreBackup() {
     var data = JSON.parse(text);
     
     var keys = Object.keys(data);
+    var success = 0, skipped = 0;
     for (var i = 0; i < keys.length; i++) {
       var k = keys[i];
-      showStatus("restoreStatus", "⏳ Restoring: " + k + " (" + (i+1) + "/" + keys.length + ")", "info");
-      var r = await fetch(DB_URL + "/" + k + ".json?auth=" + ADMIN_TOKEN, {
-        method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data[k])
-      });
-      if (!r.ok) throw new Error("Failed for " + k + ": HTTP " + r.status);
+      showStatus("restoreStatus", "⏳ Restoring: " + k + " (" + (i+1) + "/" + keys.length + ") [✅" + success + " ⚠️" + skipped + "]", "info");
+      try {
+        var r = await fetch(DB_URL + "/" + k + ".json?auth=" + ADMIN_TOKEN, {
+          method: "PUT",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(data[k])
+        });
+        if (r.ok) success++;
+        else { console.warn("Skip restore " + k + ": HTTP " + r.status); skipped++; }
+      } catch(e) { console.warn("Skip restore " + k, e); skipped++; }
     }
+    if (success === 0) throw new Error("কোনো data restore হয়নি! সব key বন্ধ।");
     
     showStatus("restoreStatus", "✅ Restore সম্পূর্ণ! Page reload হচ্ছে...", "success");
     setTimeout(function() { location.reload(); }, 2000);
@@ -268,16 +292,21 @@ async function restoreFromStorage(index) {
   showStatus("restoreStatus", "⏳ Restore হচ্ছে...", "info");
   try {
     var keys = Object.keys(b.data);
+    var success = 0, skipped = 0;
     for (var i = 0; i < keys.length; i++) {
       var k = keys[i];
-      showStatus("restoreStatus", "⏳ Restoring: " + k + " (" + (i+1) + "/" + keys.length + ")", "info");
-      var r = await fetch(DB_URL + "/" + k + ".json?auth=" + ADMIN_TOKEN, {
-        method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(b.data[k])
-      });
-      if (!r.ok) throw new Error("Failed for " + k);
+      showStatus("restoreStatus", "⏳ Restoring: " + k + " (" + (i+1) + "/" + keys.length + ") [✅" + success + " ⚠️" + skipped + "]", "info");
+      try {
+        var r = await fetch(DB_URL + "/" + k + ".json?auth=" + ADMIN_TOKEN, {
+          method: "PUT",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(b.data[k])
+        });
+        if (r.ok) success++;
+        else { console.warn("Skip restore " + k + ": HTTP " + r.status); skipped++; }
+      } catch(e) { console.warn("Skip restore " + k, e); skipped++; }
     }
+    if (success === 0) throw new Error("কোনো data restore হয়নি!");
     showStatus("restoreStatus", "✅ Restore সম্পূর্ণ!", "success");
     setTimeout(function() { location.reload(); }, 2000);
   } catch (e) {
