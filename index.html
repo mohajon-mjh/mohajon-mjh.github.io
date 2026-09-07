@@ -1159,48 +1159,7 @@ fsInitCategories();
 
 </div>
 
-<section id="bogo-home-section" style="padding:20px 15px;background:#fff;margin:20px 0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
-<h2 style="color:#e67e22;margin:0 0 6px">🎁 Buy 1 Get 1 Free</h2>
-<p style="color:#888;font-size:12px;margin:0 0 12px">১টা কিনলে ১টা ফ্রি — সীমিত সময়ের অফার</p>
-<div id="bogo-home-cards" style="display:flex;gap:12px;overflow-x:auto;padding:6px 0"></div>
-</section>
-<script>
-/* bogo-home-cards v9 */
-window.bogoAdd = function(id, name, price, sellerId){
-  try { if (window.addCart) { window.addCart(id, name, price, sellerId); } else { location.href = 'product-details.html?id=' + id; } }
-  catch(e){ location.href = 'product-details.html?id=' + id; }
-};
-(async function(){
-  try {
-    var DB = "https://mohajon-mjh-default-rtdb.firebaseio.com";
-    var r = await fetch(DB + "/settings/customSections/mega/catProducts/b1g1.json");
-    var map = await r.json();
-    if (!map) return;
-    var ids = Object.keys(map).filter(function(id){ return map[id] && map[id].bogo && map[id].bogo.enabled; });
-    var box = document.getElementById('bogo-home-cards');
-    if (!box) return;
-    if (!ids.length) { document.getElementById('bogo-home-section').style.display = 'none'; return; }
-    ids.slice(0, 20).forEach(function(id){
-      var v = map[id];
-      var card = document.createElement('div');
-      card.style.cssText = 'flex:0 0 168px;background:#fff;border:1px solid #f0f0f0;border-radius:12px;padding:10px;position:relative;box-shadow:0 1px 4px rgba(0,0,0,0.06)';
-      card.innerHTML =
-        '<div style="position:relative">' +
-          '<img src="' + (v.image || '') + '" style="width:100%;height:120px;object-fit:cover;border-radius:8px;background:#f5f5f5" onerror="this.style.visibility='hidden'">' +
-          '<div style="position:absolute;top:4px;left:4px;background:#e67e22;color:#fff;font-size:10px;font-weight:700;padding:3px 7px;border-radius:4px">🎁 BUY 1 GET 1 FREE</div>' +
-        '</div>' +
-        '<div style="font-size:13px;font-weight:600;margin:8px 0 4px;height:32px;overflow:hidden">' + ((v.title || id).substring(0, 40)) + '</div>' +
-        '<div style="font-size:15px;color:#e67e22;font-weight:800">৳' + (v.price || 0) + '</div>' +
-        '<div style="font-size:11px;color:#27ae60;font-weight:600;margin:3px 0 8px">১টা কিনলে ১টা ফ্রি</div>' +
-        '<button style="width:100%;background:#2980b9;color:#fff;border:none;border-radius:6px;padding:8px;font-weight:700;cursor:pointer">🛒 Add to Cart</button>';
-      card.querySelector('button').addEventListener('click', function(){
-        window.bogoAdd(id, v.title || id, v.price || 0, '');
-      });
-      box.appendChild(card);
-    });
-  } catch(e){ console.warn('BOGO home:', e); }
-})();
-</script>
+
 <div class="section" id="globalCatSection">
 <h2>🌍 Global Categories</h2>
 <br>
