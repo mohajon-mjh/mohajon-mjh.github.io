@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📦 Mohajon MJH Backup System</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f5f5f5;min-height:100vh}
+.header{background:#10b981;color:#fff;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.header h1{font-size:24px;margin-bottom:5px}
+.header p{font-size:14px;opacity:0.9}
+.container{max-width:900px;margin:20px auto;padding:0 15px}
+.card{background:#fff;border-radius:12px;padding:25px;margin:15px 0;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.login-section{background:#d1fae5;border:3px solid #10b981}
+.backup-section{background:#dbeafe;border:3px solid #3b82f6}
+.restore-section{background:#fef3c7;border:3px solid #f59e0b}
+.list-section{background:#f9fafb;border:2px solid #d1d5db}
+h2{color:#1f2937;margin-bottom:10px}
+h3{color:#374151;margin-bottom:10px}
+p{color:#6b7280;margin:5px 0}
+.btn{padding:14px 28px;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;width:100%;margin:5px 0;transition:opacity 0.2s}
+.btn:hover{opacity:0.9}
+.btn-green{background:#10b981;color:#fff}
+.btn-blue{background:#3b82f6;color:#fff}
+.btn-orange{background:#f59e0b;color:#fff}
+.btn-red{background:#ef4444;color:#fff}
+.btn-small{padding:8px 14px;width:auto;font-size:13px;margin:2px}
+input[type="password"],input[type="email"]{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;margin:8px 0;font-size:14px}
+input[type="file"]{width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;margin:8px 0;background:#fff}
+.status{padding:12px;border-radius:8px;margin:10px 0;min-height:20px;font-size:14px}
+.info{background:#eff6ff;color:#1e40af;padding:15px;border-radius:8px;margin:10px 0;font-size:14px}
+.warning{background:#fef3c7;color:#92400e;padding:15px;border-radius:8px;margin:10px 0;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:#e5e7eb;padding:10px;text-align:left;border-bottom:2px solid #d1d5db}
+td{padding:10px;border-bottom:1px solid #e5e7eb}
+.logged-in{background:#d1fae5;color:#065f46;padding:10px 15px;border-radius:8px;margin:10px 0;font-weight:600}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>📦 Mohajon MJH Backup System</h1>
+<p>Admin panel ডিলিট হলেও এই file থেকে backup/restore করা যাবে</p>
+</div>
+
+<div class="container">
+
+<!-- Login Section -->
+<div class="card login-section" id="loginSection">
+<h2>🔐 Admin Login</h2>
+<p>Firebase admin Gmail + password দিয়ে login করুন</p>
+<input type="email" id="adminEmail" placeholder="📧 Admin Gmail">
+<input type="password" id="adminPassword" placeholder="🔑 Password">
+<button class="btn btn-green" onclick="login()">🔓 Login</button>
+<div id="loginStatus" class="status hidden"></div>
+</div>
+
+<!-- Backup Section (only after login) -->
+<div class="card backup-section hidden" id="backupSection">
+<h2>📦 Backup Now</h2>
+<p>সম্পূর্ণ Firebase database backup নিন — একটা JSON file download হবে</p>
+<button class="btn btn-green" onclick="takeBackup()">📦 Backup Now</button>
+<div id="backupStatus" class="status"></div>
+</div>
+
+<!-- Restore Section (only after login) -->
+<div class="card restore-section hidden" id="restoreSection">
+<h2>♻️ Restore Now</h2>
+<p>Backup file upload করুন — Firebase data restore হবে</p>
+<input type="file" id="restoreFile" accept=".json">
+<button class="btn btn-orange" onclick="restoreBackup()">♻️ Restore Now</button>
+<div id="restoreStatus" class="status"></div>
+</div>
+
+<!-- Backup List -->
+<div class="card list-section hidden" id="listSection">
+<h3>📋 Saved Backups (Browser Storage)</h3>
+<button class="btn btn-blue btn-small" onclick="refreshList()">🔄 Refresh</button>
+<div id="backupList" style="max-height:400px;overflow-y:auto;margin-top:10px"></div>
+</div>
+
+<!-- Info -->
+<div class="card">
+<div class="info">
+<b>ℹ️ এই system কেন আলাদা:</b><br>
+এই backup.html file admin.html থেকে সম্পূর্ণ আলাদা। যদি admin.html সম্পূর্ণ ডিলিট বা নষ্ট হয়ে যায়, এই file থেকে:
+<ul style="margin:10px 0 0 20px">
+<li>Firebase data backup নিতে পারবেন</li>
+<li>Firebase data restore করতে পারবেন</li>
+<li>admin.html এর code আলাদা করে GitHub থেকে restore করতে পারবেন</li>
+</ul>
+</div>
+<div class="warning">
+<b>⚠️ গুরুত্বপূর্ণ:</b><br>
+<b>এই backup.html file টা সবসময় রাখুন!</b> মোবাইল reset হলেও এটা Google Drive/Email এ backup রাখুন। এটাই আপনার disaster recovery key।
+</div>
+</div>
+
+</div>
+
+<script>
+var API_KEY = "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw";
+var DB_URL = "https://mohajon-mjh-default-rtdb.firebaseio.com";
+var STORAGE_KEY = "mjh_backups_v5";
+var ADMIN_TOKEN = null;
+var ADMIN_EMAIL = null;
+
+// Page load এ localStorage থেকে login check
+window.addEventListener("DOMContentLoaded", function() {
+  var savedToken = sessionStorage.getItem("mjh_admin_token");
+  var savedEmail = sessionStorage.getItem("mjh_admin_email");
+  if (savedToken && savedEmail) {
+    ADMIN_TOKEN = savedToken;
+    ADMIN_EMAIL = savedEmail;
+    showLoggedIn();
+  }
+});
+
+function showStatus(id, msg, type) {
+  var el = document.getElementById(id);
+  el.className = "status";
+  el.innerHTML = msg;
+  if (type === "success") el.style.background = "#d1fae5", el.style.color = "#065f46";
+  else if (type === "error") el.style.background = "#fee2e2", el.style.color = "#991b1b";
+  else if (type === "info") el.style.background = "#dbeafe", el.style.color = "#1e40af";
+  else if (type === "warn") el.style.background = "#fef3c7", el.style.color = "#92400e";
+}
+
+async function login() {
+  var email = document.getElementById("adminEmail").value.trim();
+  var pw = document.getElementById("adminPassword").value;
+  if (!email || !pw) { showStatus("loginStatus", "❌ Email ও password দিন", "error"); return; }
+  
+  showStatus("loginStatus", "⏳ Login হচ্ছে...", "info");
+  try {
+    var r = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + API_KEY, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({email: email, password: pw, returnSecureToken: true})
+    });
+    if (!r.ok) throw new Error("Login failed: HTTP " + r.status);
+    var j = await r.json();
+    ADMIN_TOKEN = j.idToken;
+    ADMIN_EMAIL = email;
+    sessionStorage.setItem("mjh_admin_token", ADMIN_TOKEN);
+    sessionStorage.setItem("mjh_admin_email", ADMIN_EMAIL);
+    showLoggedIn();
+  } catch (e) {
+    showStatus("loginStatus", "❌ " + e.message, "error");
+  }
+}
+
+function showLoggedIn() {
+  document.getElementById("loginSection").classList.add("hidden");
+  document.getElementById("backupSection").classList.remove("hidden");
+  document.getElementById("restoreSection").classList.remove("hidden");
+  document.getElementById("listSection").classList.remove("hidden");
+  
+  var info = document.createElement("div");
+  info.className = "logged-in";
+  info.innerHTML = "✅ Logged in: <b>" + ADMIN_EMAIL + "</b> <button onclick='logout()' style='background:#ef4444;color:#fff;padding:4px 10px;border:none;border-radius:4px;cursor:pointer;margin-left:10px'>Logout</button>";
+  document.querySelector(".container").insertBefore(info, document.getElementById("backupSection"));
+  
+  refreshList();
+}
+
+function logout() {
+  ADMIN_TOKEN = null;
+  ADMIN_EMAIL = null;
+  sessionStorage.removeItem("mjh_admin_token");
+  sessionStorage.removeItem("mjh_admin_email");
+  location.reload();
+}
+
+function getBackups() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch(e) { return []; }
+}
+function saveBackups(b) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(b)); } 
+  catch(e) { alert("Storage full! পুরোনো backup delete করুন।"); }
+}
+
+async function takeBackup() {
+  showStatus("backupStatus", "⏳ Firebase data dump হচ্ছে...", "info");
+  try {
+    // First get all top-level keys
+    var shallow = await fetch(DB_URL + "/.json?shallow=true&auth=" + ADMIN_TOKEN);
+    if (!shallow.ok) throw new Error("Cannot read database structure: HTTP " + shallow.status);
+    var keys = Object.keys(await shallow.json());
+    
+    var data = {};
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      showStatus("backupStatus", "⏳ Dumping: " + k + " (" + (i+1) + "/" + keys.length + ")", "info");
+      try {
+        var r = await fetch(DB_URL + "/" + k + ".json?auth=" + ADMIN_TOKEN);
+        if (r.ok) data[k] = await r.json();
+      } catch(e) { console.warn("Skip " + k, e); }
+    }
+    
+    var ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    var name = "mohajon-mjh-backup-" + ts;
+    var backups = getBackups();
+    backups.unshift({
+      id: name,
+      timestamp: new Date().toLocaleString("bn-BD"),
+      size: Math.round(JSON.stringify(data).length / 1024),
+      data: data
+    });
+    if (backups.length > 5) backups.length = 5;
+    saveBackups(backups);
+    
+    showStatus("backupStatus", "✅ Backup সম্পূর্ণ! <b>" + name + "</b><br>Download হচ্ছে...", "success");
+    
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = name + ".json";
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    refreshList();
+  } catch (e) {
+    showStatus("backupStatus", "❌ " + e.message, "error");
+  }
+}
+
+async function restoreBackup() {
+  var fi = document.getElementById("restoreFile");
+  if (!fi || !fi.files || !fi.files[0]) {
+    showStatus("restoreStatus", "⚠️ আগে backup file select করুন", "warn");
+    return;
+  }
+  if (!confirm("⚠️ পুরোনো backup restore হবে — বর্তমান সব Firebase data হারাবে!\n\nContinue?")) return;
+  
+  showStatus("restoreStatus", "⏳ Restore হচ্ছে...", "info");
+  try {
+    var text = await fi.files[0].text();
+    var data = JSON.parse(text);
+    
+    var keys = Object.keys(data);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      showStatus("restoreStatus", "⏳ Restoring: " + k + " (" + (i+1) + "/" + keys.length + ")", "info");
+      var r = await fetch(DB_URL + "/" + k + ".json?auth=" + ADMIN_TOKEN, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data[k])
+      });
+      if (!r.ok) throw new Error("Failed for " + k + ": HTTP " + r.status);
+    }
+    
+    showStatus("restoreStatus", "✅ Restore সম্পূর্ণ! Page reload হচ্ছে...", "success");
+    setTimeout(function() { location.reload(); }, 2000);
+  } catch (e) {
+    showStatus("restoreStatus", "❌ " + e.message, "error");
+  }
+}
+
+async function restoreFromStorage(index) {
+  if (!confirm("⚠️ Browser storage থেকে restore? বর্তমান data হারাবে!")) return;
+  var b = getBackups()[index];
+  if (!b) return;
+  
+  showStatus("restoreStatus", "⏳ Restore হচ্ছে...", "info");
+  try {
+    var keys = Object.keys(b.data);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      showStatus("restoreStatus", "⏳ Restoring: " + k + " (" + (i+1) + "/" + keys.length + ")", "info");
+      var r = await fetch(DB_URL + "/" + k + ".json?auth=" + ADMIN_TOKEN, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(b.data[k])
+      });
+      if (!r.ok) throw new Error("Failed for " + k);
+    }
+    showStatus("restoreStatus", "✅ Restore সম্পূর্ণ!", "success");
+    setTimeout(function() { location.reload(); }, 2000);
+  } catch (e) {
+    showStatus("restoreStatus", "❌ " + e.message, "error");
+  }
+}
+
+function downloadFromStorage(index) {
+  var b = getBackups()[index];
+  if (!b) return;
+  var blob = new Blob([JSON.stringify(b.data, null, 2)], {type: "application/json"});
+  var url = URL.createObjectURL(blob);
+  var link = document.createElement("a");
+  link.href = url;
+  link.download = b.id + ".json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function deleteFromStorage(index) {
+  if (!confirm("এই backup delete করবেন?")) return;
+  var backups = getBackups();
+  backups.splice(index, 1);
+  saveBackups(backups);
+  refreshList();
+}
+
+function refreshList() {
+  var listDiv = document.getElementById("backupList");
+  if (!listDiv) return;
+  var backups = getBackups();
+  
+  if (!backups.length) {
+    listDiv.innerHTML = "<p style='color:#888;text-align:center;padding:20px'>কোনো backup নেই</p>";
+    return;
+  }
+  
+  var html = "<table><thead><tr><th>Backup</th><th>Size</th><th>Actions</th></tr></thead><tbody>";
+  backups.forEach(function(b, i) {
+    html += "<tr><td><b>" + b.id + "</b><br><small>" + b.timestamp + "</small></td>";
+    html += "<td>" + b.size + " KB</td>";
+    html += "<td>";
+    html += "<button class='btn btn-blue btn-small' onclick='downloadFromStorage(" + i + ")'>💾</button>";
+    html += "<button class='btn btn-orange btn-small' onclick='restoreFromStorage(" + i + ")'>♻️</button>";
+    html += "<button class='btn btn-red btn-small' onclick='deleteFromStorage(" + i + ")'>🗑</button>";
+    html += "</td></tr>";
+  });
+  html += "</tbody></table>";
+  listDiv.innerHTML = html;
+}
+</script>
+
+</body>
+</html>
