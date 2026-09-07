@@ -3765,3 +3765,96 @@ document.addEventListener('DOMContentLoaded', () => {
   if (tab) refreshBackupList();
 });
 </script>
+
+<script>
+/* MJH Backup Auth v2 - Gmail password দিয়ে backup/restore */
+var MJH_API="AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw";
+var MJH_DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+async function mjhLogin(){
+  var email=prompt("📧 Firebase Gmail দিন:");
+  if(!email)throw new Error("Email দেওয়া হয়নি");
+  var pw=prompt("🔑 Password দিন:");
+  if(!pw)throw new Error("Password দেওয়া হয়নি");
+  var r=await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key="+MJH_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email,password:pw,returnSecureToken:true})});
+  if(!r.ok)throw new Error("Login failed: HTTP "+r.status);
+  var j=await r.json();
+  return j.idToken;
+}
+async function mjhDump(token){
+  try{
+    var r=await fetch(MJH_DB+"/.json?auth="+token);
+    if(r.ok)return await r.text();
+  }catch(e){}
+  var r2=await fetch(MJH_DB+"/.json?shallow=true&auth="+token);
+  if(!r2.ok)throw new Error("Read banned: HTTP "+r2.status);
+  var keys=Object.keys(await r2.json());
+  var out={};
+  for(var i=0;i<keys.length;i++){
+    try{
+      var rc=await fetch(MJH_DB+"/"+keys[i]+".json?auth="+token);
+      if(rc.ok)out[keys[i]]=await rc.json();
+    }catch(e){}
+  }
+  return JSON.stringify(out);
+}
+async function takeBackup(){
+  var st=document.getElementById("backup-status");
+  st.innerHTML="🔐 Gmail login চাই...";st.style.background="#dbeafe";st.style.color="#1e40af";
+  try{
+    var token=await mjhLogin();
+    st.innerHTML="⏳ Database dump হচ্ছে (বড় হলে সময় লাগবে)...";
+    var dbData=await mjhDump(token);
+    var ts=new Date().toISOString().replace(/[:.]/g,"-").slice(0,19);
+    var name="mohajon-mjh-backup-"+ts;
+    var backups=getBackups();
+    backups.unshift({id:name,timestamp:new Date().toLocaleString("bn-BD"),size:Math.round(dbData.length/1024),dbData:dbData,created:Date.now()});
+    if(backups.length>10)backups.length=10;
+    saveBackups(backups);
+    st.innerHTML="✅ Backup সম্পূর্ণ! <b>"+name+"</b><br>Download হচ্ছে...";
+    st.style.background="#d1fae5";st.style.color="#065f46";
+    var blob=new Blob([dbData],{type:"application/json"});
+    var url=URL.createObjectURL(blob);
+    var link=document.createElement("a");
+    link.href=url;link.download=name+".json";link.click();
+    URL.revokeObjectURL(url);
+    refreshBackupList();
+  }catch(e){
+    st.innerHTML="❌ "+e.message;st.style.background="#fee2e2";st.style.color="#991b1b";
+  }
+}
+async function restoreBackup(){
+  var fi=document.getElementById("restoreFile");
+  var st=document.getElementById("restore-status");
+  if(!fi||!fi.files||!fi.files[0]){st.innerHTML="⚠️ আগে file select করুন";st.style.background="#fef3c7";st.style.color="#92400e";return;}
+  if(!confirm("⚠️ পুরোনো backup restore হবে — বর্তমান data হারাবে! Continue?"))return;
+  st.innerHTML="🔐 Gmail login চাই...";st.style.background="#dbeafe";st.style.color="#1e40af";
+  try{
+    var token=await mjhLogin();
+    var text=await fi.files[0].text();
+    JSON.parse(text);
+    st.innerHTML="⏳ Restore হচ্ছে...";
+    var r=await fetch(MJH_DB+"/.json?auth="+token,{method:"PUT",headers:{"Content-Type":"application/json"},body:text});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    st.innerHTML="✅ Restore সম্পূর্ণ! Reload হচ্ছে...";st.style.background="#d1fae5";st.style.color="#065f46";
+    setTimeout(function(){location.reload();},2000);
+  }catch(e){
+    st.innerHTML="❌ "+e.message;st.style.background="#fee2e2";st.style.color="#991b1b";
+  }
+}
+async function restoreFromStorage(index){
+  if(!confirm("⚠️ Browser storage থেকে restore — বর্তমান data হারাবে!"))return;
+  var b=getBackups()[index];if(!b)return;
+  var st=document.getElementById("restore-status");
+  st.innerHTML="🔐 Gmail login চাই...";st.style.background="#dbeafe";st.style.color="#1e40af";
+  try{
+    var token=await mjhLogin();
+    st.innerHTML="⏳ Restore হচ্ছে...";
+    var r=await fetch(MJH_DB+"/.json?auth="+token,{method:"PUT",headers:{"Content-Type":"application/json"},body:b.dbData});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    st.innerHTML="✅ Restore সম্পূর্ণ!";st.style.background="#d1fae5";st.style.color="#065f46";
+    setTimeout(function(){location.reload();},2000);
+  }catch(e){
+    st.innerHTML="❌ "+e.message;st.style.background="#fee2e2";st.style.color="#991b1b";
+  }
+}
+</script>
