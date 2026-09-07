@@ -828,5 +828,37 @@ async function bulkEnableBogo(){
   }, 1500);
 })();
 </script>
+
+<script>
+/* BOGO bulk v3 debug - exact error দেখাবে */
+async function bulkEnableBogo(){
+  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
+  if (!confirm('⚠️ ' + count + ' টা low-price product এ BOGO enable হবে। Continue?')) return;
+  var st = document.getElementById('bogoBulkStatus');
+  st.textContent = '⏳ Products লোড হচ্ছে...';
+  try {
+    var all = await loadAllProducts();
+    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
+      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0}; });
+    arr.sort(function(x,y){ return x.price - y.price; });
+    var low = arr.slice(0, count);
+    var ok = 0, fail = 0, lastErr = '';
+    for (var i = 0; i < low.length; i++) {
+      var url = 'https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(low[i].id) + '/bogo.json?auth=' + BOGO_TOKEN;
+      var r = await fetch(url, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({enabled:true, type:'same', maxFreeQuantity:1})});
+      if (r.ok) { ok++; }
+      else {
+        fail++;
+        if (!lastErr) lastErr = 'HTTP ' + r.status + ' → ' + (await r.text()).slice(0,150);
+      }
+      st.textContent = '⏳ (' + (i+1) + '/' + count + ') ok:' + ok + ' fail:' + fail;
+      if (fail >= 1 && ok === 0) { alert('❌ প্রথম write ই fail:\n' + lastErr); return; }
+    }
+    BOGO_ALL = null;
+    st.textContent = ok > 0 ? ('✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!') : ('❌ সব fail: ' + lastErr);
+    await loadBogoOffers();
+  } catch(e){ st.textContent = '❌ ' + e.message; }
+}
+</script>
 </body>
 </html>
