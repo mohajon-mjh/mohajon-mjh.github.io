@@ -282,7 +282,7 @@ onAuthStateChanged(auth,async u=>{
     <button class="tab-btn" data-tab="sellerprods">📦 Seller Products</button>
     <button class="tab-btn" data-tab="affiliates">🤝 Affiliates</button>
     <button class="tab-btn" data-tab="withdrawals">💸 Withdrawals</button>
-    <button class="tab-btn" data-tab="backup" onclick="showTab('backup')" style="background:#3b82f6;color:#fff;font-weight:700;margin-bottom:8px">📦 Backup & Restore</button>
+    <button class="tab-btn" data-tab="backup" style="background:#3b82f6;color:#fff;font-weight:700;margin-bottom:8px">📦 Backup & Restore</button>
     <button id="admin-logout-btn" style="background:#c0392b;color:#fff;width:100%;text-align:left;padding:12px 15px;border:none;margin-top:20px;border-radius:0;cursor:pointer;font-weight:bold">🚪 Logout</button>
   </nav>
 
@@ -3611,3 +3611,157 @@ setTimeout(async()=>{try{
 })();
 </script>
 <script src="hp-enhance.js"></script>
+
+
+<script>
+// Backup & Restore System
+const BACKUP_KEY = 'mjh_backups_v1';
+
+function getBackups() {
+  try { return JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function saveBackups(b) {
+  try { localStorage.setItem(BACKUP_KEY, JSON.stringify(b)); } 
+  catch(e) { alert('Storage full! পুরোনো backup delete করুন।'); }
+}
+
+async function takeBackup() {
+  const status = document.getElementById('backup-status');
+  if (!status) return alert('Status element পাওয়া যায়নি');
+  status.innerHTML = '⏳ Firebase database dump হচ্ছে...';
+  status.style.background = '#dbeafe';
+  status.style.color = '#1e40af';
+  try {
+    const r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/.json');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const dbData = await r.text();
+    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0,19);
+    const name = 'mohajon-mjh-backup-' + ts;
+    const backup = { id: name, timestamp: new Date().toLocaleString('bn-BD'), size: Math.round(dbData.length/1024), dbData: dbData, created: Date.now() };
+    const backups = getBackups();
+    backups.unshift(backup);
+    if (backups.length > 10) backups.length = 10;
+    saveBackups(backups);
+    status.innerHTML = '✅ Backup সম্পূর্ণ! <b>' + name + '</b><br>Download হচ্ছে...';
+    status.style.background = '#d1fae5';
+    status.style.color = '#065f46';
+    const blob = new Blob([dbData], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = name + '.json';
+    link.click();
+    URL.revokeObjectURL(url);
+    refreshBackupList();
+  } catch (e) {
+    status.innerHTML = '❌ Backup failed: ' + e.message;
+    status.style.background = '#fee2e2';
+    status.style.color = '#991b1b';
+  }
+}
+
+async function restoreBackup() {
+  const fileInput = document.getElementById('restoreFile');
+  const status = document.getElementById('restore-status');
+  if (!status) return alert('Status element পাওয়া যায়নি');
+  if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+    status.innerHTML = '⚠️ আগে backup file select করুন';
+    status.style.background = '#fef3c7';
+    status.style.color = '#92400e';
+    return;
+  }
+  if (!confirm('⚠️ পুরোনো backup restore হবে। বর্তমান সব data হারাবে! Continue?')) return;
+  status.innerHTML = '⏳ Restore হচ্ছে...';
+  status.style.background = '#dbeafe';
+  status.style.color = '#1e40af';
+  try {
+    const text = await fileInput.files[0].text();
+    const data = JSON.parse(text);
+    const r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/.json', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    status.innerHTML = '✅ Restore সম্পূর্ণ! Page reload হচ্ছে...';
+    status.style.background = '#d1fae5';
+    status.style.color = '#065f46';
+    setTimeout(() => location.reload(), 2000);
+  } catch (e) {
+    status.innerHTML = '❌ Restore failed: ' + e.message;
+    status.style.background = '#fee2e2';
+    status.style.color = '#991b1b';
+  }
+}
+
+function restoreFromStorage(index) {
+  if (!confirm('⚠️ Browser storage থেকে restore? বর্তমান data হারাবে!')) return;
+  const backups = getBackups();
+  const b = backups[index];
+  if (!b) return;
+  const status = document.getElementById('restore-status');
+  if (!status) return alert('Status element পাওয়া যায়নি');
+  status.innerHTML = '⏳ Restore হচ্ছে...';
+  fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/.json', {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: b.dbData
+  }).then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    status.innerHTML = '✅ Restore সম্পূর্ণ!';
+    status.style.background = '#d1fae5';
+    status.style.color = '#065f46';
+    setTimeout(() => location.reload(), 2000);
+  }).catch(e => {
+    status.innerHTML = '❌ Failed: ' + e.message;
+    status.style.background = '#fee2e2';
+    status.style.color = '#991b1b';
+  });
+}
+
+function downloadFromStorage(index) {
+  const b = getBackups()[index];
+  if (!b) return;
+  const blob = new Blob([b.dbData], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = b.id + '.json';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function deleteFromStorage(index) {
+  if (!confirm('এই backup delete করবেন?')) return;
+  const backups = getBackups();
+  backups.splice(index, 1);
+  saveBackups(backups);
+  refreshBackupList();
+}
+
+function refreshBackupList() {
+  const listDiv = document.getElementById('backup-list');
+  if (!listDiv) return;
+  const backups = getBackups();
+  if (!backups.length) {
+    listDiv.innerHTML = '<p style="color:#888;text-align:center;padding:20px">কোনো backup নেই</p>';
+    return;
+  }
+  let html = '<table style="width:100%;border-collapse:collapse;font-size:14px"><thead><tr style="background:#e5e7eb"><th style="padding:8px;text-align:left">Backup</th><th style="padding:8px;text-align:left">Size</th><th style="padding:8px;text-align:center">Actions</th></tr></thead><tbody>';
+  backups.forEach((b, i) => {
+    html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px"><b>' + b.id + '</b><br><small style="color:#666">' + b.timestamp + '</small></td><td style="padding:8px">' + b.size + ' KB</td><td style="padding:8px;text-align:center">';
+    html += '<button onclick="downloadFromStorage(' + i + ')" style="background:#3b82f6;color:#fff;padding:5px 10px;border:none;border-radius:4px;cursor:pointer;margin:2px;font-size:12px">💾 Download</button>';
+    html += '<button onclick="restoreFromStorage(' + i + ')" style="background:#f59e0b;color:#fff;padding:5px 10px;border:none;border-radius:4px;cursor:pointer;margin:2px;font-size:12px">♻️ Restore</button>';
+    html += '<button onclick="deleteFromStorage(' + i + ')" style="background:#ef4444;color:#fff;padding:5px 10px;border:none;border-radius:4px;cursor:pointer;margin:2px;font-size:12px">🗑 Delete</button>';
+    html += '</td></tr>';
+  });
+  html += '</tbody></table>';
+  listDiv.innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const tab = document.getElementById('tab-backup');
+  if (tab) refreshBackupList();
+});
+</script>
