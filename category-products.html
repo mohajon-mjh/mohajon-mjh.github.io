@@ -1132,5 +1132,22 @@ async function deleteBogoOffer(id){
   } catch(e){ alert('❌ ' + e.message); }
 }
 </script>
+
+<script>
+/* BOGO v8 list fix - ALL variable ছাড়া, offer metadata থেকে list */
+async function loadBogoOffers(){
+  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
+  try {
+    var snap = await db.ref(SEC + "/" + CAT).once("value");
+    var map = snap.val() || {};
+    var offersSnap = await db.ref("settings/bogoOffers").once("value");
+    var offers = offersSnap.val() || {};
+    BOGO_PRODUCTS = Object.keys(map).filter(function(k){ return offers[k] && offers[k].enabled; })
+      .map(function(k){ return {id:k, title: offers[k].title || k, bogo: offers[k], price: offers[k].price || 0}; });
+    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
+    renderBogoList();
+  } catch(e){ document.getElementById('bogoList').innerHTML = '❌ ' + e.message; }
+}
+</script>
 </body>
 </html>
