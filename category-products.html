@@ -39,6 +39,41 @@ h3{color:#f39c12}
 <input id="d1" type="date"><input id="d2" type="date">
 <button class="btn" style="background:#2980b9" id="applyDates">📆 তারিখ বসান</button>
 </div>
+<div id="bogoManager" style="background:#16202b;border-radius:12px;padding:15px;margin:15px 0;display:none">
+<h3 style="color:#f39c12;margin:0 0 10px">🎁 BOGO Manager — Buy 1 Get 1 Free</h3>
+<p style="color:#9ca3af;margin:0 0 10px">Mega Offers > Buy 1 Get 1 ক্যাটাগরির products এ BOGO enable করুন</p>
+
+<div style="background:#1d2733;padding:12px;border-radius:8px;margin:10px 0">
+<h4 style="margin:0 0 8px;color:#f39c12">➕ নতুন BOGO Offer</h4>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+<select id="bogoBuyProduct" style="flex:1;min-width:200px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333">
+<option value="">⏳ Products লোড হচ্ছে...</option>
+</select>
+<select id="bogoType" style="width:180px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333">
+<option value="same">🔄 Same Product (Buy 1 Get 1 Same)</option>
+<option value="specific">🎁 Specific Free Product</option>
+</select>
+<input id="bogoFreeProduct" placeholder="Free Product ID" style="width:180px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333;display:none">
+<input id="bogoMaxQty" type="number" value="1" min="1" max="10" style="width:80px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333" placeholder="Max Qty">
+<button class="btn" style="background:#27ae60" onclick="addBogoOffer()">💾 Save</button>
+</div>
+</div>
+
+<div style="background:#1d2733;padding:12px;border-radius:8px;margin:10px 0">
+<h4 style="margin:0 0 8px;color:#f39c12">⚡ Bulk Enable (Low Price Products)</h4>
+<p style="color:#9ca3af;margin:0 0 8px">সবচেয়ে কম দামের products একসাথে BOGO enable করুন (Amazon/Daraz style)</p>
+<input id="bogoBulkCount" type="number" value="50" min="10" max="200" style="width:100px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333" placeholder="Count">
+<button class="btn" style="background:#2980b9" onclick="bulkEnableBogo()">🎁 Enable</button>
+<div id="bogoBulkStatus" style="margin-top:8px;color:#f39c12;font-size:13px"></div>
+</div>
+
+<div style="background:#1d2733;padding:12px;border-radius:8px;margin:10px 0">
+<h4 style="margin:0 0 8px;color:#f39c12">📋 Active BOGO Offers (<span id="bogoCount">0</span>)</h4>
+<input id="bogoSearch" placeholder="🔍 Search products..." style="width:100%;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333;margin-bottom:8px">
+<div id="bogoList" style="max-height:400px;overflow-y:auto"></div>
+</div>
+</div>
+
 <div id="list"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -478,5 +513,197 @@ document.body.appendChild(b);
 if(document.readyState==="complete")addBtn();else window.addEventListener("load",addBtn);
 })();
 </script>
+
+<script>
+/* BOGO Manager v1 - category-products.html */
+var BOGO_PRODUCTS = [];
+var BOGO_TOKEN = null;
+
+// Login button click এ BOGO init
+document.getElementById('loginBtn').addEventListener('click', async function() {
+  var em = document.getElementById('em').value;
+  var pw = document.getElementById('pw').value;
+  if (!em || !pw) { alert('⚠️ Email ও password দিন'); return; }
+  
+  try {
+    var r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email: em, password: pw, returnSecureToken: true})
+    });
+    if (!r.ok) throw new Error('Login failed: HTTP ' + r.status);
+    var j = await r.json();
+    BOGO_TOKEN = j.idToken;
+    document.getElementById('bogoManager').style.display = 'block';
+    await loadBogoOffers();
+    await loadBogoProductDropdown();
+  } catch(e) {
+    alert('❌ ' + e.message);
+  }
+});
+
+async function loadBogoOffers() {
+  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
+  try {
+    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products.json?shallow=true&auth=' + BOGO_TOKEN);
+    var keys = Object.keys(await r.json());
+    BOGO_PRODUCTS = [];
+    for (var i = 0; i < keys.length; i++) {
+      var pid = keys[i];
+      var r2 = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + pid + '.json?auth=' + BOGO_TOKEN);
+      var p = await r2.json();
+      if (p && p.bogo && p.bogo.enabled) {
+        BOGO_PRODUCTS.push({id: pid, title: p.title || pid, bogo: p.bogo, price: p.price || 0});
+      }
+    }
+    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
+    renderBogoList();
+  } catch(e) {
+    document.getElementById('bogoList').innerHTML = '❌ ' + e.message;
+  }
+}
+
+function renderBogoList() {
+  var search = document.getElementById('bogoSearch').value.toLowerCase();
+  var filtered = BOGO_PRODUCTS.filter(p => p.id.toLowerCase().includes(search) || p.title.toLowerCase().includes(search));
+  if (filtered.length === 0) {
+    document.getElementById('bogoList').innerHTML = '<p style="color:#9ca3af;text-align:center;padding:20px">কোনো BOGO offer নেই</p>';
+    return;
+  }
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#2b3a4a"><th style="padding:6px;text-align:left">Product</th><th style="padding:6px">Type</th><th style="padding:6px">Free</th><th style="padding:6px">Max</th><th style="padding:6px">Actions</th></tr></thead><tbody>';
+  filtered.forEach(function(p) {
+    var type = p.bogo.type === 'same' ? '🔄 Same' : '🎁 Specific';
+    var free = p.bogo.type === 'same' ? '—' : (p.bogo.freeProductId || '—');
+    var max = p.bogo.maxFreeQuantity || 1;
+    html += '<tr style="border-bottom:1px solid #2b3a4a"><td style="padding:6px"><b>' + p.title + '</b><br><small style="color:#9ca3af">' + p.id + '</small></td>';
+    html += '<td style="padding:6px;text-align:center">' + type + '</td>';
+    html += '<td style="padding:6px;text-align:center"><small>' + free + '</small></td>';
+    html += '<td style="padding:6px;text-align:center">' + max + '</td>';
+    html += '<td style="padding:6px;text-align:center"><button class="btn" style="background:#f39c12;padding:4px 8px;font-size:11px" onclick="editBogoOffer(\'' + p.id + '\')">✏️</button> ';
+    html += '<button class="btn" style="background:#c0392b;padding:4px 8px;font-size:11px" onclick="deleteBogoOffer(\'' + p.id + '\')">🗑</button></td></tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('bogoList').innerHTML = html;
+}
+
+async function addBogoOffer() {
+  var buyId = document.getElementById('bogoBuyProduct').value;
+  var type = document.getElementById('bogoType').value;
+  var freeId = document.getElementById('bogoFreeProduct').value;
+  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
+  
+  if (!buyId) { alert('⚠️ Buy Product বাছুন'); return; }
+  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
+  
+  var bogo = {enabled: true, type: type, maxFreeQuantity: maxQty};
+  if (type === 'specific') bogo.freeProductId = freeId;
+  
+  try {
+    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + buyId + '/bogo.json?auth=' + BOGO_TOKEN, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(bogo)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    alert('✅ BOGO offer save হয়েছে!');
+    await loadBogoOffers();
+  } catch(e) {
+    alert('❌ ' + e.message);
+  }
+}
+
+async function deleteBogoOffer(id) {
+  if (!confirm('এই BOGO offer delete করবেন?')) return;
+  try {
+    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + id + '/bogo.json?auth=' + BOGO_TOKEN, {
+      method: 'DELETE'
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    alert('✅ Delete হয়েছে!');
+    await loadBogoOffers();
+  } catch(e) {
+    alert('❌ ' + e.message);
+  }
+}
+
+function editBogoOffer(id) {
+  var p = BOGO_PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('bogoBuyProduct').value = id;
+  document.getElementById('bogoType').value = p.bogo.type;
+  document.getElementById('bogoMaxQty').value = p.bogo.maxFreeQuantity || 1;
+  if (p.bogo.type === 'specific') {
+    document.getElementById('bogoFreeProduct').value = p.bogo.freeProductId || '';
+    document.getElementById('bogoFreeProduct').style.display = 'inline-block';
+  }
+  alert('✏️ উপরে form এ edit করুন, তারপর Save button ক্লিক করুন');
+}
+
+async function bulkEnableBogo() {
+  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
+  if (!confirm('⚠️ ' + count + ' টা low-price products এ BOGO enable হবে। Continue?')) return;
+  
+  var status = document.getElementById('bogoBulkStatus');
+  status.textContent = '⏳ Products লোড হচ্ছে...';
+  
+  try {
+    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products.json?shallow=true&auth=' + BOGO_TOKEN);
+    var keys = Object.keys(await r.json());
+    var products = [];
+    for (var i = 0; i < keys.length; i++) {
+      var r2 = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + keys[i] + '.json?auth=' + BOGO_TOKEN);
+      var p = await r2.json();
+      if (p && p.price) products.push({id: keys[i], price: parseFloat(p.price) || 0, title: p.title || keys[i]});
+    }
+    products.sort((a, b) => a.price - b.price);
+    var lowPrice = products.slice(0, count);
+    
+    status.textContent = '⏳ BOGO enable হচ্ছে (0/' + count + ')...';
+    var success = 0;
+    for (var j = 0; j < lowPrice.length; j++) {
+      var prod = lowPrice[j];
+      var r3 = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + prod.id + '/bogo.json?auth=' + BOGO_TOKEN, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({enabled: true, type: 'same', maxFreeQuantity: 1})
+      });
+      if (r3.ok) success++;
+      status.textContent = '⏳ BOGO enable হচ্ছে (' + success + '/' + count + ')...';
+    }
+    status.textContent = '✅ ' + success + '/' + count + ' products এ BOGO enable হয়েছে!';
+    await loadBogoOffers();
+  } catch(e) {
+    status.textContent = '❌ ' + e.message;
+  }
+}
+
+async function loadBogoProductDropdown() {
+  var sel = document.getElementById('bogoBuyProduct');
+  sel.innerHTML = '<option value="">⏳ লোড হচ্ছে...</option>';
+  try {
+    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products.json?shallow=true&auth=' + BOGO_TOKEN);
+    var keys = Object.keys(await r.json());
+    var options = ['<option value="">-- Buy Product বাছুন --</option>'];
+    for (var i = 0; i < Math.min(keys.length, 100); i++) {
+      var r2 = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + keys[i] + '.json?auth=' + BOGO_TOKEN);
+      var p = await r2.json();
+      if (p) {
+        var title = (p.title || keys[i]).substring(0, 40);
+        options.push('<option value="' + keys[i] + '">' + title + ' (৳' + (p.price || 0) + ')</option>');
+      }
+    }
+    sel.innerHTML = options.join('');
+  } catch(e) {
+    sel.innerHTML = '<option value="">❌ Load failed</option>';
+  }
+}
+
+document.getElementById('bogoType').addEventListener('change', function() {
+  document.getElementById('bogoFreeProduct').style.display = this.value === 'specific' ? 'inline-block' : 'none';
+});
+
+document.getElementById('bogoSearch').addEventListener('input', renderBogoList);
+</script>
+
 </body>
 </html>
