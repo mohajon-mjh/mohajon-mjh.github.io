@@ -1159,6 +1159,46 @@ fsInitCategories();
 
 </div>
 
+<section id="bogo-home-section" style="padding:20px 15px;background:#fff;margin:20px 0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+<h2 style="color:#e67e22;margin:0 0 15px">🎁 Buy 1 Get 1 Free</h2>
+<div id="bogo-home-cards" style="display:flex;gap:12px;overflow-x:auto;padding:10px 0"></div>
+</section>
+<script>
+(async function(){
+  try {
+    const DB = "https://mohajon-mjh-default-rtdb.firebaseio.com";
+    const r1 = await fetch(DB + "/settings/customSections/mega/catProducts/b1g1.json");
+    const map = await r1.json();
+    if (!map) return;
+    const r2 = await fetch(DB + "/settings/bogoOffers.json");
+    const offers = (await r2.json()) || {};
+    const ids = Object.keys(map).filter(id => offers[id] && offers[id].enabled).slice(0, 20);
+    if (ids.length === 0) return;
+    const container = document.getElementById('bogo-home-cards');
+    for (const id of ids) {
+      const pr = await fetch(DB + "/products/" + id + ".json");
+      const p = await pr.json();
+      if (!p) continue;
+      const off = offers[id];
+      const img = (p.images && (p.images.main || p.images.i0)) || '';
+      const title = (p.title || id).substring(0, 30);
+      const card = document.createElement('div');
+      card.style.cssText = 'flex:0 0 160px;background:#f9f9f9;border-radius:12px;padding:10px;text-align:center;cursor:pointer';
+      card.innerHTML = `
+        <div style="position:relative">
+          <img src="${img}" style="width:100%;height:120px;object-fit:cover;border-radius:8px" onerror="this.src='assets/images/placeholder.png'">
+          <div style="position:absolute;top:5px;right:5px;background:#e67e22;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px">🎁 FREE</div>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin:8px 0 4px">${title}</div>
+        <div style="font-size:12px;color:#e67e22;font-weight:700">৳${p.price || 0}</div>
+        <div style="font-size:11px;color:#666;margin-top:4px">Buy 1 Get 1 Same Free</div>
+      `;
+      card.onclick = () => location.href = 'product-details.html?id=' + id;
+      container.appendChild(card);
+    }
+  } catch(e) { console.warn('BOGO home section:', e); }
+})();
+</script>
 <div class="section" id="globalCatSection">
 <h2>🌍 Global Categories</h2>
 <br>
@@ -2955,46 +2995,7 @@ fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiConfig.json')
 <script src="fb-token.js" defer></script>
 <script src="picker.js?v=2" defer></script>
 
-<section id="bogo-home-section" style="padding:20px 15px;background:#fff;margin:20px 0;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
-<h2 style="color:#e67e22;margin:0 0 15px">🎁 Buy 1 Get 1 Free</h2>
-<div id="bogo-home-cards" style="display:flex;gap:12px;overflow-x:auto;padding:10px 0"></div>
-</section>
-<script>
-(async function(){
-  try {
-    const DB = "https://mohajon-mjh-default-rtdb.firebaseio.com";
-    const r1 = await fetch(DB + "/settings/customSections/mega/catProducts/b1g1.json");
-    const map = await r1.json();
-    if (!map) return;
-    const r2 = await fetch(DB + "/settings/bogoOffers.json");
-    const offers = (await r2.json()) || {};
-    const ids = Object.keys(map).filter(id => offers[id] && offers[id].enabled).slice(0, 20);
-    if (ids.length === 0) return;
-    const container = document.getElementById('bogo-home-cards');
-    for (const id of ids) {
-      const pr = await fetch(DB + "/products/" + id + ".json");
-      const p = await pr.json();
-      if (!p) continue;
-      const off = offers[id];
-      const img = (p.images && (p.images.main || p.images.i0)) || '';
-      const title = (p.title || id).substring(0, 30);
-      const card = document.createElement('div');
-      card.style.cssText = 'flex:0 0 160px;background:#f9f9f9;border-radius:12px;padding:10px;text-align:center;cursor:pointer';
-      card.innerHTML = `
-        <div style="position:relative">
-          <img src="${img}" style="width:100%;height:120px;object-fit:cover;border-radius:8px" onerror="this.src='assets/images/placeholder.png'">
-          <div style="position:absolute;top:5px;right:5px;background:#e67e22;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px">🎁 FREE</div>
-        </div>
-        <div style="font-size:13px;font-weight:600;margin:8px 0 4px">${title}</div>
-        <div style="font-size:12px;color:#e67e22;font-weight:700">৳${p.price || 0}</div>
-        <div style="font-size:11px;color:#666;margin-top:4px">Buy 1 Get 1 Same Free</div>
-      `;
-      card.onclick = () => location.href = 'product-details.html?id=' + id;
-      container.appendChild(card);
-    }
-  } catch(e) { console.warn('BOGO home section:', e); }
-})();
-</script>
+
 
 </body>
 </html>
