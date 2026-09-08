@@ -15,7 +15,7 @@ header a{color:#fff;text-decoration:none;font-size:14px}
 @media(max-width:1024px){.main{grid-template-columns:1fr}}
 .gal{display:flex;gap:10px}
 .main-img{width:360px;max-width:100%;border-radius:8px;background:#f7f7f7;display:flex;align-items:center;justify-content:center;min-height:300px}
-.main-img img{max-width:100%;max-height:420px;border-radius:6px}
+.main-img{overflow:hidden}.main-img img{max-width:100%;max-height:420px;border-radius:6px;transition:transform .3s,filter .3s;transform-origin:center}
 .thumbs{display:flex;flex-direction:column;gap:6px}
 .thumbs img{width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #ddd}
 .thumbs img.on,.thumbs img:hover{border-color:#e77600}
@@ -147,7 +147,9 @@ function render(P){
  var descLines=(P.description||"").split(/\n|\|/).map(function(s){return s.trim();}).filter(Boolean);
  var highlights=descLines.slice(0,6);
  var restDesc=descLines.slice(6).join("<br>");
- var thumbsHtml=imgs.map(function(u,i){return '<img src="'+u+'" class="'+(i===0?"on":"")+'" onclick="setImg(this,\''+u+'\')">';}).join("");
+ var VARS=[{f:"none",z:1},{f:"sepia(0.35) saturate(1.2)",z:1},{f:"hue-rotate(25deg) saturate(1.4)",z:1},{f:"brightness(1.12) contrast(1.05)",z:1},{f:"grayscale(1) contrast(1.1)",z:1},{f:"hue-rotate(-25deg) saturate(1.2)",z:1},{f:"none",z:1.35},{f:"none",z:1.7},{f:"saturate(1.6) contrast(1.1)",z:1.2},{f:"brightness(0.95) sepia(0.15)",z:1.5}];
+var gal=[];for(var vi=0;vi<VARS.length;vi++){gal.push({u:imgs[vi%imgs.length],f:VARS[vi].f,z:VARS[vi].z});}
+var thumbsHtml=gal.map(function(g,i){return '<img src="'+g.u+'" class="'+(i===0?"on":"")+'" style="filter:'+(g.f==="none"?"":g.f)+';object-fit:cover" onclick="setVar(this,\''+g.u+'\',\''+g.f+'\','+g.z+')">';}).join("");
  var qtyHtml="";for(var i=1;i<=10;i++)qtyHtml+="<option>"+i+"</option>";
  document.getElementById("content").className="";
  document.getElementById("content").innerHTML='<div class="main">'+
@@ -155,7 +157,7 @@ function render(P){
  '<div><div class="brand">'+autoBrand(P)+'</div><h1>'+(P.title||"Unnamed")+'</h1>'+
  '<div class="rating-bar"><span class="stars">'+stars(rating)+'</span><span class="count">'+rating.toFixed(1)+' ('+reviews.toLocaleString()+' reviews)</span></div>'+
  '<hr class="sep"><div class="price-box">'+(disc>0?'<span class="disc-badge">-'+disc+'%</span>':'')+'<span class="price-big">'+fmt(price,cur)+'</span>'+(hasOld?'<span class="old-price">'+fmt(old,cur)+'</span> <span class="save-txt">Save '+fmt(old-price,cur)+'</span>':'')+'<div class="price-sar">≈ '+fmt(price,"SAR")+' in Saudi Riyal</div></div>'+
- '<div class="highlights"><h3>About this item</h3><ul>'+(highlights.length?highlights:["Mohajon MJH-এর অরিজিনাল প্রোডাক্ট","দ্রুত ডেলিভারি সারাদেশে","৭ দিনের সহজ রিটার্ন","Cash on Delivery available","নিরাপদ পেমেন্ট","সেরা মানের নিশ্চয়তা"]).map(function(l){return "<li>"+l+"</li>";}).join("")+'</ul></div>'+
+ '<div class="highlights"><h3>About this item</h3><ul>'+(highlights.length?highlights:autoHighlights(P)).map(function(l){return "<li>"+l+"</li>";}).join("")+'</ul></div>'+
  (restDesc?'<div class="desc"><h3>Product Description</h3><p>'+restDesc+'</p></div>':'')+
  '</div>'+
  '<div class="buybox"><div class="bb-price">'+fmt(price,cur)+'</div>'+
@@ -270,9 +272,55 @@ function checkWishlist() {
   }
 }
 
+
+function autoHighlights(P){
+  var t=(P.title||"Product"), b=autoBrand(P);
+  return [
+    t+" — প্রিমিয়াম মানের পণ্য, যাচাইকৃত স্টক",
+    "✅ "+b+" ব্র্যান্ড — মানের নিশ্চয়তা সহ",
+    "🚚 দ্রুত ডেলিভারি: ঢাকায় ১-২ দিন, সারাদেশে ৩-৫ দিন",
+    "🔄 ৭ দিনের সহজ রিটার্ন সুবিধা",
+    "💵 Cash on Delivery available সারা বাংলাদেশে",
+    "🔒 নিরাপদ পেমেন্ট: bKash, Nagad, Rocket ও কার্ড"
+  ];
+}
+function setVar(el,u,f,z){
+  var m=document.getElementById("mainImg");
+  if(!m)return;
+  m.src=u; m.style.filter=(f==="none"?"":f); m.style.transform="scale("+z+")";
+  var th=el.parentNode.querySelectorAll("img");
+  for(var i=0;i<th.length;i++)th[i].classList.remove("on");
+  el.classList.add("on");
+}
+async function enhanceGallery(P){
+  var m=document.getElementById("mainImg");
+  if(!m || m.src.indexOf("dummyimage")===-1) return;
+  try{
+    var sl=slug(P.title||"");
+    var r=await fetch("assets/products/"+sl+"/media.json");
+    if(!r.ok) return;
+    var mj=await r.json();
+    var list=Array.isArray(mj)?mj:(mj.images||[]);
+    if(!list.length) return;
+    var base="assets/products/"+sl+"/";
+    var real=base+encodeURIComponent(list[0]);
+    m.src=real; m.style.filter=""; m.style.transform="scale(1)";
+    var th=document.querySelector(".thumbs");
+    if(th){
+      var VARS=[{f:"",z:1},{f:"sepia(0.35) saturate(1.2)",z:1},{f:"hue-rotate(25deg) saturate(1.4)",z:1},{f:"brightness(1.12) contrast(1.05)",z:1},{f:"grayscale(1) contrast(1.1)",z:1},{f:"hue-rotate(-25deg) saturate(1.2)",z:1},{f:"",z:1.35},{f:"",z:1.7},{f:"saturate(1.6) contrast(1.1)",z:1.2},{f:"brightness(0.95) sepia(0.15)",z:1.5}];
+      var html="";
+      for(var i=0;i<VARS.length;i++){
+        var u=base+encodeURIComponent(list[i%list.length]);
+        html+='<img src="'+u+'" class="'+(i===0?"on":"")+'" style="filter:'+VARS[i].f+';object-fit:cover" onclick="setVar(this,\''+u+'\',\''+VARS[i].f+'\','+VARS[i].z+')">';
+      }
+      th.innerHTML=html;
+    }
+  }catch(e){}
+}
+
 (async function(){
  try{var r=await fetch("https://open.er-api.com/v6/latest/USD");var j=await r.json();if(j&&j.rates&&j.rates.BDT){var B=j.rates.BDT;RATES={BDT:1,SAR:(j.rates.SAR||3.75)/B,USD:1/B,EUR:(j.rates.EUR||0.92)/B,GBP:(j.rates.GBP||0.79)/B,AED:(j.rates.AED||3.67)/B};}}catch(e){}
- try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);loadRelatedProducts(P.categoryId,id);checkWishlist();}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error প্রস্তুত হচ্ছে product</div>';}
+ try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);loadRelatedProducts(P.categoryId,id);checkWishlist();enhanceGallery(P);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error প্রস্তুত হচ্ছে product</div>';}
 })();
 </script>
 
@@ -280,7 +328,7 @@ function checkWishlist() {
 #mjhAdMedia{max-width:900px;margin:10px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08)}
 #mjhAdMedia .am-head{background:linear-gradient(90deg,#ff9900,#ff6a00);color:#fff;font-weight:800;padding:10px 14px;font-size:15px}
 #mjhAdMedia .am-row{display:flex;gap:10px;overflow-x:auto;padding:12px;scroll-snap-type:x mandatory}
-#mjhAdMedia .am-row img,#mjhAdMedia .am-row video{flex:0 0 85%;max-width:85%;height:340px;object-fit:contain;background:#f7f7f7;border-radius:10px;scroll-snap-align:center}
+#mjhAdMedia .am-row img,#mjhAdMedia .am-row video{flex:0 0 85%;max-width:85%;height:340px;object-fit:cover;background:#f7f7f7;box-shadow:0 4px 14px rgba(0,0,0,.15);border-radius:10px;scroll-snap-align:center}
 #mjhAdMedia .am-dots{text-align:center;color:#888;font-size:12px;padding:0 0 10px}
 </style>
 <div id="mjhAdMedia" style="display:none"></div>
