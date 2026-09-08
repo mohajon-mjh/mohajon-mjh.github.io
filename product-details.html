@@ -56,6 +56,32 @@ h1{font-size:22px;font-weight:400;line-height:1.3;margin:4px 0 8px}
 .popup .btns button{flex:1;padding:8px;border-radius:8px;border:1px solid #d5d9d9;cursor:pointer;font-weight:600;font-size:13px}
 .popup .vc{background:#FFD814;border-color:#FCD200}
 .প্রস্তুত হচ্ছে{text-align:center;padding:80px 20px;color:#565959}
+
+.related-section{margin:30px 0;background:#fff;border-radius:8px;padding:20px}
+.related-section h2{font-size:18px;font-weight:700;margin:0 0 16px;border-bottom:2px solid #FF9900;padding-bottom:8px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.related-card{border:1px solid #ddd;border-radius:8px;padding:12px;cursor:pointer;transition:box-shadow 0.2s}
+.related-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.related-card img{width:100%;height:140px;object-fit:cover;border-radius:6px;background:#f5f5f5}
+.related-card h3{font-size:13px;font-weight:600;margin:8px 0 4px;height:36px;overflow:hidden}
+.related-card .price{font-size:16px;font-weight:700;color:#B12704}
+.specs-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.specs-table tr{border-bottom:1px solid #eee}
+.specs-table td{padding:8px 12px}
+.specs-table td:first-child{background:#f7f7f7;font-weight:600;width:40%}
+.specs-table td:last-child{background:#fff}
+.share-section{margin:20px 0;padding:16px;background:#f7f7f7;border-radius:8px}
+.share-section h3{font-size:14px;font-weight:700;margin:0 0 12px}
+.share-btns{display:flex;gap:10px;flex-wrap:wrap}
+.share-btn{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;color:#fff}
+.share-btn.whatsapp{background:#25D366}
+.share-btn.facebook{background:#1877F2}
+.share-btn.twitter{background:#1DA1F2}
+.share-btn.copy{background:#555}
+.wishlist-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.wishlist-btn:hover{background:#fff}
+.wishlist-btn.active{color:#E74C3C}
+
 </style>
 
 <script src="auto-ads-enable.js"></script>
@@ -125,7 +151,7 @@ function render(P){
  var qtyHtml="";for(var i=1;i<=10;i++)qtyHtml+="<option>"+i+"</option>";
  document.getElementById("content").className="";
  document.getElementById("content").innerHTML='<div class="main">'+
- '<div class="gal"><div class="thumbs">'+thumbsHtml+'</div><div class="main-img"><img id="mainImg" src="'+imgs[0]+'"></div></div>'+
+ '<div class="gal"><div class="thumbs">'+thumbsHtml+'</div><div class="main-img" style="position:relative"><button class="wishlist-btn" id="wishlistBtn" onclick="toggleWishlist()">🤍</button><img id="mainImg" src="'+imgs[0]+'"></div></div>'+
  '<div><div class="brand">'+autoBrand(P)+'</div><h1>'+(P.title||"Unnamed")+'</h1>'+
  '<div class="rating-bar"><span class="stars">'+stars(rating)+'</span><span class="count">'+rating.toFixed(1)+' ('+reviews.toLocaleString()+' reviews)</span></div>'+
  '<hr class="sep"><div class="price-box">'+(disc>0?'<span class="disc-badge">-'+disc+'%</span>':'')+'<span class="price-big">'+fmt(price,cur)+'</span>'+(hasOld?'<span class="old-price">'+fmt(old,cur)+'</span> <span class="save-txt">Save '+fmt(old-price,cur)+'</span>':'')+'<div class="price-sar">≈ '+fmt(price,"SAR")+' in Saudi Riyal</div></div>'+
@@ -138,14 +164,115 @@ function render(P){
  '<div class="bb-qty"><label>Qty:</label><select id="qty">'+qtyHtml+'</select></div>'+
  '<button class="btn-y" id="addBtn">🛒 Add to Cart</button><button class="btn-o" id="buyBtn">⚡ Buy Now</button>'+
  '<div class="trust"><b>🔒 Secure transaction</b><br>💵 Cash on Delivery available<br>📦 Ships from Mohajon MJH<br>🔄 7-day easy return</div></div>'+
- '</div>';
+ '</div>'+
+'<div class="specs-section"><h3 style="font-size:16px;font-weight:700;margin:14px 0 10px">Product Specifications</h3>'+generateSpecs(P)+'</div>'+
+'<div class="related-section"><h2>🔗 Related Products</h2><div id="relatedGrid" class="related-grid"><div style="grid-column:1/-1;text-align:center;padding:40px;color:#888">Loading related products...</div></div></div>'+
+'<div class="share-section"><h3>📤 Share this product</h3><div class="share-btns">'+
+'<button class="share-btn whatsapp" onclick="shareProduct('whatsapp')">💬 WhatsApp</button>'+
+'<button class="share-btn facebook" onclick="shareProduct('facebook')">📘 Facebook</button>'+
+'<button class="share-btn twitter" onclick="shareProduct('twitter')">🐦 Twitter</button>'+
+'<button class="share-btn copy" onclick="shareProduct('copy')">📋 Copy Link</button>'+
+'</div></div>'
  document.getElementById("crumbTitle").textContent=(P.title||"Product").slice(0,30);
  document.getElementById("addBtn").onclick=function(){var q=+document.getElementById("qty").value;addCart(P,q);document.getElementById("popMsg").textContent=q+" × "+(P.title||"").slice(0,40);document.getElementById("popup").classList.add("show");setTimeout(function(){document.getElementById("popup").classList.remove("show");},3000);};
  document.getElementById("buyBtn").onclick=function(){var q=+document.getElementById("qty").value;localStorage.setItem("buyNowItem",JSON.stringify({id:id,name:P.title,price:price,qty:q,sellerId:P.sellerId||"admin"}));location.href="buyflow.html?mode=buynow";};
 }
+
+async function loadRelatedProducts(categoryId, currentId) {
+  try {
+    var r = await fetch(DB + "/products.json");
+    var all = await r.json();
+    var related = [];
+    for (var pid in all) {
+      if (pid === currentId) continue;
+      var p = all[pid];
+      if (p && p.categoryId === categoryId && p.status !== "draft") {
+        related.push({id: pid, ...p});
+        if (related.length >= 8) break;
+      }
+    }
+    var grid = document.getElementById("relatedGrid");
+    if (!grid) return;
+    if (!related.length) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#888">No related products found</div>';
+      return;
+    }
+    grid.innerHTML = related.map(function(p) {
+      var img = p.images && p.images.main ? p.images.main : 'https://dummyimage.com/200x200/eeeeee/555&text=MJH';
+      return '<div class="related-card" onclick="location.href=\'product-details.html?id=' + p.id + '\'">' +
+        '<img src="' + img + '" onerror="this.src=\'https://dummyimage.com/200x200/eeeeee/555&text=MJH\'">' +
+        '<h3>' + (p.title || 'Product').substring(0, 50) + '</h3>' +
+        '<div class="price">' + fmt(p.price || 0, localStorage.getItem("selectedCurrency") || "BDT") + '</div>' +
+      '</div>';
+    }).join("");
+  } catch (e) {
+    console.error("Related products error:", e);
+    var grid = document.getElementById("relatedGrid");
+    if (grid) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#888">Failed to load related products</div>';
+  }
+}
+
+function generateSpecs(P) {
+  var specs = [
+    ["Brand", P.brand || "Mohajon MJH"],
+    ["Category", P.categoryId ? P.categoryId.replace(/_/g, ' ') : "General"],
+    ["Status", P.status || "Active"],
+    ["SKU", P.id || "N/A"],
+    ["Weight", P.weight || "Not specified"],
+    ["Dimensions", P.dimensions || "Not specified"],
+    ["Warranty", P.warranty || "7-day easy return"],
+    ["Country of Origin", P.origin || "Not specified"]
+  ];
+  return '<table class="specs-table">' + 
+    specs.map(function(s) { return '<tr><td>' + s[0] + '</td><td>' + s[1] + '</td></tr>'; }).join("") +
+  '</table>';
+}
+
+function shareProduct(platform) {
+  var url = location.href;
+  var title = document.title;
+  var msg = "Check out this product: " + title + " - " + url;
+  
+  if (platform === 'whatsapp') {
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  } else if (platform === 'facebook') {
+    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank');
+  } else if (platform === 'twitter') {
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(msg), '_blank');
+  } else if (platform === 'copy') {
+    navigator.clipboard.writeText(url).then(function() {
+      alert('✅ Link copied to clipboard!');
+    });
+  }
+}
+
+function toggleWishlist() {
+  var btn = document.getElementById("wishlistBtn");
+  var wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+  var idx = wishlist.indexOf(id);
+  if (idx > -1) {
+    wishlist.splice(idx, 1);
+    btn.textContent = "🤍";
+    btn.classList.remove("active");
+  } else {
+    wishlist.push(id);
+    btn.textContent = "❤️";
+    btn.classList.add("active");
+  }
+  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+}
+
+function checkWishlist() {
+  var wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+  if (wishlist.indexOf(id) > -1) {
+    var btn = document.getElementById("wishlistBtn");
+    if (btn) { btn.textContent = "❤️"; btn.classList.add("active"); }
+  }
+}
+
 (async function(){
  try{var r=await fetch("https://open.er-api.com/v6/latest/USD");var j=await r.json();if(j&&j.rates&&j.rates.BDT){var B=j.rates.BDT;RATES={BDT:1,SAR:(j.rates.SAR||3.75)/B,USD:1/B,EUR:(j.rates.EUR||0.92)/B,GBP:(j.rates.GBP||0.79)/B,AED:(j.rates.AED||3.67)/B};}}catch(e){}
- try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error প্রস্তুত হচ্ছে product</div>';}
+ try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);loadRelatedProducts(P.categoryId,id);checkWishlist();}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error প্রস্তুত হচ্ছে product</div>';}
 })();
 </script>
 
