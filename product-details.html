@@ -168,10 +168,10 @@ function render(P){
 '<div class="specs-section"><h3 style="font-size:16px;font-weight:700;margin:14px 0 10px">Product Specifications</h3>'+generateSpecs(P)+'</div>'+
 '<div class="related-section"><h2>🔗 Related Products</h2><div id="relatedGrid" class="related-grid"><div style="grid-column:1/-1;text-align:center;padding:40px;color:#888">Loading related products...</div></div></div>'+
 '<div class="share-section"><h3>📤 Share this product</h3><div class="share-btns">'+
-'<button class="share-btn whatsapp" onclick="shareProduct('whatsapp')">💬 WhatsApp</button>'+
-'<button class="share-btn facebook" onclick="shareProduct('facebook')">📘 Facebook</button>'+
-'<button class="share-btn twitter" onclick="shareProduct('twitter')">🐦 Twitter</button>'+
-'<button class="share-btn copy" onclick="shareProduct('copy')">📋 Copy Link</button>'+
+'<button class="share-btn whatsapp" onclick="shareProduct(&#39;whatsapp&#39;)">💬 WhatsApp</button>'+
+'<button class="share-btn facebook" onclick="shareProduct(&#39;facebook&#39;)">📘 Facebook</button>'+
+'<button class="share-btn twitter" onclick="shareProduct(&#39;twitter&#39;)">🐦 Twitter</button>'+
+'<button class="share-btn copy" onclick="shareProduct(&#39;copy&#39;)">📋 Copy Link</button>'+
 '</div></div>'
  document.getElementById("crumbTitle").textContent=(P.title||"Product").slice(0,30);
  document.getElementById("addBtn").onclick=function(){var q=+document.getElementById("qty").value;addCart(P,q);document.getElementById("popMsg").textContent=q+" × "+(P.title||"").slice(0,40);document.getElementById("popup").classList.add("show");setTimeout(function(){document.getElementById("popup").classList.remove("show");},3000);};
@@ -187,7 +187,7 @@ async function loadRelatedProducts(categoryId, currentId) {
       if (pid === currentId) continue;
       var p = all[pid];
       if (p && p.categoryId === categoryId && p.status !== "draft") {
-        related.push({id: pid, ...p});
+        related.push(Object.assign({id: pid}, p));
         if (related.length >= 8) break;
       }
     }
