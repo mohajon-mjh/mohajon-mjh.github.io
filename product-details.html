@@ -133,7 +133,7 @@ function render(P){
  if(!P){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">প্রোডাক্ট পাওয়া যায়নি</div>';return;}
  P.id=id;
  document.title=(P.title||"Product")+" - Mohajon-MJH";
- var imgs=P.images?Object.values(P.images).filter(function(u){return typeof u==="string"&&u.indexOf("http")===0;}):[];
+ var imgs=P.images?Object.values(P.images).filter(function(u){return typeof u==="string"&&u.trim().length>3&&u.indexOf("data:")!==0;}):[];
  if(!imgs.length)imgs=["https://dummyimage.com/380x380/eeeeee/555&text=MJH"];
  var price=+P.price||0,old=+P.discountPrice||0;
  var hasOld=old>0&&old>price;
@@ -318,9 +318,27 @@ async function enhanceGallery(P){
   }catch(e){}
 }
 
+
+function enhanceGalleryLate(P){
+  var srcs=[];
+  if(P&&P.images){ for(var k in P.images){ var v=P.images[k]; if(typeof v==="string"&&v.trim().length>3) srcs.push(v); } }
+  var th=document.querySelector(".thumbs");
+  if(th){ var ex=th.querySelectorAll("img"); for(var i=0;i<ex.length;i++){ var s=ex[i].src; if(s.indexOf("dummyimage")===-1&&srcs.indexOf(s)===-1) srcs.push(s); } }
+  if(!srcs.length) return;
+  var m=document.getElementById("mainImg");
+  if(m&&m.src.indexOf("dummyimage")>-1){ m.src=srcs[0]; m.style.filter=""; m.style.transform="scale(1)"; }
+  var VARS=[{f:"",z:1},{f:"sepia(0.35) saturate(1.2)",z:1},{f:"hue-rotate(25deg) saturate(1.4)",z:1},{f:"brightness(1.12) contrast(1.05)",z:1},{f:"grayscale(1) contrast(1.1)",z:1},{f:"hue-rotate(-25deg) saturate(1.2)",z:1},{f:"",z:1.35},{f:"",z:1.7},{f:"saturate(1.6) contrast(1.1)",z:1.2},{f:"brightness(0.95) sepia(0.15)",z:1.5}];
+  var html="";
+  for(var j=0;j<10;j++){
+    var u=srcs[j%srcs.length];
+    html+='<img src="'+u+'" class="'+(j===0?"on":"")+'" style="filter:'+VARS[j].f+';object-fit:cover" onclick="setVar(this,\''+u+'\',\''+VARS[j].f+'\','+VARS[j].z+')">';
+  }
+  if(th) th.innerHTML=html;
+}
+
 (async function(){
  try{var r=await fetch("https://open.er-api.com/v6/latest/USD");var j=await r.json();if(j&&j.rates&&j.rates.BDT){var B=j.rates.BDT;RATES={BDT:1,SAR:(j.rates.SAR||3.75)/B,USD:1/B,EUR:(j.rates.EUR||0.92)/B,GBP:(j.rates.GBP||0.79)/B,AED:(j.rates.AED||3.67)/B};}}catch(e){}
- try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);loadRelatedProducts(P.categoryId,id);checkWishlist();enhanceGallery(P);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error প্রস্তুত হচ্ছে product</div>';}
+ try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);loadRelatedProducts(P.categoryId,id);checkWishlist();setTimeout(function(){enhanceGalleryLate(P);},1200);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error প্রস্তুত হচ্ছে product</div>';}
 })();
 </script>
 
