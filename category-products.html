@@ -341,19 +341,39 @@ document.getElementById("markAll").onclick = function() {
   render();
 };
 document.getElementById("applyPaste").onclick = function() {
-  var lines = document.getElementById("paste").value.split(/\r?\n/);
-  var n = 0;
+  var lines = document.getElementById("paste").value.split(/\r?\n/).filter(function(l){return l.trim();});
+  var n = 0, notMatched = [];
   lines.forEach(function(ln) {
-    var mm = ln.match(/^(.+?)\s*[—–-]+\s*৳?\s*([\d,.]+)/);
-    if (!mm) return;
+    ln = ln.trim();
+    /* FIX: যেকোনো currency symbol (৳/$/€/£/₹/﷼/¥/₩/SAR/USD...) — symbol discard, শুধু number */
+    var mm = ln.match(/^(.+?)\s*[—–-]+\s*[^\d]*?([\d,]+(?:\.\d+)?)\s*$/);
+    if (!mm) { notMatched.push("❌ parse: " + ln.substring(0, 30)); return; }
     var name = mm[1].trim().toLowerCase();
     var price = parseFloat(mm[2].replace(/,/g, ""));
+    var found = false;
     pending.concat(existing).forEach(function(it) {
-      if (name && it.title && (it.title.toLowerCase().indexOf(name) > -1 || name.indexOf(it.title.toLowerCase()) > -1)) { it.price = price; n++; }
+      if (!it.title || found) return;
+      var t = it.title.toLowerCase();
+      /* Strategy 1: substring */
+      if (t.indexOf(name) > -1 || name.indexOf(t) > -1) { it.price = price; n++; found = true; return; }
+      /* Strategy 2: word match 80% */
+      var nw = name.split(/[^a-z0-9\u0980-\u09ff]+/).filter(function(w){return w.length>2;});
+      var tw = t.split(/[^a-z0-9\u0980-\u09ff]+/).filter(function(w){return w.length>2;});
+      if (tw.length && nw.length) {
+        var hit = 0;
+        tw.forEach(function(w){ if (nw.some(function(x){ return x===w || x.indexOf(w)>-1 || w.indexOf(x)>-1; })) hit++; });
+        if (hit / tw.length >= 0.8) { it.price = price; n++; found = true; return; }
+      }
+      /* Strategy 3: fuzzy clean */
+      var cn = name.replace(/[^a-z\u0980-\u09ff]/g, "");
+      var ct = t.replace(/[^a-z\u0980-\u09ff]/g, "");
+      if (cn.length > 5 && ct.length > 5 && (cn.indexOf(ct) > -1 || ct.indexOf(cn) > -1)) { it.price = price; n++; found = true; return; }
     });
+    if (!found) notMatched.push("⚠️ " + name.substring(0, 30));
   });
   render();
-  toast("✅ " + n + "টি পণ্যে দাম বসেছে");
+  if (notMatched.length) alert("✅ " + n + "টি পণ্যে দাম বসেছে\n\n❌ মেলেনি " + notMatched.length + "টি:\n" + notMatched.join("\n"));
+  else toast("✅ " + n + "টি পণ্যে দাম বসেছে");
 };
 document.getElementById("applyPct").onclick = function() {
   var v = +document.getElementById("pct").value || 0;
