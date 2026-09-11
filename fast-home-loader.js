@@ -21,7 +21,7 @@ function renderAll(){
 section($("flashCatsRow"),$("flashSaleProductsGrid"),"flashSaleCategories","flashSaleCategoryProducts");
 section($("globalCatsRow"),$("globalCatCarousel"),"globalCategories","globalCategoryProducts");
 section($("dealsCatsRow"),$("dealsGrid"),"dealsOfDayCategories","dealsOfDayCategoryProducts");
-section($("specialCatsContainer"),$("specialCatCarousel"),"specialCategories","specialCategoryProducts");
+// section($("specialCatsContainer"),$("specialCatCarousel"),"specialCategories","specialCategoryProducts"); // disabled - Firebase listener handles this
 section($("everydayLowPriceCats"),$("everydayLowPriceGrid"),"everydayLowPriceCategories","everydayLowPriceCategoryProducts");
 section($("comboOffersCats"),$("comboOffersGrid"),"comboOffersCategories","comboOffersCategoryProducts");
 section($("clearanceOutletCats"),$("clearanceOutletGrid"),"clearanceOutletCategories","clearanceOutletCategoryProducts");}
