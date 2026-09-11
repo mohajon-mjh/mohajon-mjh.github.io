@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin.html
 Disallow: /home-products.html
 
-Sitemap: https://mohajon-mjh.github.io/sitemap.xml
+Sitemap: https://mohajon-mjh.github.io/sitemap-index.xml
