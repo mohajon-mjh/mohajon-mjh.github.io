@@ -1509,7 +1509,6 @@ const scDb = getDatabase(scApp);
 
 const scTitle = document.getElementById("specialCatProductTitle");
 const scCarousel = document.getElementById("specialCatCarousel");
-const scSection = document.getElementById("specialCatSection") || document.getElementById("specialCategoriesSection") || (scCarousel ? (scCarousel.closest("section") || scCarousel.closest(".section") || scCarousel.parentElement) : document.body);
 
 async function loadSpecialCategoryProducts(slug, scroll = true){
   scSection.style.display = "block";
