@@ -10,6 +10,6 @@ function fix(){
   }
  });
 }
-setTimeout(fix,8000);
-setTimeout(fix,14000);
+// setTimeout(fix,8000); // disabled - loader handles this
+// setTimeout(fix,14000); // disabled - loader handles this
 })();
