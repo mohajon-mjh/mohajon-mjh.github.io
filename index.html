@@ -1509,6 +1509,7 @@ const scDb = getDatabase(scApp);
 
 const scTitle = document.getElementById("specialCatProductTitle");
 const scCarousel = document.getElementById("specialCatCarousel");
+const scSection = document.getElementById("specialCatSection") || document.getElementById("specialCategoriesSection") || (scCarousel ? (scCarousel.closest("section") || scCarousel.closest(".section") || scCarousel.parentElement) : document.body);
 
 async function loadSpecialCategoryProducts(slug, scroll = true){
   scSection.style.display = "block";
@@ -2763,7 +2764,7 @@ fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiOverrides.json
 }).catch(function(){});
 })();
 </script>
-<script src="fast-home-loader.js?v=5" defer></script>
+<script src="fast-home-loader.js?v=6" defer></script>
 <script src="bogo-manager.js"></script>
 
 <script>
