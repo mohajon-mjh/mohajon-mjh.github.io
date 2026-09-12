@@ -389,8 +389,8 @@ document.getElementById("catBanner").innerText = "Category: " + category;
 
 
 <style>/*mjhArrowV9CSS*/
-.scroll-arrow-card{border:2px solid #16a34a !important;background:#ffffff !important;border-radius:12px !important;box-shadow:0 2px 8px rgba(22,163,74,.25) !important;}
-.scroll-arrow-card span{color:#16a34a !important;font-weight:900 !important;font-size:36px !important;line-height:1 !important;}
+
+
 </style>
 <script>/*mjhArrowV9*/
 (function(){
@@ -460,7 +460,6 @@ document.getElementById("catBanner").innerText = "Category: " + category;
   g.appendChild(a);
  }
  function ensure(g){
-  if(!g||g.querySelector(".scroll-arrow-card"))return;
   var cards=cardsOf(g);
   if(cards.length<=LIMIT)return;
   if(g.getAttribute("data-v9")===String(cards.length))return;

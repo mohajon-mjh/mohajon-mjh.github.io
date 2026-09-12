@@ -26,13 +26,11 @@ const tag=`
     g.appendChild(c);
    });
    if(items.length>LIMIT){
-    var a=document.createElement("div");a.className="scroll-arrow-card";a.innerHTML="<span>→</span>";
     a.addEventListener("click",function(){
      Array.prototype.slice.call(g.children).forEach(function(x){if(x.classList.contains("product-card"))x.style.display="";});
      a.remove();
      g.scrollBy({left:400,behavior:"smooth"});
     });
-    g.appendChild(a);
    }
   }).catch(function(e){console.error("trend load err",e);});
  }

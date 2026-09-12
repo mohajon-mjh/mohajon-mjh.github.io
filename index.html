@@ -749,7 +749,7 @@ text-decoration:none;
 }
 </style>
 
-<style id="arrowDedup">.scroll-arrow-card ~ .scroll-arrow-card{display:none !important}</style>
+
 <style id="uniformCats">
 #everydayLowPriceCats>div,#comboOffersCats>div,#clearanceOutletCats>div,#flashCatsRow>div,#globalCatsRow>div,#dealsCatsRow>div,#specialCatsContainer>div{
 padding:var(--cat-pad-v) var(--cat-pad-h) !important;border-radius:var(--cat-radius) !important;font-size:var(--cat-font) !important;min-width:var(--cat-min-w) !important;max-width:var(--cat-max-w) !important;white-space:normal !important;text-align:center !important;box-sizing:border-box !important;line-height:1.3 !important;
@@ -1043,19 +1043,11 @@ let fsRenderedCount = 0;
 let fsGlobalDiscount = 0;
 
 function fsRemoveArrow(){
-  const old = flashSaleGrid.querySelector(".scroll-arrow-card");
-  if(old) old.remove();
-}
+  }
 
 function fsAddArrow(){
   fsRemoveArrow();
-  const arrowCard = document.createElement("div");
-  arrowCard.className = "scroll-arrow-card";
-    arrowCard.style.cssText = "flex:0 0 60px;min-width:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border-radius:12px;margin-left:6px;border:2px solid #16a34a;box-shadow:0 2px 8px rgba(22,163,74,.25);";
-  arrowCard.innerHTML = "<span>→</span>";
-    arrowCard.firstChild.style.cssText = "color:#16a34a;font-weight:900;font-size:36px;line-height:1;";
-  arrowCard.addEventListener("click", () => { fsRenderNextBatch(); });
-  flashSaleGrid.appendChild(arrowCard);
+  
 }
 
 function fsRenderNextBatch(){
@@ -1368,17 +1360,11 @@ function renderDealCard(id, data, mapInfo){
 
 function dotdRemoveArrow(){
   const grid = document.getElementById("dealsGrid");
-  const old = grid.querySelector(".scroll-arrow-card");
-  if(old) old.remove();
-}
+  }
 function dotdAddArrow(){
   dotdRemoveArrow();
   const grid = document.getElementById("dealsGrid");
-  const arrowCard = document.createElement("div");
-  arrowCard.className = "scroll-arrow-card";
-  arrowCard.innerHTML = "<span>→</span>";
-  arrowCard.addEventListener("click", () => { dotdRenderNextBatch(); });
-  grid.appendChild(arrowCard);
+  
 }
 function dotdRenderNextBatch(){
   dotdRemoveArrow();
@@ -1519,17 +1505,11 @@ async function loadSpecialCategoryProducts(slug, scroll = true){
         let scRenderedCount = 0;
 
         function scRemoveArrow(){
-          const old = scCarousel.querySelector(".scroll-arrow-card");
-          if(old) old.remove();
-        }
+                  }
 
         function scAddArrow(){
           scRemoveArrow();
-          const arrowCard = document.createElement("div");
-          arrowCard.className = "scroll-arrow-card";
-          arrowCard.innerHTML = "<span>→</span>";
-          arrowCard.addEventListener("click", () => { scRenderNextBatch(); });
-          scCarousel.appendChild(arrowCard);
+          
         }
 
         function scIsWished(id){
@@ -1805,14 +1785,9 @@ const gcSection = document.getElementById("globalCatSection");
     gcCarousel.innerHTML = "";
     let rendered = 0;
     const LIMIT = 20;
-    function removeArrow(){ const a = gcCarousel.querySelector(".scroll-arrow-card"); if(a) a.remove(); }
     function addArrow(){
       removeArrow();
-      const arrowCard = document.createElement("div");
-      arrowCard.className = "scroll-arrow-card";
-      arrowCard.innerHTML = "<span>→</span>";
-      arrowCard.addEventListener("click", () => { renderNext(); });
-      gcCarousel.appendChild(arrowCard);
+      
     }
     function buildCard(pid, p){
       const mapInfo = gcMap[pid] || {};
@@ -2317,8 +2292,8 @@ console.log("currency-fix-v2 ready");
 
 
 <style>/*mjhArrowV9CSS*/
-.scroll-arrow-card{border:2px solid #16a34a !important;background:#ffffff !important;border-radius:var(--cat-radius) !important;box-shadow:0 2px 8px rgba(22,163,74,.25) !important;}
-.scroll-arrow-card span{color:#16a34a !important;font-weight:900 !important;font-size:36px !important;line-height:1 !important;}
+
+
 </style>
 <script>/*mjhArrowV9*/
 (function(){
@@ -2385,7 +2360,6 @@ console.log("currency-fix-v2 ready");
   g.appendChild(a);
  }
  function ensure(g){
-  if(!g||g.querySelector(".scroll-arrow-card"))return;
   var cards=cardsOf(g);
   if(cards.length<=LIMIT)return;
   if(g.getAttribute("data-v9")===String(cards.length))return;
@@ -2447,7 +2421,6 @@ console.log("currency-fix-v2 ready");
     g.appendChild(c);
    });
    if(items.length>LIMIT){
-    var a=document.createElement("div");a.className="scroll-arrow-card";a.innerHTML="<span>→</span>";
     a.addEventListener("click",function(){
      Array.prototype.slice.call(g.children).forEach(function(x){if(x.classList.contains("product-card"))x.style.display="";});
      a.remove();
@@ -2693,87 +2666,13 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 
 
 
-<script>/*arrow-fix-v12*/
-(function(){
-  function mk(grid){var a=document.createElement('div');a.className='scroll-arrow-card';a.style.cssText='min-width:42px;max-width:42px;flex:0 0 42px;border:2px solid #2ecc71;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#2ecc71;font-size:22px;cursor:pointer;background:#fff;align-self:stretch;';a.innerHTML='→';a.onclick=function(){grid.scrollBy({left:grid.clientWidth*0.8,behavior:'smooth'});};return a;}
-  function fix(grid){if(!grid)return;Array.prototype.slice.call(grid.querySelectorAll('.scroll-arrow-card')).forEach(function(a){a.remove();});var cards=Array.prototype.slice.call(grid.children).filter(function(c){return !c.classList.contains('scroll-arrow-card');});if(cards.length<=10)return;for(var i=10;i<cards.length;i+=10){grid.insertBefore(mk(grid),cards[i]);}}
-  function findByH2(t){var h=document.querySelectorAll('h2,h3');for(var i=0;i<h.length;i++){if((h[i].textContent||'').indexOf(t)>-1){var sec=h[i].closest('section')||h[i].parentElement;return sec.querySelector('.trending-scroll-wrapper')||sec.querySelector('div[style*="overflow-x"]');}}return null;}
-  function run(){
-    document.querySelectorAll('.trending-scroll-wrapper').forEach(fix);
-    var g=document.getElementById('globalCatCarousel');if(g)fix(g);
-    var s=document.getElementById('specialCatCarousel');if(s)fix(s);
-    
-  }
-  setTimeout(run,1500);setInterval(run,5000);
-})();
-</script>
 
 
 
 
 
-<script>/*arrowController*/
-(function(){
-  document.addEventListener("click",function(e){
-    var t=e.target;
-    var el=null;
-    while(t&&t!==document){if(t.classList&&t.classList.contains("scroll-arrow-card")){el=t;break;}t=t.parentNode;}
-    if(!el)return;
-    var g=el.parentNode;
-    if(!g||!g.__isArrowGrid)return;
-    e.preventDefault();e.stopPropagation();
-    g.__show=(g.__show||10)+10;
-    apply(g);
-  },true);
 
-  function grids(){
-    var out=[];
-    ["flashSaleProductsGrid","globalCatCarousel","dealsGrid","specialCatCarousel","everydayLowPriceGrid","comboOffersGrid","clearanceOutletGrid"].forEach(function(id){
-      var g=document.getElementById(id);if(g)out.push(g);
-    });
-    var ms=document.querySelectorAll(".mh2Prods");
-    for(var i=0;i<ms.length;i++)out.push(ms[i]);
-    return out;
-  }
 
-  function apply(g){
-    var kids=[].slice.call(g.children);
-    var cards=kids.filter(function(c){return !(c.classList&&c.classList.contains("scroll-arrow-card"));});
-    if(cards.length<11){g.__isArrowGrid=false;return;}
-    g.__isArrowGrid=true;
-    var sig=cards.length+"|"+(cards[0].textContent||"").slice(0,25);
-    if(g.__sig!==sig){g.__sig=sig;g.__show=10;}
-    var n=g.__show||10;
-    
-    // ✅ FIXED: proper loop with index
-    for(var i=0;i<cards.length;i++){
-      cards[i].style.display=(i<n)?"":"none";
-    }
-    
-    kids.forEach(function(c){
-      if(c.classList&&c.classList.contains("scroll-arrow-card")&&c!==g.__arrow)c.remove();
-    });
-    
-    if(!g.__arrow||!g.__arrow.isConnected){
-      var ac=document.createElement("div");
-      ac.className="scroll-arrow-card";
-      ac.style.cssText="flex:0 0 60px;min-width:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border-radius:12px;margin-left:6px;border:2px solid #16a34a;box-shadow:0 2px 8px rgba(22,163,74,.25);";
-      ac.innerHTML="<span style='color:#16a34a;font-weight:900;font-size:36px;line-height:1'>→</span>";
-      g.__arrow=ac;
-    }
-    
-    if(n>=cards.length){
-      if(g.__arrow.isConnected)g.__arrow.remove();
-    }else{
-      g.__arrow.style.display="flex";
-      g.insertBefore(g.__arrow,cards[n]);
-    }
-  }
-
-  setInterval(function(){grids().forEach(function(g){try{apply(g);}catch(e){}});},1200);
-  setTimeout(function(){grids().forEach(function(g){try{apply(g);}catch(e){}});},1000);
-})();
-</script>
 <script>/*fallbackLoader*/
 (function(){
   var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
