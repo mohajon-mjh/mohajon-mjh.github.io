@@ -1,21 +1,18 @@
-/* Arrow System v2 — FULL MANUAL CONTROL (admin panel) */
+/* Arrow System v2.1 — FULL MANUAL CONTROL (mount fix: card goes inside UI Settings section) */
 (async function(){
   var FB='arrowSystem';
-  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','🔺','🔻','👉','👈','👆','👇','⏩','⏪','🔼','🔽','↪️','↩️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','🏷️','💎'];
+  var EMO=['➡️','⬅️','️','⬇️','▶️','◀️','🔺','🔻','','👈','','👇','','⏪','','🔽','️','↩️','','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','️','💎'];
   var CATS=['all','agric','auto','beauty','books','computers','food','gift','grocery','handi','health','home','kids','men','mobile','pets','spices','sports','toys','travel','tv','watches','women'];
   var cfg={enabled:true,markers:[]}, editingId=null, picker=null, db=null, fbD=null;
 
-  // Array normalize: Firebase object→array conversion
   function normCfg(v){
     if(!v) return {enabled:true,markers:[]};
     var m=v.markers;
     if(m && !Array.isArray(m)){
-      // Firebase object {0:a, 1:b, 2:c} → [a,b,c]
       m=Object.keys(m).sort(function(a,b){return parseInt(a)-parseInt(b)}).map(function(k){return m[k]});
     }
     return {enabled:v.enabled!==false,markers:Array.isArray(m)?m:[]};
   }
-  // Array→numbered-object for Firebase save (cleaner)
   function prepCfg(v){
     var o={enabled:v.enabled!==false,markers:{}};
     (v.markers||[]).forEach(function(m,i){o.markers[i]=m});
@@ -27,7 +24,7 @@
     var d=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
     var C={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
     var app=m.getApps().length?m.getApp():m.initializeApp(C);
-    db=d.getDatabase(app); fbD=d; return true; }catch(e){console.error('[ArrowAdmin]',e);return false} }
+    db=d.getDatabase(app); fbD=d; return true; }catch(e){console.error('[ArrowAdmin] FB init fail',e);return false} }
   function load(cb){ initFB().then(function(ok){ if(!ok){setTimeout(function(){load(cb)},1500);return}
     fbD.get(fbD.ref(db,FB)).then(function(s){ cfg=normCfg(s.val()); cb&&cb(); }); }); }
   function save(msg){ initFB().then(function(ok){ if(!ok)return alert('Firebase ready নয়');
@@ -86,12 +83,7 @@
   function startEdit(m){ editingId=m.id; resetForm(m); showForm(true); renderList();
     document.getElementById('asFormTitle').textContent='✏️ Marker Edit করো'; document.getElementById('asForm').scrollIntoView({behavior:'smooth',block:'center'}); }
 
-  function mount(){
-    if(document.getElementById('arrowSystemCard'))return;
-    var leaf=null,all=document.querySelectorAll('*');
-    for(var i=0;i<all.length;i++){var e=all[i];if(e.childElementCount===0&&/UI Settings Panel/i.test(e.textContent||'')){leaf=e;break}}
-    if(!leaf){setTimeout(mount,1000);return}
-    var top=leaf; while(top.parentElement&&top.parentElement!==document.body){top=top.parentElement}
+  function buildCard(){
     var c=document.createElement('div'); c.id='arrowSystemCard';
     c.style.cssText='background:#fff;border-radius:12px;padding:16px;margin:16px 0;color:#222;box-shadow:0 2px 8px rgba(0,0,0,.08)';
     c.innerHTML='<h3 style="margin:0 0 6px">➡️ Arrow System (Manual Control)</h3>'+
@@ -112,8 +104,9 @@
       '<button id="asSaveM" style="background:#27ae60;color:#fff;border:0;border-radius:8px;padding:9px 14px;cursor:pointer;font-weight:600">💾 Save Marker</button>'+
       '<button id="asCancel" style="background:#95a5a6;color:#fff;border:0;border-radius:8px;padding:9px 14px;cursor:pointer">❌ Cancel</button>'+
       '</div></div>';
-    (top.parentElement||document.body).appendChild(c);
-
+    return c;
+  }
+  function wire(){
     document.getElementById('asEnabled').checked = cfg.enabled!==false;
     document.getElementById('asEnabled').onchange=function(){ cfg.enabled=this.checked; save(this.checked?'System ON ✅':'System OFF ⛔'); };
     document.getElementById('asAdd').onclick=function(){ editingId=null; resetForm(); showForm(true); renderList(); document.getElementById('asFormTitle').textContent='➕ নতুন Marker'; };
@@ -125,6 +118,27 @@
       else { v.id=uid(); cfg.markers=cfg.markers||[]; cfg.markers.push(v); }
       editingId=null; showForm(false); save('Marker saved ✅');
     };
+  }
+
+  function mount(){
+    if(document.getElementById('arrowSystemCard'))return;
+    var leaf=null,all=document.querySelectorAll('*');
+    for(var i=0;i<all.length;i++){var e=all[i];if(e.childElementCount===0&&/UI Settings Panel/i.test(e.textContent||'')){leaf=e;break}}
+    if(!leaf){setTimeout(mount,1000);return}
+    var card=buildCard();
+    // host candidates: section container (header এর parent এর parent) → header এর parent → body
+    var hosts=[];
+    var p1=leaf.parentElement, p2=p1?p1.parentElement:null;
+    if(p2&&p2!==document.body)hosts.push(p2);
+    if(p1)hosts.push(p1);
+    hosts.push(document.body);
+    for(var h=0;h<hosts.length;h++){
+      hosts[h].appendChild(card);
+      var r=card.getBoundingClientRect();
+      if(r.height>0&&r.width>0){ console.log('[ArrowAdmin] mounted ✔'); break; }
+      card.remove();
+    }
+    wire();
     renderList();
   }
   var t=setInterval(function(){ if(/UI Settings Panel/i.test(document.body.textContent||'')){ clearInterval(t); load(mount); } },600);
