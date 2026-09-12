@@ -1,6 +1,6 @@
-/* Arrow System public v12 — OVERLAY markers (no layout intrusion, no box) */
+/* Arrow System public v15 — emoji = show-more gate: next products hidden until arrow clicked */
 (function(){
-  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','️','💎'];
+  var EMO=['➡️','️','⬆️','⬇️','▶️','◀️','','','','','👆','','⏩','','🔼','','↪️','↩️','','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','','💰','🛒','🏷️','💎'];
   var PATH1='settings/arrowSystem', PATH2='arrowSystem';
   var cfg=null, db=null, fbD=null, popup=null;
   var pickMode=location.search.indexOf('aspick=1')>-1;
@@ -17,7 +17,14 @@
   function curCat(){try{return new URLSearchParams(location.search).get('id')||''}catch(e){return ''}}
   function scopeForPage(){return curCat()||'all'}
   function uid(){return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
-  function normCfg(v){ if(!v)return {enabled:true,markers:[]}; var m=v.markers; if(m&&!Array.isArray(m)){m=Object.keys(m).sort(function(a,b){return parseInt(a)-parseInt(b)}).map(function(k){return m[k]});} return {enabled:v.enabled!==false,markers:Array.isArray(m)?m:[]}; }
+  function normCfg(v){
+    if(!v)return {enabled:true,markers:[]};
+    var m=v.markers;
+    if(m&&!Array.isArray(m)){m=Object.keys(m).sort(function(a,b){return parseInt(a)-parseInt(b)}).map(function(k){return m[k]});}
+    m=Array.isArray(m)?m:[];
+    m.forEach(function(x){ if(x&&!x.id)x.id=uid(); });
+    return {enabled:v.enabled!==false,markers:m};
+  }
   function prepCfg(v){ var o={enabled:v.enabled!==false,markers:{}}; (v.markers||[]).forEach(function(m,i){o.markers[i]=m}); return o; }
   function toastMsg(t){var d=document.createElement('div');d.textContent=t;d.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#27ae60;color:#fff;padding:10px 16px;border-radius:8px;z-index:99999;font-weight:600';document.body.appendChild(d);setTimeout(function(){d.remove()},2500)}
 
@@ -42,12 +49,11 @@
   function relX(n,ct){var x=0;while(n&&n!==ct){x+=n.offsetLeft;n=n.offsetParent;}return x;}
   function relY(n,ct){var y=0;while(n&&n!==ct){y+=n.offsetTop;n=n.offsetParent;}return y;}
 
-  // OVERLAY marker: দুই পণ্যের সীমানায় ভাসমান chip
   function placeOverlay(m,card,ct,mode){
     var d=document.createElement('div');d.className='arrow-marker';
     var h=(m.height||28);
     var horiz=(mode==='h');
-    var w= m.width>0? m.width : (horiz?36:Math.max(60,card.offsetWidth-10));
+    var w= m.width>0? m.width : (horiz?44:Math.max(60,card.offsetWidth-10));
     var cx=relX(card,ct), cy=relY(card,ct);
     var left,top;
     if(horiz){ left=cx+card.offsetWidth-Math.round(w/2); top=cy+Math.round(card.offsetHeight/2)-Math.round(h/2); }
@@ -56,21 +62,29 @@
     S('position','absolute');S('left',left+'px');S('top',top+'px');
     S('width',w+'px');S('height',h+'px');
     S('display','flex');S('align-items','center');S('justify-content','center');
-    S('line-height','1');S('font-size',Math.max(12,h-6)+'px');
-    S('border','none');S('outline','none');S('box-shadow','none');
-    S('background',pickActive?'rgba(39,174,96,.18)':'transparent');
+    S('line-height','1');S('font-size',Math.max(14,h-6)+'px');
+    S('border','none');S('outline','none');
+    S('box-shadow','0 0 0 1px rgba(0,0,0,.08)');
+    S('background',pickActive?'rgba(39,174,96,.18)':'rgba(255,255,255,.9)');
     S('z-index','60');S('margin','0');S('padding','0');S('border-radius','8px');
-    S('pointer-events',pickActive?'auto':'none');
+    S('pointer-events','auto');
     S('cursor','pointer');
     d.textContent=m.emoji||'➡️';
     d._asMarker=m;
+    d.title='আরো পণ্য দেখতে ক্লিক করো';
+    d.onclick=function(e){
+      e.stopPropagation(); e.preventDefault();
+      if(pickActive){ openEdit(m); return; }
+      m._un=!m._un; apply();
+    };
     ct.appendChild(d);
   }
 
   function apply(){
     document.querySelectorAll('.arrow-marker').forEach(function(e){e.remove()});
-    if(!cfg||cfg.enabled===false)return true;
     var cardsAll=[].slice.call(document.querySelectorAll('.product-card'));
+    cardsAll.forEach(function(c){ c.style.removeProperty('display'); });
+    if(!cfg||cfg.enabled===false)return true;
     if(!cardsAll.length)return false;
     var containers=[];
     cardsAll.forEach(function(c){var ct=resolveContainer(c); if(containers.indexOf(ct)<0)containers.push(ct);});
@@ -84,30 +98,45 @@
       var ms=(cfg.markers||[]).filter(function(m){
         if(!m)return false; var s=m.scope||'all';
         return s==='all'||s===c||(attr&&attr.indexOf(s)>-1)||(ct.id&&ct.id.indexOf(s)>-1);
+      }).map(function(m){return m}).sort(function(a,b){return (a.position||0)-(b.position||0)});
+
+      // GATE logic: কতগুলো পণ্য দেখাবে + কোন arrow কোথায়
+      var limit=cards.length;
+      var arrows=[];
+      if(ms.length){
+        limit=Math.min(ms[0].position,cards.length);
+        arrows.push({m:ms[0],pos:Math.min(ms[0].position,cards.length)});
+        var i=0;
+        while(i<ms.length && ms[i]._un){
+          var np=(i+1<ms.length)? Math.min(ms[i+1].position,cards.length) : cards.length;
+          limit=np; i++;
+          if(i<ms.length) arrows.push({m:ms[i],pos:Math.min(ms[i].position,cards.length)});
+        }
+      }
+      cards.forEach(function(card,idx){
+        if(idx+1>limit) card.style.setProperty('display','none','important');
       });
-      ms.sort(function(a,b){return (a.position||0)-(b.position||0)});
-      ms.forEach(function(m){
-        var pos=parseInt(m.position||0,10); if(pos<1||pos>cards.length)return;
-        placeOverlay(m,cards[pos-1],ct,mode);
+      arrows.forEach(function(a){
+        if(a.pos<1)return;
+        placeOverlay(a.m,cards[a.pos-1],ct,mode);
       });
     });
     return true;
   }
 
   function nearestTarget(x,y){
-    var cards=[].slice.call(document.querySelectorAll('.product-card'));
+    var cards=[].slice.call(document.querySelectorAll('.product-card')).filter(function(c){return c.offsetWidth>4});
     var best=null,bestD=1e9;
     for(var i=0;i<cards.length;i++){
       var r=cards[i].getBoundingClientRect();
-      if(r.width<5||r.height<5)continue;
       var inside=(x>=r.left-8&&x<=r.right+8&&y>=r.top-8&&y<=r.bottom+8);
       var cx=r.left+r.width/2, cy=r.top+r.height/2;
       var dd=inside?0:Math.sqrt((x-cx)*(x-cx)+(y-cy)*(y-cy));
       if(dd<bestD){bestD=dd;best={card:cards[i],r:r};}
     }
-    if(!best||bestD>260)return null;
+    if(!best)return null;
     var ct=resolveContainer(best.card);
-    var cards2=[].slice.call(ct.querySelectorAll('.product-card'));
+    var cards2=[].slice.call(ct.querySelectorAll('.product-card')).filter(function(c){return c.offsetWidth>4});
     var horiz=cards2.length>1?(cards2[0].offsetTop===cards2[1].offsetTop):false;
     var idx=cards2.indexOf(best.card);
     var after=horiz?(x>best.r.left+best.r.width/2):(y>best.r.top+best.r.height/2);
@@ -155,7 +184,7 @@
   }
   function saveFB(msg){ fbD.set(fbD.ref(db,PATH1),prepCfg(cfg)).then(function(){ apply(); toastMsg(msg); }).catch(function(e){ alert('Save fail: '+(e.message||e)); }); }
   function openNew(pos){
-    buildPopup('➕ Arrow: পণ্য '+pos+' এর পরে (scope: '+scopeForPage()+')', {emoji:'➡️',height:28,width:0}, function(v){
+    buildPopup('➕ Arrow: পণ্য '+pos+' এর পরে (scope: '+scopeForPage()+') — এর পরের পণ্য লুকানো থাকবে, click এ দেখাবে', {emoji:'➡️',height:28,width:0}, function(v){
       cfg.markers=cfg.markers||[];
       cfg.markers.push({id:uid(),scope:scopeForPage(),position:pos,emoji:v.emoji,height:v.height,width:v.width});
       saveFB('Marker added ✅');
@@ -187,10 +216,9 @@
     document.head.appendChild(st);
     document.documentElement.classList.add('as-pick');
     makeCursor();
-
     var bar=document.createElement('div');bar.id='asBar';
     bar.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#8e44ad;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);text-align:center';
-    bar.innerHTML='🎯 Picker ON — পণ্যের উপর ছাড়ো = ওই পণ্যের পরে arrow | chip tap = edit/delete '+
+    bar.innerHTML='🎯 Picker ON — পণ্যের উপর ছাড়ো = ওই পণ্যের পরে arrow বসবে '+
       '<button id="asPtrToggle" style="background:#2c3e50;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:6px">🖱️ ON</button>'+
       '<button id="apExit" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:6px">❌ Exit</button>';
     document.body.appendChild(bar);
@@ -202,7 +230,6 @@
       if(!pointerMode&&cursorEl)cursorEl.style.display='none';
     };
     document.body.classList.add('as-lock');
-
     document.addEventListener('click', function(e){
       if(!pickActive)return;
       var t=e.target;
@@ -215,7 +242,6 @@
         if(tgt){ showHint(tgt.card,tgt.after,tgt.horiz); openNew(tgt.k+1); }
       }
     }, true);
-
     window.addEventListener('pointerdown',function(e){
       if(!pickActive||!pointerMode)return;
       if(allowedUI(e.target))return;
