@@ -1,8 +1,8 @@
 /* Arrow System admin v3.7 — FULL manual control: add/edit/delete/delete-all, gate info */
 (async function(){
-  var VER='3.7';
+  var VER='3.8';
   function setBadge(txt,bg){var b=document.getElementById('asBadge');if(!b){b=document.createElement('div');b.id='asBadge';b.style.cssText='position:fixed;bottom:8px;right:8px;z-index:99998;background:#27ae60;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;font-family:sans-serif;opacity:.9';document.body.appendChild(b);}b.textContent=txt;b.style.background=bg||'#27ae60';}
-  setBadge('➡️ AS v'+VER);
+  
 
   var FB='arrowSystem';
   var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','🔺','','👉','','👆','👇','⏩','⏪','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','','🛒','️','💎'];
@@ -60,7 +60,7 @@
       });
     }
     MENU_CATS.forEach(function(m){ if(!CATNAMES[m[0]])CATNAMES[m[0]]=m[1]; if(!CATSOURCE[m[0]])CATSOURCE[m[0]]='menu'; });
-    setBadge('➡️ AS v'+VER+' | Cats: '+(Object.keys(CATNAMES).length-1));
+    
   }
   function previewURL(id){ return (CATSOURCE[id]==='menu') ? ('/category.html?id='+id) : '/index.html'; }
   function catLabel(id){ return CATNAMES[id]||id; }
@@ -79,12 +79,12 @@
     var a=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js");
     var C={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
     var app=m.getApps().length?m.getApp():m.initializeApp(C);
-    db=d.getDatabase(app); fbD=d; auth=a.getAuth(app); return true; }catch(e){setBadge('AS: Init Fail','#e74c3c');return false} }
+    db=d.getDatabase(app); fbD=d; auth=a.getAuth(app); return true; }catch(e){return false} }
   function load(cb){ initFB().then(function(ok){ if(!ok){setTimeout(function(){load(cb)},3000);return}
     fbD.get(fbD.ref(db,'settings/'+FB)).then(function(s){ cfg=normCfg(s.exists()?s.val():null); cb&&cb(); }).catch(function(){ fbD.get(fbD.ref(db,FB)).then(function(s2){ cfg=normCfg(s2.exists()?s2.val():null); cb&&cb(); }).catch(function(){ cb&&cb(); }); }); }); }
   async function save(msg){ if(!checkAuth()){ alert('⚠️ Permission Denied!\nলগইন করুন।'); setBadge('AS: Not Logged In','#e74c3c'); return; }
     initFB().then(function(ok){ if(!ok){alert('Firebase ready নয়');return}
-      fbD.set(fbD.ref(db,'settings/'+FB),prepCfg(cfg)).then(function(){ toast(msg||'Saved ✅'); renderList(); setBadge('➡️ AS Saved','#27ae60'); }).catch(function(e){ alert('Save failed: '+(e.message||e)); setBadge('AS: Save Error','#e74c3c'); }); }); }
+      fbD.set(fbD.ref(db,'settings/'+FB),prepCfg(cfg)).then(function(){ toast(msg||'Saved ✅'); renderList();  }).catch(function(e){ alert('Save failed: '+(e.message||e));  }); }); }
   function uid(){return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
   function toast(t){var d=document.createElement('div');d.textContent=t;d.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#27ae60;color:#fff;padding:10px 16px;border-radius:8px;z-index:99999;font-weight:600';document.body.appendChild(d);setTimeout(function(){d.remove()},2500)}
 
