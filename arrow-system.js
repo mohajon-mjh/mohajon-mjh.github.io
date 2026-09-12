@@ -1,6 +1,6 @@
-/* Arrow System public v8 — TAP anywhere to place/edit/delete + CSS override fix */
+/* Arrow System public v9 — correct container climb (carousel wrapper fix) */
 (function(){
-  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','','🛒','🏷️','💎'];
+  var EMO=['➡️','⬅️','⬆️','️','▶️','️','🔺','','👉','','👆','','⏩','','','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','','','🛒','🏷️','💎'];
   var PATH1='settings/arrowSystem', PATH2='arrowSystem';
   var cfg=null, db=null, fbD=null, popup=null;
   var pickMode=location.search.indexOf('aspick=1')>-1;
@@ -27,22 +27,37 @@
     }).catch(function(){ cb(normCfg(null)); });
   }
 
-  function layoutOf(cards,p){
-    var horiz = cards.length>1 ? (cards[0].offsetTop===cards[1].offsetTop) : false;
-    if(horiz) return 'h';
-    return (getComputedStyle(p).display.indexOf('grid')===0) ? 'vgrid' : 'vflex';
+  // carousel wrapper skip করে আসল container খোঁজা
+  function resolveContainer(card){
+    var n=card.parentElement;
+    while(n && n!==document.body){
+      if(n.querySelectorAll('.product-card').length>1) return n;
+      n=n.parentElement;
+    }
+    return card.parentElement;
   }
-  function markerEl(m,mode){
+  function childOf(container,node){
+    var n=node;
+    while(n && n.parentElement!==container) n=n.parentElement;
+    return n||node;
+  }
+  function layoutOf(cards){
+    return (cards.length>1 && cards[0].offsetTop===cards[1].offsetTop) ? 'h' : 'v';
+  }
+  function markerEl(m,mode,ct){
     var d=document.createElement('div');d.className='arrow-marker';
     var h=(m.height||28);
     var S=function(k,v){d.style.setProperty(k,v,'important')};
     S('display','flex');S('align-items','center');S('justify-content','center');
     S('line-height','1');S('font-size',(h-4)+'px');
     S('border','none');S('outline','none');S('box-shadow','none');S('background','transparent');
-    S('height',h+'px');S('padding','0');S('min-width','0');S('min-height','0');
+    S('height',h+'px');S('padding','0');S('min-width','0');S('min-height','0');S('max-height',h+'px');
     if(mode==='h'){ S('align-self','center');S('flex','0 0 auto');S('width',(m.width>0?m.width+'px':'60px'));S('margin','0 4px'); }
-    else if(mode==='vgrid'){ S('grid-column','1 / -1');S('align-self','center');S('width',(m.width>0?m.width+'px':'auto'));S('margin','5px 0'); }
-    else { S('width',(m.width>0?m.width+'px':'100%'));S('margin','5px 0'); }
+    else {
+      var grid=getComputedStyle(ct).display.indexOf('grid')===0;
+      if(grid){S('grid-column','1 / -1');}
+      S('align-self','center');S('width',(m.width>0?m.width+'px':'100%'));S('margin','5px 0');
+    }
     d.textContent=m.emoji||'➡️';
     if(pickActive){ S('background','rgba(39,174,96,.15)');S('cursor','pointer');S('pointer-events','auto');
       d.onclick=function(e){e.stopPropagation();e.preventDefault();openEdit(m);}; }
@@ -54,31 +69,32 @@
     if(!cfg||cfg.enabled===false)return true;
     var cardsAll=[].slice.call(document.querySelectorAll('.product-card'));
     if(!cardsAll.length)return false;
-    var parents=[];
-    cardsAll.forEach(function(c){ if(c.parentElement&&parents.indexOf(c.parentElement)<0)parents.push(c.parentElement); });
+    var containers=[];
+    cardsAll.forEach(function(c){var ct=resolveContainer(c); if(containers.indexOf(ct)<0)containers.push(ct);});
     var c=curCat();
-    parents.forEach(function(p){
-      var cards=[].filter.call(p.children,function(ch){return ch.classList&&ch.classList.contains('product-card')});
+    containers.forEach(function(ct){
+      var cards=[].slice.call(ct.querySelectorAll('.product-card'));
       if(!cards.length)return;
-      var mode=layoutOf(cards,p);
-      var attr=(p.getAttribute&&p.getAttribute('data-cat'))||'';
+      var mode=layoutOf(cards);
+      var attr=(ct.getAttribute&&ct.getAttribute('data-cat'))||'';
       var ms=(cfg.markers||[]).filter(function(m){
         if(!m)return false; var s=m.scope||'all';
-        return s==='all'||s===c||(attr&&attr.indexOf(s)>-1)||(p.id&&p.id.indexOf(s)>-1);
+        return s==='all'||s===c||(attr&&attr.indexOf(s)>-1)||(ct.id&&ct.id.indexOf(s)>-1);
       });
       ms.sort(function(a,b){return (a.position||0)-(b.position||0)});
       var anchors={};
       ms.forEach(function(m){
         var pos=parseInt(m.position||0,10); if(pos<1||pos>cards.length)return;
-        var n=markerEl(m,mode);
-        if(anchors[pos])anchors[pos].insertAdjacentElement('afterend',n); else cards[pos-1].insertAdjacentElement('afterend',n);
+        var anchorChild=childOf(ct,cards[pos-1]);
+        var n=markerEl(m,mode,ct);
+        if(anchors[pos]) anchors[pos].insertAdjacentElement('afterend',n);
+        else anchorChild.insertAdjacentElement('afterend',n);
         anchors[pos]=n;
       });
     });
     return true;
   }
 
-  // ===== TAP TO PLACE =====
   function nearestTarget(x,y){
     var cards=[].slice.call(document.querySelectorAll('.product-card'));
     var best=null,bestD=1e9;
@@ -91,13 +107,13 @@
       if(dd<bestD){bestD=dd;best={card:cards[i],r:r};}
     }
     if(!best||bestD>170)return null;
-    var p=best.card.parentElement;
-    var sib=[].filter.call(p.children,function(ch){return ch.classList&&ch.classList.contains('product-card')});
-    var horiz=sib.length>1?(sib[0].offsetTop===sib[1].offsetTop):false;
-    var idx=sib.indexOf(best.card);
+    var ct=resolveContainer(best.card);
+    var cards2=[].slice.call(ct.querySelectorAll('.product-card'));
+    var horiz=cards2.length>1?(cards2[0].offsetTop===cards2[1].offsetTop):false;
+    var idx=cards2.indexOf(best.card);
     var after=horiz?(x>best.r.left+best.r.width/2):(y>best.r.top+best.r.height/2);
     var k=after?idx:idx-1; if(k<0)k=0;
-    return {k:k,horiz:horiz,card:best.card,after:after};
+    return {k:k};
   }
   function clearHint(){var h=document.getElementById('asDropHint');if(h)h.remove();}
   function showHint(card,after,horiz){
@@ -110,7 +126,6 @@
     document.body.appendChild(el);
   }
 
-  // ===== EDITOR =====
   function closePopup(){if(popup){popup.remove();popup=null;}clearHint();}
   function buildPopup(title,vals,onSave,onDelete){
     closePopup();
@@ -140,7 +155,7 @@
   }
   function saveFB(msg){ fbD.set(fbD.ref(db,PATH1),prepCfg(cfg)).then(function(){ apply(); toastMsg(msg); }).catch(function(e){ alert('Save fail: '+(e.message||e)); }); }
   function openNew(pos){
-    buildPopup('➕ Arrow বসাও: পণ্য '+pos+' এর পরে (scope: '+scopeForPage()+')', {emoji:'➡️',height:28,width:0}, function(v){
+    buildPopup('➕ Arrow: পণ্য '+pos+' এর পরে (scope: '+scopeForPage()+')', {emoji:'➡️',height:28,width:0}, function(v){
       cfg.markers=cfg.markers||[];
       cfg.markers.push({id:uid(),scope:scopeForPage(),position:pos,emoji:v.emoji,height:v.height,width:v.width});
       saveFB('Marker added ✅');
@@ -156,12 +171,12 @@
 
   function startPick(){
     var flag=false; try{ flag=localStorage.getItem('asPickerAllowed')==='1'; }catch(e){}
-    if(!flag){ alert('Picker চালু করতে আগে একই browser এ Admin Panel খোলো, তারপর ফিরে এসো।'); return; }
+    if(!flag){ alert('Picker চালু করতে আগে একই browser এ Admin Panel খোলো।'); return; }
     pickActive=true;
     document.body.style.cursor='crosshair';
     var bar=document.createElement('div');bar.id='asBar';
     bar.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#8e44ad;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);text-align:center;cursor:default';
-    bar.innerHTML='🎯 Picker ON — যেখানে খুশি tap করো = সেই ফাঁকে arrow | arrow এ tap = edit/delete <button id="apExit" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:8px">❌ Exit</button>';
+    bar.innerHTML='🎯 Picker ON — যেখানে খুশি tap = সেই ফাঁকে arrow | arrow এ tap = edit/delete <button id="apExit" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:8px">❌ Exit</button>';
     document.body.appendChild(bar);
     bar.querySelector('#apExit').onclick=function(){ var q=location.search.replace(/[?&]aspick=1/,''); if(q.indexOf('?')===-1)q=q.replace(/^&/,'?'); location.href=location.pathname+q; };
     document.addEventListener('click', function(e){
@@ -171,7 +186,7 @@
       var tgt=nearestTarget(e.clientX,e.clientY);
       if(!tgt)return;
       e.preventDefault(); e.stopPropagation();
-      showHint(tgt.card,tgt.after,tgt.horiz);
+      showHint(tgt.card||null,tgt.after,tgt.horiz);
       setTimeout(function(){ openNew(tgt.k+1); },150);
     }, true);
     apply();
