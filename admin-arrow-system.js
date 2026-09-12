@@ -1,11 +1,11 @@
-/* Arrow System v3.4 — preview opens home cats on home, menu cats on category page */
+/* Arrow System v3.5 — admin: + Live Picker Mode button */
 (async function(){
-  var VER='v3.4';
+  var VER='3.5';
   function setBadge(txt,bg){var b=document.getElementById('asBadge');if(!b){b=document.createElement('div');b.id='asBadge';b.style.cssText='position:fixed;bottom:8px;right:8px;z-index:99998;background:#27ae60;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;font-family:sans-serif;opacity:.9';document.body.appendChild(b);}b.textContent=txt;b.style.background=bg||'#27ae60';}
-  setBadge('➡️ AS '+VER+' Loading...');
+  setBadge('➡️ AS v'+VER+' Loading...');
 
   var FB='arrowSystem';
-  var EMO=['➡️','⬅️','⬆️','️','▶️','️','🔺','🔻','','👈','','👇','','⏪','🔼','🔽','↪️','↩️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','🏷️',''];
+  var EMO=['➡️','️','️','️','▶️','️','','🔻','','👈','','👇','','⏪','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','','📌','','🛒','️','💎'];
 
   var GROUP_DEFS=[
     ['megaCategories','🎁 Mega Offers'],
@@ -95,9 +95,10 @@
       });
     }
     MENU_CATS.forEach(function(m){ if(!CATNAMES[m[0]]){CATNAMES[m[0]]=m[1];} if(!CATSOURCE[m[0]])CATSOURCE[m[0]]='menu'; });
-    setBadge('➡️ AS '+VER+' | Cats: '+(Object.keys(CATNAMES).length-1));
+    setBadge('➡️ AS v'+VER+' | Cats: '+(Object.keys(CATNAMES).length-1));
   }
   function previewURL(id){ return (CATSOURCE[id]==='menu') ? ('/category.html?id='+id) : '/index.html'; }
+  function pickerURL(id){ var b=previewURL(id); return b+(b.indexOf('?')>-1?'&':'?')+'aspick=1'; }
 
   function checkAuth(){ if(!auth)return false; return !!auth.currentUser; }
   function normCfg(v){
@@ -180,7 +181,7 @@
       var d=document.createElement('div');
       d.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid '+(editingId===m.id?'#3498db':'#ddd')+';border-radius:8px;padding:8px 10px;margin:6px 0;background:'+(editingId===m.id?'#eaf4fd':'#fafafa');
       var wDisp=(m.width===0||!m.width)?'full':m.width;
-      var srcTag=(CATSOURCE[m.scope]==='menu')?'☰':'';
+      var srcTag=(CATSOURCE[m.scope]==='menu')?'☰':'🏠';
       var previewLink = m.scope && m.scope !== 'all' ? '<a href="'+previewURL(m.scope)+'" target="_blank" style="font-size:11px;color:#3498db;text-decoration:none;margin-left:5px;border:1px solid #3498db;padding:2px 6px;border-radius:4px;">👁️ View</a>' : '';
       d.innerHTML='<b style="min-width:26px;color:#222">#'+(i+1)+'</b>'+
         '<span style="font-size:13px;color:#222">'+srcTag+' Scope: <b>'+catLabel(m.scope||'all')+'</b>'+previewLink+'</span>'+
@@ -219,12 +220,13 @@
     var c=document.createElement('div'); c.id='arrowSystemCard';
     c.style.cssText='background:#fff;border-radius:12px;padding:16px;margin:16px 0;color:#222;box-shadow:0 2px 8px rgba(0,0,0,.08)';
     c.innerHTML='<h3 style="margin:0 0 6px;color:#222">➡️ Arrow System (Manual Control)</h3>'+
-      '<p style="margin:0 0 10px;font-size:13px;color:#666">🏠 হোম ক্যাটাগরি → Preview হোম পেজে খোলে | ☰ Menu ক্যাটাগরি → Preview category page এ খোলে।</p>'+
+      '<p style="margin:0 0 10px;font-size:13px;color:#666">👁️ Preview = সাধারণ view | 🎯 Live Picker = সাইটে দাঁড়িয়ে + tap করে arrow বসাও/edit/delete করো।</p>'+
       '<label style="font-size:14px;display:flex;align-items:center;gap:6px;color:#222"><input type="checkbox" id="asEnabled" style="width:18px;height:18px"> <b>System ON/OFF</b></label>'+
       '<div id="asList" style="margin-top:10px"></div>'+
       '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+
       '<button id="asAdd" style="background:#f39c12;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600">➕ Add Marker</button>'+
       '<button id="asPreviewBtn" style="background:#3498db;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600;display:none">👁️ Preview</button>'+
+      '<button id="asPick" style="background:#8e44ad;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600">🎯 Live Picker Mode</button>'+
       '</div>'+
       '<div id="asForm" style="display:none;margin-top:12px;border:2px solid #3498db;border-radius:10px;padding:12px;background:#f4f9ff">'+
       '<b id="asFormTitle" style="display:block;margin-bottom:8px;color:#222">➕ নতুন Marker</b>'+
@@ -247,6 +249,7 @@
     document.getElementById('asEnabled').onchange=function(){ cfg.enabled=this.checked; save(this.checked?'System ON ✅':'System OFF ⛔'); };
     document.getElementById('asScopeBtn').onclick=function(){ openScopePicker(document.getElementById('asScope'), this); };
     document.getElementById('asPreviewBtn').onclick=function(){ var v=document.getElementById('asScope').value; if(v&&v!=='all')window.open(previewURL(v),'_blank'); };
+    document.getElementById('asPick').onclick=function(){ var v=document.getElementById('asScope').value; window.open(pickerURL(v||'all'),'_blank'); };
     document.getElementById('asAdd').onclick=function(){ editingId=null; resetForm(); showForm(true); renderList(); document.getElementById('asFormTitle').textContent='➕ নতুন Marker'; };
     document.getElementById('asCancel').onclick=function(){ editingId=null; showForm(false); renderList(); };
     document.getElementById('asEmojiBtn').onclick=function(){ openPicker(document.getElementById('asEmojiBtn'),document.getElementById('asEmoji')); };
