@@ -1,6 +1,6 @@
-/* Arrow System public v11 — big arrow cursor, instant editor on drop, site clicks blocked in picker */
+/* Arrow System public v12 — OVERLAY markers (no layout intrusion, no box) */
 (function(){
-  var EMO=['➡️','️','⬆️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','','','🛒','🏷️',''];
+  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','️','💎'];
   var PATH1='settings/arrowSystem', PATH2='arrowSystem';
   var cfg=null, db=null, fbD=null, popup=null;
   var pickMode=location.search.indexOf('aspick=1')>-1;
@@ -36,31 +36,35 @@
     }
     return card.parentElement;
   }
-  function childOf(container,node){
-    var n=node;
-    while(n && n.parentElement!==container) n=n.parentElement;
-    return n||node;
-  }
   function layoutOf(cards){
     return (cards.length>1 && cards[0].offsetTop===cards[1].offsetTop) ? 'h' : 'v';
   }
-  function markerEl(m,mode,ct){
+  function relX(n,ct){var x=0;while(n&&n!==ct){x+=n.offsetLeft;n=n.offsetParent;}return x;}
+  function relY(n,ct){var y=0;while(n&&n!==ct){y+=n.offsetTop;n=n.offsetParent;}return y;}
+
+  // OVERLAY marker: দুই পণ্যের সীমানায় ভাসমান chip
+  function placeOverlay(m,card,ct,mode){
     var d=document.createElement('div');d.className='arrow-marker';
     var h=(m.height||28);
+    var horiz=(mode==='h');
+    var w= m.width>0? m.width : (horiz?36:Math.max(60,card.offsetWidth-10));
+    var cx=relX(card,ct), cy=relY(card,ct);
+    var left,top;
+    if(horiz){ left=cx+card.offsetWidth-Math.round(w/2); top=cy+Math.round(card.offsetHeight/2)-Math.round(h/2); }
+    else { left=cx+Math.round(card.offsetWidth/2)-Math.round(w/2); top=cy+card.offsetHeight-Math.round(h/2)+2; }
     var S=function(k,v){d.style.setProperty(k,v,'important')};
+    S('position','absolute');S('left',left+'px');S('top',top+'px');
+    S('width',w+'px');S('height',h+'px');
     S('display','flex');S('align-items','center');S('justify-content','center');
-    S('line-height','1');S('font-size',(h-4)+'px');
-    S('border','none');S('outline','none');S('box-shadow','none');S('background','transparent');
-    S('height',h+'px');S('padding','0');S('min-width','0');S('min-height','0');S('max-height',h+'px');
-    if(mode==='h'){ S('align-self','center');S('flex','0 0 auto');S('width',(m.width>0?m.width+'px':'60px'));S('margin','0 4px'); }
-    else {
-      if(getComputedStyle(ct).display.indexOf('grid')===0){S('grid-column','1 / -1');}
-      S('align-self','center');S('width',(m.width>0?m.width+'px':'100%'));S('margin','5px 0');
-    }
+    S('line-height','1');S('font-size',Math.max(12,h-6)+'px');
+    S('border','none');S('outline','none');S('box-shadow','none');
+    S('background',pickActive?'rgba(39,174,96,.18)':'transparent');
+    S('z-index','60');S('margin','0');S('padding','0');S('border-radius','8px');
+    S('pointer-events',pickActive?'auto':'none');
+    S('cursor','pointer');
     d.textContent=m.emoji||'➡️';
     d._asMarker=m;
-    if(pickActive){ S('background','rgba(39,174,96,.15)');S('pointer-events','auto'); }
-    return d;
+    ct.appendChild(d);
   }
 
   function apply(){
@@ -74,6 +78,7 @@
     containers.forEach(function(ct){
       var cards=[].slice.call(ct.querySelectorAll('.product-card'));
       if(!cards.length)return;
+      if(getComputedStyle(ct).position==='static') ct.style.position='relative';
       var mode=layoutOf(cards);
       var attr=(ct.getAttribute&&ct.getAttribute('data-cat'))||'';
       var ms=(cfg.markers||[]).filter(function(m){
@@ -81,14 +86,9 @@
         return s==='all'||s===c||(attr&&attr.indexOf(s)>-1)||(ct.id&&ct.id.indexOf(s)>-1);
       });
       ms.sort(function(a,b){return (a.position||0)-(b.position||0)});
-      var anchors={};
       ms.forEach(function(m){
         var pos=parseInt(m.position||0,10); if(pos<1||pos>cards.length)return;
-        var anchorChild=childOf(ct,cards[pos-1]);
-        var n=markerEl(m,mode,ct);
-        if(anchors[pos]) anchors[pos].insertAdjacentElement('afterend',n);
-        else anchorChild.insertAdjacentElement('afterend',n);
-        anchors[pos]=n;
+        placeOverlay(m,cards[pos-1],ct,mode);
       });
     });
     return true;
@@ -100,12 +100,12 @@
     for(var i=0;i<cards.length;i++){
       var r=cards[i].getBoundingClientRect();
       if(r.width<5||r.height<5)continue;
-      var inside=(x>=r.left-5&&x<=r.right+5&&y>=r.top-5&&y<=r.bottom+5);
+      var inside=(x>=r.left-8&&x<=r.right+8&&y>=r.top-8&&y<=r.bottom+8);
       var cx=r.left+r.width/2, cy=r.top+r.height/2;
       var dd=inside?0:Math.sqrt((x-cx)*(x-cx)+(y-cy)*(y-cy));
       if(dd<bestD){bestD=dd;best={card:cards[i],r:r};}
     }
-    if(!best||bestD>170)return null;
+    if(!best||bestD>260)return null;
     var ct=resolveContainer(best.card);
     var cards2=[].slice.call(ct.querySelectorAll('.product-card'));
     var horiz=cards2.length>1?(cards2[0].offsetTop===cards2[1].offsetTop):false;
@@ -169,7 +169,6 @@
     });
   }
 
-  // ===== BIG MOUSE POINTER =====
   function makeCursor(){
     cursorEl=document.createElement('div');cursorEl.id='asCursor';
     cursorEl.style.cssText='position:fixed;z-index:100001;pointer-events:none;display:none;left:0;top:0;filter:drop-shadow(0 3px 6px rgba(0,0,0,.55))';
@@ -191,7 +190,7 @@
 
     var bar=document.createElement('div');bar.id='asBar';
     bar.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#8e44ad;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);text-align:center';
-    bar.innerHTML='🎯 Picker ON — তীর টেনে ছাড়ো = arrow | arrow tap = edit/delete '+
+    bar.innerHTML='🎯 Picker ON — পণ্যের উপর ছাড়ো = ওই পণ্যের পরে arrow | chip tap = edit/delete '+
       '<button id="asPtrToggle" style="background:#2c3e50;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:6px">🖱️ ON</button>'+
       '<button id="apExit" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:6px">❌ Exit</button>';
     document.body.appendChild(bar);
@@ -204,7 +203,6 @@
     };
     document.body.classList.add('as-lock');
 
-    // সাইটের সব click বন্ধ (product open, carousel arrow, link) — শুধু picker UI চলবে
     document.addEventListener('click', function(e){
       if(!pickActive)return;
       var t=e.target;
@@ -230,7 +228,6 @@
         if(dragging){
           if(e.clientY<90) window.scrollBy(0,-14);
           else if(e.clientY>window.innerHeight-90) window.scrollBy(0,14);
-          // horizontal carousel slide
           if(e.clientX<70||e.clientX>window.innerWidth-70){
             var el=document.elementFromPoint(e.clientX,e.clientY);
             while(el&&el!==document.body){
@@ -250,7 +247,7 @@
       var mk=e.target.closest && e.target.closest('.arrow-marker');
       if(mk && mk._asMarker){ openEdit(mk._asMarker); return; }
       var tgt=nearestTarget(e.clientX,e.clientY);
-      if(!tgt){ toastMsg('পণ্যের কাছে ছাড়ো'); return; }
+      if(!tgt){ toastMsg('কোনো পণ্যের উপর ছাড়ো'); return; }
       showHint(tgt.card,tgt.after,tgt.horiz);
       openNew(tgt.k+1);
     },true);
