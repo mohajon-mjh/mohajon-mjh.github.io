@@ -1,11 +1,11 @@
-/* Arrow System v3.2 — Live Firebase settings + 2-Panel Category Picker */
+/* Arrow System v3.3 — text color fix (admin dark theme override) */
 (async function(){
-  var VER='v3.2';
+  var VER='v3.3';
   function setBadge(txt,bg){var b=document.getElementById('asBadge');if(!b){b=document.createElement('div');b.id='asBadge';b.style.cssText='position:fixed;bottom:8px;right:8px;z-index:99998;background:#27ae60;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;font-family:sans-serif;opacity:.9';document.body.appendChild(b);}b.textContent=txt;b.style.background=bg||'#27ae60';}
   setBadge('➡️ AS '+VER+' Loading...');
 
   var FB='arrowSystem';
-  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','','','','','👆','','⏩','⏪','','🔽','️','↩️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','','📌','💰','🛒','🏷️','💎'];
+  var EMO=['➡️','️','️','⬇️','▶️','◀️','','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','️','💎'];
 
   var GROUP_DEFS=[
     ['megaCategories','🎁 Mega Offers'],
@@ -70,7 +70,6 @@
   var HOME_GROUPS=[];
   var cfg={enabled:true,markers:[]}, editingId=null, picker=null, scopeModal=null, db=null, fbD=null, auth=null;
 
-  // LIVE Firebase settings আগে, তারপর local fallback
   async function loadSettings(){
     HOME_GROUPS=[];
     var s=null;
@@ -145,11 +144,11 @@
   function uid(){return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
   function toast(t){var d=document.createElement('div');d.textContent=t;d.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#27ae60;color:#fff;padding:10px 16px;border-radius:8px;z-index:99999;font-weight:600';document.body.appendChild(d);setTimeout(function(){d.remove()},2500)}
 
-  // ===== 2-PANEL SCOPE PICKER =====
+  // ===== 2-PANEL SCOPE PICKER (color fix) =====
   function closeScope(){ if(scopeModal){scopeModal.remove();scopeModal=null;} }
   function scopeItemBtn(it,hidden,btn){
     var b=document.createElement('button');b.type='button';b.textContent=it.name;
-    b.style.cssText='display:block;width:100%;text-align:left;background:#f5f5f5;border:0;border-radius:6px;padding:6px 8px;margin:3px 0;cursor:pointer;font-size:12px';
+    b.style.cssText='display:block;width:100%;text-align:left;background:#f5f5f5;color:#222;border:0;border-radius:6px;padding:6px 8px;margin:3px 0;cursor:pointer;font-size:12px;font-weight:600';
     b.onclick=function(){hidden.value=it.id;btn.textContent=it.name;closeScope();onScopeChange();};
     return b;
   }
@@ -158,7 +157,7 @@
     scopeModal=document.createElement('div');
     scopeModal.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:10px';
     var box=document.createElement('div');
-    box.style.cssText='background:#fff;border-radius:12px;width:100%;max-width:680px;max-height:82vh;display:flex;flex-direction:column;overflow:hidden';
+    box.style.cssText='background:#fff;color:#222;border-radius:12px;width:100%;max-width:680px;max-height:82vh;display:flex;flex-direction:column;overflow:hidden';
     box.innerHTML='<div style="padding:10px 14px;background:#3498db;color:#fff;display:flex;justify-content:space-between;align-items:center"><b>📂 Category Select (২ ভাগ)</b><button id="asScopeClose" style="background:#e74c3c;color:#fff;border:0;border-radius:4px;padding:4px 8px;cursor:pointer">✕</button></div>'+
       '<div style="padding:8px 14px 0"><button id="asScopeAll" style="background:#27ae60;color:#fff;border:0;border-radius:6px;padding:8px 12px;cursor:pointer;font-weight:600">সব ক্যাটাগরি (all)</button></div>'+
       '<div style="display:flex;gap:10px;padding:10px 14px 14px;overflow:auto;flex:1">'+
@@ -178,14 +177,14 @@
     scopeModal.addEventListener('click',function(e){if(e.target===scopeModal)closeScope()});
   }
 
-  // ===== EMOJI PICKER =====
+  // ===== EMOJI PICKER (color fix) =====
   function openPicker(btn,hidden){
     closePicker();
     picker=document.createElement('div');
-    picker.style.cssText='position:fixed;z-index:99999;background:#fff;border:1px solid #ccc;border-radius:10px;padding:10px;display:grid;grid-template-columns:repeat(8,38px);gap:4px;max-height:300px;overflow:auto;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 8px 30px rgba(0,0,0,.35)';
+    picker.style.cssText='position:fixed;z-index:99999;background:#fff;color:#222;border:1px solid #ccc;border-radius:10px;padding:10px;display:grid;grid-template-columns:repeat(8,38px);gap:4px;max-height:300px;overflow:auto;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 8px 30px rgba(0,0,0,.35)';
     picker.innerHTML='<div style="grid-column:1/-1;text-align:right;margin-bottom:6px"><button id="asPickerClose" style="background:#e74c3c;color:#fff;border:0;border-radius:4px;padding:4px 8px;cursor:pointer">✕ Close</button></div>';
-    EMO.forEach(function(e){var b=document.createElement('button');b.type='button';b.textContent=e;b.style.cssText='font-size:22px;border:0;background:#f5f5f5;border-radius:6px;padding:4px;cursor:pointer';b.onclick=function(){hidden.value=e;btn.textContent=e;closePicker()};picker.appendChild(b)});
-    var ci=document.createElement('input');ci.placeholder='custom (যেমন > বা ★)';ci.style.cssText='grid-column:1/-1;padding:6px;margin-top:6px;border:1px solid #ccc;border-radius:6px';
+    EMO.forEach(function(e){var b=document.createElement('button');b.type='button';b.textContent=e;b.style.cssText='font-size:22px;border:0;background:#f5f5f5;color:#222;border-radius:6px;padding:4px;cursor:pointer';b.onclick=function(){hidden.value=e;btn.textContent=e;closePicker()};picker.appendChild(b)});
+    var ci=document.createElement('input');ci.placeholder='custom (যেমন > বা ★)';ci.style.cssText='grid-column:1/-1;padding:6px;margin-top:6px;border:1px solid #ccc;border-radius:6px;color:#222;background:#fff';
     var sb=document.createElement('button');sb.type='button';sb.textContent='Set custom';sb.style.cssText='grid-column:1/-1;background:#3498db;color:#fff;border:0;border-radius:6px;padding:8px;margin-top:4px;cursor:pointer;font-weight:600';
     sb.onclick=function(){if(ci.value){hidden.value=ci.value;btn.textContent=ci.value;closePicker()}};
     picker.appendChild(ci);picker.appendChild(sb);
@@ -206,9 +205,9 @@
       d.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid '+(editingId===m.id?'#3498db':'#ddd')+';border-radius:8px;padding:8px 10px;margin:6px 0;background:'+(editingId===m.id?'#eaf4fd':'#fafafa');
       var wDisp=(m.width===0||!m.width)?'full':m.width;
       var previewLink = m.scope && m.scope !== 'all' ? '<a href="/category.html?id='+m.scope+'" target="_blank" style="font-size:11px;color:#3498db;text-decoration:none;margin-left:5px;border:1px solid #3498db;padding:2px 6px;border-radius:4px;">👁️ View</a>' : '';
-      d.innerHTML='<b style="min-width:26px">#'+(i+1)+'</b>'+
-        '<span style="font-size:13px">Scope: <b>'+catLabel(m.scope||'all')+'</b>'+previewLink+'</span>'+
-        '<span style="font-size:13px">Pos: <b>'+(m.position||1)+'</b></span>'+
+      d.innerHTML='<b style="min-width:26px;color:#222">#'+(i+1)+'</b>'+
+        '<span style="font-size:13px;color:#222">Scope: <b>'+catLabel(m.scope||'all')+'</b>'+previewLink+'</span>'+
+        '<span style="font-size:13px;color:#222">Pos: <b>'+(m.position||1)+'</b></span>'+
         '<span style="font-size:24px">'+(m.emoji||'➡️')+'</span>'+
         '<span style="font-size:12px;color:#666">H:'+(m.height||28)+' W:'+wDisp+'</span>'+
         '<span style="flex:1"></span>'+
@@ -240,22 +239,22 @@
   function buildCard(){
     var c=document.createElement('div'); c.id='arrowSystemCard';
     c.style.cssText='background:#fff;border-radius:12px;padding:16px;margin:16px 0;color:#222;box-shadow:0 2px 8px rgba(0,0,0,.08)';
-    c.innerHTML='<h3 style="margin:0 0 6px">➡️ Arrow System (Manual Control)</h3>'+
+    c.innerHTML='<h3 style="margin:0 0 6px;color:#222">➡️ Arrow System (Manual Control)</h3>'+
       '<p style="margin:0 0 10px;font-size:13px;color:#666">Scope বাছতে click করো — বাম পাশে হোম পেজ, ডান পাশে Menu ক্যাটাগরি।</p>'+
-      '<label style="font-size:14px;display:flex;align-items:center;gap:6px"><input type="checkbox" id="asEnabled" style="width:18px;height:18px"> <b>System ON/OFF</b></label>'+
+      '<label style="font-size:14px;display:flex;align-items:center;gap:6px;color:#222"><input type="checkbox" id="asEnabled" style="width:18px;height:18px"> <b>System ON/OFF</b></label>'+
       '<div id="asList" style="margin-top:10px"></div>'+
       '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+
       '<button id="asAdd" style="background:#f39c12;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600">➕ Add Marker</button>'+
       '<button id="asPreviewBtn" style="background:#3498db;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600;display:none">👁️ Preview Selected Category</button>'+
       '</div>'+
       '<div id="asForm" style="display:none;margin-top:12px;border:2px solid #3498db;border-radius:10px;padding:12px;background:#f4f9ff">'+
-      '<b id="asFormTitle" style="display:block;margin-bottom:8px">➕ নতুন Marker</b>'+
+      '<b id="asFormTitle" style="display:block;margin-bottom:8px;color:#222">➕ নতুন Marker</b>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">'+
-      '<label>Scope (click করে বাছো)<button type="button" id="asScopeBtn" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;text-align:left">সব ক্যাটাগরি (all)</button><input id="asScope" type="hidden" value="all"></label>'+
-      '<label>Position (কততম পণ্যের পরে)<input id="asPos" type="number" min="1" value="1" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px"></label>'+
-      '<label>Emoji (click করো)<button type="button" id="asEmojiBtn" style="width:100%;padding:8px;font-size:22px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer">➡️</button><input id="asEmoji" type="hidden" value="➡️"></label>'+
-      '<label>Height (px)<input id="asH" type="number" value="28" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px"></label>'+
-      '<label style="grid-column:1/-1">Width (px, 0 = full width)<input id="asW" type="number" value="0" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px"></label>'+
+      '<label style="color:#222">Scope (click করে বাছো)<button type="button" id="asScopeBtn" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#222;cursor:pointer;text-align:left;font-weight:600">সব ক্যাটাগরি (all)</button><input id="asScope" type="hidden" value="all"></label>'+
+      '<label style="color:#222">Position (কততম পণ্যের পরে)<input id="asPos" type="number" min="1" value="1" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px;color:#222;background:#fff"></label>'+
+      '<label style="color:#222">Emoji (click করো)<button type="button" id="asEmojiBtn" style="width:100%;padding:8px;font-size:22px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#222;cursor:pointer">➡️</button><input id="asEmoji" type="hidden" value="➡️"></label>'+
+      '<label style="color:#222">Height (px)<input id="asH" type="number" value="28" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px;color:#222;background:#fff"></label>'+
+      '<label style="grid-column:1/-1;color:#222">Width (px, 0 = full width)<input id="asW" type="number" value="0" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px;color:#222;background:#fff"></label>'+
       '</div>'+
       '<div style="margin-top:10px;display:flex;gap:8px">'+
       '<button id="asSaveM" style="background:#27ae60;color:#fff;border:0;border-radius:8px;padding:9px 14px;cursor:pointer;font-weight:600">💾 Save Marker</button>'+
