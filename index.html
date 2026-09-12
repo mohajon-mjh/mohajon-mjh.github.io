@@ -1139,7 +1139,6 @@ function fsInitCategories(){
       a.dataset.cat = id;
       a.textContent = item.name || "Unnamed";
       a.onclick = () => loadFlashCategoryProducts(id);
-      catsRow.appendChild(a);
     });
     const firstId = entries[0][0];
     loadFlashCategoryProducts(firstId);
@@ -1436,7 +1435,6 @@ function dotdInitCategories(){
       a.style.cursor = "pointer";
       a.textContent = item.name || "Unnamed";
       a.onclick = () => loadDotdCategoryProducts(id);
-      catsRow.appendChild(a);
     });
     const firstId = entries[0][0];
     loadDotdCategoryProducts(firstId);
@@ -2343,13 +2341,11 @@ console.log("currency-fix-v2 ready");
  };
  function cardsOf(g){var out=[],ch=g.children;for(var i=0;i<ch.length;i++){if(ch[i].classList&&ch[i].classList.contains("product-card"))out.push(ch[i]);}return out;}
  function makeArrow(g){
-  var old=g.querySelector(".mjh-v9-ar");if(old)old.remove();
+  var old=g.querySelector(".mjh-v9-ar");
   var hid=cardsOf(g).filter(function(c){return c.style.display==="none";});
   if(!hid.length)return;
   var a=document.createElement("div");a.className="mjh-v9-ar";
-  a.innerHTML="<span>→</span>";
-  a.style.cssText="flex:0 0 60px;min-width:60px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border-radius:12px;margin-left:6px;border:2px solid #16a34a;box-shadow:0 2px 8px rgba(22,163,74,.25);";
-  a.firstChild.style.cssText="color:#16a34a;font-weight:900;font-size:36px;line-height:1;";
+  
   a.onclick=function(ev){
    ev.stopPropagation();
    var h2=cardsOf(g).filter(function(c){return c.style.display==="none";});
@@ -2357,7 +2353,6 @@ console.log("currency-fix-v2 ready");
    if(!cardsOf(g).filter(function(c){return c.style.display==="none";}).length)a.remove();
    g.scrollBy({left:400,behavior:"smooth"});
   };
-  g.appendChild(a);
  }
  function ensure(g){
   var cards=cardsOf(g);
@@ -2426,7 +2421,6 @@ console.log("currency-fix-v2 ready");
      a.remove();
      g.scrollBy({left:400,behavior:"smooth"});
     });
-    g.appendChild(a);
    }
   }).catch(function(e){console.error("trend load err",e);});
  }

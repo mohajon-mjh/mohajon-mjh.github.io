@@ -26,7 +26,6 @@ const tag=`
     g.appendChild(c);
    });
    if(items.length>LIMIT){
-    a.addEventListener("click",function(){
      Array.prototype.slice.call(g.children).forEach(function(x){if(x.classList.contains("product-card"))x.style.display="";});
      a.remove();
      g.scrollBy({left:400,behavior:"smooth"});
