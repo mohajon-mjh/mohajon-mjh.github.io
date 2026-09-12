@@ -1,7 +1,7 @@
-/* Arrow System public v17 — emoji gate + remove empty next-page slide (green box) */
+/* Arrow System public v18 — green-box remover + batch gate (default 10) + manual markers */
 (function(){
   var PATH1='settings/arrowSystem', PATH2='arrowSystem';
-  var cfg=null, db=null, fbD=null;
+  var cfg=null, db=null, fbD=null, UN={};
 
   async function initFB(){ if(db)return true; try{
     var m=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
@@ -13,18 +13,39 @@
   function curCat(){try{return new URLSearchParams(location.search).get('id')||''}catch(e){return ''}}
   function uid(){return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
   function normCfg(v){
-    if(!v)return {enabled:true,markers:[]};
+    if(!v)return {enabled:true,batch:10,autoEmoji:'➡️',markers:[]};
     var m=v.markers;
     if(m&&!Array.isArray(m)){m=Object.keys(m).sort(function(a,b){return parseInt(a)-parseInt(b)}).map(function(k){return m[k]});}
     m=Array.isArray(m)?m:[];
     m.forEach(function(x){ if(x&&!x.id)x.id=uid(); });
-    return {enabled:v.enabled!==false,markers:m};
+    return {enabled:v.enabled!==false,batch:v.batch||10,autoEmoji:v.autoEmoji||'➡️',markers:m};
   }
   function loadCfg(cb){
     fbD.get(fbD.ref(db,PATH1)).then(function(s){
       if(s.exists()){ cb(normCfg(s.val())); }
       else fbD.get(fbD.ref(db,PATH2)).then(function(s2){ cb(normCfg(s2.exists()?s2.val():null)); }).catch(function(){ cb(normCfg(null)); });
     }).catch(function(){ cb(normCfg(null)); });
+  }
+
+  // সবুজ border + খালি বড় ঘর = site এর next-slide → remove
+  function greenBorder(el){
+    var cs=getComputedStyle(el);
+    if((parseFloat(cs.borderTopWidth)||0)<1)return false;
+    var m=(cs.borderTopColor||'').match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if(!m)return false;
+    var r=+m[1],g=+m[2],b=+m[3];
+    return (g>110 && g>r+30 && g>b+10);
+  }
+  function removeGreenBoxes(){
+    var all=document.querySelectorAll('div,a,button,li,section,span');
+    [].slice.call(all).forEach(function(el){
+      if(el.classList && el.classList.contains('arrow-marker'))return;
+      var r=el.getBoundingClientRect();
+      if(r.height<100||r.width<60)return;
+      if(el.querySelector && (el.querySelector('.product-card')||el.querySelector('img')))return;
+      var txt=(el.textContent||'').replace(/\s+/g,'').trim();
+      if(greenBorder(el) && txt.length<=6){ el.remove(); }
+    });
   }
 
   function resolveContainer(card){
@@ -41,22 +62,11 @@
   function relX(n,ct){var x=0;while(n&&n!==ct){x+=n.offsetLeft;n=n.offsetParent;}return x;}
   function relY(n,ct){var y=0;while(n&&n!==ct){y+=n.offsetTop;n=n.offsetParent;}return y;}
 
-  // খালি next-page slide (সবুজ ঘর) সরানো — পণ্য না, শুধু ওই ঘর
-  function removeEmptySlide(ct){
-    [].slice.call(ct.children).forEach(function(ch){
-      if(ch.classList && ch.classList.contains('arrow-marker'))return;
-      if(ch.querySelector && (ch.querySelector('.product-card')||ch.querySelector('img')))return;
-      var txt=(ch.textContent||'').replace(/\s+/g,'').trim();
-      var r=ch.getBoundingClientRect();
-      if(r.height>120 && r.width>80 && txt.length<=4){ ch.remove(); }
-    });
-  }
-
-  function placeOverlay(m,card,ct,mode){
+  function placeOverlay(g,card,ct,mode){
     var d=document.createElement('div');d.className='arrow-marker';
-    var h=(m.height||28);
+    var h=(g.height||28);
     var horiz=(mode==='h');
-    var w= m.width>0? m.width : (horiz?44:Math.max(60,card.offsetWidth-10));
+    var w= g.width>0? g.width : (horiz?44:Math.max(60,card.offsetWidth-10));
     var cx=relX(card,ct), cy=relY(card,ct);
     var left,top;
     if(horiz){ left=cx+card.offsetWidth-Math.round(w/2); top=cy+Math.round(card.offsetHeight/2)-Math.round(h/2); }
@@ -71,48 +81,55 @@
     S('background','rgba(255,255,255,.95)');
     S('z-index','60');S('margin','0');S('padding','0');S('border-radius','8px');
     S('pointer-events','auto');S('cursor','pointer');
-    d.textContent=m.emoji||'➡️';
+    d.textContent=g.emoji||'➡️';
     d.title='আরো পণ্য দেখতে ক্লিক করো';
-    d.onclick=function(e){ e.stopPropagation(); e.preventDefault(); m._un=!m._un; apply(); };
+    d.onclick=function(e){ e.stopPropagation(); e.preventDefault(); UN[g.key]=!UN[g.key]; apply(); };
     ct.appendChild(d);
   }
 
   function apply(){
     document.querySelectorAll('.arrow-marker').forEach(function(e){e.remove()});
+    removeGreenBoxes();
     var cardsAll=[].slice.call(document.querySelectorAll('.product-card'));
     cardsAll.forEach(function(c){ c.style.removeProperty('display'); });
     if(!cardsAll.length)return false;
     var containers=[];
     cardsAll.forEach(function(c){var ct=resolveContainer(c); if(containers.indexOf(ct)<0)containers.push(ct);});
-    containers.forEach(function(ct){ removeEmptySlide(ct); });
     if(!cfg||cfg.enabled===false)return true;
     var c=curCat();
+    var batch=Math.max(1,cfg.batch||10);
     containers.forEach(function(ct){
       var cards=[].slice.call(ct.querySelectorAll('.product-card'));
       if(!cards.length)return;
       if(getComputedStyle(ct).position==='static') ct.style.position='relative';
       var mode=layoutOf(cards);
       var attr=(ct.getAttribute&&ct.getAttribute('data-cat'))||'';
-      var ms=(cfg.markers||[]).filter(function(m){
-        if(!m)return false; var s=m.scope||'all';
-        return s==='all'||s===c||(attr&&attr.indexOf(s)>-1)||(ct.id&&ct.id.indexOf(s)>-1);
-      }).sort(function(a,b){return (a.position||0)-(b.position||0)});
+      var gates=[];
+      (cfg.markers||[]).forEach(function(m){
+        var s=m.scope||'all';
+        if(s==='all'||s===c||(attr&&attr.indexOf(s)>-1)||(ct.id&&ct.id.indexOf(s)>-1)){
+          gates.push({pos:m.position||1,emoji:m.emoji,height:m.height,width:m.width,key:m.id});
+        }
+      });
+      var manualPos={}; gates.forEach(function(g){manualPos[g.pos]=1;});
+      for(var p=batch;p<cards.length;p+=batch){ if(!manualPos[p]) gates.push({pos:p,emoji:cfg.autoEmoji||'➡️',height:28,width:0,key:'auto:'+p}); }
+      gates.sort(function(a,b){return a.pos-b.pos});
 
       var limit=cards.length, arrows=[];
-      if(ms.length){
-        limit=Math.min(ms[0].position,cards.length);
-        arrows.push({m:ms[0],pos:limit});
+      if(gates.length){
+        limit=Math.min(gates[0].pos,cards.length);
+        arrows.push(gates[0]);
         var i=0;
-        while(i<ms.length && ms[i]._un){
-          limit=(i+1<ms.length)? Math.min(ms[i+1].position,cards.length) : cards.length;
+        while(i<gates.length && UN[gates[i].key]){
+          limit=(i+1<gates.length)? Math.min(gates[i+1].pos,cards.length) : cards.length;
           i++;
-          if(i<ms.length) arrows.push({m:ms[i],pos:Math.min(ms[i].position,cards.length)});
+          if(i<gates.length) arrows.push(gates[i]);
         }
       }
       cards.forEach(function(card,idx){
         if(idx+1>limit) card.style.setProperty('display','none','important');
       });
-      arrows.forEach(function(a){ if(a.pos>=1) placeOverlay(a.m,cards[a.pos-1],ct,mode); });
+      arrows.forEach(function(g){ if(g.pos>=1) placeOverlay(g,cards[g.pos-1],ct,mode); });
     });
     return true;
   }
@@ -123,7 +140,7 @@
       loadCfg(function(v){
         cfg=v;
         var tries=0;
-        var iv=setInterval(function(){tries++; if(apply()||tries>20)clearInterval(iv)},500);
+        var iv=setInterval(function(){tries++; if(apply()||tries>25)clearInterval(iv)},500);
       });
     });
   }

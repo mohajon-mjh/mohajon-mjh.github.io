@@ -1,6 +1,6 @@
 /* Arrow System admin v3.7 — FULL manual control: add/edit/delete/delete-all, gate info */
 (async function(){
-  var VER='3.8';
+  var VER='3.9';
   function setBadge(txt,bg){var b=document.getElementById('asBadge');if(!b){b=document.createElement('div');b.id='asBadge';b.style.cssText='position:fixed;bottom:8px;right:8px;z-index:99998;background:#27ae60;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;font-family:sans-serif;opacity:.9';document.body.appendChild(b);}b.textContent=txt;b.style.background=bg||'#27ae60';}
   
 
@@ -70,9 +70,9 @@
     if(!v) return {enabled:true,markers:[]};
     var m=v.markers;
     if(m && !Array.isArray(m)){ m=Object.keys(m).sort(function(a,b){return parseInt(a)-parseInt(b)}).map(function(k){return m[k]}); }
-    return {enabled:v.enabled!==false,markers:Array.isArray(m)?m:[]};
+    return {enabled:v.enabled!==false,batch:v.batch||10,autoEmoji:v.autoEmoji||'➡️',markers:Array.isArray(m)?m:[]};
   }
-  function prepCfg(v){ var o={enabled:v.enabled!==false,markers:{}}; (v.markers||[]).forEach(function(m,i){o.markers[i]=m}); return o; }
+  function prepCfg(v){ var o={enabled:v.enabled!==false,batch:v.batch||10,autoEmoji:v.autoEmoji||'➡️',markers:{}}; (v.markers||[]).forEach(function(m,i){o.markers[i]=m}); return o; }
   async function initFB(){ if(db)return true; try{
     var m=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
     var d=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
@@ -185,6 +185,7 @@
     c.innerHTML='<h3 style="margin:0 0 6px;color:#222">➡️ Arrow System (Manual Control)</h3>'+
       '<p style="margin:0 0 10px;font-size:13px;color:#666">সাইটে: emoji পর্যন্ত পণ্য দেখাবে → emoji তে ক্লিক করলে পরের পণ্যগুলো দেখাবে। সব add/edit/delete শুধু এখান থেকে।</p>'+
       '<label style="font-size:14px;display:flex;align-items:center;gap:6px;color:#222"><input type="checkbox" id="asEnabled" style="width:18px;height:18px"> <b>System ON/OFF</b></label>'+
+      '<div style="margin:10px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;color:#222"><label style="color:#222">প্রতি <input id="asBatch" type="number" min="1" value="10" style="width:70px;padding:6px;border:1px solid #ccc;border-radius:6px;color:#222;background:#fff"> পণ্য পরে auto arrow</label><label style="color:#222">Auto emoji: <button type="button" id="asAutoEmojiBtn" style="font-size:20px;padding:4px 10px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#222;cursor:pointer">➡️</button><input id="asAutoEmoji" type="hidden" value="➡️"></label><button id="asBatchSave" style="background:#2980b9;color:#fff;border:0;border-radius:6px;padding:8px 12px;cursor:pointer;font-weight:600">💾 Save Settings</button></div>'+
       '<div id="asList" style="margin-top:10px"></div>'+
       '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+
       '<button id="asAdd" style="background:#f39c12;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600">➕ Add Marker</button>'+
@@ -213,6 +214,8 @@
     document.getElementById('asScopeBtn').onclick=function(){ openScopePicker(document.getElementById('asScope'), this); };
     document.getElementById('asPreviewBtn').onclick=function(){ var v=document.getElementById('asScope').value; if(v&&v!=='all')window.open(previewURL(v),'_blank'); };
     document.getElementById('asDelAll').onclick=function(){ if(confirm('সব marker DELETE করবে?')){ cfg.markers=[]; save('সব marker deleted 🗑️'); } };
+    document.getElementById('asBatchSave').onclick=function(){ cfg.batch=parseInt(document.getElementById('asBatch').value||'10',10); cfg.autoEmoji=document.getElementById('asAutoEmoji').value||'➡️'; save('Settings saved ✅'); };
+    document.getElementById('asAutoEmojiBtn').onclick=function(){ openPicker(this, document.getElementById('asAutoEmoji')); };
     document.getElementById('asAdd').onclick=function(){ editingId=null; resetForm(); showForm(true); renderList(); document.getElementById('asFormTitle').textContent='➕ নতুন Marker'; };
     document.getElementById('asCancel').onclick=function(){ editingId=null; showForm(false); renderList(); };
     document.getElementById('asEmojiBtn').onclick=function(){ openPicker(document.getElementById('asEmojiBtn'),document.getElementById('asEmoji')); };
@@ -245,6 +248,8 @@
       mount();
       load(function(){
         var en=document.getElementById('asEnabled'); if(en)en.checked=cfg.enabled!==false;
+        var bt=document.getElementById('asBatch'); if(bt)bt.value=cfg.batch||10;
+        var ae=document.getElementById('asAutoEmoji'); if(ae){ae.value=cfg.autoEmoji||'➡️'; var ab=document.getElementById('asAutoEmojiBtn'); if(ab)ab.textContent=cfg.autoEmoji||'➡️';}
         renderList();
       });
     }
