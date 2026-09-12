@@ -1,6 +1,6 @@
-/* Arrow System public v7 — DRAG & DROP placement + layout fix */
+/* Arrow System public v8 — TAP anywhere to place/edit/delete + CSS override fix */
 (function(){
-  var EMO=['➡️','⬅️','⬆️','️','▶️','◀️','','','👉','','👆','👇','','⏪','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','','🛒','🏷️','💎'];
+  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','','🛒','🏷️','💎'];
   var PATH1='settings/arrowSystem', PATH2='arrowSystem';
   var cfg=null, db=null, fbD=null, popup=null;
   var pickMode=location.search.indexOf('aspick=1')>-1;
@@ -29,25 +29,28 @@
 
   function layoutOf(cards,p){
     var horiz = cards.length>1 ? (cards[0].offsetTop===cards[1].offsetTop) : false;
-    var grid = getComputedStyle(p).display.indexOf('grid')===0;
     if(horiz) return 'h';
-    return grid ? 'vgrid' : 'vflex';
+    return (getComputedStyle(p).display.indexOf('grid')===0) ? 'vgrid' : 'vflex';
   }
   function markerEl(m,mode){
     var d=document.createElement('div');d.className='arrow-marker';
-    var h=(m.height||28), wpx=m.width>0?(m.width+'px'):null;
-    var base='display:flex;align-items:center;justify-content:center;line-height:1;font-size:'+(h-4)+'px;border:none;outline:none;box-shadow:none;background:transparent;';
-    if(mode==='h') d.style.cssText=base+'align-self:center;flex:0 0 auto;width:'+(wpx||'60px')+';height:'+h+'px;margin:0 4px;border-radius:8px;';
-    else if(mode==='vgrid') d.style.cssText=base+'grid-column:1/-1;align-self:center;width:'+(wpx||'auto')+';height:'+h+'px;margin:4px 0;';
-    else d.style.cssText=base+'width:'+(wpx||'100%')+';height:'+h+'px;margin:6px 0;';
+    var h=(m.height||28);
+    var S=function(k,v){d.style.setProperty(k,v,'important')};
+    S('display','flex');S('align-items','center');S('justify-content','center');
+    S('line-height','1');S('font-size',(h-4)+'px');
+    S('border','none');S('outline','none');S('box-shadow','none');S('background','transparent');
+    S('height',h+'px');S('padding','0');S('min-width','0');S('min-height','0');
+    if(mode==='h'){ S('align-self','center');S('flex','0 0 auto');S('width',(m.width>0?m.width+'px':'60px'));S('margin','0 4px'); }
+    else if(mode==='vgrid'){ S('grid-column','1 / -1');S('align-self','center');S('width',(m.width>0?m.width+'px':'auto'));S('margin','5px 0'); }
+    else { S('width',(m.width>0?m.width+'px':'100%'));S('margin','5px 0'); }
     d.textContent=m.emoji||'➡️';
-    if(pickActive){ d.style.pointerEvents='auto'; d.style.cursor='pointer'; d.style.background='rgba(39,174,96,.15)';
-      d.onclick=function(e){e.stopPropagation();openEdit(m);}; }
+    if(pickActive){ S('background','rgba(39,174,96,.15)');S('cursor','pointer');S('pointer-events','auto');
+      d.onclick=function(e){e.stopPropagation();e.preventDefault();openEdit(m);}; }
     return d;
   }
 
   function apply(){
-    document.querySelectorAll('.arrow-marker,.arrow-gap').forEach(function(e){e.remove()});
+    document.querySelectorAll('.arrow-marker').forEach(function(e){e.remove()});
     if(!cfg||cfg.enabled===false)return true;
     var cardsAll=[].slice.call(document.querySelectorAll('.product-card'));
     if(!cardsAll.length)return false;
@@ -75,75 +78,45 @@
     return true;
   }
 
-  // ===== DRAG & DROP =====
-  function clearHint(){ var h=document.getElementById('asDropHint'); if(h)h.remove(); }
-  function showHint(card,after,horiz){
-    clearHint();
-    var el=document.createElement('div'); el.id='asDropHint';
-    el.style.cssText='position:fixed;z-index:99998;pointer-events:none;background:rgba(39,174,96,.25);border:2px dashed #27ae60;border-radius:8px;';
-    var r=card.getBoundingClientRect();
-    if(horiz){ var w=26; el.style.left=(after? r.right+2 : r.left-w-2)+'px'; el.style.top=r.top+'px'; el.style.width=w+'px'; el.style.height=r.height+'px'; }
-    else { var h2=22; el.style.left=r.left+'px'; el.style.top=(after? r.bottom+2 : r.top-h2-2)+'px'; el.style.width=r.width+'px'; el.style.height=h2+'px'; }
-    document.body.appendChild(el);
-  }
-  function findTarget(x,y){
+  // ===== TAP TO PLACE =====
+  function nearestTarget(x,y){
     var cards=[].slice.call(document.querySelectorAll('.product-card'));
+    var best=null,bestD=1e9;
     for(var i=0;i<cards.length;i++){
       var r=cards[i].getBoundingClientRect();
-      if(x>=r.left-25&&x<=r.right+25&&y>=r.top-25&&y<=r.bottom+25){
-        var p=cards[i].parentElement;
-        var sib=[].filter.call(p.children,function(ch){return ch.classList&&ch.classList.contains('product-card')});
-        var horiz = sib.length>1 ? (sib[0].offsetTop===sib[1].offsetTop) : false;
-        var idx=sib.indexOf(cards[i]);
-        var after = horiz ? (x > r.left+r.width/2) : (y > r.top+r.height/2);
-        var k = after ? idx : idx-1; if(k<0)k=0;
-        return {k:k, horiz:horiz, card:cards[i], after:after};
-      }
+      if(r.width<5||r.height<5)continue;
+      var inside=(x>=r.left-5&&x<=r.right+5&&y>=r.top-5&&y<=r.bottom+5);
+      var cx=r.left+r.width/2, cy=r.top+r.height/2;
+      var dd=inside?0:Math.sqrt((x-cx)*(x-cx)+(y-cy)*(y-cy));
+      if(dd<bestD){bestD=dd;best={card:cards[i],r:r};}
     }
-    return null;
+    if(!best||bestD>170)return null;
+    var p=best.card.parentElement;
+    var sib=[].filter.call(p.children,function(ch){return ch.classList&&ch.classList.contains('product-card')});
+    var horiz=sib.length>1?(sib[0].offsetTop===sib[1].offsetTop):false;
+    var idx=sib.indexOf(best.card);
+    var after=horiz?(x>best.r.left+best.r.width/2):(y>best.r.top+best.r.height/2);
+    var k=after?idx:idx-1; if(k<0)k=0;
+    return {k:k,horiz:horiz,card:best.card,after:after};
   }
-  function initDrag(){
-    var chip=document.createElement('div');
-    chip.style.cssText='position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:99999;background:#8e44ad;color:#fff;padding:12px 18px;border-radius:26px;font-size:13px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.4);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none';
-    chip.textContent='➡️ টেনে দুই পণ্যের মাঝে ছাড়ো';
-    document.body.appendChild(chip);
-    chip.addEventListener('pointerdown', function(e){
-      e.preventDefault();
-      var ghost=document.createElement('div');
-      ghost.id='asGhost';
-      ghost.style.cssText='position:fixed;z-index:100000;pointer-events:none;background:#8e44ad;color:#fff;padding:8px 12px;border-radius:20px;font-size:20px;box-shadow:0 6px 18px rgba(0,0,0,.4);opacity:.9';
-      ghost.textContent='➡️';
-      document.body.appendChild(ghost);
-      chip.style.opacity='.35';
-      var tgt=null;
-      var mv=function(ev){
-        ev.preventDefault();
-        ghost.style.left=(ev.clientX-20)+'px'; ghost.style.top=(ev.clientY-20)+'px';
-        tgt=findTarget(ev.clientX,ev.clientY);
-        if(tgt) showHint(tgt.card,tgt.after,tgt.horiz); else clearHint();
-      };
-      var up=function(ev){
-        window.removeEventListener('pointermove',mv);
-        window.removeEventListener('pointerup',up);
-        window.removeEventListener('pointercancel',up);
-        ghost.remove(); chip.style.opacity='1'; clearHint();
-        if(tgt){ openNew(tgt.k+1); }
-        tgt=null;
-      };
-      ghost.style.left=(e.clientX-20)+'px'; ghost.style.top=(e.clientY-20)+'px';
-      window.addEventListener('pointermove',mv,{passive:false});
-      window.addEventListener('pointerup',up);
-      window.addEventListener('pointercancel',up);
-    });
+  function clearHint(){var h=document.getElementById('asDropHint');if(h)h.remove();}
+  function showHint(card,after,horiz){
+    clearHint();
+    var el=document.createElement('div');el.id='asDropHint';
+    el.style.cssText='position:fixed;z-index:99997;pointer-events:none;background:rgba(39,174,96,.25);border:2px dashed #27ae60;border-radius:8px;';
+    var r=card.getBoundingClientRect();
+    if(horiz){var w=26;el.style.left=(after?r.right+2:r.left-w-2)+'px';el.style.top=r.top+'px';el.style.width=w+'px';el.style.height=r.height+'px';}
+    else{var h2=22;el.style.left=r.left+'px';el.style.top=(after?r.bottom+2:r.top-h2-2)+'px';el.style.width=r.width+'px';el.style.height=h2+'px';}
+    document.body.appendChild(el);
   }
 
-  // ===== EDITOR POPUP =====
-  function closePopup(){if(popup){popup.remove();popup=null}}
+  // ===== EDITOR =====
+  function closePopup(){if(popup){popup.remove();popup=null;}clearHint();}
   function buildPopup(title,vals,onSave,onDelete){
     closePopup();
-    popup=document.createElement('div');
+    popup=document.createElement('div');popup.className='as-popup-overlay';
     popup.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:12px';
-    var box=document.createElement('div');
+    var box=document.createElement('div');box.className='as-popup';
     box.style.cssText='background:#fff;color:#222;border-radius:12px;width:100%;max-width:420px;max-height:85vh;overflow:auto;padding:14px';
     box.innerHTML='<b style="display:block;margin-bottom:8px;color:#222">'+title+'</b>'+
       '<div style="margin-bottom:8px"><span style="font-size:12px;color:#222">Emoji:</span> <button type="button" id="apEmojiBtn" style="font-size:24px;padding:6px 12px;border:1px solid #ccc;border-radius:8px;background:#fff;color:#222;cursor:pointer">'+(vals.emoji||'➡️')+'</button><input id="apEmoji" type="hidden" value="'+(vals.emoji||'➡️')+'"></div>'+
@@ -183,14 +156,24 @@
 
   function startPick(){
     var flag=false; try{ flag=localStorage.getItem('asPickerAllowed')==='1'; }catch(e){}
-    if(!flag){ alert('Picker চালু করতে আগে একই browser এ Admin Panel খোলো, তারপর এখানে ফিরে এসো।'); return; }
+    if(!flag){ alert('Picker চালু করতে আগে একই browser এ Admin Panel খোলো, তারপর ফিরে এসো।'); return; }
     pickActive=true;
-    var bar=document.createElement('div');
-    bar.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#8e44ad;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);text-align:center';
-    bar.innerHTML='🎯 Picker ON — chip টেনে ছাড়ো | arrow এ tap = edit/delete <button id="apExit" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:8px">❌ Exit</button>';
+    document.body.style.cursor='crosshair';
+    var bar=document.createElement('div');bar.id='asBar';
+    bar.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#8e44ad;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);text-align:center;cursor:default';
+    bar.innerHTML='🎯 Picker ON — যেখানে খুশি tap করো = সেই ফাঁকে arrow | arrow এ tap = edit/delete <button id="apExit" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:8px">❌ Exit</button>';
     document.body.appendChild(bar);
     bar.querySelector('#apExit').onclick=function(){ var q=location.search.replace(/[?&]aspick=1/,''); if(q.indexOf('?')===-1)q=q.replace(/^&/,'?'); location.href=location.pathname+q; };
-    initDrag();
+    document.addEventListener('click', function(e){
+      if(!pickActive)return;
+      var t=e.target;
+      if(t.closest && t.closest('#asBar, .arrow-marker, .as-popup, .as-popup-overlay, button, a, input, select, textarea, label'))return;
+      var tgt=nearestTarget(e.clientX,e.clientY);
+      if(!tgt)return;
+      e.preventDefault(); e.stopPropagation();
+      showHint(tgt.card,tgt.after,tgt.horiz);
+      setTimeout(function(){ openNew(tgt.k+1); },150);
+    }, true);
     apply();
   }
 
