@@ -1,7 +1,7 @@
-/* Arrow System v2.1 — FULL MANUAL CONTROL (mount fix: card goes inside UI Settings section) */
+/* Arrow System v2.2 — mount directly inside #tab-uisettings (tab-hidden fix) */
 (async function(){
   var FB='arrowSystem';
-  var EMO=['➡️','⬅️','️','⬇️','▶️','◀️','🔺','🔻','','👈','','👇','','⏪','','🔽','️','↩️','','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','️','💎'];
+  var EMO=['➡️','️','️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','','📌','','🛒','🏷️','💎'];
   var CATS=['all','agric','auto','beauty','books','computers','food','gift','grocery','handi','health','home','kids','men','mobile','pets','spices','sports','toys','travel','tv','watches','women'];
   var cfg={enabled:true,markers:[]}, editingId=null, picker=null, db=null, fbD=null;
 
@@ -122,24 +122,18 @@
 
   function mount(){
     if(document.getElementById('arrowSystemCard'))return;
-    var leaf=null,all=document.querySelectorAll('*');
-    for(var i=0;i<all.length;i++){var e=all[i];if(e.childElementCount===0&&/UI Settings Panel/i.test(e.textContent||'')){leaf=e;break}}
-    if(!leaf){setTimeout(mount,1000);return}
-    var card=buildCard();
-    // host candidates: section container (header এর parent এর parent) → header এর parent → body
-    var hosts=[];
-    var p1=leaf.parentElement, p2=p1?p1.parentElement:null;
-    if(p2&&p2!==document.body)hosts.push(p2);
-    if(p1)hosts.push(p1);
-    hosts.push(document.body);
-    for(var h=0;h<hosts.length;h++){
-      hosts[h].appendChild(card);
-      var r=card.getBoundingClientRect();
-      if(r.height>0&&r.width>0){ console.log('[ArrowAdmin] mounted ✔'); break; }
-      card.remove();
+    // DIRECT target: UI Settings tab section (লুকানো থাকলেও সমস্যা নেই)
+    var host=document.getElementById('tab-uisettings');
+    if(!host){
+      var leaf=null,all=document.querySelectorAll('*');
+      for(var i=0;i<all.length;i++){var e=all[i];if(e.childElementCount===0&&/UI Settings Panel/i.test(e.textContent||'')){leaf=e;break}}
+      if(!leaf){setTimeout(mount,1000);return}
+      host=(leaf.closest&&leaf.closest('section.tab-section, section'))||leaf.parentElement.parentElement||document.body;
     }
+    host.appendChild(buildCard());
+    console.log('[ArrowAdmin] mounted in #tab-uisettings ✔');
     wire();
     renderList();
   }
-  var t=setInterval(function(){ if(/UI Settings Panel/i.test(document.body.textContent||'')){ clearInterval(t); load(mount); } },600);
+  var t=setInterval(function(){ if(document.getElementById('tab-uisettings')||/UI Settings Panel/i.test(document.body.textContent||'')){ clearInterval(t); load(mount); } },600);
 })();
