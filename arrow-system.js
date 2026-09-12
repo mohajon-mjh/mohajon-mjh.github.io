@@ -1,4 +1,4 @@
-/* Arrow System public v16 — emoji gate only. No picker, no cursor, no click blocking */
+/* Arrow System public v17 — emoji gate + remove empty next-page slide (green box) */
 (function(){
   var PATH1='settings/arrowSystem', PATH2='arrowSystem';
   var cfg=null, db=null, fbD=null;
@@ -41,6 +41,17 @@
   function relX(n,ct){var x=0;while(n&&n!==ct){x+=n.offsetLeft;n=n.offsetParent;}return x;}
   function relY(n,ct){var y=0;while(n&&n!==ct){y+=n.offsetTop;n=n.offsetParent;}return y;}
 
+  // খালি next-page slide (সবুজ ঘর) সরানো — পণ্য না, শুধু ওই ঘর
+  function removeEmptySlide(ct){
+    [].slice.call(ct.children).forEach(function(ch){
+      if(ch.classList && ch.classList.contains('arrow-marker'))return;
+      if(ch.querySelector && (ch.querySelector('.product-card')||ch.querySelector('img')))return;
+      var txt=(ch.textContent||'').replace(/\s+/g,'').trim();
+      var r=ch.getBoundingClientRect();
+      if(r.height>120 && r.width>80 && txt.length<=4){ ch.remove(); }
+    });
+  }
+
   function placeOverlay(m,card,ct,mode){
     var d=document.createElement('div');d.className='arrow-marker';
     var h=(m.height||28);
@@ -70,10 +81,11 @@
     document.querySelectorAll('.arrow-marker').forEach(function(e){e.remove()});
     var cardsAll=[].slice.call(document.querySelectorAll('.product-card'));
     cardsAll.forEach(function(c){ c.style.removeProperty('display'); });
-    if(!cfg||cfg.enabled===false)return true;
     if(!cardsAll.length)return false;
     var containers=[];
     cardsAll.forEach(function(c){var ct=resolveContainer(c); if(containers.indexOf(ct)<0)containers.push(ct);});
+    containers.forEach(function(ct){ removeEmptySlide(ct); });
+    if(!cfg||cfg.enabled===false)return true;
     var c=curCat();
     containers.forEach(function(ct){
       var cards=[].slice.call(ct.querySelectorAll('.product-card'));
