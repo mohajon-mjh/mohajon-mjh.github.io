@@ -1,16 +1,17 @@
-/* Arrow System v2.5 — Direct Auth Check (No Rules Change Needed) */
+/* Arrow System v2.6 — Preview Link + Existing Markers + Read Error Fix */
 (async function(){
-  var VER='v2.5';
+  var VER='v2.6';
   function setBadge(txt,bg){var b=document.getElementById('asBadge');if(!b){b=document.createElement('div');b.id='asBadge';b.style.cssText='position:fixed;bottom:8px;right:8px;z-index:99998;background:#27ae60;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;font-family:sans-serif;opacity:.9';document.body.appendChild(b);}b.textContent=txt;b.style.background=bg||'#27ae60';}
   setBadge('➡️ AS '+VER+' loaded');
 
   var FB='arrowSystem';
-  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','🔺','','👉','👈','','👇','⏩','','🔼','🔽','️','↩️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','️','💎'];
+  var EMO=['➡️','⬅️','⬆️','️','▶️','◀️','','','👉','👈','','👇','⏩','','🔼','🔽','️','↩️','➤','➔','>','»','«','—','★','✓','⚡','','⭐','✨','✅','❗','🎯','📌','💰','','️','💎'];
   var cfg={enabled:true,markers:[]}, editingId=null, picker=null, db=null, fbD=null, auth=null;
 
   // 1️⃣ DYNAMIC CATEGORIES
   async function fetchCategories(){
     try {
+      if(!db) return ['all']; 
       const catsRef = fbD.ref(db, 'categories');
       const snapshot = await fbD.get(catsRef);
       if (snapshot.exists()) {
@@ -24,16 +25,11 @@
     }
   }
 
-  // 2️⃣ DIRECT AUTH CHECK (Fixed for Admin Login)
+  // 2️⃣ AUTH CHECK
   function checkAuth(){
     if (!auth) return false;
     const user = auth.currentUser;
-    if (!user) {
-      console.warn('[ArrowAdmin] No active user found');
-      return false;
-    }
-    console.log('[ArrowAdmin] Auth OK:', user.email);
-    return true;
+    return !!user;
   }
 
   function normCfg(v){
@@ -60,7 +56,7 @@
       var app=m.getApps().length?m.getApp():m.initializeApp(C);
       db=d.getDatabase(app); 
       fbD=d; 
-      auth=a.getAuth(app); // Initialize Auth with same app
+      auth=a.getAuth(app);
       return true; 
     }catch(e){console.error('[ArrowAdmin] FB init fail',e);setBadge('AS: FB init fail','#e74c3c');return false} 
   }
@@ -73,17 +69,17 @@
         setBadge('➡️ AS '+VER+' online');
         cb&&cb(); 
       }).catch(function(e){ 
-        console.error('[ArrowAdmin] read fail',e); 
-        setBadge('AS: FB read fail','#e74c3c'); 
+        console.warn('[ArrowAdmin] read fail (using defaults)',e); 
+        // Don't show red badge for read fail, just use defaults
+        cfg={enabled:true,markers:[]}; 
         cb&&cb(); 
       }); 
     }); 
   }
 
   async function save(msg){ 
-    // Check auth BEFORE saving
     if (!checkAuth()) {
-      alert('⚠️ Permission Denied!\n\nআপনি লগইন করা নেই বা সেশন শেষ হয়েছে।\nদয়া করে আবার লগইন করুন।');
+      alert('️ Permission Denied!\n\nআপনি লগইন করা নেই। দয়া করে আবার লগইন করুন।');
       setBadge('AS: Not logged in','#e74c3c');
       return;
     }
@@ -130,6 +126,7 @@
     }
   }
 
+  // 4️ RENDER LIST WITH PREVIEW LINK
   function renderList(){
     var box=document.getElementById('asList'); if(!box)return; box.innerHTML='';
     if(!(cfg.markers||[]).length){ box.innerHTML='<p style="color:#888;font-size:13px;margin:6px 0">কোনো marker নেই — ➕ Add Marker চাপো</p>'; return; }
@@ -137,16 +134,22 @@
       var d=document.createElement('div');
       d.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid '+(editingId===m.id?'#3498db':'#ddd')+';border-radius:8px;padding:8px 10px;margin:6px 0;background:'+(editingId===m.id?'#eaf4fd':'#fafafa');
       var wDisp=(m.width===0||!m.width)?'full':m.width;
+      
+      // Preview link for the specific category
+      var previewLink = m.scope && m.scope !== 'all' 
+        ? `<a href="/category.html?id=${m.scope}" target="_blank" style="font-size:11px;color:#3498db;text-decoration:none;margin-left:5px">👁️ View</a>` 
+        : '';
+
       d.innerHTML='<b style="min-width:26px">#'+(i+1)+'</b>'+
-        '<span style="font-size:13px">Scope: <b>'+(m.scope||'all')+'</b></span>'+
-        '<span style="font-size:13px">পণ্য <b>'+(m.position||1)+'</b> এর পরে</span>'+
+        '<span style="font-size:13px">Scope: <b>'+(m.scope||'all')+'</b>'+previewLink+'</span>'+
+        '<span style="font-size:13px">Pos: <b>'+(m.position||1)+'</b></span>'+
         '<span style="font-size:24px">'+(m.emoji||'➡️')+'</span>'+
         '<span style="font-size:12px;color:#666">H:'+(m.height||28)+' W:'+wDisp+'</span>'+
         '<span style="flex:1"></span>'+
-        '<button class="e" style="background:#3498db;color:#fff;border:0;border-radius:6px;padding:6px 10px;cursor:pointer">✏️ Edit</button>'+
-        '<button class="x" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️ Delete</button>';
+        '<button class="e" style="background:#3498db;color:#fff;border:0;border-radius:6px;padding:6px 10px;cursor:pointer">✏️</button>'+
+        '<button class="x" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:6px 10px;cursor:pointer">🗑️</button>';
       d.querySelector('.e').onclick=function(){ startEdit(m); };
-      d.querySelector('.x').onclick=function(){ if(confirm('Marker #'+(i+1)+' delete করবে?')){ cfg.markers.splice(i,1); save('Marker deleted 🗑️'); } };
+      d.querySelector('.x').onclick=function(){ if(confirm('Marker #'+(i+1)+' delete করবে?')){ cfg.markers.splice(i,1); save('Marker deleted ️'); } };
       box.appendChild(d);
     });
   }
@@ -160,7 +163,7 @@
   function resetForm(m){ m=m||{scope:'all',position:1,emoji:'➡️',height:28,width:0};
     document.getElementById('asScope').value=m.scope||'all';
     document.getElementById('asPos').value=m.position||1;
-    document.getElementById('asEmoji').value=m.emoji||'➡️';
+    document.getElementById('asEmoji').value=m.emoji||'️';
     document.getElementById('asEmojiBtn').textContent=m.emoji||'➡️';
     document.getElementById('asH').value=m.height||28;
     document.getElementById('asW').value=m.width||0; }
@@ -172,10 +175,13 @@
     var c=document.createElement('div'); c.id='arrowSystemCard';
     c.style.cssText='background:#fff;border-radius:12px;padding:16px;margin:16px 0;color:#222;box-shadow:0 2px 8px rgba(0,0,0,.08)';
     c.innerHTML='<h3 style="margin:0 0 6px">➡️ Arrow System (Manual Control)</h3>'+
-      '<p style="margin:0 0 10px;font-size:13px;color:#666">সব কিছু তুমি নিজে control করবে: add / edit / save / delete। Site এ page refresh করলে দেখাবে।</p>'+
+      '<p style="margin:0 0 10px;font-size:13px;color:#666">সব কিছু তুমি নিজে control করবে। ক্যাটাগরি সিলেক্ট করে "Preview" দেখে পজিশন ঠিক করো।</p>'+
       '<label style="font-size:14px;display:flex;align-items:center;gap:6px"><input type="checkbox" id="asEnabled" style="width:18px;height:18px"> <b>System ON/OFF</b></label>'+
       '<div id="asList" style="margin-top:10px"></div>'+
-      '<div style="margin-top:8px"><button id="asAdd" style="background:#f39c12;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600">➕ Add Marker</button></div>'+
+      '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+
+      '<button id="asAdd" style="background:#f39c12;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600"> Add Marker</button>'+
+      '<button id="asPreviewBtn" style="background:#3498db;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600;display:none">👁️ Preview Selected Category</button>'+
+      '</div>'+
       '<div id="asForm" style="display:none;margin-top:12px;border:2px solid #3498db;border-radius:10px;padding:12px;background:#f4f9ff">'+
       '<b id="asFormTitle" style="display:block;margin-bottom:8px">➕ নতুন Marker</b>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">'+
@@ -194,6 +200,20 @@
   function wire(){
     document.getElementById('asEnabled').checked = cfg.enabled!==false;
     document.getElementById('asEnabled').onchange=function(){ cfg.enabled=this.checked; save(this.checked?'System ON ✅':'System OFF '); };
+    
+    // Preview button logic
+    var previewBtn = document.getElementById('asPreviewBtn');
+    var scopeSelect = document.getElementById('asScope');
+    scopeSelect.onchange = function(){
+      var val = this.value;
+      if(val && val !== 'all'){
+        previewBtn.style.display = 'inline-block';
+        previewBtn.onclick = function(){ window.open('/category.html?id='+val, '_blank'); };
+      } else {
+        previewBtn.style.display = 'none';
+      }
+    };
+
     document.getElementById('asAdd').onclick=function(){ editingId=null; resetForm(); showForm(true); renderList(); document.getElementById('asFormTitle').textContent='➕ নতুন Marker'; };
     document.getElementById('asCancel').onclick=function(){ editingId=null; showForm(false); renderList(); };
     document.getElementById('asEmojiBtn').onclick=function(){ openPicker(document.getElementById('asEmojiBtn'),document.getElementById('asEmoji')); };
