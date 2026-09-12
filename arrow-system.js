@@ -1,7 +1,8 @@
-/* Arrow System public v5 — live picker (?aspick=1) + universal containers */
+/* Arrow System public v6 — storage: settings/arrowSystem | picker gate: admin flag */
 (function(){
-  var EMO=['➡️','⬅️','️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','🏷️','💎'];
-  var cfg=null, db=null, fbD=null, appRef=null, authUser=null, popup=null;
+  var EMO=['➡️','️','️','️','▶️','️','','🔻','','👈','','👇','','⏪','','🔽','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','','','🛒','️',''];
+  var PATH1='settings/arrowSystem', PATH2='arrowSystem';
+  var cfg=null, db=null, fbD=null, popup=null;
   var pickMode=location.search.indexOf('aspick=1')>-1;
   var pickActive=false;
 
@@ -9,11 +10,8 @@
     var m=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
     var d=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
     var C={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
-    appRef=m.getApps().length?m.getApp():m.initializeApp(C);
-    db=d.getDatabase(appRef); fbD=d; return true; }catch(e){return false} }
-  async function initAuth(){ if(authUser!==null)return !!authUser; try{
-    var a=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js");
-    authUser=a.getAuth(appRef).currentUser||false; return !!authUser; }catch(e){authUser=false;return false} }
+    var app=m.getApps().length?m.getApp():m.initializeApp(C);
+    db=d.getDatabase(app); fbD=d; return true; }catch(e){return false} }
 
   function curCat(){try{return new URLSearchParams(location.search).get('id')||''}catch(e){return ''}}
   function scopeForPage(){return curCat()||'all'}
@@ -21,6 +19,13 @@
   function normCfg(v){ if(!v)return {enabled:true,markers:[]}; var m=v.markers; if(m&&!Array.isArray(m)){m=Object.keys(m).sort(function(a,b){return parseInt(a)-parseInt(b)}).map(function(k){return m[k]});} return {enabled:v.enabled!==false,markers:Array.isArray(m)?m:[]}; }
   function prepCfg(v){ var o={enabled:v.enabled!==false,markers:{}}; (v.markers||[]).forEach(function(m,i){o.markers[i]=m}); return o; }
   function toastMsg(t){var d=document.createElement('div');d.textContent=t;d.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#27ae60;color:#fff;padding:10px 16px;border-radius:8px;z-index:99999;font-weight:600';document.body.appendChild(d);setTimeout(function(){d.remove()},2500)}
+
+  function loadCfg(cb){
+    fbD.get(fbD.ref(db,PATH1)).then(function(s){
+      if(s.exists()){ cb(normCfg(s.val())); }
+      else fbD.get(fbD.ref(db,PATH2)).then(function(s2){ cb(normCfg(s2.exists()?s2.val():null)); }).catch(function(){ cb(normCfg(null)); });
+    }).catch(function(){ cb(normCfg(null)); });
+  }
 
   function markerEl(m,horiz){
     var d=document.createElement('div');d.className='arrow-marker';
@@ -70,10 +75,7 @@
         anchors[pos]=n;
       });
       if(pickActive){
-        for(var k=cards.length-1;k>=0;k--){
-          var g=gapEl(k,horiz);
-          cards[k].insertAdjacentElement('afterend',g);
-        }
+        for(var k=cards.length-1;k>=0;k--){ cards[k].insertAdjacentElement('afterend',gapEl(k,horiz)); }
       }
     });
     return true;
@@ -106,9 +108,9 @@
     box.querySelector('#apCancel').onclick=closePopup;
     popup.addEventListener('click',function(e){if(e.target===popup)closePopup()});
   }
-  function saveFB(msg){ fbD.set(fbD.ref(db,'arrowSystem'),prepCfg(cfg)).then(function(){ apply(); toastMsg(msg); }).catch(function(e){ alert('Save fail: '+(e.message||e)); }); }
+  function saveFB(msg){ fbD.set(fbD.ref(db,PATH1),prepCfg(cfg)).then(function(){ apply(); toastMsg(msg); }).catch(function(e){ alert('Save fail: '+(e.message||e)); }); }
   function openNew(pos){
-    buildPopup('➕ Arrow বসাও: পণ্য '+pos+' এর পরে (scope: '+scopeForPage()+')', {emoji:'➡️',height:28,width:0}, function(v){
+    buildPopup('➕ Arrow: পণ্য '+pos+' এর পরে (scope: '+scopeForPage()+')', {emoji:'➡️',height:28,width:0}, function(v){
       cfg.markers=cfg.markers||[];
       cfg.markers.push({id:uid(),scope:scopeForPage(),position:pos,emoji:v.emoji,height:v.height,width:v.width});
       saveFB('Marker added ✅');
@@ -122,9 +124,9 @@
     });
   }
 
-  async function startPick(){
-    var ok=await initAuth();
-    if(!ok){ alert('🎯 Picker ব্যবহার করতে আগে একই browser এ admin login করো।'); return; }
+  function startPick(){
+    var flag=false; try{ flag=localStorage.getItem('asPickerAllowed')==='1'; }catch(e){}
+    if(!flag){ alert(' Picker চালু করতে আগে একই browser এ Admin Panel খোলো (সেখানে login থাকতে হবে), তারপর এখানে ফিরে এসো।'); return; }
     pickActive=true;
     var bar=document.createElement('div');
     bar.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#8e44ad;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);text-align:center';
@@ -137,12 +139,12 @@
   function start(){
     initFB().then(function(ok){
       if(!ok){setTimeout(start,2000);return}
-      fbD.get(fbD.ref(db,'arrowSystem')).then(function(s){
-        cfg=normCfg(s.val());
+      loadCfg(function(v){
+        cfg=v;
         var tries=0;
         var iv=setInterval(function(){tries++; if(apply()||tries>20)clearInterval(iv)},500);
         if(pickMode) startPick();
-      }).catch(function(e){console.warn('[ArrowSystem] get fail',e)});
+      });
     });
   }
   start();
