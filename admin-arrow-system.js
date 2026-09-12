@@ -1,13 +1,46 @@
-/* Arrow System v2.3 — mount FIRST, Firebase later + visible status badge */
+/* Arrow System v2.4 — Critical fixes: auth, emoji picker, dynamic categories */
 (async function(){
-  var VER='v2.3';
+  var VER='v2.4';
   function setBadge(txt,bg){var b=document.getElementById('asBadge');if(!b){b=document.createElement('div');b.id='asBadge';b.style.cssText='position:fixed;bottom:8px;right:8px;z-index:99998;background:#27ae60;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;font-family:sans-serif;opacity:.9';document.body.appendChild(b);}b.textContent=txt;b.style.background=bg||'#27ae60';}
   setBadge('➡️ AS '+VER+' loaded');
 
   var FB='arrowSystem';
-  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','️','💎'];
-  var CATS=['all','agric','auto','beauty','books','computers','food','gift','grocery','handi','health','home','kids','men','mobile','pets','spices','sports','toys','travel','tv','watches','women'];
-  var cfg={enabled:true,markers:[]}, editingId=null, picker=null, db=null, fbD=null;
+  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','🔺','🔻','👉','👈','👆','👇','⏩','⏪','🔼','🔽','↪️','↩️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','🏷️','💎'];
+  var cfg={enabled:true,markers:[]}, editingId=null, picker=null, db=null, fbD=null, auth=null;
+
+  // 1️⃣ DYNAMIC CATEGORIES (Firebase থেকে ফেচ করবে)
+  async function fetchCategories(){
+    try {
+      const catsRef = fbD.ref(db, 'categories');
+      const snapshot = await fbD.get(catsRef);
+      if (snapshot.exists()) {
+        const cats = Object.keys(snapshot.val()).filter(k => k !== 'all');
+        return ['all', ...cats];
+      }
+      return ['all','agric','auto','beauty','books','computers','food','gift','grocery','handi','health','home','kids','men','mobile','pets','spices','sports','toys','travel','tv','watches','women'];
+    } catch (e) {
+      console.error('[ArrowAdmin] Category fetch fail', e);
+      return ['all','agric','auto','beauty','books','computers','food','gift','grocery','handi','health','home','kids','men','mobile','pets','spices','sports','toys','travel','tv','watches','women'];
+    }
+  }
+
+  // 2️⃣ AUTH CHECK (Permission denied fix)
+  async function checkAuth(){
+    if (!auth) {
+      try {
+        const authModule = await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js");
+        auth = authModule.getAuth();
+      } catch (e) {
+        console.error('[ArrowAdmin] Auth module not loaded', e);
+        return false;
+      }
+    }
+    return new Promise((resolve) => {
+      auth.onAuthStateChanged(auth, (user) => {
+        resolve(!!user);
+      });
+    });
+  }
 
   function normCfg(v){
     if(!v) return {enabled:true,markers:[]};
@@ -30,24 +63,61 @@
     var app=m.getApps().length?m.getApp():m.initializeApp(C);
     db=d.getDatabase(app); fbD=d; return true; }catch(e){console.error('[ArrowAdmin] FB init fail',e);setBadge('AS: FB init fail','#e74c3c');return false} }
   function load(cb){ initFB().then(function(ok){ if(!ok){setTimeout(function(){load(cb)},3000);return}
-    fbD.get(fbD.ref(db,FB)).then(function(s){ cfg=normCfg(s.val()); setBadge('➡️ AS '+VER+' online'); cb&&cb(); }).catch(function(e){ console.error('[ArrowAdmin] read fail',e); setBadge('AS: FB read fail','#e74c3c'); cb&&cb(); }); }); }
-  function save(msg){ initFB().then(function(ok){ if(!ok){alert('Firebase ready নয়');return}
-    fbD.set(fbD.ref(db,FB),prepCfg(cfg)).then(function(){ toast(msg||'Saved ✅'); renderList(); }).catch(function(e){ alert('Save fail: '+(e&&e.message||e)); setBadge('AS: save fail','#e74c3c'); }); }); }
+    fbD.get(fbD.ref(db,FB)).then(function(s){ 
+      cfg=normCfg(s.val()); 
+      setBadge('➡️ AS '+VER+' online');
+      cb&&cb(); 
+    }).catch(function(e){ 
+      console.error('[ArrowAdmin] read fail',e); 
+      setBadge('AS: FB read fail','#e74c3c'); 
+      cb&&cb(); 
+    }); }); }
+  async function save(msg){ 
+    const isAuth = await checkAuth();
+    if (!isAuth) {
+      alert('⚠️ Admin permission required! Please login again.');
+      setBadge('AS: Not authenticated','#e74c3c');
+      return;
+    }
+    initFB().then(function(ok){ 
+      if(!ok){alert('Firebase ready নয়');return}
+      fbD.set(fbD.ref(db,FB),prepCfg(cfg)).then(function(){
+        toast(msg||'Saved ✅');
+        renderList();
+      }).catch(function(e){
+        alert('Save fail: '+(e&&e.message||e));
+        setBadge('AS: save fail','#e74c3c');
+      });
+    });
+  }
   function uid(){return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
   function toast(t){var d=document.createElement('div');d.textContent=t;d.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#27ae60;color:#fff;padding:10px 16px;border-radius:8px;z-index:99999;font-weight:600';document.body.appendChild(d);setTimeout(function(){d.remove()},2500)}
 
+  // 3️⃣ EMOJI PICKER CLOSE SYSTEM (back button + click outside)
   function openPicker(btn,hidden){
     closePicker();
     picker=document.createElement('div');
     picker.style.cssText='position:fixed;z-index:99999;background:#fff;border:1px solid #ccc;border-radius:10px;padding:10px;display:grid;grid-template-columns:repeat(8,38px);gap:4px;max-height:300px;overflow:auto;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 8px 30px rgba(0,0,0,.35)';
+    picker.innerHTML='<div style="grid-column:1/-1;text-align:right;margin-bottom:6px"><button id="asPickerClose" style="background:#e74c3c;color:#fff;border:0;border-radius:4px;padding:4px 8px;cursor:pointer">✕ Close</button></div>';
     EMO.forEach(function(e){var b=document.createElement('button');b.type='button';b.textContent=e;b.style.cssText='font-size:22px;border:0;background:#f5f5f5;border-radius:6px;padding:4px;cursor:pointer';b.onclick=function(){hidden.value=e;btn.textContent=e;closePicker()};picker.appendChild(b)});
     var ci=document.createElement('input');ci.placeholder='custom (যেমন > বা ★)';ci.style.cssText='grid-column:1/-1;padding:6px;margin-top:6px;border:1px solid #ccc;border-radius:6px';
     var sb=document.createElement('button');sb.type='button';sb.textContent='Set custom';sb.style.cssText='grid-column:1/-1;background:#3498db;color:#fff;border:0;border-radius:6px;padding:8px;margin-top:4px;cursor:pointer;font-weight:600';
     sb.onclick=function(){if(ci.value){hidden.value=ci.value;btn.textContent=ci.value;closePicker()}};
     picker.appendChild(ci);picker.appendChild(sb);
+    
+    // Close on click outside
     document.body.appendChild(picker);
+    picker.addEventListener('click', function(e){e.stopPropagation()});
+    document.body.addEventListener('click', closePicker);
+    document.getElementById('asPickerClose').onclick = closePicker;
   }
-  function closePicker(){if(picker){picker.remove();picker=null}}
+  function closePicker(){
+    if(picker){
+      document.body.removeEventListener('click', closePicker);
+      picker.remove(); 
+      picker=null;
+    }
+  }
 
   function renderList(){
     var box=document.getElementById('asList'); if(!box)return; box.innerHTML='';
@@ -98,7 +168,7 @@
       '<div id="asForm" style="display:none;margin-top:12px;border:2px solid #3498db;border-radius:10px;padding:12px;background:#f4f9ff">'+
       '<b id="asFormTitle" style="display:block;margin-bottom:8px">➕ নতুন Marker</b>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">'+
-      '<label>Scope<select id="asScope" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px">'+CATS.map(function(x){return '<option value="'+x+'">'+(x==='all'?'সব ক্যাটাগরি (all)':x)+'</option>'}).join('')+'</select></label>'+
+      '<label>Scope<select id="asScope" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px"></select></label>'+
       '<label>Position (কততম পণ্যের পরে)<input id="asPos" type="number" min="1" value="1" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px"></label>'+
       '<label>Emoji (click করো)<button type="button" id="asEmojiBtn" style="width:100%;padding:8px;font-size:22px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer">➡️</button><input id="asEmoji" type="hidden" value="➡️"></label>'+
       '<label>Height (px)<input id="asH" type="number" value="28" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px"></label>'+
@@ -124,7 +194,7 @@
     };
   }
 
-  function mount(){
+  async function mount(){
     if(document.getElementById('arrowSystemCard'))return;
     var host=document.getElementById('tab-uisettings');
     if(!host){
@@ -134,6 +204,12 @@
       host=(leaf.closest&&leaf.closest('section.tab-section, section'))||leaf.parentElement.parentElement||document.body;
     }
     host.appendChild(buildCard());
+    
+    // 4️⃣ DYNAMIC CATEGORIES (populate dropdown)
+    const cats = await fetchCategories();
+    const scopeSelect = document.getElementById('asScope');
+    scopeSelect.innerHTML = cats.map(x => `<option value="${x}">${x === 'all' ? 'সব ক্যাটাগরি (all)' : x}</option>`).join('');
+    
     wire();
     renderList();
   }
