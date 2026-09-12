@@ -1,10 +1,11 @@
-/* Arrow System public v9 — correct container climb (carousel wrapper fix) */
+/* Arrow System public v10 — real mouse pointer cursor + drag-drop + auto-scroll */
 (function(){
-  var EMO=['➡️','⬅️','⬆️','️','▶️','️','🔺','','👉','','👆','','⏩','','','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','','','🛒','🏷️','💎'];
+  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','','','','','👆','','','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','','🛒','🏷️',''];
   var PATH1='settings/arrowSystem', PATH2='arrowSystem';
   var cfg=null, db=null, fbD=null, popup=null;
   var pickMode=location.search.indexOf('aspick=1')>-1;
-  var pickActive=false;
+  var pickActive=false, pointerMode=true, dragging=false;
+  var cursorEl=null;
 
   async function initFB(){ if(db)return true; try{
     var m=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
@@ -27,7 +28,6 @@
     }).catch(function(){ cb(normCfg(null)); });
   }
 
-  // carousel wrapper skip করে আসল container খোঁজা
   function resolveContainer(card){
     var n=card.parentElement;
     while(n && n!==document.body){
@@ -54,8 +54,7 @@
     S('height',h+'px');S('padding','0');S('min-width','0');S('min-height','0');S('max-height',h+'px');
     if(mode==='h'){ S('align-self','center');S('flex','0 0 auto');S('width',(m.width>0?m.width+'px':'60px'));S('margin','0 4px'); }
     else {
-      var grid=getComputedStyle(ct).display.indexOf('grid')===0;
-      if(grid){S('grid-column','1 / -1');}
+      if(getComputedStyle(ct).display.indexOf('grid')===0){S('grid-column','1 / -1');}
       S('align-self','center');S('width',(m.width>0?m.width+'px':'100%'));S('margin','5px 0');
     }
     d.textContent=m.emoji||'➡️';
@@ -113,11 +112,12 @@
     var idx=cards2.indexOf(best.card);
     var after=horiz?(x>best.r.left+best.r.width/2):(y>best.r.top+best.r.height/2);
     var k=after?idx:idx-1; if(k<0)k=0;
-    return {k:k};
+    return {k:k,card:best.card,after:after,horiz:horiz};
   }
   function clearHint(){var h=document.getElementById('asDropHint');if(h)h.remove();}
   function showHint(card,after,horiz){
     clearHint();
+    if(!card)return;
     var el=document.createElement('div');el.id='asDropHint';
     el.style.cssText='position:fixed;z-index:99997;pointer-events:none;background:rgba(39,174,96,.25);border:2px dashed #27ae60;border-radius:8px;';
     var r=card.getBoundingClientRect();
@@ -169,24 +169,75 @@
     });
   }
 
+  // ===== MOUSE POINTER =====
+  function makeCursor(){
+    cursorEl=document.createElement('div');cursorEl.id='asCursor';
+    cursorEl.style.cssText='position:fixed;z-index:100001;pointer-events:none;display:none;left:0;top:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))';
+    cursorEl.innerHTML='<svg width="28" height="32" viewBox="0 0 26 30"><path d="M2 2 L2 24 L8 18 L12 27 L16 25 L12 16 L20 16 Z" fill="#ffffff" stroke="#000000" stroke-width="2"/></svg>';
+    document.body.appendChild(cursorEl);
+  }
+  function moveCursor(x,y){ if(cursorEl){ cursorEl.style.display='block'; cursorEl.style.left=(x-2)+'px'; cursorEl.style.top=(y-2)+'px'; } }
+  function excluded(t){ return t.closest && t.closest('#asBar, .arrow-marker, .as-popup, .as-popup-overlay, button, a, input, select, textarea, label'); }
+
   function startPick(){
     var flag=false; try{ flag=localStorage.getItem('asPickerAllowed')==='1'; }catch(e){}
     if(!flag){ alert('Picker চালু করতে আগে একই browser এ Admin Panel খোলো।'); return; }
     pickActive=true;
-    document.body.style.cursor='crosshair';
+    var st=document.createElement('style');
+    st.textContent='html.as-pick, html.as-pick *{cursor:none !important} body.as-lock{touch-action:none !important}';
+    document.head.appendChild(st);
+    document.documentElement.classList.add('as-pick');
+    makeCursor();
+
     var bar=document.createElement('div');bar.id='asBar';
-    bar.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#8e44ad;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);text-align:center;cursor:default';
-    bar.innerHTML='🎯 Picker ON — যেখানে খুশি tap = সেই ফাঁকে arrow | arrow এ tap = edit/delete <button id="apExit" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:8px">❌ Exit</button>';
+    bar.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#8e44ad;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);text-align:center';
+    bar.innerHTML=' Picker ON — ️ পয়েন্টার টেনে ছাড়ো = arrow বসবে | arrow এ tap = edit/delete '+
+      '<button id="asPtrToggle" style="background:#2c3e50;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:6px">🖱️ ON</button>'+
+      '<button id="apExit" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:6px">❌ Exit</button>';
     document.body.appendChild(bar);
     bar.querySelector('#apExit').onclick=function(){ var q=location.search.replace(/[?&]aspick=1/,''); if(q.indexOf('?')===-1)q=q.replace(/^&/,'?'); location.href=location.pathname+q; };
+    bar.querySelector('#asPtrToggle').onclick=function(){
+      pointerMode=!pointerMode;
+      this.textContent=pointerMode?'🖱️ ON':'🖱️ OFF';
+      document.body.classList.toggle('as-lock',pointerMode);
+      if(!pointerMode&&cursorEl)cursorEl.style.display='none';
+    };
+    document.body.classList.add('as-lock');
+
+    window.addEventListener('pointerdown',function(e){
+      if(!pickActive||!pointerMode)return;
+      if(excluded(e.target))return;
+      dragging=true; moveCursor(e.clientX,e.clientY);
+    },true);
+    window.addEventListener('pointermove',function(e){
+      if(!pickActive||!pointerMode)return;
+      if(e.pointerType==='mouse'||dragging){
+        moveCursor(e.clientX,e.clientY);
+        if(dragging){
+          if(e.clientY<90) window.scrollBy(0,-14);
+          else if(e.clientY>window.innerHeight-90) window.scrollBy(0,14);
+        }
+      }
+    },true);
+    window.addEventListener('pointerup',function(e){
+      if(!pickActive||!pointerMode)return;
+      if(!dragging)return;
+      dragging=false;
+      if(excluded(e.target))return;
+      e.preventDefault();
+      var tgt=nearestTarget(e.clientX,e.clientY);
+      if(!tgt){ toastMsg('এখানে পণ্য নেই — পণ্যের কাছে নিয়ে ছাড়ো'); return; }
+      showHint(tgt.card,tgt.after,tgt.horiz);
+      setTimeout(function(){ openNew(tgt.k+1); },150);
+    },true);
+    // pointer OFF mode: tap to place
     document.addEventListener('click', function(e){
-      if(!pickActive)return;
-      var t=e.target;
-      if(t.closest && t.closest('#asBar, .arrow-marker, .as-popup, .as-popup-overlay, button, a, input, select, textarea, label'))return;
+      if(!pickActive||pointerMode)return;
+      if(excluded(e.target))return;
       var tgt=nearestTarget(e.clientX,e.clientY);
       if(!tgt)return;
       e.preventDefault(); e.stopPropagation();
-      showHint(tgt.card||null,tgt.after,tgt.horiz);
+      showHint(tgt.card,tgt.after,tgt.horiz);
       setTimeout(function(){ openNew(tgt.k+1); },150);
     }, true);
     apply();
