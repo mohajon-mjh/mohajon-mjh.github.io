@@ -1,7 +1,11 @@
-/* Arrow System v2.2 — mount directly inside #tab-uisettings (tab-hidden fix) */
+/* Arrow System v2.3 — mount FIRST, Firebase later + visible status badge */
 (async function(){
+  var VER='v2.3';
+  function setBadge(txt,bg){var b=document.getElementById('asBadge');if(!b){b=document.createElement('div');b.id='asBadge';b.style.cssText='position:fixed;bottom:8px;right:8px;z-index:99998;background:#27ae60;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;font-family:sans-serif;opacity:.9';document.body.appendChild(b);}b.textContent=txt;b.style.background=bg||'#27ae60';}
+  setBadge('➡️ AS '+VER+' loaded');
+
   var FB='arrowSystem';
-  var EMO=['➡️','️','️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','','📌','','🛒','🏷️','💎'];
+  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','️','💎'];
   var CATS=['all','agric','auto','beauty','books','computers','food','gift','grocery','handi','health','home','kids','men','mobile','pets','spices','sports','toys','travel','tv','watches','women'];
   var cfg={enabled:true,markers:[]}, editingId=null, picker=null, db=null, fbD=null;
 
@@ -24,11 +28,11 @@
     var d=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
     var C={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
     var app=m.getApps().length?m.getApp():m.initializeApp(C);
-    db=d.getDatabase(app); fbD=d; return true; }catch(e){console.error('[ArrowAdmin] FB init fail',e);return false} }
-  function load(cb){ initFB().then(function(ok){ if(!ok){setTimeout(function(){load(cb)},1500);return}
-    fbD.get(fbD.ref(db,FB)).then(function(s){ cfg=normCfg(s.val()); cb&&cb(); }); }); }
-  function save(msg){ initFB().then(function(ok){ if(!ok)return alert('Firebase ready নয়');
-    fbD.set(fbD.ref(db,FB),prepCfg(cfg)).then(function(){ toast(msg||'Saved ✅'); renderList(); }); }); }
+    db=d.getDatabase(app); fbD=d; return true; }catch(e){console.error('[ArrowAdmin] FB init fail',e);setBadge('AS: FB init fail','#e74c3c');return false} }
+  function load(cb){ initFB().then(function(ok){ if(!ok){setTimeout(function(){load(cb)},3000);return}
+    fbD.get(fbD.ref(db,FB)).then(function(s){ cfg=normCfg(s.val()); setBadge('➡️ AS '+VER+' online'); cb&&cb(); }).catch(function(e){ console.error('[ArrowAdmin] read fail',e); setBadge('AS: FB read fail','#e74c3c'); cb&&cb(); }); }); }
+  function save(msg){ initFB().then(function(ok){ if(!ok){alert('Firebase ready নয়');return}
+    fbD.set(fbD.ref(db,FB),prepCfg(cfg)).then(function(){ toast(msg||'Saved ✅'); renderList(); }).catch(function(e){ alert('Save fail: '+(e&&e.message||e)); setBadge('AS: save fail','#e74c3c'); }); }); }
   function uid(){return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
   function toast(t){var d=document.createElement('div');d.textContent=t;d.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#27ae60;color:#fff;padding:10px 16px;border-radius:8px;z-index:99999;font-weight:600';document.body.appendChild(d);setTimeout(function(){d.remove()},2500)}
 
@@ -122,7 +126,6 @@
 
   function mount(){
     if(document.getElementById('arrowSystemCard'))return;
-    // DIRECT target: UI Settings tab section (লুকানো থাকলেও সমস্যা নেই)
     var host=document.getElementById('tab-uisettings');
     if(!host){
       var leaf=null,all=document.querySelectorAll('*');
@@ -131,9 +134,19 @@
       host=(leaf.closest&&leaf.closest('section.tab-section, section'))||leaf.parentElement.parentElement||document.body;
     }
     host.appendChild(buildCard());
-    console.log('[ArrowAdmin] mounted in #tab-uisettings ✔');
     wire();
     renderList();
   }
-  var t=setInterval(function(){ if(document.getElementById('tab-uisettings')||/UI Settings Panel/i.test(document.body.textContent||'')){ clearInterval(t); load(mount); } },600);
+
+  // Card আগে mount হবে, Firebase পরে connect হবে
+  var t=setInterval(function(){
+    if(document.getElementById('tab-uisettings')){
+      clearInterval(t);
+      mount();
+      load(function(){
+        var en=document.getElementById('asEnabled'); if(en)en.checked=cfg.enabled!==false;
+        renderList();
+      });
+    }
+  },600);
 })();
