@@ -1,4 +1,4 @@
-/* Arrow System v2 — public (manual: refresh এ apply হয়) */
+/* Arrow System public v4 — universal .product-card containers + horizontal row fix */
 (function(){
   var cfg=null, db=null, fbD=null;
   async function initFB(){ if(db)return true; try{
@@ -6,44 +6,63 @@
     var d=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
     var C={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
     var app=m.getApps().length?m.getApp():m.initializeApp(C);
-    db=d.getDatabase(app); fbD=d; return true; }catch(e){console.warn('[ArrowSystem] FB fail',e);return false} }
+    db=d.getDatabase(app); fbD=d; return true; }catch(e){return false} }
   function curCat(){try{return new URLSearchParams(location.search).get('id')||''}catch(e){return ''}}
-  function normCfg(v){
-    if(!v) return {enabled:true,markers:[]};
-    var m=v.markers;
-    if(m && !Array.isArray(m)){
-      m=Object.keys(m).sort(function(a,b){return parseInt(a)-parseInt(b)}).map(function(k){return m[k]});
-    }
-    return {enabled:v.enabled!==false,markers:Array.isArray(m)?m:[]};
+  function markerEl(m,horiz){
+    var d=document.createElement('div');d.className='arrow-marker';
+    var h=(m.height||28);
+    var w=m.width>0?(m.width+'px'):(horiz?'60px':'100%');
+    d.style.cssText='display:flex;align-items:center;justify-content:center;line-height:1;pointer-events:none;font-size:'+(h-4)+'px;'+
+      (horiz
+        ? 'align-self:center;flex:0 0 auto;width:'+w+';height:'+h+'px;margin:0 4px;border-radius:8px;'
+        : 'width:'+w+';height:'+h+'px;margin:6px 0;');
+    d.textContent=m.emoji||'➡️';
+    return d;
   }
-  function markerEl(m){var d=document.createElement('div');d.className='arrow-marker';
-    var w=(!m.width||m.width==0)?'100%':(m.width+'px');
-    d.style.cssText='display:flex;align-items:center;justify-content:center;height:'+(m.height||28)+'px;width:'+w+';font-size:'+((m.height||28)-4)+'px;margin:6px 0;line-height:1;pointer-events:none;';
-    d.textContent=m.emoji||'➡️';return d}
   function apply(){
     document.querySelectorAll('.arrow-marker').forEach(function(e){e.remove()});
     if(!cfg||cfg.enabled===false)return true;
-    var grids=[].slice.call(document.querySelectorAll('#productGrid,.product-grid,#productsGrid,.products-grid'));
-    if(!grids.length)return false;
-    var found=false, c=curCat();
-    grids.forEach(function(g){
+    var cardsAll=[].slice.call(document.querySelectorAll('.product-card'));
+    if(!cardsAll.length)return false;
+    var parents=[];
+    cardsAll.forEach(function(c){ if(c.parentElement&&parents.indexOf(c.parentElement)<0)parents.push(c.parentElement); });
+    var c=curCat();
+    parents.forEach(function(g){
       var cards=[].filter.call(g.children,function(ch){return ch.classList&&ch.classList.contains('product-card')});
-      if(!cards.length)return; found=true;
-      var ms=(cfg.markers||[]).filter(function(m){return m&&(m.scope==='all'||!m.scope||m.scope===c)});
+      if(!cards.length)return;
+      var cs=getComputedStyle(g);
+      var horiz=(cs.flexDirection&&cs.flexDirection.indexOf('row')===0)||(g.scrollWidth>g.clientWidth+10);
+      var attr=(g.getAttribute&&g.getAttribute('data-cat'))||'';
+      var ms=(cfg.markers||[]).filter(function(m){
+        if(!m)return false;
+        var s=m.scope||'all';
+        if(s==='all')return true;
+        if(s===c)return true;
+        if(attr&&attr.indexOf(s)>-1)return true;
+        if(g.id&&g.id.indexOf(s)>-1)return true;
+        return false;
+      });
       ms.sort(function(a,b){return (a.position||0)-(b.position||0)});
       var anchors={};
-      ms.forEach(function(m){var pos=parseInt(m.position||0,10); if(pos<1||pos>cards.length)return;
-        var n=markerEl(m);
-        if(anchors[pos])anchors[pos].insertAdjacentElement('afterend',n); else cards[pos-1].insertAdjacentElement('afterend',n);
-        anchors[pos]=n;});
+      ms.forEach(function(m){
+        var pos=parseInt(m.position||0,10); if(pos<1||pos>cards.length)return;
+        var n=markerEl(m,horiz);
+        if(anchors[pos])anchors[pos].insertAdjacentElement('afterend',n);
+        else cards[pos-1].insertAdjacentElement('afterend',n);
+        anchors[pos]=n;
+      });
     });
-    return found;
+    return true;
   }
   function start(){
     initFB().then(function(ok){
       if(!ok){setTimeout(start,2000);return}
       fbD.get(fbD.ref(db,'arrowSystem')).then(function(s){
-        cfg=normCfg(s.val());
+        var v=s.val();
+        if(v&&v.markers&&!Array.isArray(v.markers)){
+          v.markers=Object.keys(v.markers).sort(function(a,b){return parseInt(a)-parseInt(b)}).map(function(k){return v.markers[k]});
+        }
+        cfg=v||{enabled:true,markers:[]};
         var tries=0;
         var iv=setInterval(function(){tries++; if(apply()||tries>20)clearInterval(iv)},500);
       }).catch(function(e){console.warn('[ArrowSystem] get fail',e)});

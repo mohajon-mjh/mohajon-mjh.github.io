@@ -1,11 +1,11 @@
-/* Arrow System v3.3 — text color fix (admin dark theme override) */
+/* Arrow System v3.4 — preview opens home cats on home, menu cats on category page */
 (async function(){
-  var VER='v3.3';
+  var VER='v3.4';
   function setBadge(txt,bg){var b=document.getElementById('asBadge');if(!b){b=document.createElement('div');b.id='asBadge';b.style.cssText='position:fixed;bottom:8px;right:8px;z-index:99998;background:#27ae60;color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;font-family:sans-serif;opacity:.9';document.body.appendChild(b);}b.textContent=txt;b.style.background=bg||'#27ae60';}
   setBadge('➡️ AS '+VER+' Loading...');
 
   var FB='arrowSystem';
-  var EMO=['➡️','️','️','⬇️','▶️','◀️','','','👉','','👆','','⏩','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','️','💎'];
+  var EMO=['➡️','⬅️','⬆️','️','▶️','️','🔺','🔻','','👈','','👇','','⏪','🔼','🔽','↪️','↩️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','💰','🛒','🏷️',''];
 
   var GROUP_DEFS=[
     ['megaCategories','🎁 Mega Offers'],
@@ -67,6 +67,7 @@
   ];
 
   var CATNAMES={'all':'সব ক্যাটাগরি (all)'};
+  var CATSOURCE={'all':'home'};
   var HOME_GROUPS=[];
   var cfg={enabled:true,markers:[]}, editingId=null, picker=null, scopeModal=null, db=null, fbD=null, auth=null;
 
@@ -76,75 +77,51 @@
     try{
       var r1=await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/settings.json');
       if(r1.ok) s=await r1.json();
-    }catch(e){ console.warn('[ArrowAdmin] live settings fail',e); }
+    }catch(e){}
     if(!s || !s.globalCategories){
-      try{
-        var r2=await fetch('/data/settings.json?ts='+Date.now(),{cache:'no-store'});
-        s=await r2.json();
-      }catch(e){ console.warn('[ArrowAdmin] local settings fail',e); }
+      try{ var r2=await fetch('/data/settings.json?ts='+Date.now(),{cache:'no-store'}); s=await r2.json(); }catch(e){}
     }
     if(s){
       GROUP_DEFS.forEach(function(g){
         var src=s[g[0]];
-        if(g[0]==='megaCategories' && (!src || Object.keys(src).length<4) && s.customSections && s.customSections.mega && s.customSections.mega.cats){
-          src=s.customSections.mega.cats;
-        }
+        if(g[0]==='megaCategories' && (!src || Object.keys(src).length<4) && s.customSections && s.customSections.mega && s.customSections.mega.cats){ src=s.customSections.mega.cats; }
         if(!src)return;
         var items=Object.keys(src).map(function(id){
           CATNAMES[id]=(src[id]&&src[id].name)||id;
+          CATSOURCE[id]='home';
           return {id:id,name:(src[id]&&src[id].name)||id,order:(src[id]&&src[id].order)||99};
         }).sort(function(a,b){return a.order-b.order});
         if(items.length)HOME_GROUPS.push({title:g[1],items:items});
       });
     }
-    MENU_CATS.forEach(function(m){ if(!CATNAMES[m[0]])CATNAMES[m[0]]=m[1]; });
-    var total=Object.keys(CATNAMES).length-1;
-    setBadge('➡️ AS '+VER+' | Cats: '+total);
+    MENU_CATS.forEach(function(m){ if(!CATNAMES[m[0]]){CATNAMES[m[0]]=m[1];} if(!CATSOURCE[m[0]])CATSOURCE[m[0]]='menu'; });
+    setBadge('➡️ AS '+VER+' | Cats: '+(Object.keys(CATNAMES).length-1));
   }
+  function previewURL(id){ return (CATSOURCE[id]==='menu') ? ('/category.html?id='+id) : '/index.html'; }
 
   function checkAuth(){ if(!auth)return false; return !!auth.currentUser; }
   function normCfg(v){
     if(!v) return {enabled:true,markers:[]};
     var m=v.markers;
-    if(m && !Array.isArray(m)){
-      m=Object.keys(m).sort(function(a,b){return parseInt(a)-parseInt(b)}).map(function(k){return m[k]});
-    }
+    if(m && !Array.isArray(m)){ m=Object.keys(m).sort(function(a,b){return parseInt(a)-parseInt(b)}).map(function(k){return m[k]}); }
     return {enabled:v.enabled!==false,markers:Array.isArray(m)?m:[]};
   }
-  function prepCfg(v){
-    var o={enabled:v.enabled!==false,markers:{}};
-    (v.markers||[]).forEach(function(m,i){o.markers[i]=m});
-    return o;
-  }
-  async function initFB(){ 
-    if(db) return true; 
-    try{
-      var m=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
-      var d=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
-      var a=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js");
-      var C={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
-      var app=m.getApps().length?m.getApp():m.initializeApp(C);
-      db=d.getDatabase(app); fbD=d; auth=a.getAuth(app);
-      return true; 
-    }catch(e){console.error('[ArrowAdmin] FB init fail',e);setBadge('AS: Init Fail','#e74c3c');return false} 
-  }
-  function load(cb){ 
-    initFB().then(function(ok){ 
-      if(!ok){setTimeout(function(){load(cb)},3000);return}
-      fbD.get(fbD.ref(db,FB)).then(function(s){ cfg=normCfg(s.val()); cb&&cb(); }).catch(function(e){ cfg={enabled:true,markers:[]}; cb&&cb(); }); 
-    }); 
-  }
-  async function save(msg){ 
-    if (!checkAuth()) { alert('⚠️ Permission Denied!\nআপনি লগইন করা নেই।'); setBadge('AS: Not Logged In','#e74c3c'); return; }
-    initFB().then(function(ok){ 
-      if(!ok){alert('Firebase ready নয়');return}
-      fbD.set(fbD.ref(db,FB),prepCfg(cfg)).then(function(){ toast(msg||'Saved ✅'); renderList(); setBadge('➡️ AS Saved','#27ae60'); }).catch(function(e){ alert('Save failed: '+(e.message||e)); setBadge('AS: Save Error','#e74c3c'); });
-    });
-  }
+  function prepCfg(v){ var o={enabled:v.enabled!==false,markers:{}}; (v.markers||[]).forEach(function(m,i){o.markers[i]=m}); return o; }
+  async function initFB(){ if(db)return true; try{
+    var m=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js");
+    var d=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js");
+    var a=await import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js");
+    var C={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
+    var app=m.getApps().length?m.getApp():m.initializeApp(C);
+    db=d.getDatabase(app); fbD=d; auth=a.getAuth(app); return true; }catch(e){setBadge('AS: Init Fail','#e74c3c');return false} }
+  function load(cb){ initFB().then(function(ok){ if(!ok){setTimeout(function(){load(cb)},3000);return}
+    fbD.get(fbD.ref(db,FB)).then(function(s){ cfg=normCfg(s.val()); cb&&cb(); }).catch(function(){ cfg={enabled:true,markers:[]}; cb&&cb(); }); }); }
+  async function save(msg){ if(!checkAuth()){ alert('⚠️ Permission Denied!\nলগইন করুন।'); setBadge('AS: Not Logged In','#e74c3c'); return; }
+    initFB().then(function(ok){ if(!ok){alert('Firebase ready নয়');return}
+      fbD.set(fbD.ref(db,FB),prepCfg(cfg)).then(function(){ toast(msg||'Saved ✅'); renderList(); setBadge('➡️ AS Saved','#27ae60'); }).catch(function(e){ alert('Save failed: '+(e.message||e)); setBadge('AS: Save Error','#e74c3c'); }); }); }
   function uid(){return 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
   function toast(t){var d=document.createElement('div');d.textContent=t;d.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#27ae60;color:#fff;padding:10px 16px;border-radius:8px;z-index:99999;font-weight:600';document.body.appendChild(d);setTimeout(function(){d.remove()},2500)}
 
-  // ===== 2-PANEL SCOPE PICKER (color fix) =====
   function closeScope(){ if(scopeModal){scopeModal.remove();scopeModal=null;} }
   function scopeItemBtn(it,hidden,btn){
     var b=document.createElement('button');b.type='button';b.textContent=it.name;
@@ -177,7 +154,6 @@
     scopeModal.addEventListener('click',function(e){if(e.target===scopeModal)closeScope()});
   }
 
-  // ===== EMOJI PICKER (color fix) =====
   function openPicker(btn,hidden){
     closePicker();
     picker=document.createElement('div');
@@ -204,9 +180,10 @@
       var d=document.createElement('div');
       d.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid '+(editingId===m.id?'#3498db':'#ddd')+';border-radius:8px;padding:8px 10px;margin:6px 0;background:'+(editingId===m.id?'#eaf4fd':'#fafafa');
       var wDisp=(m.width===0||!m.width)?'full':m.width;
-      var previewLink = m.scope && m.scope !== 'all' ? '<a href="/category.html?id='+m.scope+'" target="_blank" style="font-size:11px;color:#3498db;text-decoration:none;margin-left:5px;border:1px solid #3498db;padding:2px 6px;border-radius:4px;">👁️ View</a>' : '';
+      var srcTag=(CATSOURCE[m.scope]==='menu')?'☰':'';
+      var previewLink = m.scope && m.scope !== 'all' ? '<a href="'+previewURL(m.scope)+'" target="_blank" style="font-size:11px;color:#3498db;text-decoration:none;margin-left:5px;border:1px solid #3498db;padding:2px 6px;border-radius:4px;">👁️ View</a>' : '';
       d.innerHTML='<b style="min-width:26px;color:#222">#'+(i+1)+'</b>'+
-        '<span style="font-size:13px;color:#222">Scope: <b>'+catLabel(m.scope||'all')+'</b>'+previewLink+'</span>'+
+        '<span style="font-size:13px;color:#222">'+srcTag+' Scope: <b>'+catLabel(m.scope||'all')+'</b>'+previewLink+'</span>'+
         '<span style="font-size:13px;color:#222">Pos: <b>'+(m.position||1)+'</b></span>'+
         '<span style="font-size:24px">'+(m.emoji||'➡️')+'</span>'+
         '<span style="font-size:12px;color:#666">H:'+(m.height||28)+' W:'+wDisp+'</span>'+
@@ -233,19 +210,21 @@
     document.getElementById('asFormTitle').textContent='✏️ Marker Edit করো'; document.getElementById('asForm').scrollIntoView({behavior:'smooth',block:'center'}); }
   function onScopeChange(){
     var v=document.getElementById('asScope').value;
-    document.getElementById('asPreviewBtn').style.display=(v&&v!=='all')?'inline-block':'none';
+    var pb=document.getElementById('asPreviewBtn');
+    pb.style.display=(v&&v!=='all')?'inline-block':'none';
+    pb.textContent=(CATSOURCE[v]==='menu')?'👁️ Preview (Menu style)':'👁️ Preview (Home style)';
   }
 
   function buildCard(){
     var c=document.createElement('div'); c.id='arrowSystemCard';
     c.style.cssText='background:#fff;border-radius:12px;padding:16px;margin:16px 0;color:#222;box-shadow:0 2px 8px rgba(0,0,0,.08)';
     c.innerHTML='<h3 style="margin:0 0 6px;color:#222">➡️ Arrow System (Manual Control)</h3>'+
-      '<p style="margin:0 0 10px;font-size:13px;color:#666">Scope বাছতে click করো — বাম পাশে হোম পেজ, ডান পাশে Menu ক্যাটাগরি।</p>'+
+      '<p style="margin:0 0 10px;font-size:13px;color:#666">🏠 হোম ক্যাটাগরি → Preview হোম পেজে খোলে | ☰ Menu ক্যাটাগরি → Preview category page এ খোলে।</p>'+
       '<label style="font-size:14px;display:flex;align-items:center;gap:6px;color:#222"><input type="checkbox" id="asEnabled" style="width:18px;height:18px"> <b>System ON/OFF</b></label>'+
       '<div id="asList" style="margin-top:10px"></div>'+
       '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'+
       '<button id="asAdd" style="background:#f39c12;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600">➕ Add Marker</button>'+
-      '<button id="asPreviewBtn" style="background:#3498db;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600;display:none">👁️ Preview Selected Category</button>'+
+      '<button id="asPreviewBtn" style="background:#3498db;color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600;display:none">👁️ Preview</button>'+
       '</div>'+
       '<div id="asForm" style="display:none;margin-top:12px;border:2px solid #3498db;border-radius:10px;padding:12px;background:#f4f9ff">'+
       '<b id="asFormTitle" style="display:block;margin-bottom:8px;color:#222">➕ নতুন Marker</b>'+
@@ -254,7 +233,7 @@
       '<label style="color:#222">Position (কততম পণ্যের পরে)<input id="asPos" type="number" min="1" value="1" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px;color:#222;background:#fff"></label>'+
       '<label style="color:#222">Emoji (click করো)<button type="button" id="asEmojiBtn" style="width:100%;padding:8px;font-size:22px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#222;cursor:pointer">➡️</button><input id="asEmoji" type="hidden" value="➡️"></label>'+
       '<label style="color:#222">Height (px)<input id="asH" type="number" value="28" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px;color:#222;background:#fff"></label>'+
-      '<label style="grid-column:1/-1;color:#222">Width (px, 0 = full width)<input id="asW" type="number" value="0" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px;color:#222;background:#fff"></label>'+
+      '<label style="grid-column:1/-1;color:#222">Width (px, 0 = auto: grid এ full, row এ ছোট)<input id="asW" type="number" value="0" style="width:100%;padding:7px;border:1px solid #ccc;border-radius:6px;color:#222;background:#fff"></label>'+
       '</div>'+
       '<div style="margin-top:10px;display:flex;gap:8px">'+
       '<button id="asSaveM" style="background:#27ae60;color:#fff;border:0;border-radius:8px;padding:9px 14px;cursor:pointer;font-weight:600">💾 Save Marker</button>'+
@@ -267,7 +246,7 @@
     document.getElementById('asEnabled').checked = cfg.enabled!==false;
     document.getElementById('asEnabled').onchange=function(){ cfg.enabled=this.checked; save(this.checked?'System ON ✅':'System OFF ⛔'); };
     document.getElementById('asScopeBtn').onclick=function(){ openScopePicker(document.getElementById('asScope'), this); };
-    document.getElementById('asPreviewBtn').onclick=function(){ var v=document.getElementById('asScope').value; if(v&&v!=='all')window.open('/category.html?id='+v,'_blank'); };
+    document.getElementById('asPreviewBtn').onclick=function(){ var v=document.getElementById('asScope').value; if(v&&v!=='all')window.open(previewURL(v),'_blank'); };
     document.getElementById('asAdd').onclick=function(){ editingId=null; resetForm(); showForm(true); renderList(); document.getElementById('asFormTitle').textContent='➕ নতুন Marker'; };
     document.getElementById('asCancel').onclick=function(){ editingId=null; showForm(false); renderList(); };
     document.getElementById('asEmojiBtn').onclick=function(){ openPicker(document.getElementById('asEmojiBtn'),document.getElementById('asEmoji')); };
