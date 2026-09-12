@@ -1,6 +1,6 @@
-/* Arrow System public v10 — real mouse pointer cursor + drag-drop + auto-scroll */
+/* Arrow System public v11 — big arrow cursor, instant editor on drop, site clicks blocked in picker */
 (function(){
-  var EMO=['➡️','⬅️','⬆️','⬇️','▶️','◀️','','','','','👆','','','','🔼','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','📌','','🛒','🏷️',''];
+  var EMO=['➡️','️','⬆️','⬇️','▶️','◀️','🔺','','👉','','👆','','⏩','','','','↪️','️','➤','➔','>','»','«','—','★','✓','⚡','🔥','⭐','✨','✅','❗','🎯','','','🛒','🏷️',''];
   var PATH1='settings/arrowSystem', PATH2='arrowSystem';
   var cfg=null, db=null, fbD=null, popup=null;
   var pickMode=location.search.indexOf('aspick=1')>-1;
@@ -58,8 +58,8 @@
       S('align-self','center');S('width',(m.width>0?m.width+'px':'100%'));S('margin','5px 0');
     }
     d.textContent=m.emoji||'➡️';
-    if(pickActive){ S('background','rgba(39,174,96,.15)');S('cursor','pointer');S('pointer-events','auto');
-      d.onclick=function(e){e.stopPropagation();e.preventDefault();openEdit(m);}; }
+    d._asMarker=m;
+    if(pickActive){ S('background','rgba(39,174,96,.15)');S('pointer-events','auto'); }
     return d;
   }
 
@@ -169,15 +169,15 @@
     });
   }
 
-  // ===== MOUSE POINTER =====
+  // ===== BIG MOUSE POINTER =====
   function makeCursor(){
     cursorEl=document.createElement('div');cursorEl.id='asCursor';
-    cursorEl.style.cssText='position:fixed;z-index:100001;pointer-events:none;display:none;left:0;top:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))';
-    cursorEl.innerHTML='<svg width="28" height="32" viewBox="0 0 26 30"><path d="M2 2 L2 24 L8 18 L12 27 L16 25 L12 16 L20 16 Z" fill="#ffffff" stroke="#000000" stroke-width="2"/></svg>';
+    cursorEl.style.cssText='position:fixed;z-index:100001;pointer-events:none;display:none;left:0;top:0;filter:drop-shadow(0 3px 6px rgba(0,0,0,.55))';
+    cursorEl.innerHTML='<svg width="42" height="56" viewBox="0 0 36 48"><path d="M4 2 L4 40 L14 30 L20 46 L28 42 L22 27 L34 27 Z" fill="#ffffff" stroke="#000000" stroke-width="2.5"/></svg>';
     document.body.appendChild(cursorEl);
   }
-  function moveCursor(x,y){ if(cursorEl){ cursorEl.style.display='block'; cursorEl.style.left=(x-2)+'px'; cursorEl.style.top=(y-2)+'px'; } }
-  function excluded(t){ return t.closest && t.closest('#asBar, .arrow-marker, .as-popup, .as-popup-overlay, button, a, input, select, textarea, label'); }
+  function moveCursor(x,y){ if(cursorEl){ cursorEl.style.display='block'; cursorEl.style.left=(x-3)+'px'; cursorEl.style.top=(y-3)+'px'; } }
+  function allowedUI(t){ return t.closest && t.closest('#asBar, .as-popup, .as-popup-overlay'); }
 
   function startPick(){
     var flag=false; try{ flag=localStorage.getItem('asPickerAllowed')==='1'; }catch(e){}
@@ -191,7 +191,7 @@
 
     var bar=document.createElement('div');bar.id='asBar';
     bar.style.cssText='position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;background:#8e44ad;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.3);text-align:center';
-    bar.innerHTML=' Picker ON — ️ পয়েন্টার টেনে ছাড়ো = arrow বসবে | arrow এ tap = edit/delete '+
+    bar.innerHTML='🎯 Picker ON — তীর টেনে ছাড়ো = arrow | arrow tap = edit/delete '+
       '<button id="asPtrToggle" style="background:#2c3e50;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:6px">🖱️ ON</button>'+
       '<button id="apExit" style="background:#e74c3c;color:#fff;border:0;border-radius:6px;padding:4px 8px;cursor:pointer;margin-left:6px">❌ Exit</button>';
     document.body.appendChild(bar);
@@ -204,9 +204,23 @@
     };
     document.body.classList.add('as-lock');
 
+    // সাইটের সব click বন্ধ (product open, carousel arrow, link) — শুধু picker UI চলবে
+    document.addEventListener('click', function(e){
+      if(!pickActive)return;
+      var t=e.target;
+      if(allowedUI(t))return;
+      e.preventDefault(); e.stopPropagation();
+      var mk=t.closest && t.closest('.arrow-marker');
+      if(mk && mk._asMarker){ openEdit(mk._asMarker); return; }
+      if(!pointerMode){
+        var tgt=nearestTarget(e.clientX,e.clientY);
+        if(tgt){ showHint(tgt.card,tgt.after,tgt.horiz); openNew(tgt.k+1); }
+      }
+    }, true);
+
     window.addEventListener('pointerdown',function(e){
       if(!pickActive||!pointerMode)return;
-      if(excluded(e.target))return;
+      if(allowedUI(e.target))return;
       dragging=true; moveCursor(e.clientX,e.clientY);
     },true);
     window.addEventListener('pointermove',function(e){
@@ -216,6 +230,14 @@
         if(dragging){
           if(e.clientY<90) window.scrollBy(0,-14);
           else if(e.clientY>window.innerHeight-90) window.scrollBy(0,14);
+          // horizontal carousel slide
+          if(e.clientX<70||e.clientX>window.innerWidth-70){
+            var el=document.elementFromPoint(e.clientX,e.clientY);
+            while(el&&el!==document.body){
+              if(el.scrollWidth>el.clientWidth+10){ el.scrollBy((e.clientX<70?-16:16),0); break; }
+              el=el.parentElement;
+            }
+          }
         }
       }
     },true);
@@ -223,23 +245,15 @@
       if(!pickActive||!pointerMode)return;
       if(!dragging)return;
       dragging=false;
-      if(excluded(e.target))return;
+      if(allowedUI(e.target))return;
       e.preventDefault();
+      var mk=e.target.closest && e.target.closest('.arrow-marker');
+      if(mk && mk._asMarker){ openEdit(mk._asMarker); return; }
       var tgt=nearestTarget(e.clientX,e.clientY);
-      if(!tgt){ toastMsg('এখানে পণ্য নেই — পণ্যের কাছে নিয়ে ছাড়ো'); return; }
+      if(!tgt){ toastMsg('পণ্যের কাছে ছাড়ো'); return; }
       showHint(tgt.card,tgt.after,tgt.horiz);
-      setTimeout(function(){ openNew(tgt.k+1); },150);
+      openNew(tgt.k+1);
     },true);
-    // pointer OFF mode: tap to place
-    document.addEventListener('click', function(e){
-      if(!pickActive||pointerMode)return;
-      if(excluded(e.target))return;
-      var tgt=nearestTarget(e.clientX,e.clientY);
-      if(!tgt)return;
-      e.preventDefault(); e.stopPropagation();
-      showHint(tgt.card,tgt.after,tgt.horiz);
-      setTimeout(function(){ openNew(tgt.k+1); },150);
-    }, true);
     apply();
   }
 
