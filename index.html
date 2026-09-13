@@ -2675,7 +2675,9 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
   function j(p){return fetch(BASE+"/"+p+".json").then(function(r){return r.json();});}
   function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"$"+(+v||0).toFixed(2);}
   var SECTIONS=[
+    {cats:"flashCatsRow",grid:"flashSaleProductsGrid",ck:"flashSaleCategories",pk:"flashSaleCategoryProducts"},
     {cats:"globalCatsRow",grid:"globalCatCarousel",ck:"globalCategories",pk:"globalCategoryProducts",gc:1},
+    {cats:"dealsCatsRow",grid:"dealsGrid",ck:"dealsCategories",pk:"dealsCategoryProducts"},
     {cats:"specialCatsContainer",grid:"specialCatCarousel",ck:"specialCategories",pk:"specialCategoryProducts"}
   ];
   var ALL=null;
