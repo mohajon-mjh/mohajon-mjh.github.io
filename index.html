@@ -1139,6 +1139,7 @@ function fsInitCategories(){
       a.dataset.cat = id;
       a.textContent = item.name || "Unnamed";
       a.onclick = () => loadFlashCategoryProducts(id);
+      catsRow.appendChild(a);
     });
     const firstId = entries[0][0];
     loadFlashCategoryProducts(firstId);
@@ -1435,6 +1436,7 @@ function dotdInitCategories(){
       a.style.cursor = "pointer";
       a.textContent = item.name || "Unnamed";
       a.onclick = () => loadDotdCategoryProducts(id);
+      catsRow.appendChild(a);
     });
     const firstId = entries[0][0];
     loadDotdCategoryProducts(firstId);
