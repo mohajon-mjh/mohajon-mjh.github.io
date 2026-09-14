@@ -735,3 +735,39 @@ fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.
   fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){if(!p||!p.title)return;var s=String(p.title).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");fetch("assets/products/"+s+"/media.json").then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(mj){var base="assets/products/"+s+"/";var imgs=mj.images||[];if(!imgs.length)return;var mi=document.getElementById("mainImg");if(mi)mi.src=base+imgs[0];var th=document.querySelector(".thumbs");if(th){th.innerHTML=imgs.map(function(f,i){return '<img src="'+base+f+'" class="'+(i===0?"on":"")+'" onclick="setImg(this,\''+base+f+'\')">';}).join("");}}).catch(function(){});}).catch(function(){});
 })();
 </script>
+<script>/*mjhRelatedProducts*/
+(function(){
+ var m=location.search.match(/id=([^&]+)/);if(!m)return;
+ var id=decodeURIComponent(m[1]);
+ var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+ function card(p,pid){
+   var price=parseFloat(p.price)||0;
+   var d=p.discountPercent||0;
+   var fin=d>0?price*(100-d)/100:price;
+   var img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+   var el=document.createElement("div");
+   el.style.cssText="min-width:170px;max-width:170px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px;cursor:pointer;flex:0 0 auto;box-shadow:0 1px 4px rgba(0,0,0,.08)";
+   el.innerHTML='<img src="'+img+'" style="width:100%;height:140px;object-fit:contain" loading="lazy"><div style="font-size:13px;color:#111;margin:6px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(p.title||"")+'</div><div style="font-size:15px;font-weight:700;color:#f85606">৳'+fin.toFixed(2)+(d>0?' <span style="font-size:11px;color:#999;text-decoration:line-through;font-weight:400">৳'+price.toFixed(2)+'</span>':'')+'</div>';
+   el.onclick=function(){location.href="product-details.html?id="+pid;};
+   return el;
+ }
+ fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(cur){
+   if(!cur||!cur.categoryId)return;
+   fetch(DB+"/products.json?orderBy=%22categoryId%22&equalTo=%22"+encodeURIComponent(cur.categoryId)+"%22").then(function(r){return r.json();}).then(function(list){
+     if(!list)return;
+     var wrap=document.createElement("div");
+     wrap.style.cssText="max-width:1200px;margin:30px auto;padding:0 10px";
+     wrap.innerHTML='<h3 style="margin:0 0 12px;font-size:18px;color:#111;border-left:4px solid #f85606;padding-left:10px">একই ক্যাটাগরির আরও পণ্য</h3><div id="mjhRelRow" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:10px"></div>';
+     document.body.appendChild(wrap);
+     var row=wrap.querySelector("#mjhRelRow");
+     var count=0;
+     Object.keys(list).forEach(function(pid){
+       if(pid===id||count>=12)return;
+       row.appendChild(card(list[pid],pid));
+       count++;
+     });
+     if(count===0)wrap.remove();
+   });
+ });
+})();
+</script>
