@@ -702,16 +702,10 @@ var w=0;var t=setInterval(function(){w++;
    "@context":"https://schema.org",
    "@type":"Product",
    "name":p.title,
-   "description":p.description||"",
+   "description":p.description||(p.title+" - High quality product from Mohajon MJH Market Place. Cash on delivery available all over Bangladesh."),
    "image":(p.images&&p.images.main)||"",
    "brand":{"@type":"Brand","name":"MJH"},
-   "offers":{
-    "@type":"Offer",
-    "price":p.price||0,
-    "priceCurrency":"BDT",
-    "availability":"https://schema.org/InStock",
-    "url":url
-   }
+   "offers":{"@type":"Offer","price":p.price||0,"priceCurrency":"BDT","availability":"https://schema.org/InStock","url":url,"hasMerchantReturnPolicy":{"@type":"MerchantReturnPolicy","applicableCountry":"BD","returnPolicyCategory":"https://schema.org/MerchantReturnFiniteReturnWindow","merchantReturnDays":7,"returnMethod":"https://schema.org/ReturnByMail","returnFees":"https://schema.org/ReturnShippingFees"},"shippingDetails":{"@type":"OfferShippingDetails","shippingRate":{"@type":"MonetaryAmount","value":170,"currency":"BDT"},"shippingDestination":{"@type":"DefinedRegion","addressCountry":"BD"},"deliveryTime":{"@type":"ShippingDeliveryTime","handlingTime":{"@type":"QuantitativeValue","minValue":0,"maxValue":1,"unitCode":"d"},"transitTime":{"@type":"QuantitativeValue","minValue":2,"maxValue":5,"unitCode":"d"}}}}
   };
   if(p.rating)ld.aggregateRating={"@type":"AggregateRating","ratingValue":p.rating,"reviewCount":p.reviews||1};
   var s=document.createElement("script");
