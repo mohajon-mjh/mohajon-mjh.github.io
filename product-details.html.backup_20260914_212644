@@ -82,27 +82,6 @@ h1{font-size:22px;font-weight:400;line-height:1.3;margin:4px 0 8px}
 .wishlist-btn:hover{background:#fff}
 .wishlist-btn.active{color:#E74C3C}
 
-
-.main-img img:hover {
-  transform: scale(1.8) !important;
-  cursor: zoom-in;
-  transition: transform 0.3s ease;
-  z-index: 1000;
-  position: relative;
-}
-
-.zoom-hint {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(0,0,0,0.7);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  pointer-events: none;
-}
-
 </style>
 
 <script src="auto-ads-enable.js"></script>
@@ -121,7 +100,7 @@ h1{font-size:22px;font-weight:400;line-height:1.3;margin:4px 0 8px}
 <a href="cart.html">🛒 Cart (<span id="cartCount">0</span>)</a>
 </header>
 <div class="wrap">
-<div class="crumb" style="font-size:12px;color:#565959;margin-bottom:10px"><a href="index.html" style="color:#007185;text-decoration:none">🏠 Home</a> <span style="color:#ccc;margin:0 8px">›</span> <a href="products.html" style="color:#007185;text-decoration:none">Products</a> <span style="color:#ccc;margin:0 8px">›</span> <span id="crumbCat" style="color:#565959"></span> <span style="color:#ccc;margin:0 8px">›</span> <span id="crumbTitle" style="color:#111;font-weight:500">Product</span></div>
+<div class="crumb">Home › Products › <span id="crumbTitle">Product</span></div>
 <div id="content" class="প্রস্তুত হচ্ছে">Loading product...</div>
 </div>
 <div class="popup" id="popup">
@@ -156,19 +135,9 @@ function render(P){
  document.title=(P.title||"Product")+" - Mohajon-MJH";
  var imgs=P.images?Object.values(P.images).filter(function(u){return typeof u==="string"&&u.trim().length>3&&u.indexOf("data:")!==0;}):[];
  if(!imgs.length)imgs=["https://dummyimage.com/380x380/eeeeee/555&text=MJH"];
- var price=+P.price||0;
- var discountPercent=+P.discountPercent||0;
- var old=+P.discountPrice||0;
- var hasOld=false;
- var disc=0;
- if(discountPercent>0){
-   old=price/(1-discountPercent/100);
-   hasOld=true;
-   disc=discountPercent;
- } else if(old>0&&old>price){
-   hasOld=true;
-   disc=Math.round((1-price/old)*100);
- }
+ var price=+P.price||0,old=+P.discountPrice||0;
+ var hasOld=old>0&&old>price;
+ var disc=hasOld?Math.round((1-price/old)*100):0;
  var rating=+P.rating||4.3,reviews=+P.reviews||2700;
  var stock=+P.stock||100;
  var cur=localStorage.getItem("selectedCurrency")||"BDT";
@@ -207,11 +176,6 @@ var thumbsHtml=gal.map(function(g,i){return '<img src="'+g.u+'" class="'+(i===0?
 '<button class="share-btn copy" onclick="shareProduct(&#39;copy&#39;)">📋 Copy Link</button>'+
 '</div></div>'
  document.getElementById("crumbTitle").textContent=(P.title||"Product").slice(0,30);
- var crumbCat=document.getElementById("crumbCat");
- if(crumbCat&&P.categoryId){
-   var catName=P.categoryId.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
-   crumbCat.innerHTML='<a href="products.html?categoryId='+encodeURIComponent(P.categoryId)+'" style="color:#007185;text-decoration:none">'+catName+'</a>';
- }
  document.getElementById("addBtn").onclick=function(){var q=+document.getElementById("qty").value;addCart(P,q);document.getElementById("popMsg").textContent=q+" × "+(P.title||"").slice(0,40);document.getElementById("popup").classList.add("show");setTimeout(function(){document.getElementById("popup").classList.remove("show");},3000);};
  document.getElementById("buyBtn").onclick=function(){var q=+document.getElementById("qty").value;localStorage.setItem("buyNowItem",JSON.stringify({id:id,name:P.title,price:price,qty:q,sellerId:P.sellerId||"admin"}));location.href="buyflow.html?mode=buynow";};
 }
@@ -384,27 +348,6 @@ function enhanceGalleryLate(P){
 #mjhAdMedia .am-row{display:flex;gap:10px;overflow-x:auto;padding:12px;scroll-snap-type:x mandatory}
 #mjhAdMedia .am-row img,#mjhAdMedia .am-row video{flex:0 0 85%;max-width:85%;height:340px;object-fit:cover;background:#f7f7f7;box-shadow:0 4px 14px rgba(0,0,0,.15);border-radius:10px;scroll-snap-align:center}
 #mjhAdMedia .am-dots{text-align:center;color:#888;font-size:12px;padding:0 0 10px}
-
-.main-img img:hover {
-  transform: scale(1.8) !important;
-  cursor: zoom-in;
-  transition: transform 0.3s ease;
-  z-index: 1000;
-  position: relative;
-}
-
-.zoom-hint {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(0,0,0,0.7);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  pointer-events: none;
-}
-
 </style>
 <div id="mjhAdMedia" style="display:none"></div>
 <script>/*mjhAdMediaV1*/
@@ -792,4 +735,39 @@ fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.
   fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){if(!p||!p.title)return;var s=String(p.title).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");fetch("assets/products/"+s+"/media.json").then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(mj){var base="assets/products/"+s+"/";var imgs=mj.images||[];if(!imgs.length)return;var mi=document.getElementById("mainImg");if(mi)mi.src=base+imgs[0];var th=document.querySelector(".thumbs");if(th){th.innerHTML=imgs.map(function(f,i){return '<img src="'+base+f+'" class="'+(i===0?"on":"")+'" onclick="setImg(this,\''+base+f+'\')">';}).join("");}}).catch(function(){});}).catch(function(){});
 })();
 </script>
-
+<script>/*mjhRelatedProducts*/
+(function(){
+ var m=location.search.match(/id=([^&]+)/);if(!m)return;
+ var id=decodeURIComponent(m[1]);
+ var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+ function card(p,pid){
+   var price=parseFloat(p.price)||0;
+   var d=p.discountPercent||0;
+   var fin=d>0?price*(100-d)/100:price;
+   var img=(p.images&&p.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+   var el=document.createElement("div");
+   el.style.cssText="min-width:170px;max-width:170px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px;cursor:pointer;flex:0 0 auto;box-shadow:0 1px 4px rgba(0,0,0,.08)";
+   el.innerHTML='<img src="'+img+'" style="width:100%;height:140px;object-fit:contain" loading="lazy"><div style="font-size:13px;color:#111;margin:6px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(p.title||"")+'</div><div style="font-size:15px;font-weight:700;color:#f85606">৳'+fin.toFixed(2)+(d>0?' <span style="font-size:11px;color:#999;text-decoration:line-through;font-weight:400">৳'+price.toFixed(2)+'</span>':'')+'</div>';
+   el.onclick=function(){location.href="product-details.html?id="+pid;};
+   return el;
+ }
+ fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(cur){
+   if(!cur||!cur.categoryId)return;
+   fetch(DB+"/products.json?orderBy=%22categoryId%22&equalTo=%22"+encodeURIComponent(cur.categoryId)+"%22").then(function(r){return r.json();}).then(function(list){
+     if(!list)return;
+     var wrap=document.createElement("div");
+     wrap.style.cssText="max-width:1200px;margin:30px auto;padding:0 10px";
+     wrap.innerHTML='<h3 style="margin:0 0 12px;font-size:18px;color:#111;border-left:4px solid #f85606;padding-left:10px">একই ক্যাটাগরির আরও পণ্য</h3><div id="mjhRelRow" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:10px"></div>';
+     document.body.appendChild(wrap);
+     var row=wrap.querySelector("#mjhRelRow");
+     var count=0;
+     Object.keys(list).forEach(function(pid){
+       if(pid===id||count>=12)return;
+       row.appendChild(card(list[pid],pid));
+       count++;
+     });
+     if(count===0)wrap.remove();
+   });
+ });
+})();
+</script>
