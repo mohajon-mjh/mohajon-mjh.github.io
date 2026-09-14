@@ -266,7 +266,7 @@
             if (data) {
                 const cats = new Set();
                 Object.values(data).forEach(p => {
-                    if (p.category) cats.add(p.category);
+                    if (p.categoryId) cats.add(p.categoryId);
                 });
                 const select = document.getElementById('categoryFilter');
                 select.innerHTML = '<option value="all">All Categories</option>';
@@ -289,7 +289,7 @@
 <script src="js/global-menu.js?v=2"></script>
 <script>
 const params = new URLSearchParams(window.location.search);
-const category = params.get("category");
+const category = params.get("categoryId");
 if(category){
     const title = document.querySelector("h1");
     if(title) title.innerText = category;
@@ -348,7 +348,7 @@ document.getElementById("catBanner").innerText = "Category: " + category;
     console.log("⚠️ Grid empty after 3s, fallback fetch...");
     window.db.ref("products").once("value").then(function(snap){
      var data=snap.val()||{};
-     var list=Object.keys(data).map(function(id){return Object.assign({id:id},data[id]);}).filter(function(p){return p.status==="active";});
+     var list=Object.keys(data).map(function(id){return Object.assign({id:id},data[id]);}).filter(function(p){return p.status==="active" && (!category || p.categoryId===category);});
      console.log("✅ Fallback loaded:",list.length,"products");
      if(list.length>0 && window.createProductCard){
       grid.innerHTML="";

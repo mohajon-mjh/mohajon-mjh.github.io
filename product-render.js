@@ -214,12 +214,12 @@
         applyFilters();
     }
 
-    if (false) document.addEventListener("productsLoaded", function(e) {
+    document.addEventListener("productsLoaded", function(e) {
         const detail = e.detail || {};
         renderProducts(detail.products || [], detail.reset !== false);
     });
 
-    if (false && searchInput) searchInput.addEventListener("input", applyFilters);
+    if (searchInput) searchInput.addEventListener("input", applyFilters);
 
     if (categoryFilter) {
         categoryFilter.addEventListener("change", () => {
