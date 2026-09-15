@@ -1216,7 +1216,7 @@ function fsAddArrow(){
   
 }
 
-function fsRenderNextBatch(){
+function fsRenderNextBatch(){ return; // Disabled - using universal render
   fsRemoveArrow();
   const nextItems = fsAllItems.slice(fsRenderedCount, fsRenderedCount + FS_STRIP_LIMIT);
   nextItems.forEach(it => flashSaleGrid.appendChild(renderFlashSaleCard(it.id, it.data, it.mapInfo)));
@@ -1281,12 +1281,11 @@ function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flas
       flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>এখনো কোনো প্রোডাক্ট যোগ করা হয়নি।</p>";
       return;
     }
-    fsRenderNextBatch();
-    // Force render all remaining products immediately
-    while(fsRenderedCount < fsAllItems.length){
-      fsRenderNextBatch();
-    }
-    console.log('✅ Rendered all', fsAllItems.length, 'products');
+    // Render ALL products at once (no batching)
+    fsAllItems.forEach(item => {
+      flashSaleGrid.appendChild(renderFlashSaleCard(item.id, item.data, item.mapInfo));
+    });
+    console.log('✅ Rendered all', fsAllItems.length, 'products in Flash Sale');
   }).catch((err) => {
     flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>লোড করতে সমস্যা হয়েছে।</p>";
     console.error(err);
@@ -1580,7 +1579,7 @@ function dotdAddArrow(){
   const grid = document.getElementById("dealsGrid");
   
 }
-function dotdRenderNextBatch(){
+function dotdRenderNextBatch(){ return; // Disabled - using universal render
   dotdRemoveArrow();
   const grid = document.getElementById("dealsGrid");
   const nextItems = dotdAllItems.slice(dotdRenderedCount, dotdRenderedCount + dotdBatchSize);
@@ -2983,6 +2982,18 @@ fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiConfig.json')
     setTimeout(auto,800);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",auto);else auto();
+})();
+</script>
+
+
+<script>/*mjhUniversalScroll v1*/
+(function(){
+  // Ensure all horizontal scroll containers work properly
+  const containers = document.querySelectorAll('.trending-scroll-wrapper');
+  containers.forEach(container => {
+    container.style.cssText = 'display:flex;gap:12px;overflow-x:auto;padding:10px 0;-webkit-overflow-scrolling:touch;scrollbar-width:thin;';
+  });
+  console.log('✅ Enhanced', containers.length, 'scroll containers');
 })();
 </script>
 
