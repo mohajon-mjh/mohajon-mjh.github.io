@@ -1203,7 +1203,7 @@ function renderFlashSaleCard(id, data, mapInfo){
 // (পুরনো লেবেল লোডিং সরানো হয়েছে, এখন ক্যাটাগরি নাম ডাইনামিক)
 
 const flashSaleGrid = document.getElementById("flashSaleProductsGrid");
-const FS_STRIP_LIMIT = 20;
+const FS_STRIP_LIMIT = 50;
 let fsAllItems = [];
 let fsRenderedCount = 0;
 let fsGlobalDiscount = 0;
@@ -1273,6 +1273,8 @@ function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flas
       }catch(e){ return null; }
     }));
     fsAllItems = results.filter(Boolean);
+    console.log('🎯 Mega Offers loaded:', fsAllItems.length, 'products');
+    console.log('📦 Products:', fsAllItems.map(i => i.data.title).join(', '));
     fsRenderedCount = 0;
     flashSaleGrid.innerHTML = "";
     if(fsAllItems.length === 0){
@@ -1280,6 +1282,11 @@ function loadFlashCategoryProducts(catId){var __bn=document.querySelector('#flas
       return;
     }
     fsRenderNextBatch();
+    // Force render all remaining products immediately
+    while(fsRenderedCount < fsAllItems.length){
+      fsRenderNextBatch();
+    }
+    console.log('✅ Rendered all', fsAllItems.length, 'products');
   }).catch((err) => {
     flashSaleGrid.innerHTML = "<p style='text-align:center;color:#888'>লোড করতে সমস্যা হয়েছে।</p>";
     console.error(err);
