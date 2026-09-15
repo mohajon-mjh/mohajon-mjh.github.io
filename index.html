@@ -2206,7 +2206,7 @@ async function loadGlobalCatProducts(catId){
     const products = (await Promise.all(promises)).filter(Boolean);
     console.log('✅ Global cat loaded:', products.length, 'products in parallel');
     products.forEach(p => {
-      const p = pSnap.val();
+      // p already comes from forEach parameter
       if(p && p.status === "active"){
         const price = p.price || 0;
         const disc = p.discountPercent || 0;
