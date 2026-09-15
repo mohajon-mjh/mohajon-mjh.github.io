@@ -162,7 +162,8 @@ function render(P){
  var hasOld=false;
  var disc=0;
  if(discountPercent>0){
-   old=price/(1-discountPercent/100);
+   old=price;
+   price=price*(1-discountPercent/100);
    hasOld=true;
    disc=discountPercent;
  } else if(old>0&&old>price){
