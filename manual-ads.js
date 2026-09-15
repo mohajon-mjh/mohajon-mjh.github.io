@@ -20,7 +20,7 @@ function place(){
   if(f&&!document.querySelector('[data-adslot="'+S.top+'"]')){var a1=mk(S.top);var fs=sec(f);fs.parentNode.insertBefore(a1,fs);push();}
   var g=document.querySelector("#flashSaleProductsGrid");
   if(g&&!document.querySelector('[data-adslot="'+S.flash+'"]')){var a2=mk(S.flash);sec(g).parentNode.insertBefore(a2,sec(g).nextSibling);push();}
-  var t=document.querySelector("#globalCatCarousel")||document.querySelector("#trendingProductsGrid");
+  var t=document.querySelector("#globalCatCarousel");
   if(t&&!document.querySelector('[data-adslot="'+S.mid+'"]')){var a3=mk(S.mid);sec(t).parentNode.insertBefore(a3,sec(t).nextSibling);push();}
   var ft=document.querySelector("footer");
   if(ft&&!document.querySelector('[data-adslot="'+S.bottom+'"]')){var a4=mk(S.bottom);ft.parentNode.insertBefore(a4,ft);push();}

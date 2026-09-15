@@ -2514,43 +2514,6 @@ console.log("currency-fix-v2 ready");
 
 
 
-<script>/*mjhTrendLoader2*/
-(function(){
- var LIMIT=10;
- function fmt(v){return window.MJHCurrency?window.MJHCurrency.formatPrice(v):"৳"+v;}
- function load(){
-  fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products.json')
-  .then(function(r){return r.json();})
-  .then(function(all){var o={};Object.keys(all||{}).forEach(function(id){var p=all[id]||{};if(p.isTrending===true||p.trending===true||p.isTrending==="true")o[id]=p;});return o;})
-  .then(function(raw){
-   var o={};Object.keys(raw||{}).forEach(function(id){var p=raw[id]||{};if(p.isTrending===true||p.trending===true||p.isTrending==="true")o[id]=p;});
-   var g=document.getElementById("trendingProductsGrid");
-   if(!g||!o)return;
-   var items=Object.entries(o).filter(function(e){return e[1]&&e[1].status==="active";});
-   if(!items.length)return;
-   g.innerHTML="";
-   items.forEach(function(e,i){
-    var id=e[0],v=e[1];
-    var price=+v.price||0;
-    var img=(v.images&&v.images.main)||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
-    var c=document.createElement("div");c.className="product-card";c.style.cursor="pointer";
-    c.innerHTML='<div class="product-card-image"><span class="stock-badge in-stock">IN STOCK</span><img src="'+img+'" loading="lazy"></div><div class="product-card-content"><h3 class="product-card-title">'+(v.title||"")+'</h3><div class="product-card-price"><span class="current-price">'+fmt(price)+'</span></div><div class="product-card-actions" style="flex-direction:column"><button class="btn-add-to-cart">🛒 Add to Cart</button><button class="btn-buy-now">⚡ Buy Now</button></div></div>';
-    c.addEventListener("click",function(){location.href="product-details.html?id="+id;});
-    c.style.display=i<LIMIT?"":"none";
-    g.appendChild(c);
-   });
-   if(items.length>LIMIT){
-    a.addEventListener("click",function(){
-     Array.prototype.slice.call(g.children).forEach(function(x){if(x.classList.contains("product-card"))x.style.display="";});
-     a.remove();
-     g.scrollBy({left:400,behavior:"smooth"});
-    });
-   }
-  }).catch(function(e){console.error("trend load err",e);});
- }
- setTimeout(function(){var g=document.getElementById("trendingProductsGrid");if(g&&g.textContent.indexOf("লোড হচ্ছে")>-1&&g.querySelectorAll(".product-card").length===0)load();},6000);
-})();
-</script>
 
 <script type="module" id="mjhBellGate">
 import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";

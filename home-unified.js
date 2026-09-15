@@ -2,7 +2,7 @@
 (function(){
 "use strict";
 function fix(){
- ["trendingProductsGrid","flashSaleProductsGrid","dealsGrid","globalCatCarousel","featuredProducts","specialCatCarousel","flashCatsRow","dotdCatsRow","specialCatsContainer"].forEach(function(id){
+ ["flashSaleProductsGrid","dealsGrid","globalCatCarousel","specialCatCarousel","flashCatsRow","dotdCatsRow","specialCatsContainer"].forEach(function(id){
   var el=document.getElementById(id);
   if(!el)return;
   if(/লোড হচ্ছে/.test(el.textContent)&&!el.querySelector("a,.product-card,.cat")){
