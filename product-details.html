@@ -172,7 +172,7 @@ function render(P){
  }
  var rating=+P.rating||4.3,reviews=+P.reviews||2700;
  var stock=+P.stock||100;
- var cur=localStorage.getItem("selectedCurrency")||"BDT";
+ var cur=window.MJHCurrency&&window.MJHCurrency.getCurrency?window.MJHCurrency.getCurrency():"BDT";
  var del=new Date(Date.now()+14*864e5);
  var dStr=del.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
  var freeDel=price>=2000;
