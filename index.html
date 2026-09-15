@@ -2997,6 +2997,77 @@ fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/settings/uiConfig.json')
 })();
 </script>
 
+
+<script>/*mjhImageFadeIn v1*/
+(function(){
+  // Add fade-in effect to all product images to prevent placeholder flash
+  const style = document.createElement('style');
+  style.textContent = `
+    img[loading="lazy"] {
+      opacity: 0;
+      transition: opacity 0.3s ease-in;
+    }
+    img[loading="lazy"].loaded {
+      opacity: 1;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // Add load event to all lazy images
+  document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+    if (img.complete) {
+      img.classList.add('loaded');
+    } else {
+      img.addEventListener('load', () => img.classList.add('loaded'));
+      img.addEventListener('error', () => img.classList.add('loaded'));
+    }
+  });
+  
+  // Observe new images (dynamic content)
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('img[loading="lazy"]:not(.loaded)').forEach(img => {
+      if (img.complete) {
+        img.classList.add('loaded');
+      } else {
+        img.addEventListener('load', () => img.classList.add('loaded'));
+        img.addEventListener('error', () => img.classList.add('loaded'));
+      }
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  
+  console.log('✅ Image fade-in enabled');
+})();
+</script>
+
+
+<script>/*mjhDedupe v1*/
+(function(){
+  // Track rendered product IDs to prevent duplicates
+  window.__renderedProductIds = new Set();
+  
+  // Override common render functions to check for duplicates
+  const originalAppendChild = Element.prototype.appendChild;
+  Element.prototype.appendChild = function(child) {
+    if (child && child.tagName === 'DIV' && child.onclick) {
+      const onclick = child.onclick.toString();
+      const match = onclick.match(/product-details\.html\?id=([^'"]+)/);
+      if (match) {
+        const productId = match[1];
+        if (window.__renderedProductIds.has(productId)) {
+          console.log('⚠️  Duplicate prevented:', productId);
+          return child; // Don't append, but return to avoid errors
+        }
+        window.__renderedProductIds.add(productId);
+      }
+    }
+    return originalAppendChild.call(this, child);
+  };
+  
+  console.log('✅ Duplicate product prevention enabled');
+})();
+</script>
+
 </body>
 </html>
 <script>/*mjhSpecialFix v1*/

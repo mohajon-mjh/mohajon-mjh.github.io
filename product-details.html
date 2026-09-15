@@ -170,7 +170,7 @@ function render(P){
    hasOld=true;
    disc=Math.round((1-price/old)*100);
  }
- var rating=+P.rating||4.3,reviews=+P.reviews||2700;
+ var rating=+P.rating||0,reviews=+P.reviews||0;
  var stock=+P.stock||100;
  var cur=window.MJHCurrency&&window.MJHCurrency.getCurrency?window.MJHCurrency.getCurrency():"BDT";
  var del=new Date(Date.now()+14*864e5);
@@ -187,7 +187,7 @@ var thumbsHtml=gal.map(function(g,i){return '<img src="'+g.u+'" class="'+(i===0?
  document.getElementById("content").innerHTML='<div class="main">'+
  '<div class="gal"><div class="thumbs">'+thumbsHtml+'</div><div class="main-img" style="position:relative"><button class="wishlist-btn" id="wishlistBtn" onclick="toggleWishlist()">🤍</button><img id="mainImg" src="'+imgs[0]+'"></div></div>'+
  '<div><div class="brand">'+autoBrand(P)+'</div><h1>'+(P.title||"Unnamed")+'</h1>'+
- '<div class="rating-bar"><span class="stars">'+stars(rating)+'</span><span class="count">'+rating.toFixed(1)+' ('+reviews.toLocaleString()+' reviews)</span></div>'+
+ (reviews>0?'<div class="rating-bar"><span class="stars">'+stars(rating)+'</span><span class="count">'+rating.toFixed(1)+' ('+reviews.toLocaleString()+' reviews)</span></div>':'<div class="rating-bar"><span class="count" style="color:#565959;font-size:13px">⭐ নতুন পণ্য — এখনো রিভিউ আসেনি</span></div>')+
  '<hr class="sep"><div class="price-box">'+(disc>0?'<span class="disc-badge">-'+disc+'%</span>':'')+'<span class="price-big">'+fmt(price,cur)+'</span>'+(hasOld?'<span class="old-price">'+fmt(old,cur)+'</span> <span class="save-txt">Save '+fmt(old-price,cur)+'</span>':'')+'<div class="price-sar">≈ '+fmt(price,"SAR")+' in Saudi Riyal</div></div>'+
  '<div class="highlights"><h3>About this item</h3><ul>'+(highlights.length?highlights:autoHighlights(P)).map(function(l){return "<li>"+l+"</li>";}).join("")+'</ul></div>'+
  (restDesc?'<div class="desc"><h3>Product Description</h3><p>'+restDesc+'</p></div>':'')+
@@ -443,41 +443,7 @@ function enhanceGalleryLate(P){
 })();
 </script>
 
-<script>/*mjhReviews v1*/
-(function(){
-function stars(n){var s="";for(var i=1;i<=5;i++)s+=i<=n?"★":"☆";return s;}
-function run(){
- var c=document.getElementById("content");
- if(!c){return setTimeout(run,800);}
- if(c.querySelector("#mjhReviews"))return;
- if(!c.querySelector("#addBtn")&&!c.querySelector(".buybox"))return setTimeout(run,800);
- var m=location.search.match(/id=([^&]+)/);var id=m?decodeURIComponent(m[1]):"p";
- var seed=0;for(var i=0;i<id.length;i++)seed=(seed*31+id.charCodeAt(i))%997;
- var names=["Rahim U.","Karim H.","Fatema A.","Sultana R.","Jamal M.","Nasrin S.","Habib K.","Mim A."];
- var texts=["পণ্যের মান খুব ভালো, ডেলিভারিও দ্রুত পেয়েছি। ধন্যবাদ!","Price অনুযায়ী দারুণ প্রোডাক্ট। রিকমেন্ড করব।","প্যাকেজিং সুন্দর ছিল, প্রোডাক্ট অরিজিনাল।","মাঝারি মান, তবে এই দামে ঠিক আছে।","সেবা ভালো, ৭ দিনের রিটার্ন সত্যিই কাজ করে!","ছবির মতোই পেয়েছি, খুশি।"];
- var saved=[];try{saved=JSON.parse(localStorage.getItem("mjh_rev_"+id)||"[]");}catch(e){}
- var html='<div id="mjhReviews" style="background:#fff;border-radius:12px;padding:16px;margin:16px 0;max-width:900px">';
- html+='<h3 style="margin:0 0 12px;font-size:18px">⭐ Customer Reviews</h3>';
- var bars=[62,22,9,4,3];
- for(var r=0;r<5;r++){html+='<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span style="width:45px;font-size:13px">'+(5-r)+' ★</span><div style="flex:1;background:#eee;border-radius:4px;height:8px"><div style="width:'+bars[r]+'%;background:#f39c12;height:8px;border-radius:4px"></div></div><span style="font-size:12px;color:#888">'+bars[r]+'%</span></div>';}
- saved.forEach(function(sv){html+='<div style="border-top:1px solid #eee;padding:10px 0"><b style="font-size:13px">You</b><p style="margin:6px 0 0;font-size:13px;color:#555">'+String(sv.t).replace(/</g,"&lt;")+'</p></div>';});
- var n=3+seed%3;
- for(var i=0;i<n;i++){var nm=names[(seed+i)%names.length];var rt=4+((seed+i)%2);html+='<div style="border-top:1px solid #eee;padding:10px 0"><div style="display:flex;justify-content:space-between"><b style="font-size:13px">'+nm+'</b><span style="color:#f39c12;font-size:13px">'+stars(rt)+'</span></div><p style="margin:6px 0 0;font-size:13px;color:#555">'+texts[(seed+i)%texts.length]+'</p></div>';}
- html+='<div style="margin-top:12px"><b style="font-size:13px">আপনার রিভিউ লিখুন:</b><div style="display:flex;gap:6px;margin-top:6px"><input id="mjhRevTxt" placeholder="রিভিউ লিখুন..." style="flex:1;padding:8px;border:1px solid #ddd;border-radius:6px"><button id="mjhRevBtn" style="background:#f39c12;border:none;padding:8px 14px;border-radius:6px;font-weight:700;cursor:pointer">Submit</button></div></div></div>';
- c.insertAdjacentHTML("beforeend",html);
- document.getElementById("mjhRevBtn").onclick=function(){
-  var t=document.getElementById("mjhRevTxt").value.trim();if(!t)return;
-  var key="mjh_rev_"+id;var arr=[];try{arr=JSON.parse(localStorage.getItem(key)||"[]");}catch(e){}
-  arr.push({t:t});localStorage.setItem(key,JSON.stringify(arr));
-  var d2=document.createElement("div");d2.style.cssText="border-top:1px solid #eee;padding:10px 0";
-  d2.innerHTML='<b style="font-size:13px">You</b><p style="margin:6px 0 0;font-size:13px;color:#555">'+t.replace(/</g,"&lt;")+'</p>';
-  var box=document.getElementById("mjhReviews");box.insertBefore(d2,box.lastElementChild);
-  document.getElementById("mjhRevTxt").value="";
- };
-}
-run();
-})();
-</script>
+
 
 <script src="color-detect.js"></script>
 <script>/*mjhColorImg v4 - universal auto color system*/
