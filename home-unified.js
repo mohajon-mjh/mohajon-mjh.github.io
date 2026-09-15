@@ -10,6 +10,6 @@ function fix(){
   }
  });
 }
-setTimeout(fix,8000);
-setTimeout(fix,14000);
+setTimeout(fix,30000);
+setTimeout(fix,60000);
 })();
