@@ -806,29 +806,19 @@ onAuthStateChanged(auth,async u=>{
     <h2>⚙️ Site Settings</h2>
     <p style="color:#888;margin-bottom:20px">About section, sidebar buttons এর color ও order পরিবর্তন করুন</p>
     
-    <h3 style="margin-top:30px;border-bottom:2px solid #8b5cf6;padding-bottom:10px">🌟 About Mohajon MJH Marketplace</h3>
-    
-    <label style="display:block;margin-top:15px;color:#000;font-weight:700">Title:</label>
-    <input id="aboutTitle" type="text" style="width:100%;padding:10px;border:1px solid #555;border-radius:6px;background:#1a242f;color:#fff" placeholder="🌟 About Mohajon MJH Marketplace">
-    
-    <label style="display:block;margin-top:15px;color:#000;font-weight:700">Description:</label>
-    <textarea id="aboutDesc" rows="3" style="width:100%;padding:10px;border:1px solid #555;border-radius:6px;background:#1a242f;color:#fff" placeholder="International online marketplace — 1,650+ verified products..."></textarea>
-    
-    <label style="display:block;margin-top:15px;color:#000;font-weight:700">Banner Image (URL বা Upload):</label>
-    <input id="aboutImage" type="text" style="width:100%;padding:10px;border:1px solid #555;border-radius:6px;background:#1a242f;color:#fff;margin-bottom:10px" placeholder="https://...">
-    <input type="file" id="aboutImageFile" accept="image/*" style="margin-bottom:10px">
-    <div id="aboutImagePreview" style="margin:10px 0"></div>
-    
-    <h4 style="margin-top:25px;color:#000">Feature Cards (৪টা):</h4>
-    <div id="featureCards" style="background:#0f1419;padding:15px;border-radius:8px;margin-top:10px"></div>
-    
-    <div style="margin-top:30px;display:flex;gap:10px">
-      <button onclick="saveAboutSettings()" style="background:#10b981;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-weight:700;cursor:pointer">💾 Save About</button>
-      <button onclick="resetAboutSettings()" style="background:#f59e0b;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-weight:700;cursor:pointer">🔄 Reset Default</button>
-      <button onclick="deleteAboutSettings()" style="background:#ef4444;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-weight:700;cursor:pointer">🗑️ Delete</button>
-    </div>
-    
-    <h3 style="margin-top:40px;border-bottom:2px solid #8b5cf6;padding-bottom:10px">🎨 Sidebar Button Colors</h3>
+    <h3 style="margin-top:30px;border-bottom:2px solid #8b5cf6;padding-bottom:10px">🏠 Homepage About Section</h3>
+<div id="homeEditor" style="margin-top:10px"></div>
+<h3 style="margin-top:30px;border-bottom:2px solid #8b5cf6;padding-bottom:10px">📄 About Page (More About Us) — সব block</h3>
+<div id="pageEditor" style="margin-top:10px"></div>
+<h3 style="margin-top:20px;color:#000">️ Live Preview (about.html এর মতো)</h3>
+<div id="aboutPreview" style="background:#f5f5f5;padding:14px;border-radius:10px;margin-top:10px;max-height:60vh;overflow:auto"></div>
+<div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+<button onclick="saveAboutSettings()" style="background:#10b981;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-weight:700;cursor:pointer">💾 Save All</button>
+<button onclick="resetAboutSettings()" style="background:#f59e0b;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-weight:700;cursor:pointer">🔄 Reset Default</button>
+<button onclick="deleteAboutSettings()" style="background:#ef4444;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-weight:700;cursor:pointer">🗑️ Delete All</button>
+<button onclick="window.open('about.html','_blank')" style="background:#3b82f6;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-weight:700;cursor:pointer">👁️ About Page দেখুন</button>
+</div>
+<h3 style="margin-top:40px;border-bottom:2px solid #8b5cf6;padding-bottom:10px">🎨 Sidebar Button Colors</h3>
     <p style="color:#888;margin-bottom:15px">প্রতিটা বাটনের color পরিবর্তন করুন এবং drag করে উপরে-নিচে করুন</p>
     <div id="sidebarColorManager" style="background:#0f1419;padding:15px;border-radius:8px"></div>
     <button onclick="saveSidebarSettings()" style="background:#8b5cf6;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:15px">💾 Save Sidebar Settings</button>
