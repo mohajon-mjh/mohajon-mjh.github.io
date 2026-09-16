@@ -181,7 +181,7 @@ function renderSide(){
  var btns=sideButtons(),keys=btns.map(keyOf),list=[];
  sideCfg.forEach(function(c){if(keys.indexOf(c.key)>-1)list.push(c);});
  btns.forEach(function(b){var k=keyOf(b),f=false;list.forEach(function(c){if(c.key===k)f=true;});if(!f)list.push({key:k,text:(b.textContent||"").trim(),color:rgb2hex(b)});});
- sideCfg=list;
+ sideCfg=list;sideCfg.forEach(function(x){if(x.color==="#333333")x.color="";});
  list.forEach(function(item,i){
   var row=document.createElement("div");row.style.cssText="display:flex;align-items:center;gap:6px;padding:8px;background:#1a242f;border:1px solid #333;border-radius:6px;margin-bottom:6px";
   var hex=/^#[0-9a-f]{6}$/i.test(item.color||"")?item.color:"#333333";
@@ -201,7 +201,7 @@ window.saveSidebarSettings=function(){
 function findBtn(key){var nav=navEl();if(!nav)return null;var b=nav.querySelector('[data-tab="'+key+'"]');if(b)return b;var byId=document.getElementById(key);if(byId&&nav.contains(byId))return byId;return[].slice.call(nav.querySelectorAll("button,a")).filter(function(x){return(x.textContent||"").trim()===key;})[0]||null;}
 function applyCfg(d){
  if(!Array.isArray(d))return;window.__sideCache=d;var nav=navEl();if(!nav)return;var logout=$("admin-logout-btn");
- d.forEach(function(c){var btn=findBtn(c.key);if(!btn)return;if(c.color){btn.style.background=c.color;btn.style.color="#fff";btn.style.fontWeight="700";}if(logout)nav.insertBefore(btn,logout);});
+ d.forEach(function(c){if(c.color==="#333333")c.color="";var btn=findBtn(c.key);if(!btn)return;if(c.color){btn.style.background=c.color;btn.style.color="#fff";btn.style.fontWeight="700";}if(logout)nav.insertBefore(btn,logout);});
 }
 function applySide(){
  dbGet("settings/sidebarConfig").then(function(d){if(Array.isArray(d))applyCfg(d);}).catch(function(){});
