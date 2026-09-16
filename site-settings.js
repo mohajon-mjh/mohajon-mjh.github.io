@@ -185,8 +185,9 @@ function renderSide(){
  list.forEach(function(item,i){
   var row=document.createElement("div");row.style.cssText="display:flex;align-items:center;gap:6px;padding:8px;background:#1a242f;border:1px solid #333;border-radius:6px;margin-bottom:6px";
   var hex=/^#[0-9a-f]{6}$/i.test(item.color||"")?item.color:"#333333";
-  row.innerHTML='<span style="color:#888">⋮⋮</span><span style="flex:1;color:#fff;font-size:13px">'+esc(item.text)+'</span><input type="color" value="'+hex+'" style="width:38px;height:30px;border:none;background:none;cursor:pointer"><button data-u="'+i+'" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:4px 7px">▲</button><button data-d="'+i+'" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:4px 7px">▼</button>';
-  row.querySelector('input[type=color]').addEventListener("input",function(e){OVR[item.key]=e.target.value;sideCfg[i].color=e.target.value;applyCfg(sideCfg);});
+  row.innerHTML='<span style="color:#888">⋮⋮</span><span style="flex:1;color:#fff;font-size:13px">'+esc(item.text)+'</span><input type="color" value="'+hex+'" style="width:38px;height:30px;border:none;background:none;cursor:pointer"><span data-pre="#e74c3c" style="cursor:pointer;font-size:15px">🟥</span><span data-pre="#27ae60" style="cursor:pointer;font-size:15px">🟩</span><span data-pre="#2563eb" style="cursor:pointer;font-size:15px">🟦</span><span data-pre="#f1c40f" style="cursor:pointer;font-size:15px">🟨</span><span data-pre="#8e44ad" style="cursor:pointer;font-size:15px">🟪</span><span data-pre="" style="cursor:pointer;font-size:15px">⬛</span><button data-u="'+i+'" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:4px 7px">▲</button><button data-d="'+i+'" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:4px 7px">▼</button>';
+  var ci2=row.querySelector('input[type=color]');function cup(e){OVR[item.key]=e.target.value;sideCfg[i].color=e.target.value;applyCfg(sideCfg);}ci2.addEventListener("input",cup);ci2.addEventListener("change",cup);
+ row.addEventListener("click",function(e){var t=e.target;if(t.dataset&&t.dataset.pre!==undefined){OVR[item.key]=t.dataset.pre;sideCfg[i].color=t.dataset.pre;applyCfg(sideCfg);var bb=findBtn(item.key);status("🎨 "+item.text+" -> "+(t.dataset.pre||"default")+" | btn:"+(bb?"found":"MISSING"),"ok");}});
   box.appendChild(row);});
  box.onclick=function(e){var t=e.target;
   if(t.dataset&&t.dataset.u!==undefined){var i=+t.dataset.u;if(i>0){var m=sideCfg.splice(i,1)[0];sideCfg.splice(i-1,0,m);renderSide();}}
@@ -199,9 +200,14 @@ window.saveSidebarSettings=function(){
  dbSet("settings/sidebarConfig",sideCfg).then(function(){status("✅ Sidebar save + sync হয়েছে","ok");}).catch(function(){});
 };
 function findBtn(key){var nav=navEl();if(!nav)return null;var b=nav.querySelector('[data-tab="'+key+'"]');if(b)return b;var byId=document.getElementById(key);if(byId&&nav.contains(byId))return byId;return[].slice.call(nav.querySelectorAll("button,a")).filter(function(x){return(x.textContent||"").trim()===key;})[0]||null;}
+function sskey(k){return String(k).replace(/[^a-zA-Z0-9_-]/g,"_");}
 function applyCfg(d){
  if(!Array.isArray(d))return;window.__sideCache=d;var nav=navEl();if(!nav)return;var logout=$("admin-logout-btn");
- d.forEach(function(c){if(c.color==="#333333")c.color="";var btn=findBtn(c.key);if(!btn)return;if(c.color){btn.style.background=c.color;btn.style.color="#fff";btn.style.fontWeight="700";btn.dataset.colored="1";}if(logout)nav.insertBefore(btn,logout);});
+ var css="";
+ d.forEach(function(c){if(c.color==="#333333")c.color="";var btn=findBtn(c.key);if(!btn)return;var k=sskey(c.key);btn.setAttribute("data-sskey",k);if(c.color){css+='[data-sskey="'+k+'"]{background:'+c.color+' !important;color:#fff !important;font-weight:700}\n';}if(logout)nav.insertBefore(btn,logout);});
+ var st=document.getElementById("ssSideCSS");
+ if(!st){st=document.createElement("style");st.id="ssSideCSS";document.head.appendChild(st);}
+ st.textContent=css;
 }
 function applySide(){
  try{var ls=JSON.parse(localStorage.getItem("mjhSidebarCfg")||"null");if(Array.isArray(ls))applyCfg(ls);}catch(e){}
