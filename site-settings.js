@@ -31,7 +31,7 @@ var PDEF={
  achievements:["✅ 1,650+ verified products listed under one roof","✅ 20+ categories — from groceries and spices to electronics and fashion","✅ Cash on Delivery available across Bangladesh","✅ Independent sellers onboarded through our seller programme","✅ 7-day easy return policy trusted by customers","✅ Multilingual platform serving customers in Bangla, English and Arabic"]};
 var home=JSON.parse(JSON.stringify(HDEF));
 var page=JSON.parse(JSON.stringify(PDEF));
-var sideCfg=[];
+var sideCfg=[];var OVR={};
 
 /* ---------- form builders ---------- */
 function inp(val,ph,wide){var i=document.createElement("input");i.value=val==null?"":val;i.placeholder=ph||"";i.style.cssText="width:"+(wide?"100%":"auto")+";padding:8px;border-radius:6px;border:1px solid #444;background:#0f1419;color:#fff;margin:4px 0";return i;}
@@ -146,7 +146,7 @@ function loadAll(){
   if(s)home=Object.assign(JSON.parse(JSON.stringify(HDEF)),s);
   if(a&&a.title&&!s)home=Object.assign(JSON.parse(JSON.stringify(HDEF)),a);
   if(p)page=Object.assign(JSON.parse(JSON.stringify(PDEF)),p);
-  sideCfg=Array.isArray(rs[2])?rs[2]:[];try{var lsx=JSON.parse(localStorage.getItem("mjhSidebarCfg")||"null");if(Array.isArray(lsx))sideCfg=lsx;}catch(e){}
+  sideCfg=Array.isArray(rs[2])?rs[2]:[];try{var lsx=JSON.parse(localStorage.getItem("mjhSidebarCfg")||"null");if(Array.isArray(lsx))sideCfg=lsx;}catch(e){}sideCfg.forEach(function(x){if(OVR[x.key])x.color=OVR[x.key];});
   buildHome($("homeEditor"));buildPage($("pageEditor"));renderSide();preview();
   status("✅ সব content load হয়েছে","ok");
  }).catch(function(e){buildHome($("homeEditor"));buildPage($("pageEditor"));renderSide();preview();status("❌ Load: "+e.message,"err");});
@@ -181,12 +181,12 @@ function renderSide(){
  var btns=sideButtons(),keys=btns.map(keyOf),list=[];
  sideCfg.forEach(function(c){if(keys.indexOf(c.key)>-1)list.push(c);});
  btns.forEach(function(b){var k=keyOf(b),f=false;list.forEach(function(c){if(c.key===k)f=true;});if(!f)list.push({key:k,text:(b.textContent||"").trim(),color:rgb2hex(b)});});
- sideCfg=list;sideCfg.forEach(function(x){if(x.color==="#333333")x.color="";});
+ list.forEach(function(x){if(OVR[x.key])x.color=OVR[x.key];});sideCfg=list;sideCfg.forEach(function(x){if(x.color==="#333333")x.color="";});
  list.forEach(function(item,i){
   var row=document.createElement("div");row.style.cssText="display:flex;align-items:center;gap:6px;padding:8px;background:#1a242f;border:1px solid #333;border-radius:6px;margin-bottom:6px";
   var hex=/^#[0-9a-f]{6}$/i.test(item.color||"")?item.color:"#333333";
   row.innerHTML='<span style="color:#888">⋮⋮</span><span style="flex:1;color:#fff;font-size:13px">'+esc(item.text)+'</span><input type="color" value="'+hex+'" style="width:38px;height:30px;border:none;background:none;cursor:pointer"><button data-u="'+i+'" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:4px 7px">▲</button><button data-d="'+i+'" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:4px 7px">▼</button>';
-  row.querySelector('input[type=color]').addEventListener("input",function(e){sideCfg[i].color=e.target.value;});
+  row.querySelector('input[type=color]').addEventListener("input",function(e){OVR[item.key]=e.target.value;sideCfg[i].color=e.target.value;applyCfg(sideCfg);});
   box.appendChild(row);});
  box.onclick=function(e){var t=e.target;
   if(t.dataset&&t.dataset.u!==undefined){var i=+t.dataset.u;if(i>0){var m=sideCfg.splice(i,1)[0];sideCfg.splice(i-1,0,m);renderSide();}}
