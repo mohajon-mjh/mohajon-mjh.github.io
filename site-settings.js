@@ -204,7 +204,7 @@ function applySide(){
  }).catch(function(){});
 }
 
-window.ssShow=function(w){var m=$("ssMenu"),a=$("ssAboutWrap"),s2=$("ssSideWrap");if(!m||!a||!s2)return;m.style.display=(w==="menu")?"":"none";a.style.display=(w==="about")?"":"none";s2.style.display=(w==="side")?"":"none";};
+window.ssShow=function(w){var m=$("ssMenu"),a=$("ssAboutWrap"),s2=$("ssSideWrap");if(!m||!a||!s2)return;m.style.display=(w==="menu")?"":"none";a.style.display=(w==="about")?"":"none";s2.style.display=(w==="side")?"":"none";if(!window.__ssBuilt){try{buildHome($("homeEditor"));buildPage($("pageEditor"));renderSide();preview();window.__ssBuilt=1;}catch(e){}}};
 window.resetSidebarSettings=function(){if(!confirm("Sidebar-এর saved color/order config মুছে ফেলবেন? Sidebar আগের মতো হয়ে যাবে।"))return;dbSet("settings/sidebarConfig",null).then(function(){location.reload();}).catch(function(e){status("❌ "+e.message,"err");});};
 /* ---------- init ---------- */
 function init(){
@@ -216,5 +216,15 @@ function init(){
  setTimeout(applySide,1200);setTimeout(applySide,3000);
  setInterval(function(){var c=window.__sideCache;if(!c||!c.forEach)return;c.forEach(function(it){var b=findBtn(it.key);if(b&&it.color){b.style.background=it.color;b.style.color="#fff";b.style.fontWeight="700";}});},2500);
 }
+(function(){
+ var tabBtn=document.querySelector('[data-tab="site-settings"]');
+ if(tabBtn){tabBtn.addEventListener("click",function(){window.__ssBuilt=0;setTimeout(loadAll,100);});}
+ var checkInterval=setInterval(function(){
+  var t=$("tab-site-settings");
+  if(!t||!t.classList.contains("active")){window.__ssBuilt=0;return;}
+  var h=$("homeEditor"),p=$("pageEditor");
+  if(h&&!h.children.length){try{buildHome(h);buildPage(p);renderSide();preview();window.__ssBuilt=1;}catch(e){}}
+ },500);
+})();
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
