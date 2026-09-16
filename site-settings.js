@@ -201,10 +201,9 @@ window.saveSidebarSettings=function(){
 function findBtn(key){var nav=navEl();if(!nav)return null;var b=nav.querySelector('[data-tab="'+key+'"]');if(b)return b;var byId=document.getElementById(key);if(byId&&nav.contains(byId))return byId;return[].slice.call(nav.querySelectorAll("button,a")).filter(function(x){return(x.textContent||"").trim()===key;})[0]||null;}
 function applyCfg(d){
  if(!Array.isArray(d))return;window.__sideCache=d;var nav=navEl();if(!nav)return;var logout=$("admin-logout-btn");
- d.forEach(function(c){if(c.color==="#333333")c.color="";var btn=findBtn(c.key);if(!btn)return;if(c.color){btn.style.background=c.color;btn.style.color="#fff";btn.style.fontWeight="700";}if(logout)nav.insertBefore(btn,logout);});
+ d.forEach(function(c){if(c.color==="#333333")c.color="";var btn=findBtn(c.key);if(!btn)return;if(c.color){btn.style.background=c.color;btn.style.color="#fff";btn.style.fontWeight="700";btn.dataset.colored="1";}if(logout)nav.insertBefore(btn,logout);});
 }
 function applySide(){
- dbGet("settings/sidebarConfig").then(function(d){if(Array.isArray(d))applyCfg(d);}).catch(function(){});
  try{var ls=JSON.parse(localStorage.getItem("mjhSidebarCfg")||"null");if(Array.isArray(ls))applyCfg(ls);}catch(e){}
 }
 
