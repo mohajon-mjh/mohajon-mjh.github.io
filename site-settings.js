@@ -146,7 +146,7 @@ function loadAll(){
   if(s)home=Object.assign(JSON.parse(JSON.stringify(HDEF)),s);
   if(a&&a.title&&!s)home=Object.assign(JSON.parse(JSON.stringify(HDEF)),a);
   if(p)page=Object.assign(JSON.parse(JSON.stringify(PDEF)),p);
-  sideCfg=Array.isArray(rs[2])?rs[2]:[];
+  sideCfg=Array.isArray(rs[2])?rs[2]:[];try{var lsx=JSON.parse(localStorage.getItem("mjhSidebarCfg")||"null");if(Array.isArray(lsx))sideCfg=lsx;}catch(e){}
   buildHome($("homeEditor"));buildPage($("pageEditor"));renderSide();preview();
   status("✅ সব content load হয়েছে","ok");
  }).catch(function(e){buildHome($("homeEditor"));buildPage($("pageEditor"));renderSide();preview();status("❌ Load: "+e.message,"err");});
@@ -193,19 +193,23 @@ function renderSide(){
   else if(t.dataset&&t.dataset.d!==undefined){var j=+t.dataset.d;if(j<sideCfg.length-1){var m2=sideCfg.splice(j,1)[0];sideCfg.splice(j+1,0,m2);renderSide();}}};
 }
 window.saveSidebarSettings=function(){
- status("⏳ Sidebar save...","info");
- dbSet("settings/sidebarConfig",sideCfg).then(function(){window.__sideCache=sideCfg;applySide();status("✅ Sidebar save + apply হয়েছে","ok");}).catch(function(e){status("❌ "+e.message,"err");});
+ try{localStorage.setItem("mjhSidebarCfg",JSON.stringify(sideCfg));}catch(e){}
+ window.__sideCache=sideCfg;applyCfg(sideCfg);
+ status("✅ Sidebar save হয়েছে","ok");
+ dbSet("settings/sidebarConfig",sideCfg).then(function(){status("✅ Sidebar save + sync হয়েছে","ok");}).catch(function(){});
 };
 function findBtn(key){var nav=navEl();if(!nav)return null;var b=nav.querySelector('[data-tab="'+key+'"]');if(b)return b;var byId=document.getElementById(key);if(byId&&nav.contains(byId))return byId;return[].slice.call(nav.querySelectorAll("button,a")).filter(function(x){return(x.textContent||"").trim()===key;})[0]||null;}
+function applyCfg(d){
+ if(!Array.isArray(d))return;window.__sideCache=d;var nav=navEl();if(!nav)return;var logout=$("admin-logout-btn");
+ d.forEach(function(c){var btn=findBtn(c.key);if(!btn)return;if(c.color){btn.style.background=c.color;btn.style.color="#fff";btn.style.fontWeight="700";}if(logout)nav.insertBefore(btn,logout);});
+}
 function applySide(){
- dbGet("settings/sidebarConfig").then(function(d){
-  if(!Array.isArray(d))return;window.__sideCache=d;var nav=navEl();if(!nav)return;var logout=$("admin-logout-btn");
-  d.forEach(function(c){var btn=findBtn(c.key);if(!btn)return;if(c.color){btn.style.background=c.color;btn.style.color="#fff";btn.style.fontWeight="700";}if(logout)nav.insertBefore(btn,logout);});
- }).catch(function(){});
+ dbGet("settings/sidebarConfig").then(function(d){if(Array.isArray(d))applyCfg(d);}).catch(function(){});
+ try{var ls=JSON.parse(localStorage.getItem("mjhSidebarCfg")||"null");if(Array.isArray(ls))applyCfg(ls);}catch(e){}
 }
 
 window.ssShow=function(w){var m=$("ssMenu"),a=$("ssAboutWrap"),s2=$("ssSideWrap");if(!m||!a||!s2)return;m.style.display=(w==="menu")?"":"none";a.style.display=(w==="about")?"":"none";s2.style.display=(w==="side")?"":"none";if(!window.__ssBuilt){try{buildHome($("homeEditor"));buildPage($("pageEditor"));renderSide();preview();window.__ssBuilt=1;}catch(e){}}};
-window.resetSidebarSettings=function(){if(!confirm("Sidebar-এর saved color/order config মুছে ফেলবেন? Sidebar আগের মতো হয়ে যাবে।"))return;dbSet("settings/sidebarConfig",null).then(function(){location.reload();}).catch(function(e){status("❌ "+e.message,"err");});};
+window.resetSidebarSettings=function(){if(!confirm("Sidebar-এর saved color/order config মুছে ফেলবেন? Sidebar আগের মতো হয়ে যাবে।"))return;localStorage.removeItem("mjhSidebarCfg");dbSet("settings/sidebarConfig",null).then(function(){location.reload();}).catch(function(e){status("❌ "+e.message,"err");});};
 /* ---------- init ---------- */
 function init(){
  var obs=new MutationObserver(function(){var t=$("tab-site-settings");if(t&&t.classList.contains("active")&&!t.dataset.loaded){t.dataset.loaded="1";loadAll();}});
