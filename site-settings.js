@@ -203,11 +203,14 @@ function applySide(){
  }).catch(function(){});
 }
 
+window.ssShow=function(w){var a=$("ssAboutWrap"),s2=$("ssSideWrap"),ba=$("ssTabAbout"),bs=$("ssTabSide");if(!a||!s2)return;if(w==="about"){a.style.display="";s2.style.display="none";if(ba)ba.style.background="#2563eb";if(bs)bs.style.background="#374151";}else{s2.style.display="";a.style.display="none";if(bs)bs.style.background="#2563eb";if(ba)ba.style.background="#374151";}};
+window.resetSidebarSettings=function(){if(!confirm("Sidebar-এর saved color/order config মুছে ফেলবেন? Sidebar আগের মতো হয়ে যাবে।"))return;dbSet("settings/sidebarConfig",null).then(function(){location.reload();}).catch(function(e){status("❌ "+e.message,"err");});};
 /* ---------- init ---------- */
 function init(){
  var obs=new MutationObserver(function(){var t=$("tab-site-settings");if(t&&t.classList.contains("active")&&!t.dataset.loaded){t.dataset.loaded="1";loadAll();}});
  obs.observe(document.body,{attributes:true,subtree:true,attributeFilter:["class"]});
  setInterval(function(){var t=$("tab-site-settings");if(t&&!t.classList.contains("active"))delete t.dataset.loaded;},1000);
+ setInterval(function(){var t=$("tab-site-settings");if(t&&t.classList.contains("active")&&!t.dataset.loaded){t.dataset.loaded="1";loadAll();}},800);
  setTimeout(applySide,1200);setTimeout(applySide,3000);
  setInterval(function(){var c=window.__sideCache;if(!c||!c.forEach)return;c.forEach(function(it){var b=findBtn(it.key);if(b&&it.color){b.style.background=it.color;b.style.color="#fff";b.style.fontWeight="700";}});},2500);
 }
