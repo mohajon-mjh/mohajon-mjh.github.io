@@ -2712,6 +2712,38 @@ if(document.readyState==="complete")run();else window.addEventListener("load",ru
 <a href="/privacy-policy.html" style="color:#7dd3fc;text-decoration:none;font-size:14px">🔒 Privacy Policy</a>
 <a href="/terms.html" style="color:#7dd3fc;text-decoration:none;font-size:14px">📜 Terms & Conditions</a>
 <a href="/disclaimer.html" style="color:#7dd3fc;text-decoration:none;font-size:14px">⚠️ Disclaimer</a>
+<script>
+(function(){
+  fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/settings/about.json")
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d)return;
+      var h2=document.querySelector("h2");
+      var allH2=document.querySelectorAll("h2");
+      for(var i=0;i<allH2.length;i++){
+        if(allH2[i].textContent.indexOf("About Mohajon")>-1){h2=allH2[i];break;}
+      }
+      if(h2&&d.title)h2.textContent=d.title;
+      var p=h2?h2.nextElementSibling:null;
+      if(p&&d.description)p.textContent=d.description;
+      if(d.image){
+        var imgDiv=document.createElement("div");
+        imgDiv.style.cssText="margin:15px auto;max-width:800px;text-align:center";
+        imgDiv.innerHTML="<img src=\""+d.image+"\" style=\"max-width:100%;border-radius:12px\">";
+        if(h2)h2.parentNode.insertBefore(imgDiv,h2.nextSibling);
+      }
+      if(d.features&&Array.isArray(d.features)){
+        var grid=h2?h2.parentNode.querySelector("div[style*=grid]"):null;
+        if(grid){
+          grid.innerHTML="";
+          d.features.forEach(function(f){
+            grid.innerHTML+="<a href=\""+(f.link||"#")+"\" style=\"padding:18px;background:rgba(255,255,255,.08);border-radius:10px;display:block;text-decoration:none\"><div style=\"font-size:28px\">"+(f.icon||"📌")+"</div><b style=\"color:#fff\">"+(f.title||"")+"</b><p style=\"color:#cfd8dc;font-size:13px;margin:4px 0 0\">"+(f.desc||"")+"</p></a>";
+          });
+        }
+      }
+    }).catch(function(){});
+})();
+</script>
 <a href="/help-center.html" style="color:#7dd3fc;text-decoration:none;font-size:14px">❓ Help Center</a>
 </div>
 <div style="text-align:center;color:#94a3b8;font-size:12px;line-height:1.8">
