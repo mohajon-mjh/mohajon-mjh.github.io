@@ -139,6 +139,7 @@ function upload(fi,cb){
 
 /* ---------- load + save ---------- */
 function loadAll(){
+ if(!window.__ssBuilt){try{buildHome($("homeEditor"));buildPage($("pageEditor"));renderSide();preview();window.__ssBuilt=1;}catch(e){}}
  status("⏳ Loading...","info");
  Promise.all([dbGet("settings/about"),dbGet("settings/aboutPage"),dbGet("settings/sidebarConfig")]).then(function(rs){
   var a=rs[0]||{},p=(rs[1]&&rs[1].page)||null,s=rs[1]&&rs[1].home;
