@@ -1,256 +1,181 @@
-/* Site Settings v1 - About + Sidebar Color + Reorder */
+/* Site Settings v2 - About editor + Sidebar color/reorder (mobile friendly) */
 (function(){
-  const BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
-  const ABOUT_PATH=BASE+"/settings/about.json";
-  const SIDEBAR_PATH=BASE+"/settings/sidebarConfig.json";
-  
-  const DEFAULT_FEATURES=[
-    {icon:"💰",title:"Cash on Delivery",desc:"Pay when you receive your products",link:"about.html#payments"},
-    {icon:"🔄",title:"7-Day Return",desc:"Easy 7-day return policy",link:"about.html#returns"},
-    {icon:"🔒",title:"Secure Payment",desc:"bKash, Nagad, Rocket",link:"about.html#payments"},
-    {icon:"🚚",title:"Fast Delivery",desc:"Delivery in 10-15 days",link:"about.html#delivery"}
-  ];
-  
-  let currentFeatures=[...DEFAULT_FEATURES];
-  let currentSidebar=[];
-  
-  function status(msg,type){
-    const el=document.getElementById("settingsStatus");
-    if(!el)return;
-    el.style.display="block";
-    el.style.background=type==="success"?"#10b981":type==="error"?"#ef4444":"#3b82f6";
-    el.style.color="#fff";
-    el.innerHTML=msg;
-    setTimeout(()=>{el.style.display="none";},4000);
+"use strict";
+var BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
+var ABOUT=BASE+"/settings/about.json";
+var SIDEBAR=BASE+"/settings/sidebarConfig.json";
+var DEF={
+ title:"🌟 About Mohajon MJH Marketplace",
+ description:"International online marketplace — 1,650+ verified products, connecting buyers and sellers directly.",
+ image:"",
+ features:[
+  {icon:"💰",title:"Cash on Delivery",desc:"Pay when you receive your products",link:"about.html#payments"},
+  {icon:"🔄",title:"7-Day Return",desc:"Easy 7-day return policy",link:"about.html#returns"},
+  {icon:"🔒",title:"Secure Payment",desc:"bKash, Nagad, Rocket",link:"about.html#payments"},
+  {icon:"🚚",title:"Fast Delivery",desc:"Delivery in 10-15 days",link:"about.html#delivery"}
+ ]
+};
+var cur=JSON.parse(JSON.stringify(DEF));
+var sideCfg=[];
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function status(msg,type){var el=$("settingsStatus");if(!el)return;el.style.display="block";el.style.background=type==="err"?"#ef4444":type==="ok"?"#10b981":"#3b82f6";el.style.color="#fff";el.textContent=msg;setTimeout(function(){el.style.display="none";},3500);}
+
+/* ---------- ABOUT ---------- */
+function fillAboutForm(){
+ if($("aboutTitle"))$("aboutTitle").value=cur.title||"";
+ if($("aboutDesc"))$("aboutDesc").value=cur.description||"";
+ if($("aboutImage"))$("aboutImage").value=cur.image||"";
+ var pv=$("aboutImagePreview");
+ if(pv)pv.innerHTML=cur.image?'<img src="'+esc(cur.image)+'" style="max-width:280px;border-radius:8px">':"";
+ renderCards();
+}
+function renderCards(){
+ var box=$("featureCards");if(!box)return;
+ box.innerHTML="";
+ cur.features.forEach(function(f,i){
+  var d=document.createElement("div");
+  d.style.cssText="background:#1a242f;border:1px solid #333;border-radius:8px;padding:12px;margin-bottom:10px";
+  d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="color:#fff">Card '+(i+1)+'</b><span>'+
+   (i>0?'<button data-up="'+i+'" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:4px 8px;margin-right:4px">▲</button>':'')+
+   (i<cur.features.length-1?'<button data-dn="'+i+'" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:4px 8px;margin-right:4px">▼</button>':'')+
+   '<button data-del="'+i+'" style="background:#ef4444;color:#fff;border:none;border-radius:4px;padding:4px 8px">🗑️</button></span></div>'+
+   '<div style="display:flex;gap:6px;flex-wrap:wrap"><input data-f="'+i+'" data-k="icon" value="'+esc(f.icon)+'" style="width:56px;padding:6px;border-radius:4px;border:1px solid #444;background:#0f1419;color:#fff" placeholder="Icon">'+
+   '<input data-f="'+i+'" data-k="title" value="'+esc(f.title)+'" style="flex:1;min-width:140px;padding:6px;border-radius:4px;border:1px solid #444;background:#0f1419;color:#fff" placeholder="Title"></div>'+
+   '<input data-f="'+i+'" data-k="desc" value="'+esc(f.desc)+'" style="width:100%;padding:6px;border-radius:4px;border:1px solid #444;background:#0f1419;color:#fff;margin-top:6px" placeholder="Description">'+
+   '<input data-f="'+i+'" data-k="link" value="'+esc(f.link)+'" style="width:100%;padding:6px;border-radius:4px;border:1px solid #444;background:#0f1419;color:#fff;margin-top:6px" placeholder="Link">';
+  box.appendChild(d);
+ });
+ var add=document.createElement("button");
+ add.textContent="➕ Add Card";
+ add.style.cssText="background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer";
+ add.onclick=function(){cur.features.push({icon:"📌",title:"",desc:"",link:""});renderCards();};
+ box.appendChild(add);
+ box.oninput=function(e){var t=e.target;if(t.dataset&&t.dataset.f!==undefined&&t.dataset.k){cur.features[+t.dataset.f][t.dataset.k]=t.value;}};
+ box.onclick=function(e){var t=e.target;
+  if(t.dataset&&t.dataset.del!==undefined){if(confirm("Card মুছবেন?")){cur.features.splice(+t.dataset.del,1);renderCards();}}
+  else if(t.dataset&&t.dataset.up!==undefined){var i=+t.dataset.up;var m=cur.features.splice(i,1)[0];cur.features.splice(i-1,0,m);renderCards();}
+  else if(t.dataset&&t.dataset.dn!==undefined){var j=+t.dataset.dn;var m2=cur.features.splice(j,1)[0];cur.features.splice(j+1,0,m2);renderCards();}};
+}
+function loadAbout(){
+ fetch(ABOUT).then(function(r){return r.json();}).then(function(d){
+  if(d&&typeof d==="object"){
+   cur={title:d.title||DEF.title,description:d.description||DEF.description,image:d.image||"",
+    features:(Array.isArray(d.features)&&d.features.length)?d.features:JSON.parse(JSON.stringify(DEF.features))};
+  }else{cur=JSON.parse(JSON.stringify(DEF));}
+  fillAboutForm();
+ }).catch(function(){cur=JSON.parse(JSON.stringify(DEF));fillAboutForm();});
+}
+window.saveAboutSettings=function(){
+ if($("aboutTitle"))cur.title=$("aboutTitle").value;
+ if($("aboutDesc"))cur.description=$("aboutDesc").value;
+ if($("aboutImage"))cur.image=$("aboutImage").value;
+ status("⏳ Save হচ্ছে...","info");
+ fetch(ABOUT,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:cur.title,description:cur.description,image:cur.image,features:cur.features,updatedAt:Date.now()})})
+ .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);status("✅ About save হয়েছে — homepage-এ দেখাবে","ok");})
+ .catch(function(e){status("❌ Save ব্যর্থ: "+e.message,"err");});
+};
+window.resetAboutSettings=function(){
+ if(!confirm("Default content এ ফিরে যাবেন?"))return;
+ cur=JSON.parse(JSON.stringify(DEF));fillAboutForm();
+ status("↩️ Default load হয়েছে — Save চাপলে Firebase-এ যাবে","ok");
+};
+window.deleteAboutSettings=function(){
+ if(!confirm("Firebase থেকে About settings মুছে ফেলবেন?"))return;
+ fetch(ABOUT,{method:"DELETE"}).then(function(){cur=JSON.parse(JSON.stringify(DEF));fillAboutForm();status("🗑️ Firebase থেকে মুছে গেছে","ok");})
+ .catch(function(e){status("❌ "+e.message,"err");});
+};
+function bindImage(){
+ var fi=$("aboutImageFile");if(!fi||fi.dataset.bound)return;fi.dataset.bound="1";
+ fi.addEventListener("change",function(){
+  var f=fi.files&&fi.files[0];if(!f)return;
+  if(window.MJHCloud&&window.MJHCloud.upload){
+   status("⏳ Cloudinary upload...","info");
+   window.MJHCloud.upload(f).then(function(url){
+    $("aboutImage").value=url;$("aboutImagePreview").innerHTML='<img src="'+esc(url)+'" style="max-width:280px;border-radius:8px">';
+    status("✅ Image upload হয়েছে","ok");
+   }).catch(function(e){status("❌ Upload ব্যর্থ: "+(e&&e.message||e),"err");});
+  }else{
+   var rd=new FileReader();
+   rd.onload=function(){$("aboutImage").value=rd.result;$("aboutImagePreview").innerHTML='<img src="'+rd.result+'" style="max-width:280px;border-radius:8px">';status("✅ Image বসেছে — Save চাপুন","ok");};
+   rd.readAsDataURL(f);
   }
-  
-  // Load About settings from Firebase
-  async function loadAbout(){
-    try{
-      const r=await fetch(ABOUT_PATH);
-      const d=await r.json();
-      if(d){
-        document.getElementById("aboutTitle").value=d.title||"";
-        document.getElementById("aboutDesc").value=d.description||"";
-        document.getElementById("aboutImage").value=d.image||"";
-        if(d.image){
-          document.getElementById("aboutImagePreview").innerHTML='<img src="'+d.image+'" style="max-width:300px;border-radius:8px">';
-        }
-        if(d.features&&Array.isArray(d.features))currentFeatures=d.features;
-      }
-      renderFeatureCards();
-      status("✅ About settings loaded","success");
-    }catch(e){
-      renderFeatureCards();
-    }
-  }
-  
-  function renderFeatureCards(){
-    const container=document.getElementById("featureCards");
-    if(!container)return;
-    container.innerHTML="";
-    currentFeatures.forEach((f,i)=>{
-      const div=document.createElement("div");
-      div.style.cssText="background:#1a242f;padding:15px;border-radius:8px;margin-bottom:10px;border:1px solid #333";
-      div.innerHTML=`
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <b style="color:#fff">Card ${i+1}</b>
-          <button onclick="removeFeatureCard(${i})" style="background:#ef4444;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">🗑️</button>
-        </div>
-        <input type="text" value="${f.icon||""}" onchange="updateFeature(${i},'icon',this.value)" style="width:60px;padding:6px;border-radius:4px;border:1px solid #444;background:#0f1419;color:#fff;margin-right:8px" placeholder="Icon">
-        <input type="text" value="${f.title||""}" onchange="updateFeature(${i},'title',this.value)" style="width:180px;padding:6px;border-radius:4px;border:1px solid #444;background:#0f1419;color:#fff;margin-right:8px" placeholder="Title">
-        <input type="text" value="${f.link||""}" onchange="updateFeature(${i},'link',this.value)" style="width:200px;padding:6px;border-radius:4px;border:1px solid #444;background:#0f1419;color:#fff" placeholder="Link"><br>
-        <textarea onchange="updateFeature(${i},'desc',this.value)" rows="2" style="width:100%;padding:6px;border-radius:4px;border:1px solid #444;background:#0f1419;color:#fff;margin-top:8px" placeholder="Description">${f.desc||""}</textarea>
-      `;
-      container.appendChild(div);
-    });
-    if(currentFeatures.length<6){
-      const addBtn=document.createElement("button");
-      addBtn.textContent="➕ Add Feature Card";
-      addBtn.style.cssText="background:#3b82f6;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:10px";
-      addBtn.onclick=()=>{currentFeatures.push({icon:"",title:"",desc:"",link:""});renderFeatureCards();};
-      container.appendChild(addBtn);
-    }
-  }
-  
-  window.updateFeature=(i,k,v)=>{currentFeatures[i][k]=v;};
-  window.removeFeatureCard=(i)=>{if(confirm("এই card মুছবেন?")){currentFeatures.splice(i,1);renderFeatureCards();}};
-  
-  // Image upload via Cloudinary
-  document.addEventListener("change",async function(e){
-    if(e.target.id==="aboutImageFile"&&e.target.files[0]){
-      const file=e.target.files[0];
-      status("⏳ Image uploading...","info");
-      try{
-        if(window.MJHCloud&&window.MJHCloud.upload){
-          const url=await window.MJHCloud.upload(file);
-          document.getElementById("aboutImage").value=url;
-          document.getElementById("aboutImagePreview").innerHTML='<img src="'+url+'" style="max-width:300px;border-radius:8px">';
-          status("✅ Image uploaded","success");
-        }else{
-          // Fallback: convert to base64 (for preview)
-          const rd=new FileReader();
-          rd.onload=()=>{
-            document.getElementById("aboutImage").value=rd.result;
-            document.getElementById("aboutImagePreview").innerHTML='<img src="'+rd.result+'" style="max-width:300px;border-radius:8px">';
-            status("✅ Preview ready (save হবে Firebase-এ)","success");
-          };
-          rd.readAsDataURL(file);
-        }
-      }catch(err){
-        status("❌ Upload failed: "+err.message,"error");
-      }
-    }
+ });
+}
+
+/* ---------- SIDEBAR ---------- */
+function navEl(){var b=$("admin-logout-btn");return b?b.parentElement:(document.querySelector(".admin-tabs")||null);}
+function keyOf(b){return b.getAttribute("data-tab")||b.id||(b.textContent||"").trim();}
+function sideButtons(){var nav=navEl();if(!nav)return [];return [].slice.call(nav.querySelectorAll("button")).filter(function(b){return b.id!=="admin-logout-btn";});}
+function rgb2hex(b){
+ var c=(b.style&&b.style.backgroundColor)||"";
+ if(!c&&window.getComputedStyle)c=getComputedStyle(b).backgroundColor||"";
+ var m=c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+ if(!m)return "#333333";
+ return "#"+[1,2,3].map(function(i){var h=(+m[i]).toString(16);return h.length<2?"0"+h:h;}).join("");
+}
+function loadSidebar(){
+ fetch(SIDEBAR).then(function(r){return r.json();}).then(function(d){sideCfg=Array.isArray(d)?d:[];renderSide();})
+ .catch(function(){sideCfg=[];renderSide();});
+}
+function renderSide(){
+ var box=$("sidebarColorManager");if(!box)return;
+ box.innerHTML="";
+ var btns=sideButtons();var keys=btns.map(keyOf);var list=[];
+ (sideCfg||[]).forEach(function(c){if(keys.indexOf(c.key)>-1)list.push(c);});
+ btns.forEach(function(b){var k=keyOf(b);var found=false;list.forEach(function(c){if(c.key===k)found=true;});if(!found)list.push({key:k,text:(b.textContent||"").trim(),color:rgb2hex(b)});});
+ sideCfg=list;
+ list.forEach(function(item,i){
+  var row=document.createElement("div");
+  row.style.cssText="display:flex;align-items:center;gap:6px;padding:8px;background:#1a242f;border:1px solid #333;border-radius:6px;margin-bottom:6px";
+  var hex=/^#[0-9a-f]{6}$/i.test(item.color||"")?item.color:"#333333";
+  row.innerHTML='<span style="color:#888">⋮⋮</span><span style="flex:1;color:#fff;font-size:13px">'+esc(item.text)+'</span>'+
+   '<input type="color" value="'+hex+'" style="width:38px;height:30px;border:none;background:none;cursor:pointer">'+
+   '<button data-u="'+i+'" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:4px 7px">▲</button>'+
+   '<button data-d="'+i+'" style="background:#3b82f6;color:#fff;border:none;border-radius:4px;padding:4px 7px">▼</button>';
+  row.querySelector('input[type=color]').addEventListener("input",function(e){sideCfg[i].color=e.target.value;});
+  box.appendChild(row);
+ });
+ box.onclick=function(e){var t=e.target;
+  if(t.dataset&&t.dataset.u!==undefined){var i=+t.dataset.u;if(i>0){var m=sideCfg.splice(i,1)[0];sideCfg.splice(i-1,0,m);renderSide();}}
+  else if(t.dataset&&t.dataset.d!==undefined){var j=+t.dataset.d;if(j<sideCfg.length-1){var m2=sideCfg.splice(j,1)[0];sideCfg.splice(j+1,0,m2);renderSide();}}};
+}
+function findBtn(key){
+ var nav=navEl();if(!nav)return null;
+ var b=nav.querySelector('[data-tab="'+key+'"]');if(b)return b;
+ var byId=document.getElementById(key);if(byId&&nav.contains(byId))return byId;
+ return [].slice.call(nav.querySelectorAll("button,a")).filter(function(x){return (x.textContent||"").trim()===key;})[0]||null;
+}
+window.saveSidebarSettings=function(){
+ status("⏳ Sidebar save হচ্ছে...","info");
+ fetch(SIDEBAR,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(sideCfg)})
+ .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);applySide();status("✅ Sidebar save + apply হয়েছে","ok");})
+ .catch(function(e){status("❌ "+e.message,"err");});
+};
+function applySide(){
+ fetch(SIDEBAR).then(function(r){return r.json();}).then(function(d){
+  if(!Array.isArray(d))return;
+  var nav=navEl();if(!nav)return;
+  var logout=$("admin-logout-btn");
+  d.forEach(function(c){
+   var btn=findBtn(c.key);if(!btn)return;
+   if(c.color){btn.style.background=c.color;btn.style.color="#fff";btn.style.fontWeight="700";}
+   if(logout)nav.insertBefore(btn,logout);
   });
-  
-  // Save About settings
-  window.saveAboutSettings=async function(){
-    try{
-      status("⏳ Saving...","info");
-      const data={
-        title:document.getElementById("aboutTitle").value,
-        description:document.getElementById("aboutDesc").value,
-        image:document.getElementById("aboutImage").value,
-        features:currentFeatures,
-        updatedAt:Date.now()
-      };
-      const r=await fetch(ABOUT_PATH,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
-      if(r.ok)status("✅ About settings saved to Firebase!","success");
-      else throw new Error("Save failed");
-    }catch(e){
-      status("❌ "+e.message,"error");
-    }
-  };
-  
-  window.resetAboutSettings=function(){
-    if(!confirm("Default values এ ফিরে যাবেন?"))return;
-    document.getElementById("aboutTitle").value="🌟 About Mohajon MJH Marketplace";
-    document.getElementById("aboutDesc").value="International online marketplace — 1,650+ verified products, connecting buyers and sellers directly.";
-    document.getElementById("aboutImage").value="";
-    document.getElementById("aboutImagePreview").innerHTML="";
-    currentFeatures=[...DEFAULT_FEATURES];
-    renderFeatureCards();
-    status("✅ Reset to default (save করুন Firebase-এ)","success");
-  };
-  
-  window.deleteAboutSettings=async function(){
-    if(!confirm("পুরো About settings Firebase থেকে মুছে ফেলবেন?"))return;
-    try{
-      await fetch(ABOUT_PATH,{method:"DELETE"});
-      document.getElementById("aboutTitle").value="";
-      document.getElementById("aboutDesc").value="";
-      document.getElementById("aboutImage").value="";
-      document.getElementById("aboutImagePreview").innerHTML="";
-      currentFeatures=[...DEFAULT_FEATURES];
-      renderFeatureCards();
-      status("✅ Deleted from Firebase","success");
-    }catch(e){status("❌ "+e.message,"error");}
-  };
-  
-  // Sidebar Color + Reorder manager
-  async function loadSidebar(){
-    try{
-      const r=await fetch(SIDEBAR_PATH);
-      const d=await r.json();
-      currentSidebar=Array.isArray(d)?d:[];
-    }catch(e){currentSidebar=[];}
-    renderSidebarManager();
-  }
-  
-  function renderSidebarManager(){
-    const container=document.getElementById("sidebarColorManager");
-    if(!container)return;
-    container.innerHTML="";
-    
-    // Get all sidebar buttons
-    const btns=document.querySelectorAll(".tab-btn:not([data-tab='site-settings']), .tab-btn[data-tab='backup']");
-    const list=[];
-    btns.forEach(b=>{
-      const text=b.textContent.trim();
-      const tab=b.getAttribute("data-tab")||b.id||text;
-      const cfg=currentSidebar.find(x=>x.tab===tab)||{tab,color:b.style.background||"#667eea",text:text};
-      list.push(cfg);
-    });
-    currentSidebar=list;
-    
-    list.forEach((item,i)=>{
-      const row=document.createElement("div");
-      row.draggable=true;
-      row.style.cssText="display:flex;align-items:center;gap:8px;padding:10px;background:#1a242f;border-radius:6px;margin-bottom:6px;cursor:grab;border:1px solid #333";
-      row.innerHTML=`
-        <span style="color:#888;cursor:grab">⋮⋮</span>
-        <span style="flex:1;color:#fff">${item.text}</span>
-        <input type="color" value="${item.color.startsWith("#")?item.color:"#667eea"}" style="width:40px;height:32px;border:none;cursor:pointer">
-        <input type="text" value="${item.color}" style="width:100px;padding:4px;border-radius:4px;border:1px solid #444;background:#0f1419;color:#fff;font-size:11px">
-      `;
-      const colorInput=row.querySelector('input[type="color"]');
-      const textInput=row.querySelector('input[type="text"]');
-      colorInput.oninput=()=>{textInput.value=colorInput.value;currentSidebar[i].color=colorInput.value;};
-      textInput.onchange=()=>{colorInput.value=textInput.value;currentSidebar[i].color=textInput.value;};
-      
-      // Drag handlers
-      row.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",i);row.style.opacity="0.5";});
-      row.addEventListener("dragend",()=>row.style.opacity="1");
-      row.addEventListener("dragover",e=>{e.preventDefault();row.style.borderTop="3px solid #8b5cf6";});
-      row.addEventListener("dragleave",()=>row.style.borderTop="");
-      row.addEventListener("drop",e=>{
-        e.preventDefault();
-        row.style.borderTop="";
-        const from=+e.dataTransfer.getData("text/plain");
-        const to=i;
-        const moved=currentSidebar.splice(from,1)[0];
-        currentSidebar.splice(to,0,moved);
-        renderSidebarManager();
-      });
-      
-      container.appendChild(row);
-    });
-  }
-  
-  window.saveSidebarSettings=async function(){
-    try{
-      status("⏳ Saving sidebar...","info");
-      const r=await fetch(SIDEBAR_PATH,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(currentSidebar)});
-      if(r.ok){
-        // Apply to sidebar buttons immediately
-        applySidebarConfig();
-        status("✅ Sidebar saved + applied","success");
-      }else throw new Error("Save failed");
-    }catch(e){status("❌ "+e.message,"error");}
-  };
-  
-  // Apply sidebar config (colors + order)
-  async function applySidebarConfig(){
-    try{
-      const r=await fetch(SIDEBAR_PATH);
-      const cfg=await r.json();
-      if(!Array.isArray(cfg))return;
-      const sidebar=document.querySelector("nav")||document.querySelector(".sidebar");
-      if(!sidebar)return;
-      cfg.forEach(item=>{
-        const btn=sidebar.querySelector('[data-tab="'+item.tab+'"]')||
-                  sidebar.querySelector('#'+item.tab)||
-                  [...sidebar.querySelectorAll(".tab-btn,button,a")].find(b=>b.textContent.trim()===item.text);
-        if(btn){
-          btn.style.background=item.color;
-          btn.style.color="#fff";
-          btn.style.fontWeight="700";
-        }
-      });
-    }catch(e){}
-  }
-  
-  // Auto-load when tab is shown
-  const obs=new MutationObserver(()=>{
-    const tab=document.getElementById("tab-site-settings");
-    if(tab&&tab.classList.contains("active")){
-      loadAbout();
-      loadSidebar();
-    }
-  });
-  obs.observe(document.body,{attributes:true,subtree:true,attributeFilter:["class"]});
-  
-  // Also apply on page load
-  setTimeout(applySidebarConfig,1500);
-  setTimeout(applySidebarConfig,3000);
+ }).catch(function(){});
+}
+
+/* ---------- INIT (body ready হলে) ---------- */
+function init(){
+ bindImage();
+ var obs=new MutationObserver(function(){
+  var t=$("tab-site-settings");
+  if(t&&t.classList.contains("active")&&!t.dataset.loaded){t.dataset.loaded="1";loadAbout();loadSidebar();}
+ });
+ obs.observe(document.body,{attributes:true,subtree:true,attributeFilter:["class"]});
+ setInterval(function(){var t=$("tab-site-settings");if(t&&!t.classList.contains("active"))delete t.dataset.loaded;},1000);
+ setTimeout(applySide,1200);
+ setTimeout(applySide,3000);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
