@@ -183,7 +183,7 @@ h2{margin-top:0}
 }
 </style>
 <script src="cloudinary.js"></script>
-<script src="site-settings.js"></script>
+<script src="site-settings.js?v=5"></script>
 <style>/*hide7css-v2*/
 [data-tab="flashsale"],[data-tab="dotd"],[data-tab="globalcats"],[data-tab="specialcats"]{display:none!important}
 </style>
@@ -285,6 +285,7 @@ onAuthStateChanged(auth,async u=>{
     <button class="tab-btn" data-tab="withdrawals">💸 Withdrawals</button>
     <button class="tab-btn" data-tab="backup" style="background:#3b82f6;color:#fff;font-weight:700;margin-bottom:8px">📦 Backup & Restore</button>
     <button class="tab-btn" data-tab="site-settings" style="background:#8b5cf6;color:#fff;font-weight:700">⚙️ Settings</button>
+    <button class="tab-btn" data-tab="guide" style="background:#0ea5e9;color:#fff;font-weight:700">📖 সূচিপত্র</button>
     <button id="admin-logout-btn" style="background:#c0392b;color:#fff;width:100%;text-align:left;padding:12px 15px;border:none;margin-top:20px;border-radius:0;cursor:pointer;font-weight:bold">🚪 Logout</button>
   </nav>
 
@@ -800,6 +801,66 @@ onAuthStateChanged(auth,async u=>{
     
 
     <section id="tab-sellapps" class="tab-section"><div class="card"><h3>📥 Seller Applications (নতুন আবেদন)</h3><div id="sellAppsList">লোড হচ্ছে...</div></div></section><section id="tab-sellers" class="tab-section"><div class="card"><h3>🏪 Registered Sellers</h3><div id="sellersList">লোড হচ্ছে...</div></div></section><section id="tab-sellerprods" class="tab-section"><div class="card"><h3>📦 Seller Product Approvals</h3><div id="sellerProdsList">লোড হচ্ছে...</div></div></section><section id="tab-affiliates" class="tab-section"><div class="card"><h3>🤝 Affiliates & Commissions</h3><div id="affList">লোড হচ্ছে...</div><h3 style="margin-top:15px">📊 Commission Rate (%)</h3><input id="commRate" type="number" value="5" style="padding:8px;border-radius:6px;border:1px solid #555;background:#1a242f;color:#fff;width:80px"> <button onclick="saveCommRate()" style="background:#FF9900;color:#111;padding:8px 14px;border-radius:6px;font-weight:700;border:none">Save</button></div></section><section id="tab-withdrawals" class="tab-section"><div class="card"><h3>💸 Withdrawal Requests</h3><div id="wdList">লোড হচ্ছে...</div></div></section>
+<section id="tab-guide" class="tab-section">
+<div class="card">
+<h2>📖 সূচিপত্র ও ব্যবহার বিধি</h2>
+<p style="color:#9ca3af">Admin panel-এর প্রতিটি বাটনের কাজ ও ব্যবহারের নিয়ম — বইয়ের মতো সাজানো। অধ্যায়ে ট্যাপ করে খুলুন।</p>
+
+<details style="margin:12px 0;background:#1a242f;border-radius:10px;padding:12px"><summary style="cursor:pointer;font-weight:800;color:#7dd3fc">অধ্যায় ১ — শুরু ও নিরাপত্তা</summary>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">📊 Overview</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> মোট অর্ডার, pending অর্ডার ও delivered revenue এক নজরে দেখায়।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) Sidebar-এ Overview চাপুন ২) সংখ্যাগুলো দিন প্রতিদিন সকালে মিলিয়ে দেখুন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">📝 নোট প্যাড</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> আপনার ব্যক্তিগত নোট লেখার জায়গা (যেমন: কাকে কল করতে হবে, কোন সমস্যা চলছে)।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) নোট প্যাড খুলুন ২) লিখুন ৩) Save চাপুন — পরে আবার খুললে লেখা থাকবে।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">📦 Backup & Restore</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> পুরো Firebase data-র backup ফাইল নামায় এবং আগের backup থেকে ফিরিয়ে আনে।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) Backup চাপুন → ফাইল নামবে ২) ফাইলটা নিরাপদ জায়গায় রাখুন ৩) দরকার হলে Restore চেপে ফাইল দিন।</p><p style="color:#fbbf24;margin:6px 0"><b>সতর্কতা:</b> বড় কোনো পরিবর্তন বা delete করার আগে অবশ্যই Backup নিন!</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">🚪 Logout</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> admin account থেকে বের হয়ে যায় (অন্য কেউ ঢুকতে পারবে না)।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> কাজ শেষে সবসময় Logout চাপুন, বিশেষ করে অন্যের ফোন/কম্পিউটারে হলে।</p></div>
+</details>
+
+<details style="margin:12px 0;background:#1a242f;border-radius:10px;padding:12px"><summary style="cursor:pointer;font-weight:800;color:#7dd3fc">অধ্যায় ২ — প্রোডাক্ট ব্যবস্থাপনা</summary>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">🆕 Pending Products</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> seller-রা যে নতুন পণ্য পাঠায় সেগুলো এখানে অপেক্ষা করে — approve/reject করা যায়।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) তালিকা থেকে পণ্য খুলুন ২) ছবি/দাম/বিবরণ মিলিয়ে দেখুন ৩) ✅ Approve বা ❌ Reject চাপুন। Approve করলে পণ্য site-এ দেখাবে।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">✏️ সব প্রোডাক্ট Edit/Delete</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> সব পণ্যের তালিকা — নাম/দাম/ছবি edit বা পণ্য delete করা যায়।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) Search box-এ পণ্যের নাম লিখুন ২) Edit চেপে পরিবর্তন করে Save ৩) Delete চাপলে confirm এর আগে Backup নিশ্চিত করুন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">📤 Bulk Upload</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> একসাথে অনেক পণ্য যোগ করা (একে একে নয়)।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) দেওয়া format অনুযায়ী তালিকা লিখুন/paste করুন ২) Upload চাপুন ৩) Pending/All products-এ গিয়ে মিলিয়ে দেখুন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">🎯 Attributes (drawer)</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> পণ্যের size / weight / pieces যোগ করা।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) পণ্যের নাম লিখে খুঁজুন ২) ঘরগুলো পূরণ করুন বা 🤖 AUTO চাপুন ৩) 💾 Save।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">🛒 Amazon Sync</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> Amazon.sa থেকে দাম এনে আপনার পণ্যের দাম auto update করে (লাভ% + delivery যোগ করে)।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) drawer খুলে লাভ% ও delivery ৳ দিন ২) ▶️ AUTO START — একে একে সব পণ্যের দাম হবে ৩) ⏹ STOP যখন খুশি।</p><p style="color:#fbbf24;margin:6px 0"><b>সতর্কতা:</b> AUTO চলাকালীন tab বন্ধ করবেন না।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">💹 Market Price / 📁 All Category / 🏠 Home Page Products</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> Market Price = বাজারদর ভিত্তিক দাম সহায়তা; All Category = সব ক্যাটাগরি একসাথে দেখা/সাজানো; Home Page Products = homepage-এ কোন কোন পণ্য দেখাবে তা বাছা।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> বাটনে চাপুন → ভিতরের নির্দেশনা অনুযায়ী বাছাই/সংখ্যা দিয়ে Save করুন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">🎛️ ক্যাটাগরি অন/অফ</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> homepage-এর যেকোনো ক্যাটাগরি/section লুকানো বা দেখানো (customer "Coming Soon" দেখবে)।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) বাটনে চাপুন ২) switch ON/OFF করুন ৩) সাথে সাথে save হয়ে যাবে — homepage refresh করে দেখুন।</p></div>
+</details>
+
+<details style="margin:12px 0;background:#1a242f;border-radius:10px;padding:12px"><summary style="cursor:pointer;font-weight:800;color:#7dd3fc">অধ্যায় ৩ — Seller ব্যবস্থাপনা</summary>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">🏪 Seller আবেদন / 📥 Seller Applications</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> নতুন seller-দের আবেদন এখানে আসে।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) আবেদন খুলুন ২) নাম/মোবাইল মিলিয়ে দেখুন ৩) Approve করলে সে seller dashboard পাবে।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">👥 সব Seller / 🏪 Sellers</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> সব seller-এর তালিকা — approve/reject/delete/মেসেজ পাঠানো যায়।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> তালিকা থেকে seller বাছুন → ✅ Approve / ❌ Reject / 🗑 Delete / 💬 Message। Delete-এর আগে Backup নিন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">📦 Seller Products</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> seller-দের আপলোড করা পণ্য approve/reject।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> পণ্যের ছবি/দাম দেখে Approve বা Reject চাপুন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">💰 Approved Sellers কমিশন / 🤝 Affiliates / কমিশন এজেন্ট</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> প্রতিটি seller/affiliate-এর কমিশন হার (%) ঠিক করা ও হিসাব দেখা।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) seller বাছুন ২) % লিখুন ৩) Save — পরের বিক্রি থেকে নতুন হার লাগু হবে।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">💸 Withdrawals</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> seller/affiliate-রা টাকা তোলার request করলে এখানে আসে।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) request দেখুন ২) টাকা পাঠিয়ে তবেই ✅ Approved চাপুন ৩) না পাঠালে ❌।</p></div>
+</details>
+
+<details style="margin:12px 0;background:#1a242f;border-radius:10px;padding:12px"><summary style="cursor:pointer;font-weight:800;color:#7dd3fc">অধ্যায় ৪ — অর্ডার ও টাকা</summary>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">📦 All Orders</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> সব অর্ডারের তালিকা — অবস্থা (pending/delivered) দেখা ও বদলানো।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> অর্ডার খুলে status update করুন; delivered করলে কমিশন হিসাবে যুক্ত হবে।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">📦 Delivered Orders কমিশন</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> delivered অর্ডারগুলোর উপর কমিশনের হিসাব।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> সপ্তাহ শেষে মিলিয়ে দেখুন; গরমিল হলে All Orders-এ গিয়ে status ঠিক করুন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">💰 Finance</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> আয়-ব্যয়ের সারসংক্ষেপ।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> মাঝে মাঝে খুলে মোট লাভের ধারণা নিন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">💳 Payment Settings</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> bKash/Nagad/Rocket নম্বর ও payment নিয়ম সেট করা।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> নম্বর লিখে 💾 Save — customer checkout-এ সাথে সাথে দেখাবে।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">🌍 Currency</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> টাকার হার (USD→BDT ইত্যাদি) ও কোন মুদ্রা দেখাবে তা ঠিক করা।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> হার বদলালে Save করুন; site-এ দাম নতুন হারে দেখাবে।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">💳 Payment Method Control Panel</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> কোন payment method (COD/bKash...) চালু বা বন্ধ থাকবে তা নিয়ন্ত্রণ।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> switch ON/OFF করে save — checkout-এ সাথে সাথে প্রভাব পড়বে।</p></div>
+</details>
+
+<details style="margin:12px 0;background:#1a242f;border-radius:10px;padding:12px"><summary style="cursor:pointer;font-weight:800;color:#7dd3fc">অধ্যায় ৫ — ডিজাইন, কনটেন্ট ও টুলস</summary>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">🎨 UI Settings</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> ক্যাটাগরি বাটন/পণ্যের কার্ড/heading-এর size ও রঙ বদলানো।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) মান বদলান ২) 💾 Save ৩) homepage খুলে দেখুন; ভুল হলে 🔄 Reset বা ↩️ Undo।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">⚙️ Settings</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> দুই ভাগ — 📄 About (homepage ও about page-এর লেখা/ছবি edit) ও 🎨 Sidebar (বাটনের রঙ/ক্রম)।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) বাটন বাছুন ২) পরিবর্তন করুন (live preview দেখুন) ৩) 💾 Save ৪) ❌ চেপে menu-তে ফিরুন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">📖 সূচিপত্র</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> এই বইটি — যেকোনো সময় ভুলে গেলে এখানে এসে দেখুন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff"> Pathao Courier / 📋 কাস্টমার অর্ডার ডিটেইলস</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> অর্ডারের delivery তথ্য ও customer-এর বিস্তারিত এক জায়গায়।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> অর্ডার ID বা নাম দিয়ে খুঁজে তথ্য দেখুন/পূরণ করুন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">📱 Social Media Post / Share</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> পণ্যের প্রচারের জন্য post/লিংক তৈরি ও share।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> পণ্য বাছুন → তৈরি হওয়া লেখা/ছবি copy করে Facebook/WhatsApp-এ দিন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">🔧 দাম অটো-ফিক্স / 🚫 এড বন্ধ করুন</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> দাম অটো-ফিক্স = ভুল/অসঙ্গত দাম ঠিক করা; এড বন্ধ = panel-এর বিজ্ঞাপন লুকানো।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> চাপলেই কাজ শুরু/বন্ধ হয় — status message দেখুন।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">🎛️ বাটন ম্যানেজ</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> sidebar-এর যেকোনো বাটন লুকানো (✕) বা ফিরিয়ে আনা।</p><p style="color:#9ca3af;margin:6px 0"><b>ব্যবহার:</b> ১) বাটন ম্যানেজ চাপুন ২) যেটা লুকাবেন তার ✕ চাপুন ৩) ফিরিয়ে আনতে "সব লুকানো বাটন ফিরিয়ে আন"।</p></div>
+<div style="background:#0f1419;border-radius:8px;padding:10px;margin:8px 0"><b style="color:#fff">❓ Help Center</b><p style="color:#9ca3af;margin:6px 0"><b>কাজ:</b> সমস্যা সমাধানের সহায়িকা ও যোগাযোগ।</p></div>
+</details>
+
+<details style="margin:12px 0;background:#1a242f;border-radius:10px;padding:12px"><summary style="cursor:pointer;font-weight:800;color:#fbbf24">অধ্যায় ৬ — লুকানো বাটন (sidebar-এ দেখা যায় না)</summary>
+<p style="color:#9ca3af;margin:6px 0">⚡ Flash Sale, ⭐ Deals of the Day, 🌐 Global Category, 🌟 Special Categories — এই বাটনগুলো sidebar-এ লুকানো আছে। এদের কাজ এখন <b>🎛️ ক্যাটাগরি অন/অফ</b> ও <b>⚙️ Settings</b> দিয়েই করা যায়। দরকার হলে বলবেন, আবার দেখাবো।</p>
+</details>
+
+<details style="margin:12px 0;background:#1a242f;border-radius:10px;padding:12px"><summary style="cursor:pointer;font-weight:800;color:#f87171">অধ্যায় ৭ — সোনালি নিয়ম (ভুল এড়াতে)</summary>
+<p style="color:#9ca3af;margin:6px 0">১) Delete করার আগে সবসময় <b>Backup</b> নিন।<br>২) পরিবর্তনের পর <b>Save</b> চাপতে ভুলবেন না — না চাপলে হারিয়ে যাবে।<br>৩) একসাথে অনেক কিছু বদলাবেন না — একটা করে বদলে দেখুন।<br>৪) ভুল হয়ে গেলে Reset/Undo চাপুন, না হলে আগের Backup restore করুন।<br>৫) কাজ শেষে <b>Logout</b>।</p>
+</details>
+
+</div>
+</section>
 <section id="tab-backup" class="tab-section"><div class="card"><h3>📦 Backup & Restore</h3><iframe src="backup.html" style="width:100%;height:75vh;border:none;border-radius:8px;background:#111827"></iframe></div></section>
 <section id="tab-site-settings" class="tab-section">
   <div class="card">
