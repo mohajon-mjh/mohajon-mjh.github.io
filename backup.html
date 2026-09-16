@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Backup & Restore</title>
+<style>body{background:#111827;color:#fff;font-family:Arial;padding:16px}h2{margin:0 0 8px}button{background:#2563eb;color:#fff;border:none;border-radius:8px;padding:12px 18px;font-weight:700;margin:6px 6px 6px 0;cursor:pointer;font-size:14px}#log{background:#0f1419;border-radius:8px;padding:10px;margin-top:12px;font-size:13px;max-height:45vh;overflow:auto;white-space:pre-wrap;line-height:1.7}</style>
+</head><body>
+<h2>📦 Backup & Restore</h2>
+<p style="color:#9ca3af;font-size:13px">Backup = সব data একটা JSON file-এ নামিয়ে রাখা। Restore = সেই file থেকে data ফিরিয়ে আনা।</p>
+<button onclick="exp(false)">📥 Full Backup (সব data)</button>
+<button onclick="exp(true)" style="background:#16a34a">📥 Settings-only Backup (ছোট, দ্রুত)</button>
+<button onclick="document.getElementById('fi').click()" style="background:#f59e0b">📤 Restore (file দিন)</button>
+<input type="file" id="fi" accept=".json" style="display:none">
+<div id="log">প্রস্তুত। Backup চাপুন অথবা Restore-এর জন্য file দিন।</div>
+<script>
+var NODES=["settings","products","sellers","orders","affiliates","withdrawals","amazonLinks","sellerProducts","sellerApplications","commissions"];
+var SETONLY=["settings"];
+var FB=null;
+function sdk(){if(FB)return FB;FB=Promise.all([import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"),import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js")]).then(function(M){var app=M[0].getApps().length?M[0].getApps()[0]:M[0].initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});return{D:M[1],db:M[1].getDatabase(app)};});return FB;}
+function log(m){var l=document.getElementById("log");l.innerHTML+=m+"<br>";l.scrollTop=l.scrollHeight;}
+function dl(obj,name){var b=new Blob([JSON.stringify(obj)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();}
+window.exp=async function(onlySet){
+ log("⏳ Backup শুরু... (Full হলে ১- মিনিট লাগতে পারে)");
+ try{
+  var o=await sdk(),out={_date:Date.now()};
+  var list=onlySet?SETONLY:NODES;
+  for(var i=0;i<list.length;i++){var n=list[i];
+   try{var s=await o.D.get(o.D.ref(o.db,n));var v=s.val();
+    if(v){out[n]=v;log("✅ "+n+" — "+Math.round(JSON.stringify(v).length/1024)+" KB");}
+    else log("⚪ "+n+" — খালি");
+   }catch(e){log("⚠️ "+n+": "+e.message);}
+  }
+  dl(out,"mjh-backup-"+new Date().toISOString().slice(0,10)+".json");
+  log("🎉 Backup file download হয়েছে! Downloads folder-এ রাখুন।");
+ }catch(e){log("❌ "+e.message);}
+};
+document.getElementById("fi").addEventListener("change",async function(e){
+ var f=e.target.files[0];if(!f)return;
+ if(!confirm("সত্যিই Restore করবেন? বর্তমান data file-এর data দিয়ে বদলে যাবে!")){e.target.value="";return;}
+ try{
+  var data=JSON.parse(await f.text());
+  var keys=Object.keys(data).filter(function(k){return k!=="_date";});
+  if(!keys.length){log("⚠️ file-এ restore করার মতো কিছু নেই");return;}
+  if(!confirm("Restore হবে: "+keys.join(", ")+" — চালিয়ে যাবেন?"))return;
+  log("⏳ Restore শুরু...");
+  var o=await sdk();
+  for(var i=0;i<keys.length;i++){var k=keys[i];
+   try{await o.D.set(o.D.ref(o.db,k),data[k]);log("✅ Restore: "+k);}catch(e2){log("❌ "+k+": "+e2.message);}
+  }
+  log("🎉 Restore শেষ! Admin panel refresh করুন।");
+ }catch(e){log("❌ "+e.message);}
+});
+</script></body></html>
