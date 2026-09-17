@@ -1,4 +1,12 @@
 User-agent: *
 Allow: /
 
+Disallow: /category-products.html
+Disallow: /cleanup.html
+Disallow: /run-fix.html
+Disallow: /backup.html
+Disallow: /migrate-images.html
+Disallow: /populate_categories.html
+Disallow: /save_products.html
+
 Sitemap: https://mohajon-mjh.github.io/sitemap.xml
