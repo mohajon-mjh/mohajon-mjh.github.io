@@ -2289,7 +2289,36 @@ setTimeout(function(){
 },600);
 </script>
 <script src="admin-arrow-system.js?v=49"></script>
-</html>
+
+<script>/*mjh-dedup-float-v3*/
+(function(){
+ var KEY=["Social Media Post","এড বক","দাম অটো","ক্যাটাগরি অন/অফ"];
+ function kill(){
+  var nav=document.querySelector("nav.admin-tabs")||document.querySelector(".admin-tabs");
+  var set={};
+  if(nav){nav.querySelectorAll("button,a").forEach(function(b){
+   var t=(b.textContent||"").replace(/✕/g,"").trim(); if(t)set[t]=1;
+  });}
+  document.querySelectorAll("body > button, body > a").forEach(function(el){
+   var css=el.getAttribute("style")||"";
+   if(css.indexOf("position:fixed")===-1)return;
+   if(css.indexOf("right")===-1||css.indexOf("bottom")===-1)return;
+   var t=(el.textContent||"").trim(); if(!t)return;
+   var hit=false;
+   for(var i=0;i<KEY.length;i++){if(t.indexOf(KEY[i])>-1){hit=true;break;}}
+   if(!hit&&set[t])hit=true;
+   if(hit)el.remove();
+  });
+ }
+ setTimeout(kill,400);setTimeout(kill,1200);setTimeout(kill,2500);
+ setTimeout(kill,5000);setTimeout(kill,9000);setTimeout(kill,14000);
+ try{
+  var t0=Date.now();
+  var mo=new MutationObserver(function(){kill();if(Date.now()-t0>30000)mo.disconnect();});
+  mo.observe(document.body,{childList:true});
+ }catch(e){}
+})();
+</script></html>
 
 <script type="module">/*helpSide-v2*/
 import{getDatabase,ref,onValue,get,set,push,update}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
