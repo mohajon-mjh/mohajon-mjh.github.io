@@ -46,4 +46,43 @@ document.getElementById("fi").addEventListener("change",async function(e){
   log("🎉 Restore শেষ! Admin panel refresh করুন।");
  }catch(e){log("❌ "+e.message);}
 });
-</script></body></html>
+</script><div style="margin:12px 0">
+<button onclick="cloudSave()" style="background:#8b5cf6">☁️ Cloud Backup (server-এ save)</button>
+<button onclick="cloudRestore()" style="background:#dc2626">☁️ Cloud Restore (server থেকে ফিরিয়ে আনুন)</button>
+<button onclick="ghRestore()" style="background:#0ea5e9">📘 GitHub Backup Restore</button>
+</div>
+<script>
+window.cloudSave=async function(){
+ log("⏳ Cloud backup শুরু (সব data server-এ copy হবে)...");
+ try{
+  var o=await sdk();var snap={_date:Date.now()};
+  for(var i=0;i<NODES.length;i++){var n=NODES[i];
+   try{var v=(await o.D.get(o.D.ref(o.db,n))).val();if(v){snap[n]=v;log("✅ "+n);}}catch(e){log("⚠️ "+n+": "+e.message);}}
+  await o.D.set(o.D.ref(o.db,"backups/latest"),snap);
+  log("🎉 Cloud backup save হয়েছে! যেকোনো device থেকে login করে Cloud Restore চাপলেই সব ফিরবে।");
+ }catch(e){log("❌ "+e.message);}
+};
+window.cloudRestore=async function(){
+ if(!confirm("backups/latest থেকে সব data ফিরিয়ে আনবেন? বর্তমান data বদলে যাবে!"))return;
+ log("⏳ Cloud restore...");
+ try{
+  var o=await sdk();var snap=(await o.D.get(o.D.ref(o.db,"backups/latest"))).val();
+  if(!snap){log("❌ backups/latest খালি — আগে Cloud Backup চাপুন");return;}
+  var ks=Object.keys(snap).filter(function(k){return k!=="_date";});
+  for(var i=0;i<ks.length;i++){try{await o.D.set(o.D.ref(o.db,ks[i]),snap[ks[i]]);log("✅ "+ks[i]);}catch(e){log("❌ "+ks[i]+": "+e.message);}}
+  log("🎉 Cloud restore শেষ! Admin panel refresh করুন।");
+ }catch(e){log("❌ "+e.message);}
+};
+window.ghRestore=async function(){
+ if(!confirm("GitHub backup (backups/mjh-cloud-latest.json) থেকে restore করবেন?"))return;
+ log("⏳ GitHub backup আনা হচ্ছে...");
+ try{
+  var r=await fetch("/backups/mjh-cloud-latest.json");if(!r.ok)throw new Error("file নেই");
+  var snap=await r.json();var o=await sdk();
+  var ks=Object.keys(snap);
+  for(var i=0;i<ks.length;i++){try{await o.D.set(o.D.ref(o.db,ks[i]),snap[ks[i]]);log("✅ "+ks[i]);}catch(e){log("❌ "+ks[i]);}}
+  log("🎉 GitHub restore শেষ!");
+ }catch(e){log("❌ "+e.message);}
+};
+</script>
+</body></html>
