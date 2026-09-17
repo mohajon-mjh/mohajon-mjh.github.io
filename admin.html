@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>/*mjh-head-kill-v5*/
+(function(){
+ var KEY=["Social Media Post","এড বক","দাম অটো","ক্যাটাগরি অন/অফ"];
+ function bad(el){
+  if(!el||!el.getAttribute)return false;
+  var css=el.getAttribute("style")||"";
+  if(css.indexOf("position:fixed")===-1)return false;
+  if(css.indexOf("right")===-1||css.indexOf("bottom")===-1)return false;
+  var t=(el.textContent||"").trim();
+  for(var i=0;i<KEY.length;i++){if(t.indexOf(KEY[i])>-1)return true;}
+  return false;
+ }
+ function scan(node){
+  if(bad(node)){node.remove();return;}
+  if(node.querySelectorAll){Array.prototype.forEach.call(node.querySelectorAll("button,a"),function(e){if(bad(e))e.remove();});}
+ }
+ try{
+  var mo=new MutationObserver(function(ms){
+   ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1)scan(n);});});
+  });
+  mo.observe(document.documentElement,{childList:true,subtree:true});
+ }catch(e){}
+ document.addEventListener("DOMContentLoaded",function(){scan(document.body);});
+})();
+</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5496507853221471" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <title>Admin Panel V1.3</title>
@@ -2338,6 +2363,26 @@ setTimeout(function(){
  }
  setTimeout(sweep,500);setTimeout(sweep,1500);
  setInterval(sweep,3000);
+})();
+</script>
+<script>/*mjh-sidebar-freeze-v5*/
+(function(){
+ function nav(){return document.querySelector("nav.admin-tabs")||document.querySelector(".admin-tabs");}
+ var canon=null;
+ setTimeout(function(){
+  var n=nav(); if(!n)return;
+  canon=Array.prototype.slice.call(n.children);
+  try{
+   new MutationObserver(function(){
+    if(!canon)return;
+    var cur=Array.prototype.slice.call(n.children);
+    var sameSet=cur.length===canon.length&&cur.every(function(e){return canon.indexOf(e)>-1;});
+    if(!sameSet){canon=cur;return;}
+    var sameOrder=cur.every(function(e,i){return e===canon[i];});
+    if(!sameOrder){canon.forEach(function(e){n.appendChild(e);});}
+   }).observe(n,{childList:true});
+  }catch(e){}
+ },4500);
 })();
 </script></html>
 
