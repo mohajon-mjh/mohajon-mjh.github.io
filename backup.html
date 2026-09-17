@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Backup & Restore</title>
-<style>body{background:#111827;color:#fff;font-family:Arial;padding:16px}h2{margin:0 0 8px}button{background:#2563eb;color:#fff;border:none;border-radius:8px;padding:12px 18px;font-weight:700;margin:6px 6px 6px 0;cursor:pointer;font-size:14px}#log{background:#0f1419;border-radius:8px;padding:10px;margin-top:12px;font-size:13px;max-height:45vh;overflow:auto;white-space:pre-wrap;line-height:1.7}</style>
+<style>body{background:#111827;color:#fff;font-family:Arial;padding:16px}h2{margin:0 0 8px}button{background:#2563eb;color:#fff;border:none;border-radius:8px;padding:12px 18px;font-weight:700;margin:6px 6px 6px 0;cursor:pointer;font-size:14px}#log:empty{display:none}#log{background:#0f1419;border-radius:8px;padding:10px;margin-top:12px;font-size:13px;max-height:45vh;overflow:auto;white-space:pre-wrap;line-height:1.7}</style>
 </head><body>
 <h2>📦 Backup & Restore</h2>
 <p style="color:#9ca3af;font-size:13px">প্রথমবার একবার password জিজ্ঞেস করবে — সেটা শুধু এই session-এর memory-তে থাকে, কোথাও save হয় না।</p>
@@ -12,7 +12,7 @@
 <button onclick="ghRestore()" style="background:#0ea5e9">📘 GitHub Backup Restore</button>
 <input type="file" id="fi" accept=".json" style="display:none">
 <p style="color:#fbbf24;font-size:12px;margin:8px 0">📁 Backup file নামবে ফোনের <b>Download</b> folder-এ।</p>
-<div id="log">প্রস্তুত।</div>
+<div id="log"></div>
 <script>
 var NODES=["settings","products","sellers","orders","affiliates","withdrawals","amazonLinks","sellerProducts","sellerApplications","commissions"];
 var RT="https://mohajon-mjh-default-rtdb.firebaseio.com";
