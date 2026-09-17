@@ -11,7 +11,7 @@ function toast(msg){var t=document.createElement("div");t.textContent=msg;t.styl
 function addBtn(){
  if(document.getElementById("priceFixBtn"))return;
  var b=document.createElement("button");b.id="priceFixBtn";b.innerHTML="💰 দাম অটো-ফিক্স";
- b.style.cssText="position:fixed;bottom:60px;right:16px;z-index:99999;background:#16a34a;color:#fff;border:none;border-radius:30px;padding:12px 18px;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)";
+ /* disabled-float-1 */ return; b.style.cssText="position:fixed;bottom:60px;right:16px;z-index:99999;background:#16a34a;color:#fff;border:none;border-radius:30px;padding:12px 18px;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)";
  b.onclick=async function(){
   var badStr=prompt("যে দামগুলো ভুল সেগুলো কমা দিয়ে লিখুন (যেমন: 0,1917):","0,1917");
   if(badStr===null)return;

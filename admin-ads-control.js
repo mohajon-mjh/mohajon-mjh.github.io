@@ -5,7 +5,7 @@ function add(){
  var b=document.createElement("button");b.id="adsCtrlBtn";
  function isOff(){try{return localStorage.getItem("mjh_ads_off")==="1";}catch(e){return false;}}
  function label(){var off=isOff();b.innerHTML=off?"📢 এড চালু করুন":"💰 এড বন্ধ করুন";b.style.background=off?"#16a34a":"#dc2626";}
- b.style.cssText="position:fixed;bottom:120px;right:16px;z-index:99999;color:#fff;border:none;border-radius:30px;padding:12px 18px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)";
+ /* disabled-float-2 */ return; b.style.cssText="position:fixed;bottom:120px;right:16px;z-index:99999;color:#fff;border:none;border-radius:30px;padding:12px 18px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.4)";
  label();
  b.onclick=function(){
   var off=isOff();

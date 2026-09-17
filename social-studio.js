@@ -7,6 +7,8 @@ function toast(msg){var t=el("div",msg);t.style.cssText="position:fixed;bottom:7
 function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"");}
 function numFrom(line){var m=String(line).replace(/,/g,"").match(/\d+(\.\d+)?/g);if(!m)return null;return parseFloat(m[m.length-1]);}
 function addBtn(){
+ /* ss-float-disabled */
+ return;
  if(document.getElementById("ssBtn"))return;
  var b=el("button","📱 Social Media Post / Share");b.id="ssBtn";
  b.style.cssText="position:fixed;bottom:230px;right:10px;z-index:99998;padding:12px 16px;background:#16a34a;color:#fff;border:none;border-radius:30px;font-weight:800;cursor:pointer;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.4)";
