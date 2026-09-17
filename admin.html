@@ -2365,26 +2365,7 @@ setTimeout(function(){
  setInterval(sweep,3000);
 })();
 </script>
-<script>/*mjh-sidebar-freeze-v5*/
-(function(){
- function nav(){return document.querySelector("nav.admin-tabs")||document.querySelector(".admin-tabs");}
- var canon=null;
- setTimeout(function(){
-  var n=nav(); if(!n)return;
-  canon=Array.prototype.slice.call(n.children);
-  try{
-   new MutationObserver(function(){
-    if(!canon)return;
-    var cur=Array.prototype.slice.call(n.children);
-    var sameSet=cur.length===canon.length&&cur.every(function(e){return canon.indexOf(e)>-1;});
-    if(!sameSet){canon=cur;return;}
-    var sameOrder=cur.every(function(e,i){return e===canon[i];});
-    if(!sameOrder){canon.forEach(function(e){n.appendChild(e);});}
-   }).observe(n,{childList:true});
-  }catch(e){}
- },4500);
-})();
-</script></html>
+</html>
 
 <script type="module">/*helpSide-v2*/
 import{getDatabase,ref,onValue,get,set,push,update}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
@@ -2406,7 +2387,7 @@ function addSidebar(){
  btn.addEventListener("click",()=>{document.getElementById("helpOverlay").style.display="block";window.loadHelpF&&loadHelpF();});
  target.parentNode.insertBefore(btn,target.nextSibling);
 }
-setTimeout(addSidebar,800);setTimeout(addSidebar,2000);setTimeout(addSidebar,4000);
+/* helpSide-clone-disabled */
 const hb=document.createElement("button");
 hb.style.cssText="position:fixed;top:10px;right:70px;z-index:99999;background:#232f3e;color:#7CFC00;border:2px solid #7CFC00;border-radius:20px;padding:6px 14px;font-weight:900;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.5);cursor:pointer";
 hb.onclick=()=>{document.getElementById("helpOverlay").style.display="block";window.loadHelpF&&loadHelpF();};
