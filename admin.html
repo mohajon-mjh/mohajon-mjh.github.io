@@ -3568,8 +3568,7 @@ setTimeout(async()=>{try{
   var b=e.target&&e.target.closest?e.target.closest(".tab-btn"):null;
   if(b&&(b.getAttribute("data-tab")||"")!=="allsellers")setTimeout(fix,150);
  },true);
- for(var i=1;i<=15;i++)setTimeout(fix,i*600);
- setInterval(fix,4000);
+ fix(); /* একবারই, কোনো repeat নেই */
  var st=document.createElement("style");
  st.textContent="@media(max-width:900px){nav.admin-tabs{position:static!important;height:auto!important;overflow:visible!important}.admin-wrap{min-height:auto!important}}";
  document.head.appendChild(st);
