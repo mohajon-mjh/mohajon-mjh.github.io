@@ -22,6 +22,7 @@ var NODES=["settings","products","sellers","orders","affiliates","withdrawals","
 var RT="https://mohajon-mjh-default-rtdb.firebaseio.com";
 function log(m){var l=document.getElementById("log");l.innerHTML+=m+"<br>";l.scrollTop=l.scrollHeight;}
 function dl(obj,name){var b=new Blob([JSON.stringify(obj)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();}
+
 function getToken(){
  var u=auth.currentUser;
  if(u) return u.getIdToken();
@@ -30,9 +31,29 @@ function getToken(){
   setTimeout(function(){un();rej(new Error("login নাই"));},6000);
  });
 }
-async function rget(n){var t=await getToken();var r=await fetch(RT+"/"+n+".json?auth="+t);if(!r.ok)throw new Error(n+": denied");return r.json();}
-async function rset(n,v){var t=await getToken();var r=await fetch(RT+"/"+n+".json?auth="+t,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(v)});if(!r.ok)throw new Error(n+": write denied");}
-getToken().catch(function(){});
+
+async function rget(n){
+ try{
+  var t=await getToken();
+  var r=await fetch(RT+"/"+n+".json?auth="+t,{cache:"no-cache"});
+  if(!r.ok){var txt=await r.text();throw new Error(n+": "+r.status+" "+txt);}
+  return await r.json();
+ }catch(e){
+  try{
+   var snap=await D.get(D.ref(db,n));
+   return snap.val();
+  }catch(e2){
+   throw new Error(n+": REST+SDK both failed - "+e.message);
+  }
+ }
+}
+
+async function rset(n,v){
+ var t=await getToken();
+ var r=await fetch(RT+"/"+n+".json?auth="+t,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(v)});
+ if(!r.ok){var txt=await r.text();throw new Error(n+": write "+r.status+" "+txt);}
+}
+
 window.exp=async function(onlySet){
  log("⏳ Backup শুরু...");
  try{
@@ -40,11 +61,12 @@ window.exp=async function(onlySet){
   var list=onlySet?["settings"]:NODES;
   for(var i=0;i<list.length;i++){var n=list[i];
    try{var v=await rget(n);if(v){out[n]=v;log("✅ "+n+" — "+Math.round(JSON.stringify(v).length/1024)+" KB");}else log("⚪ "+n+" — খালি");}
-   catch(e){log("⚠️ "+e.message);}}
+   catch(e){log("❌ "+e.message);}}
   dl(out,"mohajon-mjh-backup-"+new Date().toISOString().slice(0,10)+".json");
   log("🎉 Backup file Download folder-এ!");
  }catch(e){log("❌ "+e.message);}
 };
+
 document.getElementById("fi").addEventListener("change",async function(e){
  var f=e.target.files[0];if(!f)return;
  if(!confirm("বর্তমান data file-এর data দিয়ে বদলে যাবে!")){e.target.value="";return;}
@@ -56,16 +78,18 @@ document.getElementById("fi").addEventListener("change",async function(e){
   log("🎉 Restore শেষ!");
  }catch(e){log("❌ "+e.message);}
 });
+
 window.cloudSave=async function(){
  log("⏳ Cloud backup...");
  try{
   var snap={_date:Date.now()};
   for(var i=0;i<NODES.length;i++){var n=NODES[i];
-   try{var v=await rget(n);if(v){snap[n]=v;log("✅ "+n);}}catch(e){log("⚠️ "+e.message);}}
+   try{var v=await rget(n);if(v){snap[n]=v;log("✅ "+n);}}catch(e){log("❌ "+e.message);}}
   await rset("backups/latest",snap);
   log("🎉 Cloud backup save!");
  }catch(e){log("❌ "+e.message);}
 };
+
 window.cloudRestore=async function(){
  if(!confirm("backups/latest থেকে সব ফিরিয়ে আনবেন?"))return;
  log("⏳ Cloud restore...");
@@ -77,11 +101,12 @@ window.cloudRestore=async function(){
   log("🎉 Cloud restore শেষ!");
  }catch(e){log("❌ "+e.message);}
 };
+
 window.ghRestore=async function(){
  if(!confirm("GitHub backup থেকে restore করবেন?"))return;
  log("⏳ GitHub backup...");
  try{
-  var r=await fetch("/backups/mjh-cloud-latest.json");if(!r.ok)throw new Error("file নেই");
+  var r=await fetch("/backups/mjh-cloud-latest.json",{cache:"no-cache"});if(!r.ok)throw new Error("file নেই");
   var snap=await r.json();
   var ks=Object.keys(snap);
   for(var i=0;i<ks.length;i++){try{await rset(ks[i],snap[ks[i]]);log("✅ "+ks[i]);}catch(e){log("❌ "+ks[i]);}}
