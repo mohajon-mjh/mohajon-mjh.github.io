@@ -2,7 +2,6 @@
 <style>body{background:#111827;color:#fff;font-family:Arial;padding:16px}h2{margin:0 0 8px}button{background:#2563eb;color:#fff;border:none;border-radius:8px;padding:12px 18px;font-weight:700;margin:6px 6px 6px 0;cursor:pointer;font-size:14px}#log:empty{display:none}#log{background:#0f1419;border-radius:8px;padding:10px;margin-top:12px;font-size:13px;max-height:45vh;overflow:auto;white-space:pre-wrap;line-height:1.7}</style>
 </head><body>
 <h2>📦 Backup & Restore</h2>
-<p style="color:#9ca3af;font-size:13px">প্রথমবার একবার password জিজ্ঞেস করবে — সেটা শুধু এই session-এর memory-তে থাকে, কোথাও save হয় না।</p>
 <button onclick="exp(false)">📥 Full Backup (সব data)</button>
 <button onclick="exp(true)" style="background:#16a34a">📥 Settings-only Backup</button>
 <button onclick="document.getElementById('fi').click()" style="background:#f59e0b">📤 Restore (file দিন)</button>
@@ -11,28 +10,29 @@
 <button onclick="cloudRestore()" style="background:#dc2626">☁️ Cloud Restore</button>
 <button onclick="ghRestore()" style="background:#0ea5e9">📘 GitHub Backup Restore</button>
 <input type="file" id="fi" accept=".json" style="display:none">
-<p style="color:#fbbf24;font-size:12px;margin:8px 0">📁 Backup file নামবে ফোনের <b>Download</b> folder-এ।</p>
 <div id="log"></div>
-<script>
+<script type="module">
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import * as D from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import * as A from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+var app = getApps().length ? getApps()[0] : initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+var db = D.getDatabase(app);
+var auth = A.getAuth(app);
 var NODES=["settings","products","sellers","orders","affiliates","withdrawals","amazonLinks","sellerProducts","sellerApplications","commissions"];
 var RT="https://mohajon-mjh-default-rtdb.firebaseio.com";
-var APIK="AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw";
-var _tok=null;
 function log(m){var l=document.getElementById("log");l.innerHTML+=m+"<br>";l.scrollTop=l.scrollHeight;}
 function dl(obj,name){var b=new Blob([JSON.stringify(obj)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();}
-async function getToken(){
- if(_tok)return _tok;
- var em=localStorage.getItem("mjhEmail")||"";
- em=prompt("Admin email:",em)||"";
- var pw=prompt("Password (শুধু এইবার):")||"";
- localStorage.setItem("mjhEmail",em);
- var r=await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key="+APIK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em,password:pw,returnSecureToken:true})});
- var d=await r.json();
- if(!d.idToken)throw new Error((d.error&&d.error.message)||"login ব্যর্থ");
- _tok=d.idToken;return _tok;
+function getToken(){
+ var u=auth.currentUser;
+ if(u) return u.getIdToken();
+ return new Promise(function(res,rej){
+  var un=A.onAuthStateChanged(auth,function(us){un();if(us)us.getIdToken().then(res).catch(rej);else rej(new Error("login নাই"));});
+  setTimeout(function(){un();rej(new Error("login নাই"));},6000);
+ });
 }
-async function rget(n){var t=await getToken();var r=await fetch(RT+"/"+n+".json?auth="+t);if(!r.ok)throw new Error(n+": denied");return await r.json();}
-async function rset(n,v){var t=await getToken();var r=await fetch(RT+"/"+n+".json?auth="+t,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(v)});if(!r.ok)throw new Error(n+": write denied");return true;}
+async function rget(n){var t=await getToken();var r=await fetch(RT+"/"+n+".json?auth="+t);if(!r.ok)throw new Error(n+": denied");return r.json();}
+async function rset(n,v){var t=await getToken();var r=await fetch(RT+"/"+n+".json?auth="+t,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(v)});if(!r.ok)throw new Error(n+": write denied");}
+getToken().catch(function(){});
 window.exp=async function(onlySet){
  log("⏳ Backup শুরু...");
  try{
@@ -40,21 +40,20 @@ window.exp=async function(onlySet){
   var list=onlySet?["settings"]:NODES;
   for(var i=0;i<list.length;i++){var n=list[i];
    try{var v=await rget(n);if(v){out[n]=v;log("✅ "+n+" — "+Math.round(JSON.stringify(v).length/1024)+" KB");}else log("⚪ "+n+" — খালি");}
-   catch(e){log("⚠️ "+e.message);}
-  }
+   catch(e){log("⚠️ "+e.message);}}
   dl(out,"mohajon-mjh-backup-"+new Date().toISOString().slice(0,10)+".json");
   log("🎉 Backup file Download folder-এ!");
  }catch(e){log("❌ "+e.message);}
 };
 document.getElementById("fi").addEventListener("change",async function(e){
  var f=e.target.files[0];if(!f)return;
- if(!confirm("বর্তমান data file-এর data দিয়ে বদলে যাবে! Restore করবেন?")){e.target.value="";return;}
+ if(!confirm("বর্তমান data file-এর data দিয়ে বদলে যাবে!")){e.target.value="";return;}
  try{
   var data=JSON.parse(await f.text());
   var ks=Object.keys(data).filter(function(k){return k!=="_date";});
   log("⏳ Restore...");
   for(var i=0;i<ks.length;i++){try{await rset(ks[i],data[ks[i]]);log("✅ "+ks[i]);}catch(e2){log("❌ "+e2.message);}}
-  log("🎉 Restore শেষ! Panel refresh করুন।");
+  log("🎉 Restore শেষ!");
  }catch(e){log("❌ "+e.message);}
 });
 window.cloudSave=async function(){
@@ -64,15 +63,15 @@ window.cloudSave=async function(){
   for(var i=0;i<NODES.length;i++){var n=NODES[i];
    try{var v=await rget(n);if(v){snap[n]=v;log("✅ "+n);}}catch(e){log("⚠️ "+e.message);}}
   await rset("backups/latest",snap);
-  log("🎉 Cloud backup save! যেকোনো device থেকে Cloud Restore চাপলেই ফিরবে।");
+  log("🎉 Cloud backup save!");
  }catch(e){log("❌ "+e.message);}
 };
 window.cloudRestore=async function(){
- if(!confirm("backups/latest থেকে সব data ফিরিয়ে আনবেন?"))return;
+ if(!confirm("backups/latest থেকে সব ফিরিয়ে আনবেন?"))return;
  log("⏳ Cloud restore...");
  try{
   var snap=await rget("backups/latest");
-  if(!snap){log("❌ backups/latest খালি");return;}
+  if(!snap){log("❌ খালি");return;}
   var ks=Object.keys(snap).filter(function(k){return k!=="_date";});
   for(var i=0;i<ks.length;i++){try{await rset(ks[i],snap[ks[i]]);log("✅ "+ks[i]);}catch(e){log("❌ "+ks[i]);}}
   log("🎉 Cloud restore শেষ!");
@@ -80,7 +79,7 @@ window.cloudRestore=async function(){
 };
 window.ghRestore=async function(){
  if(!confirm("GitHub backup থেকে restore করবেন?"))return;
- log("⏳ GitHub backup আনা হচ্ছে...");
+ log("⏳ GitHub backup...");
  try{
   var r=await fetch("/backups/mjh-cloud-latest.json");if(!r.ok)throw new Error("file নেই");
   var snap=await r.json();
