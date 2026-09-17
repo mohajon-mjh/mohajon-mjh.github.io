@@ -1,7 +1,8 @@
 /*admin-ads-control-v1*/
 (function(){
 function add(){
- if(document.getElementById("adsCtrlBtn"))return;
+  /* creator-disabled-v2 */ return;
+  if(document.getElementById("adsCtrlBtn"))return;
  var b=document.createElement("button");b.id="adsCtrlBtn";
  function isOff(){try{return localStorage.getItem("mjh_ads_off")==="1";}catch(e){return false;}}
  function label(){var off=isOff();b.innerHTML=off?"📢 এড চালু করুন":"💰 এড বন্ধ করুন";b.style.background=off?"#16a34a":"#dc2626";}
