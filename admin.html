@@ -3549,8 +3549,7 @@ setTimeout(async()=>{try{
    lo.style.color="#fff";lo.style.padding="14px";lo.style.fontSize="14px";
   }
  }
- for(var i=1;i<=20;i++)setTimeout(run,i*600);
- setInterval(run,3000);
+ run(); // একবারই render, no repeat
 })();
 </script>
 <script>/*layout-fix-v1*/
