@@ -2318,6 +2318,27 @@ setTimeout(function(){
   mo.observe(document.body,{childList:true});
  }catch(e){}
 })();
+</script>
+<script>/*mjh-dedup-float-v4*/
+(function(){
+ var KEY=["Social Media Post","এড বক","দাম অটো","ক্যাটাগরি অন/অফ"];
+ function sweep(){
+  var els=document.querySelectorAll("button,a");
+  for(var i=0;i<els.length;i++){
+   var el=els[i];
+   if(el.closest&&el.closest("nav.admin-tabs,.admin-tabs,.admin-content"))continue;
+   var st=window.getComputedStyle(el);
+   if(st.position!=="fixed")continue;
+   var r=el.getBoundingClientRect();
+   if(r.right>window.innerWidth-60&&r.bottom>window.innerHeight-300){
+    var t=(el.textContent||"").trim();
+    for(var k=0;k<KEY.length;k++){if(t.indexOf(KEY[k])>-1){el.remove();break;}}
+   }
+  }
+ }
+ setTimeout(sweep,500);setTimeout(sweep,1500);
+ setInterval(sweep,3000);
+})();
 </script></html>
 
 <script type="module">/*helpSide-v2*/

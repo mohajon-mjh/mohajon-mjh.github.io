@@ -221,7 +221,7 @@ function buildUI(){
   '</div>'+
   '<div id="notesContainer"><p style="color:#888;text-align:center;padding:20px">⏳ লোড হচ্ছে...</p></div>';
  
- logout.parentNode.insertBefore(section,logout.nextSibling);
+ var _ct=document.querySelector('.admin-content');if(_ct){_ct.appendChild(section);}else{logout.parentNode.insertBefore(section,logout.nextSibling);}
  
  var si=document.getElementById("notesSearch");
  if(si)si.addEventListener("input",function(){render();});
