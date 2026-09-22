@@ -18,6 +18,18 @@ function money(v){return "৳"+(+v||0);}
 function curOf(p,d){p=+p||0;d=+d||0;return Math.round(p*(100-d))/100;}
 function DB(){return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js").then(function(a){var app=a.getApps().length?a.getApp():null;if(!app)throw new Error("Firebase app পাওয়া যায়নি");return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(m){return {m:m,db:m.getDatabase(app)};});});}
 function secPath(){try{if(typeof s!=="undefined"&&s&&s.prodPath)return {pp:s.prodPath,cc:(typeof CURCAT!=="undefined"?CURCAT:null)};}catch(e){}return {pp:null,cc:null};}
+function secPath2(){
+ var sp=secPath2();if(sp.pp)return sp;
+ var MAP={fsc:"settings/flashSaleCategoryProducts",flash:"settings/flashSaleCategoryProducts",flashsale:"settings/flashSaleCategoryProducts",gc:"settings/globalCategoryProducts",global:"settings/globalCategoryProducts",globalcats:"settings/globalCategoryProducts",dotd:"settings/dealsOfDayCategoryProducts",deals:"settings/dealsOfDayCategoryProducts",sc:"settings/specialCategoryProducts",special:"settings/specialCategoryProducts",specialcats:"settings/specialCategoryProducts",el:"settings/everydayLowPriceCategoryProducts",co:"settings/comboOffersCategoryProducts",cl:"settings/clearanceOutletCategoryProducts"};
+ var q=location.search;
+ var m=q.match(/(?:sec|section|key)=([a-z0-9_]+)/i);
+ var c=q.match(/(?:cat|category)=([a-z0-9_\-]+)/i);
+ var sec=m?m[1].toLowerCase():"";var cat=c?c[1]:"";
+ if(!cat){var c2=q.match(/[?&](?:id|c)=([a-z0-9_\-]+)/i);if(c2)cat=c2[1];}
+ if(MAP[sec]&&cat)return {pp:MAP[sec],cc:cat};
+ if(sec.indexOf("custom_")===0&&cat)return {pp:"settings/customSections/"+sec.slice(7)+"/catProducts",cc:cat};
+ return {pp:null,cc:null};
+}
 function loadMeta(cb){DB().then(function(o){return o.m.get(o.m.ref(o.db,"settings/homeProductMeta"));}).then(function(sn){META=sn.val()||{};if(cb)cb();sortList();}).catch(function(){if(cb)cb();});}
 function sortList(){
  var list=document.getElementById("pList");if(!list)return;
@@ -53,7 +65,7 @@ function saveCard(card){
 function delCard(card){
  var p=card.querySelector(".pPrice");if(!p||!p.dataset.id)return;
  if(!confirm("পণ্যটা মুছবেন? (Firebase + Cloudinary ছবি)"))return;
- var id=p.dataset.id;var sp=secPath();var up={};
+ var id=p.dataset.id;var sp=secPath2();var up={};
  up["products/"+id]=null;
  if(sp.pp&&sp.cc)up[sp.pp+"/"+sp.cc+"/"+id]=null;
  up["settings/homeProductMeta/"+id]=null;
@@ -138,7 +150,7 @@ function simpleSave(){
   var obj={title:name,price:price,stock:10,status:"active",sellerId:(window.__mjhUid||"mjh-admin"),categoryId:cat,createdAt:Date.now(),startDate:"",endDate:"",images:{main:url||""}};
   if(disc>0)obj.discountPercent=disc;
   var up={};up["products/"+id]=obj;
-  var sp=secPath();
+  var sp=secPath2();
   if(sp.pp&&sp.cc)up[sp.pp+"/"+sp.cc+"/"+id]={createdAt:Date.now()};
   up["settings/homeProductMeta/"+id]={profit:profit,createdAt:Date.now()};
   DB().then(function(o){return o.m.update(o.m.ref(o.db),up);}).then(function(){
