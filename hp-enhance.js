@@ -1,4 +1,4 @@
-/* MJH hp-enhance v4 - simple save + newest first + mark/edit/save/delete + cloudinary cleanup on delete */
+/* MJH hp-enhance v5 - panel shows even with empty list + script tag auto-fix */
 (function(){
 "use strict";
 var CATS=[],META={};
@@ -91,7 +91,10 @@ function enhance(card){
 }
 function addSimplePanel(){
  if(document.getElementById("enhSimple"))return;
- var list=document.getElementById("pList");if(!list)return;
+ var list=document.getElementById("pList");
+ var anchor=list;
+ if(!anchor){var ff=document.querySelector('input[type="file"]');if(ff){var rw=ff.closest("div");anchor=rw?rw.parentNode:null;}}
+ if(!anchor){anchor=document.body;}
  var box=document.createElement("div");box.id="enhSimple";
  box.style.cssText="background:#0e1520;border:1px solid #FFD814;border-radius:10px;padding:12px;margin:10px 0";
  box.innerHTML='<b style="color:#FFD814">➕ সহজ যোগ — শুধু নাম বা শুধু ছবি দিয়েই সেভ চলবে</b>'+
@@ -104,7 +107,9 @@ function addSimplePanel(){
   '<select id="esCat" style="flex:1;min-width:140px;background:#111;color:#fff;border:1px solid #444;border-radius:6px;padding:6px"><option value="">— All Category (auto) —</option></select>'+
   '<button id="esSave" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:10px 16px;font-weight:800">💾 Save</button>'+
   '</div><div id="esNote" style="font-size:11px;color:#88ccff;margin-top:6px"></div>';
- list.parentNode.insertBefore(box,list);
+ if(list){list.parentNode.insertBefore(box,list);}
+ else if(anchor.firstChild){anchor.insertBefore(box,anchor.firstChild);}
+ else{anchor.appendChild(box);}
  loadCats(function(){
   var s2=document.getElementById("esCat");if(!s2)return;
   var h='<option value="">— All Category (auto) —</option>';
@@ -146,7 +151,6 @@ function simpleSave(){
  if(file&&window.MJHCloud&&MJHCloud.upload){MJHCloud.upload(file).then(function(u){finish(u);}).catch(function(){finish("");});}
  else{finish("");}
 }
-/* delete-hunter: যেকোনো ডিলিট বাটনে (আগেরগুলো সহ) ছবির URL ধরে রাখে, কার্ড সরলে Cloudinary থেকে মুছে দেয় */
 document.addEventListener("click",function(ev){
  try{
   var el=ev.target&&ev.target.closest?ev.target.closest("[data-del],.eDel"):null;
