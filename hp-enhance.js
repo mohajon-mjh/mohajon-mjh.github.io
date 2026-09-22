@@ -1,4 +1,4 @@
-/* MJH hp-enhance v5 - panel shows even with empty list + script tag auto-fix */
+/* MJH hp-enhance v8 FINAL - uses window.SEC/CAT for section map sync */
 (function(){
 "use strict";
 var CATS=[],META={};
@@ -17,17 +17,11 @@ function toast(m,c){var t=document.createElement("div");t.textContent=m;t.style.
 function money(v){return "৳"+(+v||0);}
 function curOf(p,d){p=+p||0;d=+d||0;return Math.round(p*(100-d))/100;}
 function DB(){return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js").then(function(a){var app=a.getApps().length?a.getApp():null;if(!app)throw new Error("Firebase app পাওয়া যায়নি");return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(m){return {m:m,db:m.getDatabase(app)};});});}
-function secPath(){try{if(typeof s!=="undefined"&&s&&s.prodPath)return {pp:s.prodPath,cc:(typeof CURCAT!=="undefined"?CURCAT:null)};}catch(e){}return {pp:null,cc:null};}
-function secPath2(){
- var sp=secPath2();if(sp.pp)return sp;
- var MAP={fsc:"settings/flashSaleCategoryProducts",flash:"settings/flashSaleCategoryProducts",flashsale:"settings/flashSaleCategoryProducts",gc:"settings/globalCategoryProducts",global:"settings/globalCategoryProducts",globalcats:"settings/globalCategoryProducts",dotd:"settings/dealsOfDayCategoryProducts",deals:"settings/dealsOfDayCategoryProducts",sc:"settings/specialCategoryProducts",special:"settings/specialCategoryProducts",specialcats:"settings/specialCategoryProducts",el:"settings/everydayLowPriceCategoryProducts",co:"settings/comboOffersCategoryProducts",cl:"settings/clearanceOutletCategoryProducts"};
- var q=location.search;
- var m=q.match(/(?:sec|section|key)=([a-z0-9_]+)/i);
- var c=q.match(/(?:cat|category)=([a-z0-9_\-]+)/i);
- var sec=m?m[1].toLowerCase():"";var cat=c?c[1]:"";
- if(!cat){var c2=q.match(/[?&](?:id|c)=([a-z0-9_\-]+)/i);if(c2)cat=c2[1];}
- if(MAP[sec]&&cat)return {pp:MAP[sec],cc:cat};
- if(sec.indexOf("custom_")===0&&cat)return {pp:"settings/customSections/"+sec.slice(7)+"/catProducts",cc:cat};
+function secPath(){
+ if(typeof window!=="undefined"){
+  if(window.SEC&&window.CAT)return {pp:window.SEC,cc:window.CAT};
+ }
+ try{if(typeof s!=="undefined"&&s&&s.prodPath)return {pp:s.prodPath,cc:(typeof CURCAT!=="undefined"?CURCAT:null)};}catch(e){}
  return {pp:null,cc:null};
 }
 function loadMeta(cb){DB().then(function(o){return o.m.get(o.m.ref(o.db,"settings/homeProductMeta"));}).then(function(sn){META=sn.val()||{};if(cb)cb();sortList();}).catch(function(){if(cb)cb();});}
@@ -65,7 +59,7 @@ function saveCard(card){
 function delCard(card){
  var p=card.querySelector(".pPrice");if(!p||!p.dataset.id)return;
  if(!confirm("পণ্যটা মুছবেন? (Firebase + Cloudinary ছবি)"))return;
- var id=p.dataset.id;var sp=secPath2();var up={};
+ var id=p.dataset.id;var sp=secPath();var up={};
  up["products/"+id]=null;
  if(sp.pp&&sp.cc)up[sp.pp+"/"+sp.cc+"/"+id]=null;
  up["settings/homeProductMeta/"+id]=null;
@@ -150,13 +144,13 @@ function simpleSave(){
   var obj={title:name,price:price,stock:10,status:"active",sellerId:(window.__mjhUid||"mjh-admin"),categoryId:cat,createdAt:Date.now(),startDate:"",endDate:"",images:{main:url||""}};
   if(disc>0)obj.discountPercent=disc;
   var up={};up["products/"+id]=obj;
-  var sp=secPath2();
-  if(sp.pp&&sp.cc)up[sp.pp+"/"+sp.cc+"/"+id]={createdAt:Date.now()};
+  var sp=secPath();
+  if(sp.pp&&sp.cc)up[sp.pp+"/"+sp.cc+"/"+id]={id:id,addedAt:Date.now()};
   up["settings/homeProductMeta/"+id]={profit:profit,createdAt:Date.now()};
   DB().then(function(o){return o.m.update(o.m.ref(o.db),up);}).then(function(){
    note.textContent="";
    META[id]={profit:profit,createdAt:Date.now()};
-   toast("✅ সেভ: "+name+" → "+cat);
+   toast("✅ সেভ: "+name+" → "+cat+(sp.pp&&sp.cc?" + সেকশন ম্যাপ":""));
    nameEl.value="";document.getElementById("esPrice").value="";document.getElementById("esDisc").value="";document.getElementById("esProfit").value="";fileEl.value="";
    if(typeof loadList==="function"){try{loadList(s);}catch(e){}}
   }).catch(function(e){note.textContent="";toast("❌ "+e.message,"#c0392b");});
