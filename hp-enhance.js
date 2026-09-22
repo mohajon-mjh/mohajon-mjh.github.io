@@ -91,6 +91,7 @@ function enhance(card){
 }
 function addSimplePanel(){
  if(document.getElementById("enhSimple"))return;
+ if(document.title.indexOf("প্রোডাক্ট ম্যানেজার")===-1||!document.querySelector('input[type="file"]'))return;
  var list=document.getElementById("pList");
  var anchor=list;
  if(!anchor){var ff=document.querySelector('input[type="file"]');if(ff){var rw=ff.closest("div");anchor=rw?rw.parentNode:null;}}
