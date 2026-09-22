@@ -1,4 +1,4 @@
-/* MJH Notes Manager v3 - Full 13-field Two-column (Daraz | Mohajon MJH) */
+/* MJH Notes Manager v4 - 13-field two-column + smart number clean + full popups */
 (function(){
 "use strict";
 var firebaseConfig={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",authDomain:"mohajon-mjh.firebaseapp.com",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",storageBucket:"mohajon-mjh.firebasestorage.app",messagingSenderId:"526105903976",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"};
@@ -19,19 +19,25 @@ function loadFirebase(cb){
        app=fa.getApps().length?fa.getApp():fa.initializeApp(firebaseConfig);
        db=fd.getDatabase(app);auth=fau.getAuth(app);
        cb();
-      });
-     });
-    });
+      }).catch(function(e){toast("❌ Auth load fail: "+e.message,"#c0392b");});
+     }).catch(function(e){toast("❌ DB load fail: "+e.message,"#c0392b");});
+    }).catch(function(e){toast("❌ App load fail: "+e.message,"#c0392b");});
    };
    document.head.appendChild(s3);
   };
   document.head.appendChild(s2);
  };
+ s1.onerror=function(){toast("❌ Firebase script block হয়েছে — adblock বন্ধ করে রিফ্রেশ দিন","#c0392b");};
  document.head.appendChild(s1);
 }
 
 function uid(){return "n"+Date.now().toString(36)+Math.random().toString(36).substr(2,5);}
-function num(v){v=parseFloat(v);return isNaN(v)?0:v;}
+function num(v){
+ v=String(v==null?"":v).replace(/[^0-9.\-]/g,"");
+ v=parseFloat(v);
+ return isNaN(v)?0:v;
+}
+function cleanVal(v){return String(v==null?"":v).replace(/[^0-9.\-]/g,"");}
 function esc(s){s=(s==null?"":String(s));return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function calc(cur,del,pack,old){
  cur=num(cur);del=num(del);pack=num(pack);old=num(old);
@@ -43,8 +49,8 @@ function calc(cur,del,pack,old){
 
 function toast(m,c){
  var t=document.createElement("div");t.textContent=m;
- t.style.cssText="position:fixed;top:80px;right:16px;background:"+(c||"#27ae60")+";color:#fff;padding:12px 18px;border-radius:8px;z-index:99999;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.4)";
- document.body.appendChild(t);setTimeout(function(){t.remove();},3000);
+ t.style.cssText="position:fixed;top:80px;right:16px;background:"+(c||"#27ae60")+";color:#fff;padding:12px 18px;border-radius:8px;z-index:99999;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.4);max-width:80vw";
+ document.body.appendChild(t);setTimeout(function(){t.remove();},4000);
 }
 
 function init(){
@@ -54,14 +60,20 @@ function init(){
    fd.onValue(fd.ref(db,"adminNotes"),function(snap){
     allNotes=snap.val()||{};
     render();
+   },function(err){
+    toast("❌ নোট লোড ব্যর্থ: "+err.message,"#c0392b");
    });
-  });
+  }).catch(function(e){toast("❌ "+e.message,"#c0392b");});
  });
 }
 
 function recalc(form){
  function gv(n){var el=form.querySelector('[name="'+n+'"]');return el?el.value:"";}
  function sv(n,v){var el=form.querySelector('[name="'+n+'"]');if(el)el.value=v;}
+ ["d_oldPrice","d_currentPrice","d_delivery","d_packaging","m_oldPrice","m_currentPrice","m_delivery","m_packaging"].forEach(function(n){
+  var el=form.querySelector('[name="'+n+'"]');
+  if(el){var c=cleanVal(el.value);if(c!==el.value)el.value=c;}
+ });
  var d=calc(gv("d_currentPrice"),gv("d_delivery"),gv("d_packaging"),gv("d_oldPrice"));
  var m=calc(gv("m_currentPrice"),gv("m_delivery"),gv("m_packaging"),gv("m_oldPrice"));
  sv("d_total",d.total);sv("d_discAmt",d.discAmt);sv("d_discPct",d.discPct);
@@ -164,13 +176,14 @@ window.notesBulkDelete=function(){
  var ids=Array.from(document.querySelectorAll(".noteChk:checked")).map(function(c){return c.dataset.id;});
  if(!ids.length)return toast("কোনো নোট সিলেক্ট করা হয়নি","#c0392b");
  if(!confirm(ids.length+"টা নোট মুছবেন?"))return;
+ if(!db)return toast("❌ Firebase লোড হয়নি — রিফ্রেশ দিন","#c0392b");
  import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(fd){
   var updates={};
   ids.forEach(function(id){updates["adminNotes/"+id]=null;});
   fd.update(fd.ref(db),updates).then(function(){
    toast("✅ "+ids.length+"টা নোট মুছে গেছে");
   }).catch(function(e){toast("❌ "+e.message,"#c0392b");});
- });
+ }).catch(function(e){toast("❌ "+e.message,"#c0392b");});
 };
 
 window.notesEdit=function(id){
@@ -180,25 +193,28 @@ window.notesEdit=function(id){
 
 window.notesDelete=function(id){
  if(!confirm("এই নোট মুছবেন?"))return;
+ if(!db)return toast("❌ Firebase লোড হয়নি — রিফ্রেশ দিন","#c0392b");
  import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(fd){
   fd.remove(fd.ref(db,"adminNotes/"+id)).then(function(){toast("✅ নোট মুছে গেছে");}).catch(function(e){toast("❌ "+e.message,"#c0392b");});
- });
+ }).catch(function(e){toast("❌ "+e.message,"#c0392b");});
 };
 
 window.notesBulkSave=function(){
  var form=document.getElementById("notesForm");
  if(!form)return;
  var id=form.dataset.editId||null;
- function gv(n){var el=form.querySelector('[name="'+n+'"]');return el?el.value.trim():"";}
+ function gv(n){var el=form.querySelector('[name="'+n+'"]');return el?cleanVal(el.value):"";}
+ function gvt(n){var el=form.querySelector('[name="'+n+'"]');return el?el.value.trim():"";}
+ if(!db)return toast("❌ Firebase লোড হয়নি — পেজ রিফ্রেশ করে আবার Save চাপুন","#c0392b");
  var d={
-  productName:gv("d_productName"),oldPrice:gv("d_oldPrice"),currentPrice:gv("d_currentPrice"),
-  delivery:gv("d_delivery"),packaging:gv("d_packaging"),color:gv("d_color"),brand:gv("d_brand"),
-  extra:gv("d_extra"),desc:gv("d_desc")
+  productName:gvt("d_productName"),oldPrice:gv("d_oldPrice"),currentPrice:gv("d_currentPrice"),
+  delivery:gv("d_delivery"),packaging:gv("d_packaging"),color:gvt("d_color"),brand:gvt("d_brand"),
+  extra:gvt("d_extra"),desc:gvt("d_desc")
  };
  var m={
-  productName:gv("m_productName"),oldPrice:gv("m_oldPrice"),currentPrice:gv("m_currentPrice"),
-  delivery:gv("m_delivery"),packaging:gv("m_packaging"),color:gv("m_color"),brand:gv("m_brand"),
-  extra:gv("m_extra"),desc:gv("m_desc")
+  productName:gvt("m_productName"),oldPrice:gv("m_oldPrice"),currentPrice:gv("m_currentPrice"),
+  delivery:gv("m_delivery"),packaging:gv("m_packaging"),color:gvt("m_color"),brand:gvt("m_brand"),
+  extra:gvt("m_extra"),desc:gvt("m_desc")
  };
  var dc=calc(d.currentPrice,d.delivery,d.packaging,d.oldPrice);
  var mc=calc(m.currentPrice,m.delivery,m.packaging,m.oldPrice);
@@ -206,10 +222,10 @@ window.notesBulkSave=function(){
  m.total=mc.total;m.discAmt=mc.discAmt;m.discPct=mc.discPct;
  var mEmpty=!(m.productName||m.oldPrice||m.currentPrice||m.delivery||m.packaging);
  m.profit=mEmpty?null:(mc.total-dc.total);
- if(!d.productName&&!m.productName)return toast("পণ্যের নাম দরকার","#c0392b");
+ if(!d.productName&&!m.productName)return toast("⚠️ পণ্যের নাম দরকার","#c0392b");
  var data={
-  v:3,
-  category:gv("category"),
+  v:4,
+  category:gvt("category"),
   productName:d.productName||m.productName,
   marketplace:"Daraz + Mohajon MJH",
   companyName:d.brand||m.brand,
@@ -222,10 +238,12 @@ window.notesBulkSave=function(){
  import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(fd){
   var key=id||uid();
   fd.set(fd.ref(db,"adminNotes/"+key),data).then(function(){
+   allNotes[key]=data;
+   render();
    toast(id?"✅ সেভ হয়েছে":"✅ নতুন নোট যোগ হয়েছে");
    hideForm();
-  }).catch(function(e){toast("❌ "+e.message,"#c0392b");});
- });
+  }).catch(function(e){toast("❌ Save ব্যর্থ: "+e.message,"#c0392b");});
+ }).catch(function(e){toast("❌ "+e.message,"#c0392b");});
 };
 
 window.notesCancel=function(){hideForm();};
@@ -264,11 +282,11 @@ function panel(p,title,color,withProfit){
  var h='<div style="background:#0e1520;border:1px solid #333;border-radius:8px;padding:10px;border-top:3px solid '+color+'">';
  h+='<div style="color:'+color+';font-weight:800;font-size:13px;margin-bottom:8px">'+title+'</div>';
  h+=fi(p+"_productName","1. পণ্যের নাম *");
- h+=fi(p+"_oldPrice","2. অরিজিনাল দাম (কাটা দাগ দেওয়া) (৳)");
+ h+=fi(p+"_oldPrice","2. অরিজিনাল দাম (৳ 2,500 পেস্ট করলেও চলবে)");
  h+=fi(p+"_currentPrice","3. বর্তমান দাম (৳)");
  h+=fi(p+"_delivery","4. Delivery charge (৳)");
  h+=fi(p+"_packaging","5. প্যাকেজিং ও অন্যান্য (৳)");
- h+=fi(p+"_total","6. টোটাল (অটো)",true);
+ h+=fi(p+"_total","6. টোটাল (অটো — হাত দেবেন না)",true);
  h+=fi(p+"_discAmt","7. ডিসকাউন্ট টাকা (অটো)",true);
  h+=fi(p+"_discPct","8. ডিসকাউন্ট % (অটো)",true);
  if(withProfit){h+=fi(p+"_profit","9. লাভ (অটো: MJH টোটাল − Daraz টোটাল)",true);}
@@ -314,6 +332,12 @@ function buildUI(){
  var si=document.getElementById("notesSearch");
  if(si)si.addEventListener("input",function(){render();});
  init();
+ setTimeout(function(){
+  var c=document.getElementById("notesContainer");
+  if(c&&c.innerHTML.indexOf("লোড হচ্ছে")>-1){
+   c.innerHTML='<p style="color:#ff9999;text-align:center;padding:20px">❌ ১৫ সেকেন্ডে Firebase সংযোগ হয়নি — ইন্টারনেট/adblock দেখে রিফ্রেশ দিন</p>';
+  }
+ },15000);
 }
 
 for(var i=1;i<=15;i++)setTimeout(buildUI,i*500);
