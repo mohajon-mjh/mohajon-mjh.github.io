@@ -170,11 +170,12 @@ function load(){
  DB().then(function(o){
   return o.m.get(o.m.ref(o.db,"products")).then(function(sn){ALLP=sn.val()||{};
    return o.m.get(o.m.ref(o.db,"settings/homeProductMeta")).then(function(mn){META=mn.val()||{};
-    return o.m.get(o.m.ref(o.db,(SEC||"settings/globalCategoryProducts")+"/"+(CAT||"")));
+    var paths=[(SEC||"settings/globalCategoryProducts")+"/"+(CAT||""),"settings/flashSaleCategoryProducts/"+CAT,"settings/dealsOfDayCategoryProducts/"+CAT,"settings/specialCategoryProducts/"+CAT,"settings/globalCategoryProducts/"+CAT,"settings/customSectionProducts/"+CAT,"settings/everydayLowPriceCategoryProducts/"+CAT,"settings/comboOffersCategoryProducts/"+CAT,"settings/clearanceOutletCategoryProducts/"+CAT];
+    return Promise.all(paths.map(function(p){return o.m.get(o.m.ref(o.db,p)).then(function(s2){return s2.val()||{};}).catch(function(){return {};});})).then(function(arrs){var mm2={};arrs.forEach(function(mm){Object.keys(mm||{}).forEach(function(k){mm2[k]=mm[k];});});return mm2;});
    });
   });
- }).then(function(sn){
-  var map=sn.val()||{};
+ }).then(function(map){
+  map=map||{};
   var ids=Object.keys(map);
   ids.sort(function(a,b){return ((map[b]||{}).addedAt||0)-((map[a]||{}).addedAt||0);});
   var box=document.getElementById("old9l");if(!box)return;
@@ -188,7 +189,7 @@ function load(){
   document.getElementById("c9c").textContent=n;
  }).catch(function(e){toast("❌ লোড: "+e.message,"#c0392b");});
 }
-function boot(){ui();hideOld();load();loadCats(function(){});}
+function boot(){ui();load();loadCats(function(){});var hi=0;var hid=setInterval(function(){hideOld();if(++hi>20)clearInterval(hid);},1200);}
 if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){setTimeout(boot,600);});}
 else setTimeout(boot,600);
 })();
