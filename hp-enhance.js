@@ -232,16 +232,21 @@ function ui(){
 }
 function removeOld(){
  try{
-  document.querySelectorAll("textarea").forEach(function(ta){if((ta.placeholder||"").indexOf("লাইন")>-1){var box=ta;for(var i=0;i<4&&box;i++){box=box.parentNode;if(box&&box.querySelector&&box.querySelector("button"))break;}if(box&&box.textContent.length<900)box.remove();}});
+  document.querySelectorAll("button").forEach(function(b){
+   var t=(b.textContent||"").trim();
+   if(t==="প্রাইস বসান"||t==="সব সিলেক্ট"||t==="সিলেক্টেড Save"||t==="সিলেক্টেড Delete"){var row=b.closest("div");var par=row&&row.parentNode;if(par&&par.textContent.length<1200)par.remove();else if(row)row.remove();}
+  });
+  document.querySelectorAll("textarea").forEach(function(ta){if(ta.closest("#mjh9"))return;if((ta.placeholder||"").indexOf("লাইন")>-1){var par=ta.parentNode;if(par)par.remove();}});
   document.querySelectorAll("div,section").forEach(function(d){
    if(d.closest("#mjh9"))return;
-   var t=d.textContent||"";
-   if(t.length<3000&&(t.indexOf("BOGO Manager")>-1||t.indexOf("Size / Color / Description")>-1||t.indexOf("সিলেক্টেড % বসান")>-1)){d.remove();}
+   var t=(d.textContent||"");
+   if(t.length<4000&&(t.indexOf("BOGO Manager")>-1||t.indexOf("Size / Color / Description")>-1)){d.remove();}
   });
-  document.querySelectorAll("h3").forEach(function(h){var t=h.textContent||"";if(t.indexOf("নতুন পণ্য (")===0||t.indexOf("আগের পণ্য (")===0){var box=h.parentNode;if(box&&box.textContent.length<30000)box.remove();}});
-  document.querySelectorAll('input[type="file"]').forEach(function(f){if(f.closest("#mjh9"))return;var box=f;for(var i=0;i<4&&box;i++){box=box.parentNode;if(box&&box.textContent.length>200)break;}if(box&&box.textContent.length<900&&!box.closest("#mjh9"))box.remove();});
+  document.querySelectorAll("h3").forEach(function(h){var t=h.textContent||"";if(t.indexOf("নতুন পণ্য (")===0||t.indexOf("আগের পণ্য (")===0){var box=h.parentNode;if(box&&box.textContent.length<40000)box.remove();}});
+  document.querySelectorAll('input[type="file"]').forEach(function(f){if(f.closest("#mjh9"))return;var row=f.closest("div");var par=row&&row.parentNode;if(par&&par.textContent.length<1200)par.remove();});
  }catch(e){}
 }
+
 function load(){
  DB().then(function(o){
   return o.m.get(o.m.ref(o.db,"products")).then(function(sn){ALLP=sn.val()||{};
@@ -266,7 +271,7 @@ function load(){
   updateMarkCount();
  }).catch(function(e){toast("❌ লোড: "+e.message,"#c0392b");});
 }
-function boot(){ui();load();loadCats(function(){});var hi=0;var hid=setInterval(function(){removeOld();if(++hi>150)clearInterval(hid);},800);}
+function boot(){ui();load();loadCats(function(){});setInterval(removeOld,800);}
 if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){setTimeout(boot,600);});}
 else setTimeout(boot,600);
 })();
