@@ -1,4 +1,4 @@
-/* MJH hp-enhance v15 FINAL - auth-safe + price convention + allPaths */
+/* MJH hp-enhance v16 FINAL - paste prices + auth-safe + allPaths */
 (function(){
 "use strict";
 if(document.title.indexOf("প্রোডাক্ট ম্যানেজার")===-1)return;
@@ -143,6 +143,21 @@ function delProd(p,card){
  }).catch(function(e){toast("❌ "+e.message,"#c0392b");});
 }
 function updateMarkCount(){var tt=document.querySelectorAll("#old9l .chk9").length;var mm=document.querySelectorAll("#old9l .chk9:checked").length;var el=document.getElementById("m9c");if(el)el.textContent="মার্ক: "+mm+" / "+tt;}
+function applyPrices(){
+ var ta=document.getElementById("p9");if(!ta)return;
+ var lines=ta.value.split("\n").map(function(l){return l.trim();}).filter(Boolean);
+ var parsed=[];
+ lines.forEach(function(l){var m=l.match(/^(.*?)\s*[-–—:]\s*(?:৳|\$|€|₹)?\s*([\d,\.]+)\s*,?\s*$/);if(m){parsed.push([m[1].toLowerCase().replace(/\s+/g,""),+m[2].replace(/,/g,"")]);}});
+ if(!parsed.length)return toast("❌ ফরম্যাট: নাম - ৳ দাম (প্রতি লাইনে একটা)","#c0392b");
+ var n=0;
+ document.querySelectorAll("#new9 .c9, #old9l .c9").forEach(function(c){
+  var t=((c.__ctx&&c.__ctx.title)||"").toLowerCase().replace(/\s+/g,"");
+  if(!t)return;
+  var hit=null;parsed.forEach(function(pr){if(!hit&&(t===pr[0]||t.indexOf(pr[0])>-1||pr[0].indexOf(t)>-1))hit=pr;});
+  if(hit){var inp=c.querySelector('.f9[data-k="price"]');if(inp){inp.value=hit[1];inp.dispatchEvent(new Event("input"));n++;}}
+ });
+ toast("✅ "+n+"টা পণ্যে দাম বসল — এবার 💾 সব সেভ চাপুন");
+}
 var WRAP=null;
 function ui(){
  if(WRAP)return;
@@ -154,6 +169,7 @@ function ui(){
  '<input id="s9" placeholder="🔍 products search box (যেকোনোভাবে সার্চ দিন)" style="flex:2;min-width:160px;background:#111;color:#fff;border:1px solid #444;border-radius:6px;padding:10px">'+
  '<input id="f9" type="file" accept="image/*" multiple style="flex:1;min-width:140px;background:#111;color:#fff;border:1px solid #444;border-radius:6px;padding:8px">'+
  '</div>'+
+ '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><textarea id="p9" rows="3" placeholder="প্রতি লাইনে একটা: নাম - ৳ দাম&#10;Electric Money Bank for Kids - ৳ 2,800" style="flex:2;min-width:180px;background:#111;color:#fff;border:1px solid #444;border-radius:6px;padding:8px"></textarea><button id="pa9" style="background:#8e44ad;color:#fff;border:none;border-radius:6px;padding:10px 14px;font-weight:800">💲 দাম প্রয়োগ</button></div>'+
  '<div id="g9"></div>'+
  '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'+
  '<label style="color:#fff;font-size:12px;display:flex;gap:6px;align-items:center"><input id="ma9" type="checkbox"> মার্ক অল</label><span id="m9c" style="color:#88ccff;font-size:12px;font-weight:700"></span>'+
@@ -173,6 +189,7 @@ function ui(){
   }
   toast("🆕 "+fs.length+"টা নতুন কার্ড —.fill করে 💾 চাপুন");
  };
+ document.getElementById("pa9").onclick=applyPrices;
  document.getElementById("ma9").onchange=function(){document.querySelectorAll(".chk9").forEach(function(c){c.checked=this.checked;}.bind(this));updateMarkCount();};
  document.getElementById("sa9").onclick=function(){
   var news=[].slice.call(document.querySelectorAll("#new9 .c9"));
@@ -183,7 +200,7 @@ function ui(){
   olds.forEach(function(c){
    var p=c.__ctx||{};var id=p.id;if(!id)return;
    var chk=c.querySelector(".chk9");var on=chk?chk.checked:true;
-   if(on){var st9=(c.querySelector('.f9[data-k="start"]')||{}).value||"";var en9=(c.querySelector('.f9[data-k="end"]')||{}).value||"";allPaths().forEach(function(pp){up[pp+"/"+id]={id:id,addedAt:p.__addedAt||Date.now(),startDate:st9,endDate:en9};});add++;}
+   if(on){var st9=(c.querySelector('.f9[data-k="start"]')||{}).value||"";var en9=(c.querySelector('.f9[data-k="end"]')||{}).value||"";var g9f=function(k){var i=c.querySelector('.f9[data-k="'+k+'"]');return i?i.value:"";};var pr9=+g9f("price")||0,dc9=+g9f("disc")||0;var bb="products/"+id+"/";up[bb+"title"]=g9f("title");up[bb+"price"]=dc9>0?curOf(pr9,dc9):pr9;up[bb+"discountPercent"]=dc9;up[bb+"discountPrice"]=dc9>0?pr9:null;up[bb+"startDate"]=st9;up[bb+"endDate"]=en9;up[bb+"stock"]=+g9f("stock")||0;allPaths().forEach(function(pp){up[pp+"/"+id]={id:id,addedAt:p.__addedAt||Date.now(),startDate:st9,endDate:en9};});add++;}
    else{allPaths().forEach(function(pp){up[pp+"/"+id]=null;});rem++;}
   });
   news.forEach(function(c){saveNew(c);});
