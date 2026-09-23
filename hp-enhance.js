@@ -50,7 +50,7 @@ function fieldRow(lbl,key,val,type,ctx){
   if(key==="price"){var cs=r.querySelector(".f9cur");if(cs&&ctx&&ctx.id){META[ctx.id]=META[ctx.id]||{};META[ctx.id].currency=cs.value;DB().then(function(o){return o.m.update(o.m.ref(o.db),{["settings/homeProductMeta/"+ctx.id+"/currency"]:cs.value});});}}
   if(!ctx||!ctx.id||ctx.isNew){toast("✅ কার্ডে সেভ — নিচের বড় 💾 বাটনে Firebase যাবে");return;}
   var up={};up["products/"+ctx.id+"/"+FMAP[key]]=(key==="price"||key==="disc"||key==="stock")?(+v||0):v;
-  if(key==="price"||key==="disc"){var cd9=r.closest(".c9");if(cd9){var gp9=function(k){var i=cd9.querySelector('.f9[data-k="'+k+'"]');return i?(+i.value||0):0;};var d99=gp9("disc");up["products/"+ctx.id+"/discountPrice"]=d99>0?curOf(gp9("price"),d99):null;}}
+  if(key==="price"||key==="disc"){var cd9=r.closest(".c9");if(cd9){var gp9=function(k){var i=cd9.querySelector('.f9[data-k="'+k+'"]');return i?(+i.value||0):0;};var d99=gp9("disc");var p99=gp9("price");up["products/"+ctx.id+"/price"]=d99>0?curOf(p99,d99):p99;up["products/"+ctx.id+"/discountPrice"]=d99>0?p99:null;up["products/"+ctx.id+"/discountPercent"]=d99;}}
   DB().then(function(o){return o.m.update(o.m.ref(o.db),up);}).then(function(){modal(["✅ Firebase সেভ: "+lbl+" = "+v]);recalc(r.closest(".c9"));}).catch(function(e){toast("❌ "+e.message,"#c0392b");});
  };
  return r;
@@ -69,7 +69,7 @@ function buildCard(p,isNew){
  card.querySelector(".im9").onclick=function(){if(img)lightbox(img);else toast("❌ ছবি নেই","#c0392b");};
  var box=document.createElement("div");card.appendChild(box);
  box.appendChild(fieldRow("পণ্যের নাম","title",p.title||"",  "text",p));
- box.appendChild(fieldRow("পণ্যের দাম","price",p.price||"",  "number",p));
+ var orig9=(p.discountPrice&&+p.discountPrice>+p.price)?+p.discountPrice:(p.price||"");box.appendChild(fieldRow("পণ্যের দাম","price",orig9,"number",p));
  var orow=document.createElement("div");orow.style.cssText="display:flex;gap:6px;align-items:center;margin:4px 0";orow.innerHTML='<span style="color:#888;font-size:11px;min-width:96px">অরিজিনাল দাম</span><span class="old9" style="color:#fff;font-size:13px"></span>';box.appendChild(orow);
  box.appendChild(fieldRow("ডিসকাউন্ট %","disc",p.discountPercent||"","number",p));
  var crow=document.createElement("div");crow.style.cssText="display:flex;gap:6px;align-items:center;margin:4px 0";crow.innerHTML='<span style="color:#888;font-size:11px;min-width:96px">বর্তমান দাম</span><span class="cur9" style="color:#7CFC00;font-weight:800;font-size:13px"></span>';box.appendChild(crow);
@@ -103,7 +103,7 @@ function saveNew(card){
  var lines=[];
  function write(url){
   var obj={title:name,price:price,stock:stock,status:"active",sellerId:(window.__mjhUid||"mjh-admin"),categoryId:gid,createdAt:Date.now(),startDate:st||"",endDate:en||"",images:{main:url||""}};
-  if(disc>0){obj.discountPercent=disc;obj.discountPrice=curOf(price,disc);}
+  if(disc>0){obj.discountPercent=disc;obj.discountPrice=price;obj.price=curOf(price,disc);}
   var up={};up["products/"+id]=obj;
   allPaths().forEach(function(pp){up[pp+"/"+id]={id:id,addedAt:Date.now(),startDate:st||"",endDate:en||""};});
   up["settings/homeProductMeta/"+id]={profit:0,createdAt:Date.now(),currency:curSym};
@@ -173,7 +173,7 @@ function ui(){
    else{allPaths().forEach(function(pp){up[pp+"/"+id]=null;});rem++;}
   });
   news.forEach(function(c){saveNew(c);});
-  if(Object.keys(up).length){DB().then(function(o){return o.m.update(o.m.ref(o.db),up);}).then(function(){modal(["✅ মার্ক করা (ক্যাটাগরিতে থাকবে): "+add+" টি","➖ আনমার্ক করা (ক্যাটাগরি থেকে সরল, পণ্য ডিলিট হয়নি): "+rem+" টি","🆕 নতুন পণ্য সেভ: "+news.length+" টি"]);load();}).catch(function(e){toast("❌ "+e.message,"#c0392b");});}
+  if(Object.keys(up).length){DB().then(function(o){return o.m.update(o.m.ref(o.db),up);}).then(function(){modal(["💾 মার্ক করা পণ্য ক্যাটাগরিতে সেভ হলো (হোম+এডমিন): "+add+" টি","➖ আনমার্ক করে সরানো (পণ্য ডিলিট হয়নি): "+rem+" টি","🆕 Choose Files থেকে নতুন যোগ: "+news.length+" টি"]);load();}).catch(function(e){toast("❌ "+e.message,"#c0392b");});}
   else if(!news.length){toast("✅ কোনো পরিবর্তন নেই");}
  };
  document.getElementById("da9").onclick=function(){
@@ -216,7 +216,7 @@ function saveCardAll(card){
  var p=card.__ctx||{};if(!p.id)return toast("❌ ID নেই","#c0392b");
  var g=function(k){var i=card.querySelector('.f9[data-k="'+k+'"]');return i?i.value:"";};
  var up={};var b="products/"+p.id+"/";
- up[b+"title"]=g("title");up[b+"price"]=+g("price")||0;var pr9=+g("price")||0,dc9=+g("disc")||0;up[b+"discountPercent"]=dc9;up[b+"discountPrice"]=dc9>0?curOf(pr9,dc9):null;up[b+"startDate"]=g("start");up[b+"endDate"]=g("end");up[b+"stock"]=+g("stock")||0;
+ up[b+"title"]=g("title");var pr9=+g("price")||0,dc9=+g("disc")||0;up[b+"price"]=dc9>0?curOf(pr9,dc9):pr9;up[b+"discountPercent"]=dc9;up[b+"discountPrice"]=dc9>0?pr9:null;up[b+"startDate"]=g("start");up[b+"endDate"]=g("end");up[b+"stock"]=+g("stock")||0;
  var cs=card.querySelector(".f9cur");if(cs)up["settings/homeProductMeta/"+p.id+"/currency"]=cs.value;
  allPaths().forEach(function(pp){up[pp+"/"+p.id]={id:p.id,addedAt:p.__addedAt||Date.now(),startDate:g("start")||"",endDate:g("end")||""};});
  DB().then(function(o){return o.m.update(o.m.ref(o.db),up);}).then(function(){modal(["✅ সব জায়গায় সেভ: "+(g("title")||p.id),"🏠 হোম ক্যাটাগরি: "+catPretty(CAT),"🔥 Firebase: ✅"]);load();}).catch(function(e){toast("❌ "+e.message,"#c0392b");});
