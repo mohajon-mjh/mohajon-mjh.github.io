@@ -15,14 +15,13 @@ function DB(){
   function step(){
    import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js").then(function(a){
     if(a.getApps().length){return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(m){res({m:m,db:m.getDatabase(a.getApp())});});}
-    if(++tries>16){
+    if(++tries>40){
      var app=a.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",authDomain:"mohajon-mjh.firebaseapp.com",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",storageBucket:"mohajon-mjh.firebasestorage.app",messagingSenderId:"526105903976",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
      return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js").then(function(au){
       var auth=au.getAuth(app);
-      function ready(){return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(m){res({m:m,db:m.getDatabase(app)});});}
-      if(auth.currentUser)return ready();
-      try{var un=au.onAuthStateChanged(auth,function(){try{un&&un();}catch(e){}ready();});}catch(e){}
-      setTimeout(ready,4000);
+      function done(){return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(m){res({m:m,db:m.getDatabase(app)});});}
+      if(auth.currentUser)return done();
+      var w=0;var iv=setInterval(function(){w++;if(auth.currentUser){clearInterval(iv);done();}else if(w>20){clearInterval(iv);rej(new Error("লগইন পাওয়া যায়নি — আগে এডমিন প্যানেলে লগইন করুন"));}},500);
      });
     }
     setTimeout(step,500);
@@ -31,6 +30,7 @@ function DB(){
   step();
  });
 }
+
 function modal(lines){var o=document.createElement("div");o.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999999;display:flex;align-items:center;justify-content:center";o.innerHTML='<div style="background:#1a242f;border:1px solid #FFD814;border-radius:12px;padding:18px;max-width:92vw;min-width:260px"><div style="color:#FFD814;font-weight:800;margin-bottom:10px">✅ সেভ রিপোর্ট</div>'+lines.map(function(l){return '<div style="color:#fff;font-size:13px;margin:4px 0">'+l+'</div>';}).join("")+'<button style="margin-top:12px;background:#27ae60;color:#fff;border:none;border-radius:6px;padding:10px 22px;font-weight:800" onclick="this.parentNode.parentNode.remove()">OK</button></div>';document.body.appendChild(o);}
 function toast(m,c){var t=document.createElement("div");t.textContent=m;t.style.cssText="position:fixed;top:80px;right:16px;background:"+(c||"#27ae60")+";color:#fff;padding:10px 16px;border-radius:8px;z-index:99999;font-weight:700";document.body.appendChild(t);setTimeout(function(){t.remove();},2500);}
 function lightbox(src){var o=document.createElement("div");o.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999999;display:flex;align-items:center;justify-content:center";o.innerHTML='<img src="'+src+'" style="max-width:94vw;max-height:90vh;border-radius:8px">';o.onclick=function(){o.remove();};document.body.appendChild(o);}
@@ -50,6 +50,7 @@ function fieldRow(lbl,key,val,type,ctx){
   if(key==="price"){var cs=r.querySelector(".f9cur");if(cs&&ctx&&ctx.id){META[ctx.id]=META[ctx.id]||{};META[ctx.id].currency=cs.value;DB().then(function(o){return o.m.update(o.m.ref(o.db),{["settings/homeProductMeta/"+ctx.id+"/currency"]:cs.value});});}}
   if(!ctx||!ctx.id||ctx.isNew){toast("✅ কার্ডে সেভ — নিচের বড় 💾 বাটনে Firebase যাবে");return;}
   var up={};up["products/"+ctx.id+"/"+FMAP[key]]=(key==="price"||key==="disc"||key==="stock")?(+v||0):v;
+  if(key==="price"||key==="disc"){var cd9=r.closest(".c9");if(cd9){var gp9=function(k){var i=cd9.querySelector('.f9[data-k="'+k+'"]');return i?(+i.value||0):0;};var d99=gp9("disc");up["products/"+ctx.id+"/discountPrice"]=d99>0?curOf(gp9("price"),d99):null;}}
   DB().then(function(o){return o.m.update(o.m.ref(o.db),up);}).then(function(){modal(["✅ Firebase সেভ: "+lbl+" = "+v]);recalc(r.closest(".c9"));}).catch(function(e){toast("❌ "+e.message,"#c0392b");});
  };
  return r;
@@ -102,9 +103,9 @@ function saveNew(card){
  var lines=[];
  function write(url){
   var obj={title:name,price:price,stock:stock,status:"active",sellerId:(window.__mjhUid||"mjh-admin"),categoryId:gid,createdAt:Date.now(),startDate:st||"",endDate:en||"",images:{main:url||""}};
-  if(disc>0)obj.discountPercent=disc;
+  if(disc>0){obj.discountPercent=disc;obj.discountPrice=curOf(price,disc);}
   var up={};up["products/"+id]=obj;
-  allPaths().forEach(function(pp){up[pp+"/"+id]={id:id,addedAt:Date.now()};});
+  allPaths().forEach(function(pp){up[pp+"/"+id]={id:id,addedAt:Date.now(),startDate:st||"",endDate:en||""};});
   up["settings/homeProductMeta/"+id]={profit:0,createdAt:Date.now(),currency:curSym};
   DB().then(function(o){return o.m.update(o.m.ref(o.db),up);}).then(function(){
    lines.push("🔥 Firebase: ✅");
@@ -168,7 +169,7 @@ function ui(){
   olds.forEach(function(c){
    var p=c.__ctx||{};var id=p.id;if(!id)return;
    var chk=c.querySelector(".chk9");var on=chk?chk.checked:true;
-   if(on){allPaths().forEach(function(pp){up[pp+"/"+id]={id:id,addedAt:p.__addedAt||Date.now()};});add++;}
+   if(on){var st9=(c.querySelector('.f9[data-k="start"]')||{}).value||"";var en9=(c.querySelector('.f9[data-k="end"]')||{}).value||"";allPaths().forEach(function(pp){up[pp+"/"+id]={id:id,addedAt:p.__addedAt||Date.now(),startDate:st9,endDate:en9};});add++;}
    else{allPaths().forEach(function(pp){up[pp+"/"+id]=null;});rem++;}
   });
   news.forEach(function(c){saveNew(c);});
@@ -215,9 +216,9 @@ function saveCardAll(card){
  var p=card.__ctx||{};if(!p.id)return toast("❌ ID নেই","#c0392b");
  var g=function(k){var i=card.querySelector('.f9[data-k="'+k+'"]');return i?i.value:"";};
  var up={};var b="products/"+p.id+"/";
- up[b+"title"]=g("title");up[b+"price"]=+g("price")||0;up[b+"discountPercent"]=+g("disc")||0;up[b+"startDate"]=g("start");up[b+"endDate"]=g("end");up[b+"stock"]=+g("stock")||0;
+ up[b+"title"]=g("title");up[b+"price"]=+g("price")||0;var pr9=+g("price")||0,dc9=+g("disc")||0;up[b+"discountPercent"]=dc9;up[b+"discountPrice"]=dc9>0?curOf(pr9,dc9):null;up[b+"startDate"]=g("start");up[b+"endDate"]=g("end");up[b+"stock"]=+g("stock")||0;
  var cs=card.querySelector(".f9cur");if(cs)up["settings/homeProductMeta/"+p.id+"/currency"]=cs.value;
- allPaths().forEach(function(pp){up[pp+"/"+p.id]={id:p.id,addedAt:p.__addedAt||Date.now()};});
+ allPaths().forEach(function(pp){up[pp+"/"+p.id]={id:p.id,addedAt:p.__addedAt||Date.now(),startDate:g("start")||"",endDate:g("end")||""};});
  DB().then(function(o){return o.m.update(o.m.ref(o.db),up);}).then(function(){modal(["✅ সব জায়গায় সেভ: "+(g("title")||p.id),"🏠 হোম ক্যাটাগরি: "+catPretty(CAT),"🔥 Firebase: ✅"]);load();}).catch(function(e){toast("❌ "+e.message,"#c0392b");});
 }
 function updateMarkCount(){var tt=document.querySelectorAll("#old9l .chk9").length;var mm=document.querySelectorAll("#old9l .chk9:checked").length;var el=document.getElementById("m9c");if(el)el.textContent="মার্ক: "+mm+" / "+tt;}
@@ -244,7 +245,7 @@ function load(){
   document.getElementById("c9c").textContent=n;
  }).catch(function(e){toast("❌ লোড: "+e.message,"#c0392b");});
 }
-function boot(){ui();load();loadCats(function(){});var hi=0;var hid=setInterval(function(){removeOld();if(++hi>40)clearInterval(hid);},700);}
+function boot(){ui();load();loadCats(function(){});var hi=0;var hid=setInterval(function(){removeOld();if(++hi>150)clearInterval(hid);},800);}
 if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){setTimeout(boot,600);});}
 else setTimeout(boot,600);
 })();
