@@ -1,4 +1,4 @@
-/* MJH hp-enhance v9 - full manager rebuild per spec sheet (only product-manager page) */
+/* MJH hp-enhance v10 FINAL - no-app fix + removeOld + global search */
 (function(){
 "use strict";
 if(document.title.indexOf("প্রোডাক্ট ম্যানেজার")===-1)return;
@@ -9,7 +9,28 @@ var KW=[["watch","Watches"],["mobile","Mobile & Accessories"],["phone","Mobile &
 function byName(n){for(var i=0;i<CATS.length;i++)if(CATS[i][0]===n)return CATS[i][1];return "";}
 function guess(t){t=(t||"").toLowerCase();for(var i=0;i<KW.length;i++)if(t.indexOf(KW[i][0])>-1)return byName(KW[i][1]);return "";}
 function catPretty(id){for(var i=0;i<CATS.length;i++)if(CATS[i][1]===id)return CATS[i][0];return (id||"").replace(/[_-]+/g," ");}
-function DB(){return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js").then(function(a){var app=a.getApps().length?a.getApp():null;if(!app)throw new Error("no app");return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(m){return {m:m,db:m.getDatabase(app)};});});}
+function DB(){
+ return new Promise(function(res,rej){
+  var tries=0;
+  function step(){
+   import("https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js").then(function(a){
+    if(a.getApps().length){return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(m){res({m:m,db:m.getDatabase(a.getApp())});});}
+    if(++tries>16){
+     var app=a.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",authDomain:"mohajon-mjh.firebaseapp.com",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",storageBucket:"mohajon-mjh.firebasestorage.app",messagingSenderId:"526105903976",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+     return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js").then(function(au){
+      var auth=au.getAuth(app);
+      function ready(){return import("https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js").then(function(m){res({m:m,db:m.getDatabase(app)});});}
+      if(auth.currentUser)return ready();
+      try{var un=au.onAuthStateChanged(auth,function(){try{un&&un();}catch(e){}ready();});}catch(e){}
+      setTimeout(ready,4000);
+     });
+    }
+    setTimeout(step,500);
+   }).catch(rej);
+  }
+  step();
+ });
+}
 function modal(lines){var o=document.createElement("div");o.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999999;display:flex;align-items:center;justify-content:center";o.innerHTML='<div style="background:#1a242f;border:1px solid #FFD814;border-radius:12px;padding:18px;max-width:92vw;min-width:260px"><div style="color:#FFD814;font-weight:800;margin-bottom:10px">✅ সেভ রিপোর্ট</div>'+lines.map(function(l){return '<div style="color:#fff;font-size:13px;margin:4px 0">'+l+'</div>';}).join("")+'<button style="margin-top:12px;background:#27ae60;color:#fff;border:none;border-radius:6px;padding:10px 22px;font-weight:800" onclick="this.parentNode.parentNode.remove()">OK</button></div>';document.body.appendChild(o);}
 function toast(m,c){var t=document.createElement("div");t.textContent=m;t.style.cssText="position:fixed;top:80px;right:16px;background:"+(c||"#27ae60")+";color:#fff;padding:10px 16px;border-radius:8px;z-index:99999;font-weight:700";document.body.appendChild(t);setTimeout(function(){t.remove();},2500);}
 function lightbox(src){var o=document.createElement("div");o.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999999;display:flex;align-items:center;justify-content:center";o.innerHTML='<img src="'+src+'" style="max-width:94vw;max-height:90vh;border-radius:8px">';o.onclick=function(){o.remove();};document.body.appendChild(o);}
@@ -43,7 +64,7 @@ function buildCard(p,isNew){
  card.style.cssText="background:#141c26;border:1px solid #333;border-radius:10px;padding:10px;margin:8px 0";
  card.__ctx=p;
  var img=p.img||"";
- card.innerHTML='<div style="display:flex;gap:8px;align-items:center">'+(isNew?'<input type="checkbox" class="chk9">':'<input type="checkbox" class="chk9">')+'<img class="im9" src="'+(img||"https://via.placeholder.com/80?text=IMG")+'" style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid #444"><b style="color:#fff;font-size:13px;flex:1">'+(isNew?"🆕 নতুন পণ্য":(p.title||""))+'</b></div>';
+ card.innerHTML='<div style="display:flex;gap:8px;align-items:center"><input type="checkbox" class="chk9"><img class="im9" src="'+(img||"https://via.placeholder.com/80?text=IMG")+'" style="width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid #444"><b style="color:#fff;font-size:13px;flex:1">'+(isNew?"🆕 নতুন পণ্য":(p.title||""))+'</b></div>';
  card.querySelector(".im9").onclick=function(){if(img)lightbox(img);else toast("❌ ছবি নেই","#c0392b");};
  var box=document.createElement("div");card.appendChild(box);
  box.appendChild(fieldRow("পণ্যের নাম","title",p.title||"",  "text",p));
@@ -116,6 +137,7 @@ function ui(){
  '<input id="s9" placeholder="🔍 products search box (যেকোনোভাবে সার্চ দিন)" style="flex:2;min-width:160px;background:#111;color:#fff;border:1px solid #444;border-radius:6px;padding:10px">'+
  '<input id="f9" type="file" accept="image/*" multiple style="flex:1;min-width:140px;background:#111;color:#fff;border:1px solid #444;border-radius:6px;padding:8px">'+
  '</div>'+
+ '<div id="g9"></div>'+
  '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'+
  '<label style="color:#fff;font-size:12px;display:flex;gap:6px;align-items:center"><input id="ma9" type="checkbox"> মার্ক অল</label>'+
  '<button id="sa9" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:10px 14px;font-weight:800">💾 সব সেভ</button>'+
@@ -147,24 +169,33 @@ function ui(){
   ch.forEach(function(c){delProd(c.__ctx,c);});
  };
  document.getElementById("s9").oninput=function(){
-  var q=this.value.trim().toLowerCase();
+  var q=this.value.trim().toLowerCase();var qq=q.replace(/\s+/g,"");
   document.querySelectorAll("#old9l .c9").forEach(function(c){
    var t=(c.__ctx.title||"").toLowerCase().replace(/\s+/g,"");
-   var qq=q.replace(/\s+/g,"");
    c.style.display=(!qq||t.indexOf(qq)>-1)?"":"none";
   });
+  var gbox=document.getElementById("g9");
+  gbox.innerHTML="";
+  if(qq.length>1){var n=0;Object.keys(ALLP).forEach(function(id){var p=ALLP[id]||{};var t=(p.title||"").toLowerCase().replace(/\s+/g,"");
+   if(t.indexOf(qq)>-1&&n<8){n++;
+    var row=document.createElement("div");row.style.cssText="display:flex;gap:8px;align-items:center;margin:4px 0;background:#101c2a;border:1px solid #333;border-radius:8px;padding:6px";
+    row.innerHTML='<span style="color:#fff;font-size:12px;flex:1">🔍 '+(p.title||id)+'</span><button style="background:#8e44ad;color:#fff;border:none;border-radius:6px;padding:8px 10px;font-weight:800">➕ এই ক্যাটাগরিতে</button>';
+    row.querySelector("button").onclick=function(){var up={};up[(SEC||"settings/globalCategoryProducts")+"/"+CAT+"/"+id]={id:id,addedAt:Date.now()};DB().then(function(o){return o.m.update(o.m.ref(o.db),up);}).then(function(){toast("➕ যোগ হলো: "+(p.title||""));gbox.innerHTML="";load();}).catch(function(e){toast("❌ "+e.message,"#c0392b");});};
+    gbox.appendChild(row);
+   }});}
  };
 }
-function hideOld(){
- document.querySelectorAll("body div").forEach(function(d){
-  var t=d.textContent||"";
-  if(t.length<2500&&t.indexOf("BOGO Manager")>-1)d.style.display="none";
-  if(t.length<2500&&t.indexOf("Size / Color / Description")>-1)d.style.display="none";
-  if(t.length<600&&d.querySelector&&d.querySelector('input[type="file"]')&&!WRAP.contains(d))d.style.display="none";
-  if(t.length<600&&t.indexOf("প্রতি লাইন")>-1)d.style.display="none";
-  if(t.length<600&&t.indexOf("সিলেক্টেড % বসান")>-1)d.style.display="none";
- });
- document.querySelectorAll("h3").forEach(function(h){var t=h.textContent||"";if(t.indexOf("নতুন পণ্য (")===0||t.indexOf("আগের পণ্য (")===0){var box=h.parentNode;if(box&&box.textContent.length<20000)box.style.display="none";}});
+function removeOld(){
+ try{
+  document.querySelectorAll("textarea").forEach(function(ta){if((ta.placeholder||"").indexOf("লাইন")>-1){var box=ta;for(var i=0;i<4&&box;i++){box=box.parentNode;if(box&&box.querySelector&&box.querySelector("button"))break;}if(box&&box.textContent.length<900)box.remove();}});
+  document.querySelectorAll("div,section").forEach(function(d){
+   if(d.closest("#mjh9"))return;
+   var t=d.textContent||"";
+   if(t.length<3000&&(t.indexOf("BOGO Manager")>-1||t.indexOf("Size / Color / Description")>-1||t.indexOf("সিলেক্টেড % বসান")>-1)){d.remove();}
+  });
+  document.querySelectorAll("h3").forEach(function(h){var t=h.textContent||"";if(t.indexOf("নতুন পণ্য (")===0||t.indexOf("আগের পণ্য (")===0){var box=h.parentNode;if(box&&box.textContent.length<30000)box.remove();}});
+  document.querySelectorAll('input[type="file"]').forEach(function(f){if(f.closest("#mjh9"))return;var box=f;for(var i=0;i<4&&box;i++){box=box.parentNode;if(box&&box.textContent.length>200)break;}if(box&&box.textContent.length<900&&!box.closest("#mjh9"))box.remove();});
+ }catch(e){}
 }
 function load(){
  DB().then(function(o){
@@ -189,7 +220,7 @@ function load(){
   document.getElementById("c9c").textContent=n;
  }).catch(function(e){toast("❌ লোড: "+e.message,"#c0392b");});
 }
-function boot(){ui();load();loadCats(function(){});var hi=0;var hid=setInterval(function(){hideOld();if(++hi>20)clearInterval(hid);},1200);}
+function boot(){ui();load();loadCats(function(){});var hi=0;var hid=setInterval(function(){removeOld();if(++hi>40)clearInterval(hid);},700);}
 if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){setTimeout(boot,600);});}
 else setTimeout(boot,600);
 })();
