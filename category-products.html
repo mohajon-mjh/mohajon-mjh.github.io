@@ -87,1165 +87,313 @@ var CFG = {apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
   messagingSenderId: "526105903976",
   appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"};
 firebase.initializeApp(CFG);
-var db = firebase.database();
-var auth = firebase.auth();
-var params = new URLSearchParams(location.search);
-var SEC = params.get("sec") || "settings/globalCategoryProducts";
-var CAT = params.get("cat") || "";
-var FLAG = params.get("flag") || "";
-var HAS_CATS = params.get("hasCats") !== "0";
-var CS = params.get("cs") === "1";
-document.getElementById("head").textContent = "📦 " + CAT + " — প্রোডাক্ট ম্যানেজার";
-function log(m){var d=document.getElementById("dbg");if(d){d.textContent+=m+"\n";d.scrollTop=d.scrollHeight;}}
-window.onerror=function(msg){log("JS ERROR: "+msg);};
-var pending = [];
-var existing = [];
-function toast(msg, color) {
-  var d = document.createElement("div");
-  d.textContent = msg;
-  d.style.cssText = "position:fixed;top:50px;right:8px;z-index:999;background:" + (color || "#2ecc71") + ";color:#111;font-weight:700;padding:10px 14px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.5)";
-  document.body.appendChild(d);
-  setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 3000);
-}
-function badge() {
-  var all = document.querySelectorAll(".chk");
-  var ch = document.querySelectorAll(".chk:checked");
-  document.getElementById("badge").textContent = "☑️ " + ch.length + "/" + all.length;
-}
-function cur(p) { var d = p.disc || 0; return d > 0 ? (p.price * (100 - d) / 100) : (p.price || 0); }
-function cleanName(n) { return n.replace(/\.[a-z0-9]+$/i, "").replace(/[_\-\.]+/g, " ").replace(/\s+/g, " ").trim(); }
-function genId() { return "p_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
-auth.onAuthStateChanged(function(u) {
-  if (u) {
-    document.getElementById("loginBox").style.display = "none";
-    loadExisting();
-  } else {
-    document.getElementById("loginBox").style.display = "flex";
-  }
-});
-document.getElementById("loginBtn").onclick = function() {
-  auth.signInWithEmailAndPassword(document.getElementById("em").value.trim(), document.getElementById("pw").value).catch(function(e){ log("login err: " + (e.message || e)); toast("❌ লগইন ব্যর্থ: " + e.message, "#c0392b"); });
-};
-function loadExisting() {
-  console.log("/*catDebug*/ SEC=" + SEC + ", CAT=" + CAT + ", FLAG=" + FLAG);
-  db.ref(SEC + "/" + CAT).once("value").then(function(snap) {
-    var map = snap.val() || {};
-    var ids = Object.keys(map);
-    log("existing: " + ids.length);
-    var proms = ids.map(function(id) {
-      return db.ref("products/" + id).once("value").then(function(ps) {
-        var p = ps.val();
-        if (!p) return null;
-        return { id: id, title: p.title || id, img: (p.images && p.images.main) || "", price: p.price || 0, disc: p.discountPercent || 0, start: p.startDate || "", end: p.endDate || "", stock: p.stock || 0, checked: false, kind: "old" };
-      });
-    });
-    Promise.all(proms).then(function(arr) { existing = arr.filter(function(x){ return x; }); render(); });
-  }).catch(function(e){ log("load err: " + (e.message || e)); toast("❌ লোড ব্যর্থ: " + e.message, "#c0392b"); });
-}
-function cardHTML(it, kind, i) {
-  var h = '<div class="card" data-id="' + it.id + '">';
-  h += '<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" class="chk" data-kind="' + kind + '" data-idx="' + i + '" ' + (it.checked ? "checked" : "") + '> <img class="th" src="' + (it.img || "") + '"><b>' + (it.title || "") + '</b></label>';
-  h += '<div class="bar" style="margin:6px 0">নাম:<input class="fTitle" value="' + String(it.title || "").replace(/"/g, "&quot;") + '" style="flex:1">দাম:<input type="number" class="fPrice" value="' + (it.price || 0) + '" style="width:90px">%:<input type="number" class="fDisc" value="' + (it.disc || 0) + '" style="width:60px"></div>';
-  h += '<div class="bar" style="margin:6px 0">বর্তমান: <span class="cur">৳' + cur(it).toFixed(2) + '</span> <span style="color:#888;text-decoration:line-through">' + (it.disc > 0 ? "৳" + it.price : "") + '</span> | Save: <span class="cur">৳' + (it.disc > 0 ? (it.price - cur(it)).toFixed(0) : "0") + '</span></div>';
-  h += '<div class="bar" style="margin:6px 0">শুরু:<input type="date" class="fStart" value="' + (it.start || "") + '">শেষ:<input type="date" class="fEnd" value="' + (it.end || "") + '">স্টক:<input type="number" class="fStock" value="' + (it.stock || 0) + '" style="width:60px">';
-  h += '<button class="btn" style="background:#2980b9" data-save="' + kind + ':' + i + '">💾 Save</button>';
-  h += '<button class="btn" style="background:#c0392b" data-del="' + kind + ':' + i + '">🗑️ Remove</button></div></div>';
-  return h;
-}
-function render() {
-  var html = "<h3>নতুন পণ্য (" + pending.length + ")</h3>";
-  pending.forEach(function(it, i){ html += cardHTML(it, "new", i); });
-  html += "<h3>আগের পণ্য (" + existing.length + ")</h3>";
-  existing.forEach(function(it, i){ html += cardHTML(it, "old", i); });
-  document.getElementById("list").innerHTML = html;
-  badge();
-}
-function readCard(card, it) {
-  it.title = card.querySelector(".fTitle").value;
-  it.price = +card.querySelector(".fPrice").value || 0;
-  it.disc = +card.querySelector(".fDisc").value || 0;
-  it.start = card.querySelector(".fStart").value;
-  it.end = card.querySelector(".fEnd").value;
-  it.stock = +card.querySelector(".fStock").value || 0;
-}
-function shrink(url){return new Promise(function(res){var fin=false;var to=setTimeout(function(){if(!fin){fin=true;res("");}},6000);var img=new Image();img.onload=function(){if(fin)return;try{var c=document.createElement("canvas");var w=400,h2=Math.round(400*img.height/img.width)||400;c.width=w;c.height=h2;var cx=c.getContext("2d");cx.fillStyle="#fff";cx.fillRect(0,0,w,h2);cx.drawImage(img,0,0,w,h2);fin=true;clearTimeout(to);res(c.toDataURL("image/jpeg",0.72));}catch(e){fin=true;clearTimeout(to);res("");}};img.onerror=function(){if(!fin){fin=true;clearTimeout(to);res("");}};img.src=url;});}
-function saveItem(it, done) {
-  var s = { hasCats: HAS_CATS, prodPath: SEC, flag: FLAG, cs: CS };
-  var p = { title: it.title, price: +it.price || 0, stock: +it.stock || 0, start: it.start || "", end: it.end || "", file: it.file || null };
-  var id = it.id;
-  
-  // পুরনো অ্যাডমিনের হুবহু কোড
-  var url = "";
-  if (p.file) {
-    try {
-      var rd = new FileReader();
-      rd.onload = function() {
-        var img = new Image();
-        img.onload = function() {
-          var c = document.createElement("canvas");
-          var w = 400, h2 = Math.round(400 * img.height / img.width) || 400;
-          c.width = w; c.height = h2;
-          var cx = c.getContext("2d");
-          cx.fillStyle = "#fff";
-          cx.fillRect(0, 0, w, h2);
-          cx.drawImage(img, 0, 0, w, h2);
-          url = c.toDataURL("image/jpeg", 0.72);
-          finish();
-        };
-        img.onerror = function() { finish(); };
-        img.src = rd.result;
-      };
-      rd.onerror = function() { finish(); };
-      rd.readAsDataURL(p.file);
-    } catch (e) { finish(); }
-  } else {
-    url = it.img || "";
-    finish();
-  }
-  
-  function finish() {
-    var obj = {
-      title: p.title,
-      price: +p.price || 0,
-      stock: +p.stock || 0,
-      status: "active",
-      sellerId: (window.__mjhUid || "mjh-admin"),
-      categoryId: (CAT || "general"),
-      createdAt: Date.now(),
-      startDate: p.start || "",
-      endDate: p.end || "",
-      images: { main: url || "" }
-    };
-    
-    var writeP;
-    if (it.kind === "old") {
-      var up2 = {}; var base = "products/" + id + "/";
-      up2[base+"title"]=obj.title; up2[base+"price"]=obj.price; up2[base+"stock"]=obj.stock; up2[base+"status"]=obj.status; up2[base+"startDate"]=obj.startDate; up2[base+"endDate"]=obj.endDate; up2[base+"categoryId"]=obj.categoryId; up2[base+"images/main"]=obj.images.main; if (it.disc>0) up2[base+"discountPercent"]=it.disc;
-      writeP = db.ref().update(up2);
-    } else {
-      writeP = db.ref("products/" + id).set(obj);
-    }
-    console.log("/*saveDebug*/ saving to:", SEC + "/" + CAT + "/" + id);
-    writeP.then(function() {
-      var promises = [];
-      if (s.hasCats && CAT) {
-        promises.push(db.ref(s.prodPath + "/" + CAT + "/" + id).set({ id: id, addedAt: Date.now() }));
-        if (s.prodPath.indexOf("catProducts") > -1) {
-          var alt = s.prodPath.replace("customSections/", "customSectionProducts/").replace("/catProducts", "");
-          promises.push(db.ref(alt + "/" + CAT + "/" + id).set({ id: id, addedAt: Date.now() }).catch(function(){}));
-        }
-      }
-      if (s.flag) {
-        promises.push(db.ref("products/" + id + "/" + s.flag).set(true));
-      }
-      if (s.cs) {
-        promises.push(db.ref("futureProducts/" + id).set({
-          title: p.title,
-          expectedPrice: p.price,
-          discountPercent: 0,
-          categoryId: "coming_soon",
-          createdAt: Date.now(),
-          released: false,
-          images: { main: url || "" }
-        }));
-      }
-      if (it.disc > 0) { promises.push(db.ref("products/" + id + "/discountPercent").set(it.disc).catch(function(){})); }
-      return Promise.all(promises);
-    }).then(function() {
-      done(null);
-    }).catch(function(e) {
-      done(e);
-    });
-  }
-}
-function delItem(it, done) {
-  var up = {};
-  if (HAS_CATS) {
-    up[SEC + "/" + CAT + "/" + it.id] = null;
-  } else if (CS) {
-    up["futureProducts/" + it.id] = null;
-  }
-  up["products/" + it.id] = null;
-  db.ref().update(up).then(function(){ done(null); }).catch(function(e){ done(e); });
-}
-document.getElementById("list").addEventListener("change", function(e) {
-  var t = e.target;
-  if (t.classList.contains("chk")) {
-    var arr = t.dataset.kind === "new" ? pending : existing;
-    arr[+t.dataset.idx].checked = t.checked;
-    badge();
-  }
-  var card = t.closest ? t.closest(".card") : null;
-  if (card && (t.classList.contains("fPrice") || t.classList.contains("fDisc"))) {
-    var ck = card.querySelector(".chk");
-    var a2 = ck.dataset.kind === "new" ? pending : existing;
-    var it2 = a2[+ck.dataset.idx];
-    readCard(card, it2);
-    card.querySelector(".cur").textContent = "৳" + cur(it2).toFixed(2);
-  }
-  if (t.classList.contains("fImg")) {
-    var f = t.files[0]; if (!f) return;
-    var c2 = t.closest(".card");
-    var ck2 = c2.querySelector(".chk");
-    var a3 = ck2.dataset.kind === "new" ? pending : existing;
-    var it3 = a3[+ck2.dataset.idx];
-    var rd = new FileReader();
-    rd.onload = function(){ it3.img = rd.result; c2.querySelector(".th").src = rd.result; toast("✅ ছবি যুক্ত হয়েছে"); };
-    rd.readAsDataURL(f);
-  }
-});
-document.getElementById("list").addEventListener("click", function(e) {
-  var sv = e.target.closest("[data-save]");
-  var dl = e.target.closest("[data-del]");
-  if (sv) {
-    var parts = sv.dataset.save.split(":");
-    var arr = parts[0] === "new" ? pending : existing;
-    var it = arr[+parts[1]];
-    readCard(sv.closest(".card"), it);
-    saveItem(it, function(err){
-      toast(err ? "❌ ব্যর্থ: " + (err.message || err) : "✅ সেভ হয়েছে: " + it.title, err ? "#c0392b" : "#2ecc71");
-      if (!err) { if (parts[0] === "new") pending = pending.filter(function(x){ return x.id !== it.id; }); loadExisting(); }
-    });
-  }
-  if (dl) {
-    var p2 = dl.dataset.del.split(":");
-    var a4 = p2[0] === "new" ? pending : existing;
-    var it4 = a4[+p2[1]];
-    if (p2[0] === "new") { pending = pending.filter(function(x){ return x.id !== it4.id; }); render(); }
-    else delItem(it4, function(err){ toast(err ? "❌ ব্যর্থ" : "🗑️ ডিলিট হয়েছে", err ? "#c0392b" : "#e67e22"); if(!err) loadExisting(); });
-  }
-});
-function onFiles(e) {
-  log("file event: " + (e.target.files ? e.target.files.length : 0));
-  [].slice.call(e.target.files || []).forEach(function(f) {
-    var it = { id: genId(), title: cleanName(f.name), img: "", price: 0, disc: 0, start: "", end: "", stock: 10, checked: true };
-    pending.push(it);
-    log("added: " + it.title);
-    render();
-    var rd = new FileReader();
-    rd.onload = function(){ it.img = rd.result; var el = document.querySelector('[data-id="' + it.id + '"] .th'); if (el) el.src = rd.result; log("img ok: " + it.title); };
-    rd.onerror = function(){ log("FileReader ERROR: " + it.title); };
-    rd.readAsDataURL(f);
-  });
-}
-document.getElementById("files").addEventListener("change", onFiles);
-function checkedItems() {
-  var out = [];
-  pending.forEach(function(p){ if(p.checked) out.push(p); });
-  existing.forEach(function(p){ if(p.checked) out.push(p); });
-  return out;
-}
-document.getElementById("markAll").onclick = function() {
-  pending.forEach(function(p){ p.checked = true; });
-  existing.forEach(function(p){ p.checked = true; });
-  render();
-};
-document.getElementById("applyPaste").onclick = function() {
-  var lines = document.getElementById("paste").value.split(/\r?\n/).filter(function(l){return l.trim();});
-  var n = 0, notMatched = [];
-  lines.forEach(function(ln) {
-    ln = ln.trim();
-    /* FIX: যেকোনো currency symbol (৳/$/€/£/₹/﷼/¥/₩/SAR/USD...) — symbol discard, শুধু number */
-    var mm = ln.match(/^(.+?)\s*[—–-]+\s*[^\d]*?([\d,]+(?:\.\d+)?)\s*$/);
-    if (!mm) { notMatched.push("❌ parse: " + ln.substring(0, 30)); return; }
-    var name = mm[1].trim().toLowerCase();
-    var price = parseFloat(mm[2].replace(/,/g, ""));
-    var found = false;
-    pending.concat(existing).forEach(function(it) {
-      if (!it.title || found) return;
-      var t = it.title.toLowerCase();
-      /* Strategy 1: substring */
-      if (t.indexOf(name) > -1 || name.indexOf(t) > -1) { it.price = price; n++; found = true; return; }
-      /* Strategy 2: word match 80% */
-      var nw = name.split(/[^a-z0-9\u0980-\u09ff]+/).filter(function(w){return w.length>2;});
-      var tw = t.split(/[^a-z0-9\u0980-\u09ff]+/).filter(function(w){return w.length>2;});
-      if (tw.length && nw.length) {
-        var hit = 0;
-        tw.forEach(function(w){ if (nw.some(function(x){ return x===w || x.indexOf(w)>-1 || w.indexOf(x)>-1; })) hit++; });
-        if (hit / tw.length >= 0.8) { it.price = price; n++; found = true; return; }
-      }
-      /* Strategy 3: fuzzy clean */
-      var cn = name.replace(/[^a-z\u0980-\u09ff]/g, "");
-      var ct = t.replace(/[^a-z\u0980-\u09ff]/g, "");
-      if (cn.length > 5 && ct.length > 5 && (cn.indexOf(ct) > -1 || ct.indexOf(cn) > -1)) { it.price = price; n++; found = true; return; }
-    });
-    if (!found) notMatched.push("⚠️ " + name.substring(0, 30));
-  });
-  render();
-  if (notMatched.length) alert("✅ " + n + "টি পণ্যে দাম বসেছে\n\n❌ মেলেনি " + notMatched.length + "টি:\n" + notMatched.join("\n"));
-  else toast("✅ " + n + "টি পণ্যে দাম বসেছে");
-};
-document.getElementById("applyPct").onclick = function() {
-  var v = +document.getElementById("pct").value || 0;
-  var items = checkedItems();
-  items.forEach(function(it){ it.disc = v; });
-  render();
-  toast("✅ " + items.length + "টি পণ্যে " + v + "% বসেছে");
-};
-document.getElementById("applyDates").onclick = function() {
-  var sV = document.getElementById("d1").value;
-  var eV = document.getElementById("d2").value;
-  var items = checkedItems();
-  items.forEach(function(it){ it.start = sV; it.end = eV; });
-  render();
-  toast("✅ " + items.length + "টি পণ্যে তারিখ বসেছে");
-};
-document.getElementById("saveSel").onclick = function() {
-  var items = checkedItems();
-  if (!items.length) { toast("❌ কোনো সিলেক্ট নেই", "#c0392b"); return; }
-  var done = 0, i = 0, lastErr = "";
-  var pr = document.getElementById("prog");
-  if (!pr) { pr = document.createElement("div"); pr.id = "prog"; pr.style.cssText = "position:fixed;top:8px;left:8px;background:#f39c12;color:#111;font-weight:700;padding:8px 12px;border-radius:10px;z-index:99"; document.body.appendChild(pr); }
-  pr.style.display = "block";
-  pr.textContent = "⏳ সেভ: 0/" + items.length;
-  (function next() {
-    if (i >= items.length) {
-      pr.style.display = "none";
-      toast("✅ সফল: " + done + "/" + items.length + (done < items.length ? " | ❌ " + lastErr : ""));
-      pending = pending.filter(function(p){ return !p.__ok; });
-      loadExisting();
-      return;
-    }
-    var it = items[i]; i++;
-    pr.textContent = "⏳ সেভ: " + i + "/" + items.length;
-    var called = false;
-    var wd = setTimeout(function(){ if(!called){ called = true; lastErr = "timeout"; next(); } }, 25000);
-    saveItem(it, function(err){ if(called) return; called = true; clearTimeout(wd); if(!err){ done++; it.__ok = true; } else { lastErr = (err && err.message) ? err.message : String(err); } next(); });
-  })();
-};
-document.getElementById("delSel").onclick = function() {
-  var items = checkedItems();
-  if (!items.length) { toast("❌ কোনো সিলেক্ট নেই", "#c0392b"); return; }
-  if (!confirm(items.length + "টি পণ্য ডিলিট করবেন?")) return;
-  var done = 0;
-  (function next() {
-    if (!items.length) { toast("🗑️ ডিলিট: " + done); loadExisting(); return; }
-    var it = items.shift();
-    if (pending.indexOf(it) > -1) { pending = pending.filter(function(x){ return x.id !== it.id; }); done++; next(); }
-    else delItem(it, function(err){ if(!err) done++; next(); });
-  })();
-};
-</script>
 
-<div id="veBox" style="background:#16202c;border:1px solid #2b3a4a;border-radius:12px;padding:12px;margin:12px">
-<h3 style="margin:0 0 10px;color:#f39c12">🧬 Size / Color / Description / Image Editor</h3>
-<div id="veStatus" style="color:#f39c12;font-size:13px;margin-bottom:8px">🔎 পণ্য লোড হচ্ছে...</div>
-<select id="veProd" style="width:100%;padding:10px;margin-bottom:8px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px"></select>
-<input id="veSizes" placeholder="Sizes: S,M,L,XL,XXL" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
-<input id="veColors" placeholder="Colors: White,Red,Blue,Black" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
-<input id="veVars" placeholder="Version: 4GB/64GB,6GB/128GB,8GB/256GB" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
-<textarea id="veDesc" rows="4" placeholder="Description — প্রতি লাইনে একটা পয়েন্ট" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box"></textarea>
-<input id="veNoStock" placeholder="No stock: Size:XL,Color:Black" style="width:100%;padding:9px;margin-bottom:6px;background:#0f1720;color:#fff;border:1px solid #2b3a4a;border-radius:6px;box-sizing:border-box">
-<input type="file" id="veImg" accept="image/*" style="width:100%;margin-bottom:6px;color:#fff">
-<label style="color:#fff;font-size:13px"><input type="checkbox" id="veHide"> পণ্য Hide করুন (কাস্টমার দেখবে না)</label><br>
-<button id="veSave" style="background:#27ae60;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:700;margin-top:8px">💾 Save Variants</button>
+<!-- ========================================== -->
+<!-- SMART SYNC MANAGER V8 (MULTI-SECTION COPY) -->
+<!-- ========================================== -->
+
+<div id="app-root" style="min-height:100vh; background:#121212; color:white; font-family:sans-serif;">
+    
+    <!-- Header Status -->
+    <div style="padding:15px; background:#1e1e1e; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0;">📦 Multi-Section Sync Manager</h2>
+        <span id="status-msg" style="color:#aaa; font-size:12px;">Ready to Sync All Sections</span>
+    </div>
+
+    <!-- Input Form -->
+    <div style="background:#252525; padding:15px; border-bottom:1px solid #444;">
+        <h3 style="margin-top:0; color:#f39c12;">➕ Add / Update Product</h3>
+        <form id="prod-form" onsubmit="event.preventDefault(); handleSmartSave();">
+            <input type="hidden" id="edit-id">
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+                <div>
+                    <label>Product Name *</label>
+                    <input type="text" id="p-name" required placeholder="e.g. Samsung Galaxy A04" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
+                </div>
+                <div>
+                    <label>Price (৳) *</label>
+                    <input type="number" id="p-price" required step="0.01" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
+                </div>
+                <div>
+                    <label>Discount (%)</label>
+                    <input type="number" id="p-disc" value="0" min="0" max="100" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
+                </div>
+                <div>
+                    <label>Stock</label>
+                    <input type="number" id="p-stock" value="10" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
+                </div>
+                <div>
+                    <label>Start Date</label>
+                    <input type="date" id="p-start" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
+                </div>
+                <div>
+                    <label>End Date</label>
+                    <input type="date" id="p-end" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
+                </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <label>Image Upload (Cloudinary)</label>
+                <input type="file" id="p-img" accept="image/*" onchange="previewImg(this)" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
+                <img id="img-preview" src="" style="max-width:100px; height:auto; margin-top:5px; display:none; border-radius:4px;">
+            </div>
+
+            <button type="submit" id="save-btn" style="width:100%; padding:12px; background:#2ecc71; color:black; font-weight:bold; border:none; border-radius:4px; cursor:pointer; font-size:16px;">
+                💾 SAVE & SYNC TO FLASH/DEALS/SPECIAL/GLOBAL
+            </button>
+        </form>
+    </div>
+
+    <!-- List View -->
+    <div style="padding:15px;">
+        <h3>Current Section Products (<span id="current-cat-display"></span>)</h3>
+        <div id="list-container">
+            <p>Loading...</p>
+        </div>
+    </div>
 </div>
-<script>
-/* mjhVariantEditor v1 */
-(function(){
-var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
-function j(p){return fetch(DB+"/"+p+".json").then(function(r){return r.json();});}
-function st(t){var el=document.getElementById("veStatus");if(el)el.textContent=t;console.log("[ve]",t);}
-var SEC=window.SEC||"settings/globalCategoryProducts",CAT=window.CAT||"";
-function moveTop(){var box=document.getElementById("veBox");if(!box)return;var all=[].slice.call(document.querySelectorAll("body *"));for(var i=0;i<all.length;i++){var t=(all[i].textContent||"").trim();if(t.indexOf("নতুন পণ্য")===0&&t.length<20){all[i].parentNode.insertBefore(box,all[i]);return;}}}
-function build(ids){
-  var selEl=document.getElementById("veProd");if(!selEl)return;
-  if(!ids.length){st("❌ কোনো পণ্য পাওয়া যায়নি");return;}
-  var ps=[];var done=0;
-  ids.forEach(function(pid){j("products/"+pid).then(function(p){done++;if(p)ps.push({id:pid,t:p.title||pid});if(done===ids.length){ps.sort(function(a,b){return a.t.localeCompare(b.t);});selEl.innerHTML='<option value="">-- পণ্য বাছাই করুন --</option>'+ps.map(function(x){return '<option value="'+x.id+'">'+x.t+'</option>';}).join("");st("✅ "+ps.length+"টি পণ্য লোড হয়েছে — dropdown থেকে বাছুন");}}).catch(function(){done++;});});
-}
-function fillList(){
-  st("🔎 পণ্য খোঁজা হচ্ছে...");
-  var paths=[SEC+"/"+(CAT||""),"settings/flashSaleCategoryProducts/"+CAT,"settings/dealsOfDayCategoryProducts/"+CAT,"settings/specialCategoryProducts/"+CAT,"settings/globalCategoryProducts/"+CAT];
-  function tryPath(i){
-    if(i>=paths.length){st("🔎 সব পণ্য লোড হচ্ছে...");j("products").then(function(all){build(Object.keys(all||{}));}).catch(function(err){st("❌ "+err.message);});return;}
-    j(paths[i]).then(function(map){var ids=Object.keys(map||{});if(ids.length){build(ids);}else tryPath(i+1);}).catch(function(){tryPath(i+1);});
-  }
-  tryPath(0);
-}
-function load(){
-  var id=document.getElementById("veProd").value;if(!id)return;
-  st("📥 পণ্যের তথ্য লোড হচ্ছে...");
-  j("products/"+id).then(function(p){
-    if(!p)return;
-    document.getElementById("veSizes").value=p.sizes||"";
-    document.getElementById("veColors").value=p.colors||"";
-    document.getElementById("veVars").value=p.variants||"";
-    document.getElementById("veDesc").value=p.description||"";
-    document.getElementById("veNoStock").value=p.noStock||"";
-    document.getElementById("veHide").checked=(p.status==="hidden");
-    st("✅ লোড হয়েছে — এডিট করে Save চাপুন");
-  });
-}
-function save(){
-  var id=document.getElementById("veProd").value;
-  if(!id){st("❌ আগে পণ্য সিলেক্ট করুন");alert("❌ আগে dropdown থেকে পণ্য সিলেক্ট করুন");return;}
-  var up={};
-  var base="products/"+id+"/";
-  up[base+"sizes"]=document.getElementById("veSizes").value.trim();
-  up[base+"colors"]=document.getElementById("veColors").value.trim();
-  up[base+"variants"]=document.getElementById("veVars").value.trim();
-  up[base+"description"]=document.getElementById("veDesc").value.trim();
-  up[base+"noStock"]=document.getElementById("veNoStock").value.trim();
-  up[base+"status"]=document.getElementById("veHide").checked?"hidden":"active";
-  var f=document.getElementById("veImg").files[0];
-  function fin(){st("💾 সেভ হচ্ছে...");db.ref().update(up).then(function(){st("✅ সেভ হয়েছে!");alert("✅ সেভ হয়েছে! Size/Color/Description আপডেট হয়েছে।");}).catch(function(err){st("❌ "+err.message);alert("❌ সেভ ব্যর্থ: "+err.message);});}
-  if(f){st("🖼️ ছবি প্রসেস হচ্ছে...");var rd=new FileReader();rd.onload=function(){if(typeof shrink==="function"){shrink(rd.result).then(function(u){if(u)up[base+"images/main"]=u;fin();});}else{up[base+"images/main"]=rd.result;fin();}};rd.readAsDataURL(f);}else fin();
-  return;
-  st("📥 পুরো পণ্য পড়া হচ্ছে...");
-  j("products/"+id).then(function(P){
-    if(!P){alert("❌ পণ্য পাওয়া যায়নি");return;}
-    P.sizes=document.getElementById("veSizes").value.trim();
-    P.colors=document.getElementById("veColors").value.trim();
-    P.variants=document.getElementById("veVars").value.trim();
-    P.description=document.getElementById("veDesc").value.trim();
-    P.noStock=document.getElementById("veNoStock").value.trim();
-    P.status=document.getElementById("veHide").checked?"hidden":"active";
-    var f=document.getElementById("veImg").files[0];
-    function fin(){
-      st("💾 সেভ হচ্ছে (পুরো অবজেক্ট)...");
-      db.ref("products/"+id).set(P).then(function(){
-        st("✅ সেভ হয়েছে!");alert("✅ সেভ হয়েছে! Size/Color/Description আপডেট হয়েছে।");
-      }).catch(function(err){
-        st("⚠️ set ব্যর্থ, child-update চেষ্টা...");
-        var up={};["sizes","colors","variants","description","noStock","status"].forEach(function(k){up["products/"+id+"/"+k]=P[k];});
-        db.ref().update(up).then(function(){st("✅ সেভ হয়েছে!");alert("✅ সেভ হয়েছে!");}).catch(function(e2){st("❌ "+e2.message);alert("❌ সেভ ব্যর্থ: "+e2.message);});
-      });
-    }
-    if(f){st("🖼️ ছবি প্রসেস হচ্ছে...");var rd=new FileReader();rd.onload=function(){if(typeof shrink==="function"){shrink(rd.result).then(function(u){if(u){P.images=P.images||{};P.images.main=u;fin();}});}else{P.images=P.images||{};P.images.main=rd.result;fin();}};rd.readAsDataURL(f);}else fin();
-  }).catch(function(err){alert("❌ "+err.message);});
-}
-moveTop();setTimeout(moveTop,800);setTimeout(moveTop,2000);
-var n=0;var iv=setInterval(function(){n++;var b=document.getElementById("veSave");if(b||n>20){clearInterval(iv);if(b){b.onclick=save;var selEl=document.getElementById("veProd");if(selEl)selEl.onchange=load;fillList();}}},500);
-})();
-</script>
 
 <script>
-/* mjhJumpBtn v1 */
-(function(){
-function addBtn(){
-if(document.getElementById("veJump"))return;
-var b=document.createElement("button");b.id="veJump";b.textContent="🧬 Editor";
-b.style.cssText="position:fixed;top:8px;right:8px;z-index:99999;background:#f39c12;color:#111;border:none;border-radius:20px;padding:8px 14px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.4);cursor:pointer";
-b.onclick=function(){var v=document.getElementById("veBox");if(v)v.scrollIntoView({behavior:"smooth"});};
-document.body.appendChild(b);
-}
-if(document.readyState==="complete")addBtn();else window.addEventListener("load",addBtn);
-})();
-</script>
+// --- GLOBAL VARIABLES FROM HEAD PART ---
+// db, auth, SEC, CAT are defined in lines 1-89.
+// We assume they exist. If not, fallbacks:
+if(typeof db === 'undefined') var db = firebase.database();
+if(typeof SEC === 'undefined') var SEC = "settings/globalCategoryProducts"; 
+if(typeof CAT === 'undefined') var CAT = ""; 
 
-<script>
-/* BOGO Manager v1 - category-products.html */
-var BOGO_PRODUCTS = [];
-var BOGO_TOKEN = null;
+// Display current category name
+document.getElementById('current-cat-display').innerText = CAT || "General";
 
-// Login button click এ BOGO init
-document.getElementById('loginBtn').addEventListener('click', async function() {
-  var em = document.getElementById('em').value;
-  var pw = document.getElementById('pw').value;
-  if (!em || !pw) { alert('⚠️ Email ও password দিন'); return; }
-  
-  try {
-    var r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email: em, password: pw, returnSecureToken: true})
-    });
-    if (!r.ok) throw new Error('Login failed: HTTP ' + r.status);
-    var j = await r.json();
-    BOGO_TOKEN = j.idToken;
-    document.getElementById('bogoManager').style.display = 'block';
-    await loadBogoOffers();
-    await loadBogoProductDropdown();
-  } catch(e) {
-    alert('❌ ' + e.message);
-  }
-});
-
-async function loadBogoOffers() {
-  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
-  try {
-    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products.json?shallow=true&auth=' + BOGO_TOKEN);
-    var keys = Object.keys(await r.json());
-    BOGO_PRODUCTS = [];
-    for (var i = 0; i < keys.length; i++) {
-      var pid = keys[i];
-      var r2 = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + pid + '.json?auth=' + BOGO_TOKEN);
-      var p = await r2.json();
-      if (p && p.bogo && p.bogo.enabled) {
-        BOGO_PRODUCTS.push({id: pid, title: p.title || pid, bogo: p.bogo, price: p.price || 0});
-      }
+// Helper: Preview Image locally before upload
+window.previewImg = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = document.getElementById('img-preview');
+            img.src = e.target.result;
+            img.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
     }
-    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
-    renderBogoList();
-  } catch(e) {
-    document.getElementById('bogoList').innerHTML = '❌ ' + e.message;
-  }
+};
+
+// Helper: Set Status Text
+function setStatus(msg, color="#aaa") {
+    const el = document.getElementById('status-msg');
+    el.innerText = msg;
+    el.style.color = color;
 }
 
-function renderBogoList() {
-  var search = document.getElementById('bogoSearch').value.toLowerCase();
-  var filtered = BOGO_PRODUCTS.filter(p => p.id.toLowerCase().includes(search) || p.title.toLowerCase().includes(search));
-  if (filtered.length === 0) {
-    document.getElementById('bogoList').innerHTML = '<p style="color:#9ca3af;text-align:center;padding:20px">কোনো BOGO offer নেই</p>';
-    return;
-  }
-  var html = '<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#2b3a4a"><th style="padding:6px;text-align:left">Product</th><th style="padding:6px">Type</th><th style="padding:6px">Free</th><th style="padding:6px">Max</th><th style="padding:6px">Actions</th></tr></thead><tbody>';
-  filtered.forEach(function(p) {
-    var type = p.bogo.type === 'same' ? '🔄 Same' : '🎁 Specific';
-    var free = p.bogo.type === 'same' ? '—' : (p.bogo.freeProductId || '—');
-    var max = p.bogo.maxFreeQuantity || 1;
-    html += '<tr style="border-bottom:1px solid #2b3a4a"><td style="padding:6px"><b>' + p.title + '</b><br><small style="color:#9ca3af">' + p.id + '</small></td>';
-    html += '<td style="padding:6px;text-align:center">' + type + '</td>';
-    html += '<td style="padding:6px;text-align:center"><small>' + free + '</small></td>';
-    html += '<td style="padding:6px;text-align:center">' + max + '</td>';
-    html += '<td style="padding:6px;text-align:center"><button class="btn" style="background:#f39c12;padding:4px 8px;font-size:11px" onclick="editBogoOffer(\'' + p.id + '\')">✏️</button> ';
-    html += '<button class="btn" style="background:#c0392b;padding:4px 8px;font-size:11px" onclick="deleteBogoOffer(\'' + p.id + '\')">🗑</button></td></tr>';
-  });
-  html += '</tbody></table>';
-  document.getElementById('bogoList').innerHTML = html;
-}
-
-async function addBogoOffer() {
-  var buyId = document.getElementById('bogoBuyProduct').value;
-  var type = document.getElementById('bogoType').value;
-  var freeId = document.getElementById('bogoFreeProduct').value;
-  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
-  
-  if (!buyId) { alert('⚠️ Buy Product বাছুন'); return; }
-  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
-  
-  var bogo = {enabled: true, type: type, maxFreeQuantity: maxQty};
-  if (type === 'specific') bogo.freeProductId = freeId;
-  
-  try {
-    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + buyId + '/bogo.json?auth=' + BOGO_TOKEN, {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(bogo)
-    });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    alert('✅ BOGO offer save হয়েছে!');
-    await loadBogoOffers();
-  } catch(e) {
-    alert('❌ ' + e.message);
-  }
-}
-
-async function deleteBogoOffer(id) {
-  if (!confirm('এই BOGO offer delete করবেন?')) return;
-  try {
-    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + id + '/bogo.json?auth=' + BOGO_TOKEN, {
-      method: 'DELETE'
-    });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    alert('✅ Delete হয়েছে!');
-    await loadBogoOffers();
-  } catch(e) {
-    alert('❌ ' + e.message);
-  }
-}
-
-function editBogoOffer(id) {
-  var p = BOGO_PRODUCTS.find(x => x.id === id);
-  if (!p) return;
-  document.getElementById('bogoBuyProduct').value = id;
-  document.getElementById('bogoType').value = p.bogo.type;
-  document.getElementById('bogoMaxQty').value = p.bogo.maxFreeQuantity || 1;
-  if (p.bogo.type === 'specific') {
-    document.getElementById('bogoFreeProduct').value = p.bogo.freeProductId || '';
-    document.getElementById('bogoFreeProduct').style.display = 'inline-block';
-  }
-  alert('✏️ উপরে form এ edit করুন, তারপর Save button ক্লিক করুন');
-}
-
-async function bulkEnableBogo() {
-  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
-  if (!confirm('⚠️ ' + count + ' টা low-price products এ BOGO enable হবে। Continue?')) return;
-  
-  var status = document.getElementById('bogoBulkStatus');
-  status.textContent = '⏳ Products লোড হচ্ছে...';
-  
-  try {
-    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products.json?shallow=true&auth=' + BOGO_TOKEN);
-    var keys = Object.keys(await r.json());
-    var products = [];
-    for (var i = 0; i < keys.length; i++) {
-      var r2 = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + keys[i] + '.json?auth=' + BOGO_TOKEN);
-      var p = await r2.json();
-      if (p && p.price) products.push({id: keys[i], price: parseFloat(p.price) || 0, title: p.title || keys[i]});
-    }
-    products.sort((a, b) => a.price - b.price);
-    var lowPrice = products.slice(0, count);
+// Load Products for Current Section
+async function loadList() {
+    const container = document.getElementById('list-container');
+    container.innerHTML = '<p style="color:#888;text-align:center;">Fetching data...</p>';
     
-    status.textContent = '⏳ BOGO enable হচ্ছে (0/' + count + ')...';
-    var success = 0;
-    for (var j = 0; j < lowPrice.length; j++) {
-      var prod = lowPrice[j];
-      var r3 = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + prod.id + '/bogo.json?auth=' + BOGO_TOKEN, {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({enabled: true, type: 'same', maxFreeQuantity: 1})
-      });
-      if (r3.ok) success++;
-      status.textContent = '⏳ BOGO enable হচ্ছে (' + success + '/' + count + ')...';
+    try {
+        // Construct path based on current URL params (SEC/CAT)
+        let fullPath = SEC;
+        if(CAT) fullPath += "/" + CAT;
+        
+        const snap = await db.ref(fullPath).once('value');
+        const data = snap.val();
+        
+        if(!data || Object.keys(data).length === 0) {
+            container.innerHTML = '<p>No products in this section yet.</p>';
+            return;
+        }
+
+        let html = '';
+        Object.keys(data).forEach(key => {
+            const p = data[key];
+            const finalPrice = p.price ? (p.price * (1 - (p.discount||0)/100)).toFixed(2) : '?';
+            
+            html += `
+            <div style="background:#2a2a2a; padding:10px; margin-bottom:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; border-left:4px solid #3498db;">
+                <div style="flex:1;">
+                    <strong>${p.name || 'Unnamed'}</strong><br>
+                    <small style="color:#aaa;">৳${p.price} (-${p.discount||0}%) -> <span style="color:#2ecc71;font-weight:bold;">৳${finalPrice}</span></small><br>
+                    <small style="color:#888;">ID: ${key}</small>
+                </div>
+                <div style="display:flex; gap:5px;">
+                    <button onclick="prepareEdit('${key}', '${fullPath}')" style="padding:5px 10px; background:#f1c40f; border:none; border-radius:3px; cursor:pointer;">✏ Edit</button>
+                    <button onclick="deleteProd('${key}', '${fullPath}')" style="padding:5px 10px; background:#e74c3c; color:white; border:none; border-radius:3px; cursor:pointer;">🗑 Del</button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+
+    } catch(e) {
+        console.error(e);
+        container.innerHTML = `<p style="color:red;">Error: ${e.message}</p>`;
     }
-    status.textContent = '✅ ' + success + '/' + count + ' products এ BOGO enable হয়েছে!';
-    await loadBogoOffers();
-  } catch(e) {
-    status.textContent = '❌ ' + e.message;
-  }
 }
 
-async function loadBogoProductDropdown() {
-  var sel = document.getElementById('bogoBuyProduct');
-  sel.innerHTML = '<option value="">⏳ লোড হচ্ছে...</option>';
-  try {
-    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products.json?shallow=true&auth=' + BOGO_TOKEN);
-    var keys = Object.keys(await r.json());
-    var options = ['<option value="">-- Buy Product বাছুন --</option>'];
-    for (var i = 0; i < Math.min(keys.length, 100); i++) {
-      var r2 = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + keys[i] + '.json?auth=' + BOGO_TOKEN);
-      var p = await r2.json();
-      if (p) {
-        var title = (p.title || keys[i]).substring(0, 40);
-        options.push('<option value="' + keys[i] + '">' + title + ' (৳' + (p.price || 0) + ')</option>');
-      }
-    }
-    sel.innerHTML = options.join('');
-  } catch(e) {
-    sel.innerHTML = '<option value="">❌ Load failed</option>';
-  }
+// Prepare Edit Mode
+window.prepareEdit = async function(id, path) {
+    const snap = await db.ref(`${path}/${id}`).once('value');
+    const p = snap.val();
+    if(!p) return alert("Not found");
+
+    document.getElementById('edit-id').value = id;
+    document.getElementById('p-name').value = p.name || "";
+    document.getElementById('p-price').value = p.price || "";
+    document.getElementById('p-disc').value = p.discount || 0;
+    document.getElementById('p-stock').value = p.stock || 0;
+    document.getElementById('p-start').value = p.startDate || "";
+    document.getElementById('p-end').value = p.endDate || "";
+    
+    window.scrollTo(0,0);
+    setStatus("Editing Mode ON", "#f1c40f");
 }
 
-document.getElementById('bogoType').addEventListener('change', function() {
-  document.getElementById('bogoFreeProduct').style.display = this.value === 'specific' ? 'inline-block' : 'none';
+// Delete Logic (Removes from ALL sections)
+window.deleteProd = async function(id, path) {
+    if(!confirm("Delete this product? It will be removed from ALL synced sections too.")) return;
+    
+    // Define all possible parent paths where this product might exist
+    const parents = [
+        "settings/flashSaleCategoryProducts",
+        "settings/dealsOfDayCategoryProducts",
+        "settings/specialCategoryProducts",
+        "settings/globalCategoryProducts"
+    ];
+
+    try {
+        for(let parent of parents) {
+            // If CAT exists, check inside that category folder first
+            if(CAT) {
+                await db.ref(`${parent}/${CAT}/${id}`).remove().catch(()=>{});
+            } else {
+                // Fallback: Try removing directly under parent (unlikely structure but safe attempt)
+                await db.ref(`${parent}/${id}`).remove().catch(()=>{});
+            }
+        }
+        alert("Deleted from all sections.");
+        loadList();
+    } catch(e) {
+        alert("Error deleting: " + e.message);
+    }
+}
+
+// THE MAGIC: SMART SAVE & CROSS-SYNC
+window.handleSmartSave = async function() {
+    const btn = document.getElementById('save-btn');
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = "⏳ Processing...";
+    setStatus("Saving...", "#f39c12");
+
+    const editId = document.getElementById('edit-id').value;
+    const name = document.getElementById('p-name').value.trim();
+    const price = parseFloat(document.getElementById('p-price').value);
+    const disc = parseInt(document.getElementById('p-disc').value) || 0;
+    const stock = parseInt(document.getElementById('p-stock').value) || 0;
+    const start = document.getElementById('p-start').value;
+    const end = document.getElementById('p-end').value;
+    const imgFile = document.getElementById('p-img').files[0];
+
+    if(!name || isNaN(price)) {
+        alert("Name and Price required!");
+        resetBtn(btn, originalText);
+        return;
+    }
+
+    const newId = editId || Date.now().toString();
+    const currentFullPath = SEC + (CAT ? "/" + CAT : "");
+
+    try {
+        // STEP 1: Handle Image Upload (Using your existing MJHCloud logic)
+        let imageUrl = "";
+        
+        // If editing and no new file, keep old image
+        if(editId && !imgFile) {
+             const existingSnap = await db.ref(`${currentFullPath}/${editId}`).once('value');
+             if(existingSnap.exists()) imageUrl = existingSnap.val().image || "";
+        }
+
+        if(imgFile) {
+            setStatus("Uploading to Cloudinary...", "#3498db");
+            // Using global MJHCloud object defined in cloudinary.js
+            if(window.MJHCloud && typeof window.MJHCloud.upload === 'function') {
+                const res = await window.MJHCloud.upload(imgFile);
+                imageUrl = res.url;
+            } else {
+                throw new Error("MJHCloud uploader not found. Include cloudinary.js");
+            }
+        }
+
+        // STEP 2: Create Data Object
+        const prodData = {
+            id: newId,
+            name: name,
+            price: price,
+            discount: disc,
+            stock: stock,
+            startDate: start,
+            endDate: end,
+            image: imageUrl,
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        // STEP 3: MULTI-SECTION AUTO-SYNC LOGIC
+        // We will write this same data to all 4 major section nodes
+        
+        const syncTargets = [
+            { base: "settings/flashSaleCategoryProducts", label: "Flash Sale" },
+            { base: "settings/dealsOfDayCategoryProducts", label: "Deals of the Day" },
+            { base: "settings/specialCategoryProducts", label: "Special Offers" },
+            { base: "settings/globalCategoryProducts", label: "Global Categories" }
+        ];
+
+        let successCount = 0;
+        
+        for(let target of syncTargets) {
+            let writePath = target.base;
+            if(CAT) writePath += "/" + CAT; // Maintain category structure
+            
+            try {
+                await db.ref(`${writePath}/${newId}`).set(prodData);
+                successCount++;
+                console.log(`Synced to: ${target.label}`);
+            } catch(err) {
+                console.warn(`Failed to sync to ${target.label}:`, err);
+            }
+        }
+
+        if(successCount > 0) {
+            setStatus(`Auto-Synced to ${successCount} sections!`, "#9b59b6");
+            alert(`✅ Success!\n\nSaved to current section.\nAutomatically added to ${successCount} related sections (Home/Hamburger).\n\nTarget Sections:\n- Flash Sale\n- Deals of the Day\n- Special Offers\n- Global Categories`);
+        } else {
+            setStatus("Saved Locally Only", "#aaa");
+            alert("✅ Saved successfully to current section only.\n(Auto-sync failed due to permission or network issues).");
+        }
+
+        // Reset Form
+        document.getElementById('prod-form').reset();
+        document.getElementById('edit-id').value = "";
+        document.getElementById('img-preview').style.display = 'none';
+        loadList();
+
+    } catch(err) {
+        console.error(err);
+        alert("❌ Error: " + err.message);
+        setStatus("Error!", "#e74c3c");
+    } finally {
+        resetBtn(btn, originalText);
+    }
+};
+
+function resetBtn(btn, text) {
+    btn.disabled = false;
+    btn.innerText = text;
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+    loadList();
 });
 
-document.getElementById('bogoSearch').addEventListener('input', renderBogoList);
-</script>
-
-
-<script>
-/* BOGO Manager v2 cache - auto login detect + fast single-fetch */
-var BOGO_ALL = null;
-var TITLE2ID = {};
-
-async function loadAllProducts(){
-  if (BOGO_ALL) return BOGO_ALL;
-  var r = await fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/products.json");
-  BOGO_ALL = (await r.json()) || {};
-  return BOGO_ALL;
-}
-
-function showBogoManager(){
-  document.getElementById('bogoManager').style.display = 'block';
-  loadBogoOffers();
-  buildBogoPicker();
-}
-
-// Override: একবারে সব product load
-async function loadBogoOffers(){
-  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
-  try {
-    var all = await loadAllProducts();
-    BOGO_PRODUCTS = Object.keys(all).filter(function(k){ return all[k] && all[k].bogo && all[k].bogo.enabled; })
-      .map(function(k){ return {id:k, title:all[k].title||k, bogo:all[k].bogo, price:all[k].price||0}; });
-    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
-    renderBogoList();
-  } catch(e){ document.getElementById('bogoList').innerHTML = '❌ ' + e.message; }
-}
-
-// Override: select এর বদলে search input + datalist (দ্রুত)
-async function buildBogoPicker(){
-  var sel = document.getElementById('bogoBuyProduct');
-  if (!sel || sel.tagName !== 'SELECT') return;
-  var all = await loadAllProducts();
-  var inp = document.createElement('input');
-  inp.id = 'bogoBuyInput';
-  inp.setAttribute('list', 'bogoDL');
-  inp.placeholder = '🔍 Product এর নাম লিখুন...';
-  inp.style.cssText = 'flex:1;min-width:200px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333';
-  sel.parentNode.replaceChild(inp, sel);
-  var dl = document.createElement('datalist');
-  dl.id = 'bogoDL';
-  var opts = [];
-  Object.keys(all).forEach(function(k){
-    var p = all[k]; if(!p) return;
-    var t = (p.title||k).substring(0,50);
-    TITLE2ID[t] = k;
-    opts.push('<option value="' + t.replace(/"/g,'&quot;') + '">৳' + (p.price||0) + '</option>');
-  });
-  dl.innerHTML = opts.join('');
-  document.body.appendChild(dl);
-}
-
-// Override: add — input থেকে id বের করা
-async function addBogoOffer(){
-  var val = (document.getElementById('bogoBuyInput')||{}).value || '';
-  var buyId = TITLE2ID[val] || val;
-  var type = document.getElementById('bogoType').value;
-  var freeId = document.getElementById('bogoFreeProduct').value;
-  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
-  if (!buyId) { alert('⚠️ Product বাছুন বা ID লিখুন'); return; }
-  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
-  var bogo = {enabled:true, type:type, maxFreeQuantity:maxQty};
-  if (type === 'specific') bogo.freeProductId = freeId;
-  try {
-    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(buyId) + '/bogo.json?auth=' + BOGO_TOKEN, {
-      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(bogo)
-    });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    BOGO_ALL = null;
-    alert('✅ BOGO offer save হয়েছে!');
-    await loadBogoOffers();
-  } catch(e){ alert('❌ ' + e.message); }
-}
-
-// Override: bulk — cache থেকে sort
-async function bulkEnableBogo(){
-  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
-  if (!confirm('⚠️ ' + count + ' টা low-price product এ BOGO enable হবে। Continue?')) return;
-  var st = document.getElementById('bogoBulkStatus');
-  st.textContent = '⏳ Products লোড হচ্ছে...';
-  try {
-    var all = await loadAllProducts();
-    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
-      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0}; });
-    arr.sort(function(x,y){ return x.price - y.price; });
-    var low = arr.slice(0, count);
-    var ok = 0;
-    for (var i=0;i<low.length;i++){
-      var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(low[i].id) + '/bogo.json?auth=' + BOGO_TOKEN, {
-        method:'PUT', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({enabled:true, type:'same', maxFreeQuantity:1})
-      });
-      if (r.ok) ok++;
-      st.textContent = '⏳ Enable হচ্ছে (' + ok + '/' + count + ')...';
-    }
-    BOGO_ALL = null;
-    st.textContent = '✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!';
-    await loadBogoOffers();
-  } catch(e){ st.textContent = '❌ ' + e.message; }
-}
-
-// Auto login detect (persisted session সহ)
-(function(){
-  var tries = 0;
-  var iv = setInterval(function(){
-    tries++;
-    try {
-      var u = window.firebase && firebase.auth && firebase.auth().currentUser;
-      if (u) {
-        clearInterval(iv);
-        u.getIdToken().then(function(t){ BOGO_TOKEN = t; showBogoManager(); });
-      } else if (tries > 40) {
-        clearInterval(iv);
-        var lb = document.getElementById('loginBox');
-        if (lb) lb.style.display = 'flex';
-      }
-    } catch(e){}
-  }, 1500);
-})();
-</script>
-
-<script>
-/* BOGO bulk v3 debug - exact error দেখাবে */
-async function bulkEnableBogo(){
-  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
-  if (!confirm('⚠️ ' + count + ' টা low-price product এ BOGO enable হবে। Continue?')) return;
-  var st = document.getElementById('bogoBulkStatus');
-  st.textContent = '⏳ Products লোড হচ্ছে...';
-  try {
-    var all = await loadAllProducts();
-    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
-      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0}; });
-    arr.sort(function(x,y){ return x.price - y.price; });
-    var low = arr.slice(0, count);
-    var ok = 0, fail = 0, lastErr = '';
-    for (var i = 0; i < low.length; i++) {
-      var url = 'https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(low[i].id) + '/bogo.json?auth=' + BOGO_TOKEN;
-      var r = await fetch(url, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({enabled:true, type:'same', maxFreeQuantity:1})});
-      if (r.ok) { ok++; }
-      else {
-        fail++;
-        if (!lastErr) lastErr = 'HTTP ' + r.status + ' → ' + (await r.text()).slice(0,150);
-      }
-      st.textContent = '⏳ (' + (i+1) + '/' + count + ') ok:' + ok + ' fail:' + fail;
-      if (fail >= 1 && ok === 0) { alert('❌ প্রথম write ই fail:\n' + lastErr); return; }
-    }
-    BOGO_ALL = null;
-    st.textContent = ok > 0 ? ('✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!') : ('❌ সব fail: ' + lastErr);
-    await loadBogoOffers();
-  } catch(e){ st.textContent = '❌ ' + e.message; }
-}
-</script>
-
-<script>
-/* BOGO v4 admin token - নিজের admin login ব্যবহার করবে */
-var BOGO_ADMIN_TOKEN = sessionStorage.getItem('bogo_admin_token') || null;
-
-async function ensureAdminToken(){
-  if (BOGO_ADMIN_TOKEN) return BOGO_ADMIN_TOKEN;
-  var em = prompt('📧 Admin Gmail দিন:');
-  if (!em) throw new Error('Email দেওয়া হয়নি');
-  var pw = prompt('🔑 Password দিন:');
-  if (!pw) throw new Error('Password দেওয়া হয়নি');
-  var r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({email:em, password:pw, returnSecureToken:true})
-  });
-  if (!r.ok) throw new Error('Admin login fail: HTTP ' + r.status);
-  var j = await r.json();
-  BOGO_ADMIN_TOKEN = j.idToken;
-  sessionStorage.setItem('bogo_admin_token', BOGO_ADMIN_TOKEN);
-  return BOGO_ADMIN_TOKEN;
-}
-
-async function bulkEnableBogo(){
-  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
-  if (!confirm('⚠️ ' + count + ' টা low-price product এ BOGO enable হবে। Continue?')) return;
-  var st = document.getElementById('bogoBulkStatus');
-  st.textContent = '🔐 Admin login চাই...';
-  try {
-    var token = await ensureAdminToken();
-    st.textContent = '⏳ Products লোড হচ্ছে...';
-    var all = await loadAllProducts();
-    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
-      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0}; });
-    arr.sort(function(x,y){ return x.price - y.price; });
-    var low = arr.slice(0, count);
-    var ok = 0, fail = 0, lastErr = '';
-    for (var i = 0; i < low.length; i++) {
-      var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(low[i].id) + '/bogo.json?auth=' + token, {
-        method:'PUT', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({enabled:true, type:'same', maxFreeQuantity:1})
-      });
-      if (r.ok) ok++;
-      else { fail++; if (!lastErr) lastErr = 'HTTP ' + r.status + ' → ' + (await r.text()).slice(0,150); }
-      st.textContent = '⏳ (' + (i+1) + '/' + count + ') ok:' + ok + ' fail:' + fail;
-      if (fail >= 1 && ok === 0) { sessionStorage.removeItem('bogo_admin_token'); BOGO_ADMIN_TOKEN = null; alert('❌ প্রথম write ই fail:\n' + lastErr + '\n\nআবার Enable click করুন — নতুন login চাইবে'); return; }
-    }
-    BOGO_ALL = null;
-    st.textContent = ok > 0 ? ('✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!') : ('❌ সব fail: ' + lastErr);
-    await loadBogoOffers();
-  } catch(e){ st.textContent = '❌ ' + e.message; }
-}
-
-async function addBogoOffer(){
-  var val = (document.getElementById('bogoBuyInput')||{}).value || '';
-  var buyId = TITLE2ID[val] || val;
-  var type = document.getElementById('bogoType').value;
-  var freeId = document.getElementById('bogoFreeProduct').value;
-  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
-  if (!buyId) { alert('⚠️ Product বাছুন বা ID লিখুন'); return; }
-  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
-  var bogo = {enabled:true, type:type, maxFreeQuantity:maxQty};
-  if (type === 'specific') bogo.freeProductId = freeId;
-  try {
-    var token = await ensureAdminToken();
-    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(buyId) + '/bogo.json?auth=' + token, {
-      method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(bogo)
-    });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    BOGO_ALL = null;
-    alert('✅ BOGO offer save হয়েছে!');
-    await loadBogoOffers();
-  } catch(e){ alert('❌ ' + e.message); }
-}
-
-async function deleteBogoOffer(id){
-  if (!confirm('এই BOGO offer delete করবেন?')) return;
-  try {
-    var token = await ensureAdminToken();
-    var r = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/products/' + encodeURIComponent(id) + '/bogo.json?auth=' + token, {method:'DELETE'});
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    BOGO_ALL = null;
-    alert('✅ Delete হয়েছে!');
-    await loadBogoOffers();
-  } catch(e){ alert('❌ ' + e.message); }
-}
-</script>
-
-<script>
-/* BOGO v5 page db - পাশের ফাংশনের মতো page এর নিজের db/auth ব্যবহার করে, কোনো extra login নেই */
-function bogoDb(){ return window.db || firebase.database(); }
-
-async function loadAllProducts(){
-  if (BOGO_ALL) return BOGO_ALL;
-  var snap = await bogoDb().ref("products").once("value");
-  BOGO_ALL = snap.val() || {};
-  return BOGO_ALL;
-}
-
-async function loadBogoOffers(){
-  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
-  try {
-    var all = await loadAllProducts();
-    BOGO_PRODUCTS = Object.keys(all).filter(function(k){ return all[k] && all[k].bogo && all[k].bogo.enabled; })
-      .map(function(k){ return {id:k, title:all[k].title||k, bogo:all[k].bogo, price:all[k].price||0}; });
-    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
-    renderBogoList();
-  } catch(e){ document.getElementById('bogoList').innerHTML = '❌ ' + e.message; }
-}
-
-async function bulkEnableBogo(){
-  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
-  if (!confirm('⚠️ ' + count + ' টা low-price product এ BOGO enable হবে। Continue?')) return;
-  var st = document.getElementById('bogoBulkStatus');
-  st.textContent = '⏳ Products লোড হচ্ছে...';
-  try {
-    var all = await loadAllProducts();
-    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
-      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0}; });
-    arr.sort(function(x,y){ return x.price - y.price; });
-    var low = arr.slice(0, count);
-    var ok = 0, fail = 0;
-    for (var i = 0; i < low.length; i++) {
-      try {
-        await bogoDb().ref("products/" + low[i].id + "/bogo").set({enabled:true, type:"same", maxFreeQuantity:1});
-        ok++;
-      } catch(e) {
-        fail++;
-        if (fail === 1 && ok === 0) { alert('❌ প্রথম write ই fail: ' + e.message); return; }
-      }
-      st.textContent = '⏳ (' + (i+1) + '/' + count + ') ok:' + ok + ' fail:' + fail;
-    }
-    BOGO_ALL = null;
-    st.textContent = ok > 0 ? ('✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!') : '❌ সব fail';
-    await loadBogoOffers();
-  } catch(e){ st.textContent = '❌ ' + e.message; }
-}
-
-async function addBogoOffer(){
-  var val = (document.getElementById('bogoBuyInput')||{}).value || '';
-  var buyId = TITLE2ID[val] || val;
-  var type = document.getElementById('bogoType').value;
-  var freeId = document.getElementById('bogoFreeProduct').value;
-  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
-  if (!buyId) { alert('⚠️ Product বাছুন বা ID লিখুন'); return; }
-  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
-  var bogo = {enabled:true, type:type, maxFreeQuantity:maxQty};
-  if (type === 'specific') bogo.freeProductId = freeId;
-  try {
-    await bogoDb().ref("products/" + buyId + "/bogo").set(bogo);
-    BOGO_ALL = null;
-    alert('✅ BOGO offer save হয়েছে!');
-    await loadBogoOffers();
-  } catch(e){ alert('❌ ' + e.message); }
-}
-
-async function deleteBogoOffer(id){
-  if (!confirm('এই BOGO offer delete করবেন?')) return;
-  try {
-    await bogoDb().ref("products/" + id + "/bogo").remove();
-    BOGO_ALL = null;
-    alert('✅ Delete হয়েছে!');
-    await loadBogoOffers();
-  } catch(e){ alert('❌ ' + e.message); }
-}
-
-// Page এর নিজের auth state — extra login নেই
-(function(){
-  try {
-    firebase.auth().onAuthStateChanged(function(u){
-      if (u) { showBogoManager(); }
-      else {
-        var lb = document.getElementById('loginBox');
-        if (lb) lb.style.display = 'flex';
-      }
-    });
-  } catch(e){}
-})();
-</script>
-
-<script>
-/* BOGO v7 b1g1 - proven path: settings/customSections/mega/catProducts/b1g1/{pid} + settings/bogoOffers/{pid} */
-var IS_B1G1 = (CAT === "b1g1");
-if (IS_B1G1) {
-  var bm = document.getElementById('bogoManager');
-  if (bm) bm.style.display = 'block';
-}
-
-async function loadBogoOffers(){
-  if (!IS_B1G1) return;
-  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
-  try {
-    var snap = await db.ref(SEC + "/" + CAT).once("value");
-    var map = snap.val() || {};
-    var offers = {};
-    var offersSnap = await db.ref("settings/bogoOffers").once("value");
-    offers = offersSnap.val() || {};
-    BOGO_PRODUCTS = Object.keys(map).filter(function(k){ return offers[k] && offers[k].enabled; })
-      .map(function(k){
-        var p = ALL && ALL[k] ? ALL[k] : {};
-        return {id:k, title:p.title||k, bogo:offers[k], price:p.price||0};
-      });
-    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
-    renderBogoList();
-  } catch(e){ document.getElementById('bogoList').innerHTML = '❌ ' + e.message; }
-}
-
-async function bulkEnableBogo(){
-  if (!IS_B1G1) { alert('⚠️ শুধু Buy 1 Get 1 category তে কাজ করে'); return; }
-  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
-  if (!confirm('⚠️ ' + count + ' টা low-price product এ BOGO enable হবে। Continue?')) return;
-  var st = document.getElementById('bogoBulkStatus');
-  st.textContent = '⏳ Products লোড হচ্ছে...';
-  try {
-    var allSnap = await db.ref("products").once("value");
-    var all = allSnap.val() || {};
-    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
-      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0, p:all[k]}; });
-    arr.sort(function(x,y){ return x.price - y.price; });
-    var low = arr.slice(0, count);
-    var ok = 0, fail = 0;
-    for (var i = 0; i < low.length; i++) {
-      var it = low[i];
-      try {
-        await db.ref(SEC + "/" + CAT + "/" + it.id).set({id: it.id, addedAt: Date.now()});
-        await db.ref("settings/bogoOffers/" + it.id).set({
-          enabled:true, type:"same", maxFreeQuantity:1,
-          title: it.p.title || it.id, price: it.price,
-          image: (it.p.images && (it.p.images.main || it.p.images.i0)) || ''
-        });
-        ok++;
-      } catch(e) {
-        fail++;
-        if (fail === 1 && ok === 0) { alert('❌ প্রথম write ই fail: ' + e.message); return; }
-      }
-      st.textContent = '⏳ (' + (i+1) + '/' + count + ') ok:' + ok + ' fail:' + fail;
-    }
-    st.textContent = ok > 0 ? ('✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!') : '❌ সব fail';
-    await loadBogoOffers();
-  } catch(e){ st.textContent = '❌ ' + e.message; }
-}
-
-async function addBogoOffer(){
-  if (!IS_B1G1) { alert('⚠️ শুধু Buy 1 Get 1 category তে কাজ করে'); return; }
-  var val = (document.getElementById('bogoBuyInput')||{}).value || '';
-  var buyId = TITLE2ID[val] || val;
-  var type = document.getElementById('bogoType').value;
-  var freeId = document.getElementById('bogoFreeProduct').value;
-  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
-  if (!buyId) { alert('⚠️ Product বাছুন বা ID লিখুন'); return; }
-  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
-  try {
-    var ps = await db.ref("products/" + buyId).once("value");
-    var p = ps.val() || {};
-    await db.ref(SEC + "/" + CAT + "/" + buyId).set({id: buyId, addedAt: Date.now()});
-    var off = {enabled:true, type:type, maxFreeQuantity:maxQty, title:p.title||buyId, price:p.price||0, image:(p.images&&(p.images.main||p.images.i0))||''};
-    if (type === 'specific') off.freeProductId = freeId;
-    await db.ref("settings/bogoOffers/" + buyId).set(off);
-    alert('✅ BOGO offer save হয়েছে!');
-    await loadBogoOffers();
-  } catch(e){ alert('❌ ' + e.message); }
-}
-
-async function deleteBogoOffer(id){
-  if (!confirm('এই BOGO offer delete করবেন?')) return;
-  try {
-    await db.ref(SEC + "/" + CAT + "/" + id).remove();
-    await db.ref("settings/bogoOffers/" + id).remove();
-    alert('✅ Delete হয়েছে!');
-    await loadBogoOffers();
-  } catch(e){ alert('❌ ' + e.message); }
-}
-</script>
-
-<script>
-/* BOGO v8 list fix - ALL variable ছাড়া, offer metadata থেকে list */
-async function loadBogoOffers(){
-  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
-  try {
-    var snap = await db.ref(SEC + "/" + CAT).once("value");
-    var map = snap.val() || {};
-    var offersSnap = await db.ref("settings/bogoOffers").once("value");
-    var offers = offersSnap.val() || {};
-    BOGO_PRODUCTS = Object.keys(map).filter(function(k){ return offers[k] && offers[k].enabled; })
-      .map(function(k){ return {id:k, title: offers[k].title || k, bogo: offers[k], price: offers[k].price || 0}; });
-    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
-    renderBogoList();
-  } catch(e){ document.getElementById('bogoList').innerHTML = '❌ ' + e.message; }
-}
-</script>
-
-<script>
-/* BOGO v9 single-path - offer data b1g1 category entry তেই: {id,addedAt,bogo:{...},title,price,image} */
-async function loadBogoOffers(){
-  document.getElementById('bogoList').innerHTML = '⏳ লোড হচ্ছে...';
-  try {
-    var snap = await db.ref(SEC + "/" + CAT).once("value");
-    var map = snap.val() || {};
-    BOGO_PRODUCTS = Object.keys(map).filter(function(k){ return map[k] && map[k].bogo && map[k].bogo.enabled; })
-      .map(function(k){ return {id:k, title: map[k].title || k, bogo: map[k].bogo, price: map[k].price || 0}; });
-    document.getElementById('bogoCount').textContent = BOGO_PRODUCTS.length;
-    renderBogoList();
-  } catch(e){ document.getElementById('bogoList').innerHTML = '❌ ' + e.message; }
-}
-
-async function bulkEnableBogo(){
-  var count = parseInt(document.getElementById('bogoBulkCount').value) || 50;
-  if (!confirm('⚠️ ' + count + ' টা low-price product Buy 1 Get 1 এ যোগ হবে। Continue?')) return;
-  var st = document.getElementById('bogoBulkStatus');
-  st.textContent = '⏳ Products লোড হচ্ছে...';
-  try {
-    var allSnap = await db.ref("products").once("value");
-    var all = allSnap.val() || {};
-    var arr = Object.keys(all).filter(function(k){ return all[k] && all[k].price; })
-      .map(function(k){ return {id:k, price: parseFloat(all[k].price)||0, p:all[k]}; });
-    arr.sort(function(x,y){ return x.price - y.price; });
-    var low = arr.slice(0, count);
-    var ok = 0, fail = 0;
-    for (var i = 0; i < low.length; i++) {
-      var it = low[i];
-      try {
-        await db.ref(SEC + "/" + CAT + "/" + it.id).set({
-          id: it.id, addedAt: Date.now(),
-          bogo: {enabled:true, type:"same", maxFreeQuantity:1},
-          title: it.p.title || it.id, price: it.price,
-          image: (it.p.images && (it.p.images.main || it.p.images.i0)) || ''
-        });
-        ok++;
-      } catch(e) { fail++; if (fail === 1 && ok === 0) { alert('❌ ' + e.message); return; } }
-      st.textContent = '⏳ (' + (i+1) + '/' + count + ') ok:' + ok + ' fail:' + fail;
-    }
-    st.textContent = ok > 0 ? ('✅ ' + ok + '/' + count + ' products এ BOGO enable হয়েছে!') : '❌ সব fail';
-    await loadBogoOffers();
-  } catch(e){ st.textContent = '❌ ' + e.message; }
-}
-
-async function addBogoOffer(){
-  var val = (document.getElementById('bogoBuyInput')||{}).value || '';
-  var buyId = TITLE2ID[val] || val;
-  var type = document.getElementById('bogoType').value;
-  var freeId = document.getElementById('bogoFreeProduct').value;
-  var maxQty = parseInt(document.getElementById('bogoMaxQty').value) || 1;
-  if (!buyId) { alert('⚠️ Product বাছুন বা ID লিখুন'); return; }
-  if (type === 'specific' && !freeId) { alert('⚠️ Free Product ID দিন'); return; }
-  try {
-    var ps = await db.ref("products/" + buyId).once("value");
-    var p = ps.val() || {};
-    var entry = {id: buyId, addedAt: Date.now(), bogo: {enabled:true, type:type, maxFreeQuantity:maxQty},
-      title: p.title || buyId, price: p.price || 0, image: (p.images && (p.images.main || p.images.i0)) || ''};
-    if (type === 'specific') entry.bogo.freeProductId = freeId;
-    await db.ref(SEC + "/" + CAT + "/" + buyId).set(entry);
-    alert('✅ BOGO offer save হয়েছে!');
-    await loadBogoOffers();
-  } catch(e){ alert('❌ ' + e.message); }
-}
-
-async function deleteBogoOffer(id){
-  if (!confirm('BOGO offer বন্ধ করবেন? (পণ্য category তে থাকবে, শুধু free offer যাবে)')) return;
-  try {
-    var s = await db.ref(SEC + "/" + CAT + "/" + id).once("value");
-    var v = s.val() || {};
-    delete v.bogo;
-    await db.ref(SEC + "/" + CAT + "/" + id).set(v);
-    alert('✅ Offer বন্ধ হয়েছে!');
-    await loadBogoOffers();
-  } catch(e){ alert('❌ ' + e.message); }
-}
 </script>
 <script src="mjh-mini.js"></script>
 </body>
