@@ -1,4 +1,4 @@
-/* MJH mini v1 - features INSIDE the original manager (no separate panel) */
+/* MJH mini v2 - cleanup fake entries + save with browser auth */
 (function(){
 "use strict";
 var CATS=[];
@@ -32,6 +32,47 @@ function DB(){
   }
   step();
  });
+}
+function cleanupFake(){
+ DB().then(function(o){
+  var sec=window.SEC||"settings/globalCategoryProducts";
+  var cat=window.CAT||"";
+  var path=sec+"/"+cat;
+  toast("🔍 ভুয়া এন্ট্রি খুঁজছি...");
+  return o.m.get(o.m.ref(o.db,path)).then(function(sn){
+   var map=sn.val()||{};
+   var ids=Object.keys(map);
+   if(!ids.length){toast("✅ কোনো এন্ট্রি নেই");return;}
+   toast("🔍 "+ids.length+"টা এন্ট্রি চেক করছি...");
+   var fake=[];var checked=0;
+   ids.forEach(function(id){
+    o.m.get(o.m.ref(o.db,"products/"+id)).then(function(psn){
+     checked++;
+     if(!psn.val())fake.push(id);
+     if(checked===ids.length){
+      if(!fake.length){modal(["✅ কোনো ভুয়া এন্ট্রি নেই!"]);return;}
+      modal(["⚠️ "+fake.length+"টা ভুয়া এন্ট্রি পাওয়া গেছে","🗑️ ডিলিট করছেন..."]);
+      var up={};
+      fake.forEach(function(fid){up[path+"/"+fid]=null;});
+      o.m.update(o.m.ref(o.db),up).then(function(){
+       modal(["✅ "+fake.length+"টা ভুয়া এন্ট্রি মুছে গেছে","🔄 পেজ রিফ্রেশ হচ্ছে..."]);
+       setTimeout(function(){location.reload();},1500);
+      });
+     }
+    });
+   });
+  });
+ }).catch(function(e){toast("❌ "+e.message,"#c0392b");});
+}
+function addCleanupButton(){
+ if(document.getElementById("mjhCleanup"))return;
+ var btn=document.createElement("button");
+ btn.id="mjhCleanup";
+ btn.textContent="🗑️ ভুয়া এন্ট্রি ক্লিনআপ";
+ btn.style.cssText="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:10px 14px;font-weight:800;margin:8px 0";
+ btn.onclick=cleanupFake;
+ var first=document.querySelector(".admin-content")||document.body;
+ first.insertBefore(btn,first.firstChild);
 }
 function fixCard(card){
  var pi=card.querySelector(".pPrice");if(!pi||!pi.dataset.id)return null;
@@ -94,4 +135,5 @@ document.addEventListener("click",function(ev){
  }
 },true);
 loadCats(function(){});
+setTimeout(addCleanupButton,1000);
 })();
