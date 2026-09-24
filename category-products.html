@@ -346,13 +346,6 @@ if(n)await db.ref().update(up);
 st("✅ সিঙ্ক: "+n+" ক্যাটাগরি (master সহ)","#9b59b6");
 }catch(e){console.warn(e);}
 }
-});
-}
-up["products/"+id]=Object.assign({},pd,{category:CAT||"Uncategorized",categoryId:CAT});
-await db.ref().update(up);
-st("✅ সিঙ্ক: "+n+" ক্যাটাগরি + All Category","#9b59b6");
-}catch(e){console.warn(e);}
-}
 window.doSearch=async function(){
 var q=norm(document.getElementById("q").value.trim());
 var box=document.getElementById("searchres");
