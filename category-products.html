@@ -2,375 +2,149 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>প্রোডাক্ট ম্যানেজার v4</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>প্রোডাক্ট ম্যানেজার v9</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="cloudinary.js"></script>
 <style>
-body{background:#111;color:#eee;font-family:sans-serif;margin:0;padding:12px}
-.bar{background:#1d2733;border-radius:10px;padding:10px;margin:10px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.btn{border:none;border-radius:8px;padding:9px 12px;font-weight:700;cursor:pointer;color:#fff}
-input,textarea{background:#0b0f14;color:#eee;border:1px solid #333;border-radius:6px;padding:8px}
-.card{background:#16202b;border-radius:12px;padding:10px;margin:10px 0}
-#badge{position:fixed;top:8px;right:8px;background:#f39c12;color:#111;font-weight:700;padding:8px 12px;border-radius:10px;z-index:99}
-img.th{width:70px;height:70px;object-fit:cover;border-radius:8px}
-.cur{color:#2ecc71;font-weight:700}
-h3{color:#f39c12}
+body{margin:0;background:#121212;color:#fff;font-family:sans-serif}
+.box{background:#252525;padding:12px;border-bottom:1px solid #444}
+label{display:block;font-size:12px;color:#bbb;margin:4px 0}
+input{width:100%;padding:8px;background:#333;border:1px solid #555;color:#fff;border-radius:4px;box-sizing:border-box}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{border:none;border-radius:4px;padding:8px 12px;font-weight:700;cursor:pointer}
+.save{background:#2ecc71;color:#000}.del{background:#e74c3c;color:#fff}.edit{background:#f1c40f;color:#000}
+.card{background:#2a2a2a;border-left:4px solid #3498db;border-radius:6px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#authwarn{display:none;background:#e74c3c;color:#fff;padding:8px 12px;font-size:13px}
 </style>
 </head>
 <body>
-<div id="badge">☑️ 0/0</div>
-<h2 id="head">লোড হচ্ছে...</h2>
-<div id="loginBox" class="bar" style="display:none">
-<input id="em" placeholder="Email" style="flex:1"><input id="pw" type="password" placeholder="Password" style="flex:1">
-<button class="btn" style="background:#2980b9" id="loginBtn">লগইন</button>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#1e1e1e;border-bottom:1px solid #333">
+<h2 style="margin:0;font-size:18px">📦 <span id="head">প্রোডাক্ট ম্যানেজার</span></h2>
+<span id="status-msg" style="font-size:12px;color:#aaa">Ready</span>
 </div>
-<div class="bar">
-<input type="file" id="files" accept="image/*" multiple>
-<button class="btn" style="background:#27ae60" id="markAll">✅ সব সিলেক্ট</button>
-<button class="btn" style="background:#2980b9" id="saveSel">💾 সিলেক্টেড Save</button>
-<button class="btn" style="background:#c0392b" id="delSel">🗑️ সিলেক্টেড Delete</button>
+<div id="authwarn">⚠️ Admin login পাওয়া যায়নি — Save/Delete কাজ করবে না। <a href="login.html" style="color:#fff">লগইন করুন</a></div>
+<div class="box">
+<h3 style="margin:0 0 8px;color:#f39c12">➕ Add / Update Product</h3>
+<form id="prod-form">
+<input type="hidden" id="edit-id">
+<div class="grid">
+<div><label>Product Name *</label><input id="p-name" required placeholder="e.g. Samsung Galaxy A04"></div>
+<div><label>Price (৳) *</label><input id="p-price" type="number" step="0.01" required></div>
+<div><label>Discount (%)</label><input id="p-disc" type="number" min="0" max="100" value="0"></div>
+<div><label>Stock</label><input id="p-stock" type="number" value="10"></div>
+<div><label>Start Date</label><input id="p-start" type="date"></div>
+<div><label>End Date</label><input id="p-end" type="date"></div>
 </div>
-<div class="bar">
-<textarea id="paste" rows="3" placeholder="প্রাইস লিস্ট (নাম — ৳দাম)" style="flex:1"></textarea>
-<button class="btn" style="background:#2980b9" id="applyPaste">✅ প্রাইস বসান</button>
+<label>Image (Cloudinary)</label>
+<input id="p-img" type="file" accept="image/*">
+<img id="img-preview" style="max-width:90px;display:none;margin-top:6px;border-radius:4px">
+<button class="save" type="submit" id="save-btn" style="width:100%;margin-top:10px;padding:12px">💾 SAVE & SYNC TO ALL SECTIONS</button>
+</form>
 </div>
-<div class="bar">
-<input id="pct" type="number" placeholder="%" style="width:70px">
-<button class="btn" style="background:#27ae60" id="applyPct">সিলেক্টেড % বসান</button>
-<input id="d1" type="date"><input id="d2" type="date">
-<button class="btn" style="background:#2980b9" id="applyDates">📆 তারিখ বসান</button>
+<div style="padding:12px">
+<h3 style="margin:0 0 8px">Products (<span id="cat-display"></span>)</h3>
+<div id="list-container"><p style="color:#888">তালিকা আনা হচ্ছে...</p></div>
 </div>
-<div id="bogoManager" style="background:#16202b;border-radius:12px;padding:15px;margin:15px 0;display:none">
-<h3 style="color:#f39c12;margin:0 0 10px">🎁 BOGO Manager — Buy 1 Get 1 Free</h3>
-<p style="color:#9ca3af;margin:0 0 10px">Mega Offers > Buy 1 Get 1 ক্যাটাগরির products এ BOGO enable করুন</p>
-
-<div style="background:#1d2733;padding:12px;border-radius:8px;margin:10px 0">
-<h4 style="margin:0 0 8px;color:#f39c12">➕ নতুন BOGO Offer</h4>
-<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-<select id="bogoBuyProduct" style="flex:1;min-width:200px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333">
-<option value="">⏳ Products লোড হচ্ছে...</option>
-</select>
-<select id="bogoType" style="width:180px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333">
-<option value="same">🔄 Same Product (Buy 1 Get 1 Same)</option>
-<option value="specific">🎁 Specific Free Product</option>
-</select>
-<input id="bogoFreeProduct" placeholder="Free Product ID" style="width:180px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333;display:none">
-<input id="bogoMaxQty" type="number" value="1" min="1" max="10" style="width:80px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333" placeholder="Max Qty">
-<button class="btn" style="background:#27ae60" onclick="addBogoOffer()">💾 Save</button>
-</div>
-</div>
-
-<div style="background:#1d2733;padding:12px;border-radius:8px;margin:10px 0">
-<h4 style="margin:0 0 8px;color:#f39c12">⚡ Bulk Enable (Low Price Products)</h4>
-<p style="color:#9ca3af;margin:0 0 8px">সবচেয়ে কম দামের products একসাথে BOGO enable করুন (Amazon/Daraz style)</p>
-<input id="bogoBulkCount" type="number" value="50" min="10" max="200" style="width:100px;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333" placeholder="Count">
-<button class="btn" style="background:#2980b9" onclick="bulkEnableBogo()">🎁 Enable</button>
-<div id="bogoBulkStatus" style="margin-top:8px;color:#f39c12;font-size:13px"></div>
-</div>
-
-<div style="background:#1d2733;padding:12px;border-radius:8px;margin:10px 0">
-<h4 style="margin:0 0 8px;color:#f39c12">📋 Active BOGO Offers (<span id="bogoCount">0</span>)</h4>
-<input id="bogoSearch" placeholder="🔍 Search products..." style="width:100%;padding:8px;border-radius:6px;background:#0b0f14;color:#eee;border:1px solid #333;margin-bottom:8px">
-<div id="bogoList" style="max-height:400px;overflow-y:auto"></div>
-</div>
-</div>
-
-<div id="list"></div>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
-var CFG = {apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
-  authDomain: "mohajon-mjh.firebaseapp.com",
-  databaseURL: "https://mohajon-mjh-default-rtdb.firebaseio.com",
-  projectId: "mohajon-mjh",
-  storageBucket: "mohajon-mjh.firebasestorage.app",
-  messagingSenderId: "526105903976",
-  appId: "1:526105903976:web:f9321c6d68ecbd19d58cdd"};
-firebase.initializeApp(CFG);
-
-<!-- ========================================== -->
-<!-- CLEAN SMART SYNC MANAGER V9 (NO JUNK)      -->
-<!-- ========================================== -->
-
-<div id="app-root" style="min-height:100vh; background:#121212; color:white; font-family:sans-serif;">
-    
-    <!-- Header Status -->
-    <div style="padding:15px; background:#1e1e1e; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
-        <h2 style="margin:0;">📦 Smart Sync Manager V9</h2>
-        <span id="status-msg" style="color:#aaa; font-size:12px;">System Ready</span>
-    </div>
-
-    <!-- Input Form -->
-    <div style="background:#252525; padding:15px; border-bottom:1px solid #444;">
-        <h3 style="margin-top:0; color:#f39c12;">➕ Add / Update Product</h3>
-        <form id="prod-form" onsubmit="event.preventDefault(); handleSmartSave();">
-            <input type="hidden" id="edit-id">
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
-                <div>
-                    <label>Product Name *</label>
-                    <input type="text" id="p-name" required placeholder="e.g. Samsung Galaxy A04" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
-                </div>
-                <div>
-                    <label>Price (৳) *</label>
-                    <input type="number" id="p-price" required step="0.01" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
-                </div>
-                <div>
-                    <label>Discount (%)</label>
-                    <input type="number" id="p-disc" value="0" min="0" max="100" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
-                </div>
-                <div>
-                    <label>Stock</label>
-                    <input type="number" id="p-stock" value="10" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
-                </div>
-                <div>
-                    <label>Start Date</label>
-                    <input type="date" id="p-start" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
-                </div>
-                <div>
-                    <label>End Date</label>
-                    <input type="date" id="p-end" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
-                </div>
-            </div>
-
-            <div style="margin-bottom:10px;">
-                <label>Image Upload (Cloudinary)</label>
-                <input type="file" id="p-img" accept="image/*" onchange="previewImg(this)" style="width:100%; padding:8px; background:#333; border:1px solid #555; color:white;">
-                <img id="img-preview" src="" style="max-width:100px; height:auto; margin-top:5px; display:none; border-radius:4px;">
-            </div>
-
-            <button type="submit" id="save-btn" style="width:100%; padding:12px; background:#2ecc71; color:black; font-weight:bold; border:none; border-radius:4px; cursor:pointer; font-size:16px;">
-                💾 SAVE & SYNC TO ALL SECTIONS
-            </button>
-        </form>
-    </div>
-
-    <!-- List View -->
-    <div style="padding:15px;">
-        <h3>Current Section Products (<span id="current-cat-display"></span>)</h3>
-        <div id="list-container">
-            <p style="color:#888;text-align:center;">Clicking Save will sync to Flash/Deals/Special/Global automatically.</p>
-        </div>
-    </div>
-</div>
-
-<script>
-// --- GLOBAL VARIABLES FROM HEAD PART ---
-if(typeof db === 'undefined') var db = firebase.database();
-if(typeof SEC === 'undefined') var SEC = "settings/globalCategoryProducts"; 
-if(typeof CAT === 'undefined') var CAT = ""; 
-
-document.getElementById('current-cat-display').innerText = CAT || "General";
-
-window.previewImg = function(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            const img = document.getElementById('img-preview');
-            img.src = e.target.result;
-            img.style.display = 'block';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
+var CFG={apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",authDomain:"mohajon-mjh.firebaseapp.com",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",storageBucket:"mohajon-mjh.appspot.com",messagingSenderId:"000000000000",appId:"1:000000000000:web:0000"};
+if(!firebase.apps.length)firebase.initializeApp(CFG);
+var db=firebase.database(),auth=firebase.auth();
+var params=new URLSearchParams(location.search);
+var SEC=params.get("sec")||"settings/globalCategoryProducts";
+var CAT=params.get("cat")||"";
+var SECTIONS=[
+{cats:"settings/flashSaleCategories",prods:"settings/flashSaleCategoryProducts"},
+{cats:"settings/dealsOfDayCategories",prods:"settings/dealsOfDayCategoryProducts"},
+{cats:"settings/specialCategories",prods:"settings/specialCategoryProducts"},
+{cats:"settings/globalCategories",prods:"settings/globalCategoryProducts"}
+];
+document.getElementById("cat-display").textContent=CAT||"General";
+document.getElementById("head").textContent=(CAT||"Product")+" — প্রোডাক্ট ম্যানেজার";
+auth.onAuthStateChanged(function(u){document.getElementById("authwarn").style.display=u?"none":"block";});
+function setStatus(m,c){var e=document.getElementById("status-msg");e.textContent=m;e.style.color=c||"#aaa";}
+function norm(s){return (s||"").toLowerCase();}
+function matches(prodName,catName){var a=norm(prodName),b=norm(catName);if(!b||b.length<3)return false;if(a.indexOf(b)>=0||b.indexOf(a)>=0)return true;var t=a.split(/[\s\-]+/);for(var i=0;i<t.length;i++){if(t[i].length>3&&b.indexOf(t[i])>=0)return true;}return false;}
+document.getElementById("p-img").addEventListener("change",function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){var im=document.getElementById("img-preview");im.src=e.target.result;im.style.display="block";};r.readAsDataURL(f);});
+document.getElementById("prod-form").addEventListener("submit",function(ev){ev.preventDefault();handleSmartSave();});
+function curPath(){return SEC+(CAT?"/"+CAT:"");}
+async function loadList(){
+var c=document.getElementById("list-container");c.innerHTML='<p style="color:#888">তালিকা আনা হচ্ছে...</p>';
+try{
+var snap=await db.ref(curPath()).once("value");var data=snap.val()||{};var keys=Object.keys(data);
+if(!keys.length){c.innerHTML='<p style="color:#888">এই সেকশনে এখনো কোনো প্রোডাক্ট নেই। উপরের ফর্ম থেকে যোগ করুন।</p>';return;}
+var html="";
+keys.forEach(function(k){var p=data[k]||{};
+var fp=p.price?Math.round(p.price*(1-(p.discount||0)/100)):"?";
+html+='<div class="card"><div style="flex:1"><strong>'+(p.name||"Unnamed")+'</strong><br><small style="color:#aaa">৳'+(p.price||0)+' (-'+(p.discount||0)+'%) → <b style="color:#2ecc71">৳'+fp+'</b> | Stock: '+(p.stock||0)+'</small><br><small style="color:#666">'+k+'</small></div><div style="display:flex;gap:6px"><button class="edit" onclick="prepareEdit(\''+k+'\')">Edit</button><button class="del" onclick="deleteProd(\''+k+'\')">Del</button></div></div>';});
+c.innerHTML=html;
+}catch(e){c.innerHTML='<p style="color:#e74c3c">Error: '+e.message+'</p>';}
+}
+window.prepareEdit=async function(id){
+var snap=await db.ref(curPath()+"/"+id).once("value");var p=snap.val();if(!p)return alert("Not found");
+document.getElementById("edit-id").value=id;
+document.getElementById("p-name").value=p.name||"";
+document.getElementById("p-price").value=p.price||"";
+document.getElementById("p-disc").value=p.discount||0;
+document.getElementById("p-stock").value=p.stock||0;
+document.getElementById("p-start").value=p.startDate||"";
+document.getElementById("p-end").value=p.endDate||"";
+window.scrollTo(0,0);setStatus("Editing: "+id,"#f1c40f");
 };
-
-function setStatus(msg, color="#aaa") {
-    const el = document.getElementById('status-msg');
-    el.innerText = msg;
-    el.style.color = color;
+window.deleteProd=async function(id){
+if(!confirm("সব সেকশন থেকে ডিলিট হবে। নিশ্চিত?"))return;
+setStatus("Deleting...","#f39c12");
+try{
+var up={};up[curPath()+"/"+id]=null;
+for(var i=0;i<SECTIONS.length;i++){
+var snap=await db.ref(SECTIONS[i].prods).once("value");var all=snap.val()||{};
+Object.keys(all).forEach(function(catId){var items=all[catId]||{};if(items[id]||(items[id]&&items[id].id===id))up[SECTIONS[i].prods+"/"+catId+"/"+id]=null;});
 }
-
-async function loadList() {
-    const container = document.getElementById('list-container');
-    container.innerHTML = '<p style="color:#888;text-align:center;">Fetching data...</p>';
-    
-    try {
-        let fullPath = SEC;
-        if(CAT) fullPath += "/" + CAT;
-        
-        const snap = await db.ref(fullPath).once('value');
-        const data = snap.val();
-        
-        if(!data || Object.keys(data).length === 0) {
-            container.innerHTML = '<p>No products in this section yet.</p>';
-            return;
-        }
-
-        let html = '';
-        Object.keys(data).forEach(key => {
-            const p = data[key];
-            const finalPrice = p.price ? (p.price * (1 - (p.discount||0)/100)).toFixed(2) : '?';
-            
-            html += `
-            <div style="background:#2a2a2a; padding:10px; margin-bottom:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; border-left:4px solid #3498db;">
-                <div style="flex:1;">
-                    <strong>${p.name || 'Unnamed'}</strong><br>
-                    <small style="color:#aaa;">৳${p.price} (-${p.discount||0}%) -> <span style="color:#2ecc71;font-weight:bold;">৳${finalPrice}</span></small><br>
-                    <small style="color:#888;">ID: ${key}</small>
-                </div>
-                <div style="display:flex; gap:5px;">
-                    <button onclick="prepareEdit('${key}', '${fullPath}')" style="padding:5px 10px; background:#f1c40f; border:none; border-radius:3px; cursor:pointer;">✏ Edit</button>
-                    <button onclick="deleteProd('${key}', '${fullPath}')" style="padding:5px 10px; background:#e74c3c; color:white; border:none; border-radius:3px; cursor:pointer;">🗑 Del</button>
-                </div>
-            </div>`;
-        });
-        container.innerHTML = html;
-
-    } catch(e) {
-        console.error(e);
-        container.innerHTML = `<p style="color:red;">Error: ${e.message}</p>`;
-    }
-}
-
-window.prepareEdit = async function(id, path) {
-    const snap = await db.ref(`${path}/${id}`).once('value');
-    const p = snap.val();
-    if(!p) return alert("Not found");
-
-    document.getElementById('edit-id').value = id;
-    document.getElementById('p-name').value = p.name || "";
-    document.getElementById('p-price').value = p.price || "";
-    document.getElementById('p-disc').value = p.discount || 0;
-    document.getElementById('p-stock').value = p.stock || 0;
-    document.getElementById('p-start').value = p.startDate || "";
-    document.getElementById('p-end').value = p.endDate || "";
-    
-    window.scrollTo(0,0);
-    setStatus("Editing Mode ON", "#f1c40f");
-}
-
-window.deleteProd = async function(id, path) {
-    if(!confirm("Delete from ALL sections?")) return;
-    
-    const parents = [
-        "settings/flashSaleCategoryProducts",
-        "settings/dealsOfDayCategoryProducts",
-        "settings/specialCategoryProducts",
-        "settings/globalCategoryProducts"
-    ];
-
-    try {
-        for(let parent of parents) {
-            if(CAT) {
-                await db.ref(`${parent}/${CAT}/${id}`).remove().catch(()=>{});
-            } else {
-                await db.ref(`${parent}/${id}`).remove().catch(()=>{});
-            }
-        }
-        alert("Deleted.");
-        loadList();
-    } catch(e) {
-        alert("Error deleting: " + e.message);
-    }
-}
-
-window.handleSmartSave = async function() {
-    const btn = document.getElementById('save-btn');
-    const originalText = btn.innerText;
-    btn.disabled = true;
-    btn.innerText = "⏳ Processing...";
-    setStatus("Saving...", "#f39c12");
-
-    const editId = document.getElementById('edit-id').value;
-    const name = document.getElementById('p-name').value.trim();
-    const price = parseFloat(document.getElementById('p-price').value);
-    const disc = parseInt(document.getElementById('p-disc').value) || 0;
-    const stock = parseInt(document.getElementById('p-stock').value) || 0;
-    const start = document.getElementById('p-start').value;
-    const end = document.getElementById('p-end').value;
-    const imgFile = document.getElementById('p-img').files[0];
-
-    if(!name || isNaN(price)) {
-        alert("Name and Price required!");
-        resetBtn(btn, originalText);
-        return;
-    }
-
-    const newId = editId || Date.now().toString();
-    const currentFullPath = SEC + (CAT ? "/" + CAT : "");
-
-    try {
-        let imageUrl = "";
-        
-        if(editId && !imgFile) {
-             const existingSnap = await db.ref(`${currentFullPath}/${editId}`).once('value');
-             if(existingSnap.exists()) imageUrl = existingSnap.val().image || "";
-        }
-
-        if(imgFile) {
-            setStatus("Uploading to Cloudinary...", "#3498db");
-            if(window.MJHCloud && typeof window.MJHCloud.upload === 'function') {
-                const res = await window.MJHCloud.upload(imgFile);
-                imageUrl = res.url;
-            } else {
-                throw new Error("MJHCloud uploader not found.");
-            }
-        }
-
-        const prodData = {
-            id: newId,
-            name: name,
-            price: price,
-            discount: disc,
-            stock: stock,
-            startDate: start,
-            endDate: end,
-            image: imageUrl,
-            updatedAt: firebase.database.ServerValue.TIMESTAMP
-        };
-
-        const syncTargets = [
-            { base: "settings/flashSaleCategoryProducts", label: "Flash Sale" },
-            { base: "settings/dealsOfDayCategoryProducts", label: "Deals of the Day" },
-            { base: "settings/specialCategoryProducts", label: "Special Offers" },
-            { base: "settings/globalCategoryProducts", label: "Global Categories" }
-        ];
-
-        let successCount = 0;
-        
-        for(let target of syncTargets) {
-            let writePath = target.base;
-            if(CAT) writePath += "/" + CAT;
-            
-            try {
-                await db.ref(`${writePath}/${newId}`).set(prodData);
-                successCount++;
-            } catch(err) {
-                console.warn(`Failed to sync to ${target.label}:`, err);
-            }
-        }
-
-        if(successCount > 0) {
-            setStatus(`Auto-Synced to ${successCount} sections!`, "#9b59b6");
-            alert(`✅ Success!\n\nSaved to current section.\nAutomatically added to ${successCount} related sections.`);
-        } else {
-            setStatus("Saved Locally Only", "#aaa");
-            alert("✅ Saved successfully to current section only.");
-        }
-
-        document.getElementById('prod-form').reset();
-        document.getElementById('edit-id').value = "";
-        document.getElementById('img-preview').style.display = 'none';
-        loadList();
-
-    } catch(err) {
-        console.error(err);
-        alert("❌ Error: " + err.message);
-        setStatus("Error!", "#e74c3c");
-    } finally {
-        resetBtn(btn, originalText);
-    }
+await db.ref().update(up);
+setStatus("Deleted","#2ecc71");loadList();
+}catch(e){alert("❌ "+e.message);setStatus("Error","#e74c3c");}
 };
-
-function resetBtn(btn, text) {
-    btn.disabled = false;
-    btn.innerText = text;
+async function handleSmartSave(){
+var btn=document.getElementById("save-btn");var ot=btn.textContent;btn.disabled=true;btn.textContent="⏳ Processing...";
+setStatus("Saving...","#f39c12");
+var editId=document.getElementById("edit-id").value;
+var name=document.getElementById("p-name").value.trim();
+var price=parseFloat(document.getElementById("p-price").value);
+var disc=parseInt(document.getElementById("p-disc").value)||0;
+var stock=parseInt(document.getElementById("p-stock").value)||0;
+var start=document.getElementById("p-start").value;
+var end=document.getElementById("p-end").value;
+var imgFile=document.getElementById("p-img").files[0];
+if(!name||isNaN(price)){alert("Name ও Price আবশ্যক!");btn.disabled=false;btn.textContent=ot;return;}
+var newId=editId||("p_"+Date.now());
+try{
+var imageUrl="";
+if(editId&&!imgFile){var es=await db.ref(curPath()+"/"+editId).once("value");if(es.exists())imageUrl=es.val().image||"";}
+if(imgFile){
+setStatus("Cloudinary upload...","#3498db");
+if(!window.MJHCloud)throw new Error("cloudinary.js লোড হয়নি");
+var res=await window.MJHCloud.upload(imgFile);imageUrl=res.url;
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadList();
+var prodData={id:newId,name:name,price:price,discount:disc,stock:stock,startDate:start,endDate:end,image:imageUrl,updatedAt:firebase.database.ServerValue.TIMESTAMP};
+var up={};up[curPath()+"/"+newId]=prodData;var syncCount=1;
+for(var i=0;i<SECTIONS.length;i++){
+var cs=await db.ref(SECTIONS[i].cats).once("value");var cats=cs.val()||{};
+Object.keys(cats).forEach(function(catId){
+var cn=cats[catId]&&(cats[catId].name||cats[catId].title||cats[catId].label||"");
+if(matches(name,cn)){up[SECTIONS[i].prods+"/"+catId+"/"+newId]=prodData;syncCount++;}
 });
-
+}
+await db.ref().update(up);
+setStatus("Saved + synced "+syncCount+" জায়গায়","#2ecc71");
+alert("✅ সেভ হয়েছে!\nমোট "+syncCount+" জায়গায় সিঙ্ক হয়েছে (বর্তমান সেকশন + নাম মিলে যাওয়া ক্যাটাগরি)।");
+document.getElementById("prod-form").reset();document.getElementById("edit-id").value="";document.getElementById("img-preview").style.display="none";
+loadList();
+}catch(e){alert("❌ "+e.message);setStatus("Error","#e74c3c");}
+finally{btn.disabled=false;btn.textContent=ot;}
+}
+loadList();
 </script>
 </body>
 </html>
