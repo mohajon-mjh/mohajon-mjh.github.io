@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>প্রোডাক্ট ম্যানেজার v11</title>
+<title>প্রোডাক্ট ম্যানেজার v12</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -13,7 +13,7 @@ body{margin:0;background:#121212;color:#fff;font-family:sans-serif;font-size:14p
 .hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#1e1e1e;border-bottom:1px solid #333}
 .bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 12px;background:#252525;border-bottom:1px solid #444}
 .bar input[type=text]{flex:1;min-width:140px}
-input,select{padding:7px;background:#333;border:1px solid #555;color:#fff;border-radius:4px;box-sizing:border-box}
+input,select,textarea{padding:7px;background:#333;border:1px solid #555;color:#fff;border-radius:4px;box-sizing:border-box}
 button{border:none;border-radius:4px;padding:7px 10px;font-weight:700;cursor:pointer;font-size:12px}
 .save{background:#2ecc71;color:#000}.del{background:#e74c3c;color:#fff}.edit{background:#f1c40f;color:#000}.blue{background:#3498db;color:#fff}
 .addbox{padding:10px 12px;background:#252525;border-bottom:1px solid #444}
@@ -61,6 +61,11 @@ s{color:#888}
 <button class="save" type="submit" id="save-btn" style="width:100%;margin-top:10px;padding:12px">💾 SAVE & SYNC TO ALL SECTIONS</button>
 </form>
 </div>
+<div class="addbox">
+<h3>📋 Bulk Paste — নাম ও দাম একসাথে পেস্ট করে সেভ</h3>
+<textarea id="bulktext" rows="6" style="width:100%;background:#1b1b1b;font-size:12px" placeholder="প্রতি লাইন: নাম - দাম&#10;Electric Money Bank for Kids - ৳ 2,800&#10;Premium Notebook Set - ৳ 750&#10;Gaming Laptop - ৳ 1,45,000"></textarea>
+<button class="save" onclick="bulkPaste()" style="width:100%;margin-top:6px;padding:10px">💾 পেস্ট করা সব পণ্য একসাথে সেভ</button>
+</div>
 <div class="bar">
 <input type="file" id="bulkimg" accept="image/*" multiple style="flex:1;min-width:150px;background:#222">
 <label style="display:flex;gap:4px;align-items:center;font-size:12px"><input type="checkbox" id="markall" onchange="markAll(this)" style="width:auto"> মার্ক অল</label>
@@ -98,6 +103,7 @@ function st(m,c){var e=document.getElementById("status-msg");e.textContent=m;e.s
 function fmt(v,p){if(v===undefined||v===""||v===null)return "—";return (p.cur||"৳")+v;}
 function curPrice(p){var d=p.discount||0;if(d>0){var base=(p.originalPrice||p.price||0);return Math.round(base*(1-d/100));}return p.price||0;}
 function norm(s){return (s||"").toLowerCase();}
+function nkey(s){return (s||"").toLowerCase().replace(/[_\-]+/g," ").replace(/\s+/g," ").trim();}
 function matches(a,b){a=norm(a);b=norm(b);if(!b||b.length<3)return false;if(a.indexOf(b)>=0||b.indexOf(a)>=0)return true;var t=a.split(/[\s\-]+/);for(var i=0;i<t.length;i++){if(t[i].length>3&&b.indexOf(t[i])>=0)return true;}return false;}
 function cp(){return SEC+(CAT?"/"+CAT:"");}
 async function loadList(){
@@ -107,7 +113,7 @@ catch(e){c.innerHTML='<p style="color:#e74c3c">Error: '+e.message+'</p>';}
 }
 function render(){
 var c=document.getElementById("list-container");var ks=Object.keys(P);
-if(!ks.length){c.innerHTML='<p style="text-align:center;color:#888">কোনো প্রোডাক্ট নেই। উপরের ফর্ম থেকে যোগ করুন অথবা choose file দিয়ে ছবি দিন।</p>';return;}
+if(!ks.length){c.innerHTML='<p style="text-align:center;color:#888">কোনো প্রোডাক্ট নেই। উপরের ফর্ম/বাল্ক পেস্ট থেকে যোগ করুন।</p>';return;}
 var h="";ks.forEach(function(id){h+=card(id,P[id]||{});});c.innerHTML=h;
 }
 function card(id,p){
@@ -161,7 +167,8 @@ render();st("সেভ হয়েছে: "+k,"#2ecc71");
 }catch(e){alert("❌ "+e.message);}
 };
 window.saveAll=async function(){
-var eds=document.querySelectorAll(".fed");if(!eds.length){alert("কোনো এডিট খোলা নেই। আগে ✏ এডিট চাপুন।");return;}
+var eds=document.querySelectorAll(".fed");
+if(!eds.length){alert("কোনো এডিট খোলা নেই। কার্ডে ✏ এডিট চাপুন, অথবা নাম-দাম পেস্ট করে 📋 বাল্ক সেভ ব্যবহার করুন।");return;}
 var up={};var nameChanged=[];
 eds.forEach(function(ed){
 var id=ed.getAttribute("data-id"),k=ed.getAttribute("data-k");
@@ -176,6 +183,46 @@ try{
 await db.ref().update(up);
 for(var i=0;i<nameChanged.length;i++)await syncByName(nameChanged[i].name,nameChanged[i].id);
 st("সব সেভ হয়েছে","#2ecc71");loadList();
+}catch(e){alert("❌ "+e.message);}
+};
+function parseBulk(text){
+var lines=text.split(/\n+/);var out=[];
+lines.forEach(function(ln){
+ln=ln.trim();if(!ln)return;
+if(ln.charAt(ln.length-1)===",")ln=ln.slice(0,-1);
+var i=ln.lastIndexOf("-");
+if(i<0)i=ln.lastIndexOf(":");
+if(i<0)return;
+var name=ln.slice(0,i).trim();
+var ppart=ln.slice(i+1).trim();
+if(!name||!/[0-9]/.test(ppart))return;
+var curSym="৳";
+if(ppart.indexOf("$")>=0)curSym="$";else if(ppart.indexOf("€")>=0)curSym="€";
+var num=parseFloat(ppart.replace(/[^0-9.]/g,""));
+if(isNaN(num))return;
+out.push({name:name,price:num,cur:curSym});
+});
+return out;
+}
+window.bulkPaste=async function(){
+var items=parseBulk(document.getElementById("bulktext").value);
+if(!items.length){alert("পার্স করা যায়নি। ফরম্যাট: নাম - দাম (প্রতি লাইন)\nউদা: Electric Money Bank for Kids - ৳ 2,800");return;}
+var byName={};Object.keys(P).forEach(function(id){var n=nkey((P[id]||{}).name);if(n&&!byName[n])byName[n]=id;});
+var up={};var nu=0,nn=0;var newOnes=[];
+items.forEach(function(it,idx){
+var k=nkey(it.name);
+if(byName[k]){var id=byName[k];up[cp()+"/"+id+"/price"]=it.price;up[cp()+"/"+id+"/cur"]=it.cur;nu++;}
+else{var nid="p_"+Date.now()+"_"+idx;
+var pd={id:nid,name:it.name,price:it.price,cur:it.cur,discount:0,stock:0,image:"",startDate:"",endDate:"",createdAt:firebase.database.ServerValue.TIMESTAMP};
+up[cp()+"/"+nid]=pd;newOnes.push({id:nid,name:it.name});nn++;}
+});
+try{
+await db.ref().update(up);
+for(var i=0;i<newOnes.length;i++)await syncByName(newOnes[i].name,newOnes[i].id);
+st("বাল্ক সেভ: "+nu+" আপডেট, "+nn+" নতুন","#2ecc71");
+alert("✅ সেভ হয়েছে!\nদাম আপডেট: "+nu+" টি\nনতুন পণ্য: "+nn+" টি\n(নাম মিলে যাওয়া ক্যাটাগরিতে অটো সিঙ্ক হয়েছে)");
+document.getElementById("bulktext").value="";
+loadList();
 }catch(e){alert("❌ "+e.message);}
 };
 window.markAll=function(cb){document.querySelectorAll(".sel").forEach(function(x){x.checked=cb.checked;});};
