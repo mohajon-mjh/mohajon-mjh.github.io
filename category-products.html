@@ -89,15 +89,15 @@ var CFG = {apiKey: "AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
 firebase.initializeApp(CFG);
 
 <!-- ========================================== -->
-<!-- SMART SYNC MANAGER V8 (MULTI-SECTION COPY) -->
+<!-- CLEAN SMART SYNC MANAGER V9 (NO JUNK)      -->
 <!-- ========================================== -->
 
 <div id="app-root" style="min-height:100vh; background:#121212; color:white; font-family:sans-serif;">
     
     <!-- Header Status -->
     <div style="padding:15px; background:#1e1e1e; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center;">
-        <h2 style="margin:0;">📦 Multi-Section Sync Manager</h2>
-        <span id="status-msg" style="color:#aaa; font-size:12px;">Ready to Sync All Sections</span>
+        <h2 style="margin:0;">📦 Smart Sync Manager V9</h2>
+        <span id="status-msg" style="color:#aaa; font-size:12px;">System Ready</span>
     </div>
 
     <!-- Input Form -->
@@ -140,7 +140,7 @@ firebase.initializeApp(CFG);
             </div>
 
             <button type="submit" id="save-btn" style="width:100%; padding:12px; background:#2ecc71; color:black; font-weight:bold; border:none; border-radius:4px; cursor:pointer; font-size:16px;">
-                💾 SAVE & SYNC TO FLASH/DEALS/SPECIAL/GLOBAL
+                💾 SAVE & SYNC TO ALL SECTIONS
             </button>
         </form>
     </div>
@@ -149,23 +149,19 @@ firebase.initializeApp(CFG);
     <div style="padding:15px;">
         <h3>Current Section Products (<span id="current-cat-display"></span>)</h3>
         <div id="list-container">
-            <p>Loading...</p>
+            <p style="color:#888;text-align:center;">Clicking Save will sync to Flash/Deals/Special/Global automatically.</p>
         </div>
     </div>
 </div>
 
 <script>
 // --- GLOBAL VARIABLES FROM HEAD PART ---
-// db, auth, SEC, CAT are defined in lines 1-89.
-// We assume they exist. If not, fallbacks:
 if(typeof db === 'undefined') var db = firebase.database();
 if(typeof SEC === 'undefined') var SEC = "settings/globalCategoryProducts"; 
 if(typeof CAT === 'undefined') var CAT = ""; 
 
-// Display current category name
 document.getElementById('current-cat-display').innerText = CAT || "General";
 
-// Helper: Preview Image locally before upload
 window.previewImg = function(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -178,20 +174,17 @@ window.previewImg = function(input) {
     }
 };
 
-// Helper: Set Status Text
 function setStatus(msg, color="#aaa") {
     const el = document.getElementById('status-msg');
     el.innerText = msg;
     el.style.color = color;
 }
 
-// Load Products for Current Section
 async function loadList() {
     const container = document.getElementById('list-container');
     container.innerHTML = '<p style="color:#888;text-align:center;">Fetching data...</p>';
     
     try {
-        // Construct path based on current URL params (SEC/CAT)
         let fullPath = SEC;
         if(CAT) fullPath += "/" + CAT;
         
@@ -229,7 +222,6 @@ async function loadList() {
     }
 }
 
-// Prepare Edit Mode
 window.prepareEdit = async function(id, path) {
     const snap = await db.ref(`${path}/${id}`).once('value');
     const p = snap.val();
@@ -247,11 +239,9 @@ window.prepareEdit = async function(id, path) {
     setStatus("Editing Mode ON", "#f1c40f");
 }
 
-// Delete Logic (Removes from ALL sections)
 window.deleteProd = async function(id, path) {
-    if(!confirm("Delete this product? It will be removed from ALL synced sections too.")) return;
+    if(!confirm("Delete from ALL sections?")) return;
     
-    // Define all possible parent paths where this product might exist
     const parents = [
         "settings/flashSaleCategoryProducts",
         "settings/dealsOfDayCategoryProducts",
@@ -261,22 +251,19 @@ window.deleteProd = async function(id, path) {
 
     try {
         for(let parent of parents) {
-            // If CAT exists, check inside that category folder first
             if(CAT) {
                 await db.ref(`${parent}/${CAT}/${id}`).remove().catch(()=>{});
             } else {
-                // Fallback: Try removing directly under parent (unlikely structure but safe attempt)
                 await db.ref(`${parent}/${id}`).remove().catch(()=>{});
             }
         }
-        alert("Deleted from all sections.");
+        alert("Deleted.");
         loadList();
     } catch(e) {
         alert("Error deleting: " + e.message);
     }
 }
 
-// THE MAGIC: SMART SAVE & CROSS-SYNC
 window.handleSmartSave = async function() {
     const btn = document.getElementById('save-btn');
     const originalText = btn.innerText;
@@ -303,10 +290,8 @@ window.handleSmartSave = async function() {
     const currentFullPath = SEC + (CAT ? "/" + CAT : "");
 
     try {
-        // STEP 1: Handle Image Upload (Using your existing MJHCloud logic)
         let imageUrl = "";
         
-        // If editing and no new file, keep old image
         if(editId && !imgFile) {
              const existingSnap = await db.ref(`${currentFullPath}/${editId}`).once('value');
              if(existingSnap.exists()) imageUrl = existingSnap.val().image || "";
@@ -314,16 +299,14 @@ window.handleSmartSave = async function() {
 
         if(imgFile) {
             setStatus("Uploading to Cloudinary...", "#3498db");
-            // Using global MJHCloud object defined in cloudinary.js
             if(window.MJHCloud && typeof window.MJHCloud.upload === 'function') {
                 const res = await window.MJHCloud.upload(imgFile);
                 imageUrl = res.url;
             } else {
-                throw new Error("MJHCloud uploader not found. Include cloudinary.js");
+                throw new Error("MJHCloud uploader not found.");
             }
         }
 
-        // STEP 2: Create Data Object
         const prodData = {
             id: newId,
             name: name,
@@ -336,9 +319,6 @@ window.handleSmartSave = async function() {
             updatedAt: firebase.database.ServerValue.TIMESTAMP
         };
 
-        // STEP 3: MULTI-SECTION AUTO-SYNC LOGIC
-        // We will write this same data to all 4 major section nodes
-        
         const syncTargets = [
             { base: "settings/flashSaleCategoryProducts", label: "Flash Sale" },
             { base: "settings/dealsOfDayCategoryProducts", label: "Deals of the Day" },
@@ -350,12 +330,11 @@ window.handleSmartSave = async function() {
         
         for(let target of syncTargets) {
             let writePath = target.base;
-            if(CAT) writePath += "/" + CAT; // Maintain category structure
+            if(CAT) writePath += "/" + CAT;
             
             try {
                 await db.ref(`${writePath}/${newId}`).set(prodData);
                 successCount++;
-                console.log(`Synced to: ${target.label}`);
             } catch(err) {
                 console.warn(`Failed to sync to ${target.label}:`, err);
             }
@@ -363,13 +342,12 @@ window.handleSmartSave = async function() {
 
         if(successCount > 0) {
             setStatus(`Auto-Synced to ${successCount} sections!`, "#9b59b6");
-            alert(`✅ Success!\n\nSaved to current section.\nAutomatically added to ${successCount} related sections (Home/Hamburger).\n\nTarget Sections:\n- Flash Sale\n- Deals of the Day\n- Special Offers\n- Global Categories`);
+            alert(`✅ Success!\n\nSaved to current section.\nAutomatically added to ${successCount} related sections.`);
         } else {
             setStatus("Saved Locally Only", "#aaa");
-            alert("✅ Saved successfully to current section only.\n(Auto-sync failed due to permission or network issues).");
+            alert("✅ Saved successfully to current section only.");
         }
 
-        // Reset Form
         document.getElementById('prod-form').reset();
         document.getElementById('edit-id').value = "";
         document.getElementById('img-preview').style.display = 'none';
@@ -389,12 +367,10 @@ function resetBtn(btn, text) {
     btn.innerText = text;
 }
 
-// Init
 document.addEventListener('DOMContentLoaded', () => {
     loadList();
 });
 
 </script>
-<script src="mjh-mini.js"></script>
 </body>
 </html>
