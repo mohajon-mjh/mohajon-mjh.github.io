@@ -74,7 +74,7 @@ footer{text-align:center;font-size:11px;color:#555;margin:26px 0}
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,RecaptchaVerifier,signInWithPhoneNumber,signInWithEmailAndPassword,createUserWithEmailAndPassword,updateProfile,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,RecaptchaVerifier,signInWithPhoneNumber,signInWithEmailAndPassword,createUserWithEmailAndPassword,updateProfile,signOut,setPersistence,browserLocalPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getDatabase,ref,set} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 const app=initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",authDomain:"mohajon-mjh.firebaseapp.com",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",storageBucket:"mohajon-mjh.firebasestorage.app",messagingSenderId:"526105903976",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
 const auth=getAuth(app),db=getDatabase(app);
@@ -126,6 +126,7 @@ window.saveName=async()=>{
 };
 window.signinEmail=async()=>{
  try{
+  await setPersistence(auth, browserLocalPersistence);
   const c=await signInWithEmailAndPassword(auth,ident,document.getElementById("pPass").value);
   localStorage.setItem("mjhUser",JSON.stringify({uid:c.user.uid,name:c.user.displayName||"Buyer",email:c.user.email}));
   location.href=next;
