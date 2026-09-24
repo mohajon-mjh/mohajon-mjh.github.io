@@ -147,9 +147,9 @@ var base=ALLMODE?BASEPATH:cp();
 var s=await db.ref(base).once("value");var all=s.val()||{};
 if(ALLMODE){
 for(var catId in all){var items=all[catId]||{};
-for(var id in items){P[id]=await mergeMaster(id,items[id]);P[id]._path=BASEPATH+"/"+catId;}}
+for(var id in items){var mm=await mergeMaster(id,items[id])||{};mm._path=BASEPATH+"/"+catId;P[id]=mm;}}
 }else{
-for(var id2 in all){P[id2]=await mergeMaster(id2,all[id2]);}
+for(var id2 in all){var m3=await mergeMaster(id2,all[id2])||{};m3._path=cp();P[id2]=m3;}
 }
 render();
 }catch(e){c.innerHTML='<p style="color:#e74c3c">Error: '+e.message+'</p>';}
@@ -222,8 +222,8 @@ window.uploadImg=async function(id){
 var inp=document.getElementById("img_"+id);if(!inp||!inp.files||!inp.files[0])return alert("ছবি সিলেক্ট করুন");
 st("Cloudinary আপলোড হচ্ছে...","#f39c12");
 try{
-if(!window.MJH_CLOUD)throw new Error("MJH_CLOUD পাওয়া যায়নি");
-var r=await window.MJH_CLOUD.upload(inp.files[0]);var url=r.url;
+if(!window.MJHCloud)throw new Error("Cloudinary লাইব্রেরি লোড হয়নি");
+var r=await window.MJHCloud.upload(inp.files[0]);var url=r.url;
 var up={};var M=MASTER+"/"+id+"/";
 up[M+"image"]=url;up[M+"img"]=url;up[M+"images"]={main:url};
 var el=document.querySelector('.card[data-id="'+id+'"]');var path=el.getAttribute("data-path")||cp();
@@ -240,7 +240,7 @@ try{
 var up=writeSplit(orig,path,id,v);
 await db.ref().update(up);
 st("✅ Firebase-এ সেভ: মাস্টার + ক্যাটাগরি ম্যাপ","#2ecc71");
-P[id]=await mergeMaster(id,orig._map||{});P[id]._path=path;
+var mm2=await mergeMaster(id,orig._map||{})||{};mm2._path=path;P[id]=mm2;
 if(v.name!==gv(orig,"name"))await syncByName(v.name,id,path);
 render();
 }catch(e){alert("❌ "+e.message);}
@@ -306,7 +306,7 @@ Object.keys(all2).forEach(function(catId){var items=all2[catId]||{};ids.forEach(
 await db.ref().update(up);
 for(var j=0;j<ids.length;j++){
 var p=P[ids[j]]||{};var img=gv(p,"image");
-if(img&&window.MJH_CLOUD&&window.MJH_CLOUD.remove){try{await window.MJH_CLOUD.remove(img);}catch(e){}}
+if(img&&window.MJHCloud&&window.MJHCloud.remove){try{await window.MJHCloud.remove(img);}catch(e){}}
 }
 st("✅ মাস্টার + সব ক্যাটাগরি + Cloudinary থেকে ডিলিট হয়েছে","#2ecc71");loadList();
 }catch(e){alert("❌ "+e.message);}
@@ -399,7 +399,7 @@ if(!BASEPATH)await detectBase();
 var ts=Date.now();
 for(var i=0;i<fs.length;i++){
 var f=fs[i];var url="";
-if(window.MJH_CLOUD){var r=await window.MJH_CLOUD.upload(f);url=r.url;}
+if(window.MJHCloud){var r=await window.MJHCloud.upload(f);url=r.url;}
 var base=f.name.replace(/\.[^.]+$/,"");
 var id="p_"+ts+"_"+i;
 var master={id:id,title:base,name:base,price:0,discount:0,discountPrice:0,stock:0,image:url,img:url,images:{main:url},startDate:"",endDate:"",status:"active",category:CAT||"Uncategorized",categoryId:CAT,createdAt:ts+i};
