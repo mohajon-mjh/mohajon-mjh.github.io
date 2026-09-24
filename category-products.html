@@ -327,13 +327,25 @@ st("✅ দাম বসেছে: "+cnt,"#2ecc71");loadList();
 window.markAll=function(cb){document.querySelectorAll(".sel").forEach(function(x){x.checked=cb.checked;});};
 async function syncByName(name,id,path){
 try{
-var me=await db.ref((path||cp())+"/"+id).once("value");var pd=me.val()||{};pd.id=id;
+var me=await db.ref(MASTER+"/"+id).once("value");var pd=me.val()||{};
+if(!pd||!pd.name){
+var cur=await db.ref((path||cp())+"/"+id).once("value");var cv=cur.val()||{};
+if(cv&&cv.name){
+var master={id:id,title:cv.name,name:cv.name,price:cv.price||0,discount:cv.discount||0,discountPrice:cv.originalPrice||0,stock:cv.stock||0,image:cv.image||"",img:cv.image||"",images:{main:cv.image||""},startDate:cv.startDate||"",endDate:cv.endDate||"",status:"active",category:CAT||"Uncategorized",categoryId:CAT,createdAt:Date.now()};
+await db.ref(MASTER+"/"+id).set(master);pd=master;
+}}
 var up={};var n=0;
 for(var i=0;i<SECTIONS.length;i++){
 var cs=await db.ref(SECTIONS[i].cats).once("value");var cats=cs.val()||{};
 Object.keys(cats).forEach(function(catId){
 var cn=cats[catId]&&(cats[catId].name||cats[catId].title||cats[catId].label||"");
-if(matches(name,cn)){up[SECTIONS[i].prods+"/"+catId+"/"+id]=pd;n++;}
+if(matches(name,cn)){
+up[SECTIONS[i].prods+"/"+catId+"/"+id]={id:id,addedAt:Date.now(),startDate:pd.startDate||"",endDate:pd.endDate||"",discountPercent:pd.discount||0};n++;}
+});}
+if(n)await db.ref().update(up);
+st("✅ সিঙ্ক: "+n+" ক্যাটাগরি (master সহ)","#9b59b6");
+}catch(e){console.warn(e);}
+}
 });
 }
 up["products/"+id]=Object.assign({},pd,{category:CAT||"Uncategorized",categoryId:CAT});
