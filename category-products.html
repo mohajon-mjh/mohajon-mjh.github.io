@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>প্রোডাক্ট ম্যানেজার v10</title>
+<title>প্রোডাক্ট ম্যানেজার v11</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -16,6 +16,10 @@ body{margin:0;background:#121212;color:#fff;font-family:sans-serif;font-size:14p
 input,select{padding:7px;background:#333;border:1px solid #555;color:#fff;border-radius:4px;box-sizing:border-box}
 button{border:none;border-radius:4px;padding:7px 10px;font-weight:700;cursor:pointer;font-size:12px}
 .save{background:#2ecc71;color:#000}.del{background:#e74c3c;color:#fff}.edit{background:#f1c40f;color:#000}.blue{background:#3498db;color:#fff}
+.addbox{padding:10px 12px;background:#252525;border-bottom:1px solid #444}
+.addbox h3{margin:0 0 8px;color:#f39c12;font-size:14px}
+.addbox label{display:block;font-size:11px;color:#bbb;margin:4px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .card{background:#232323;border:1px solid #3a3a3a;border-left:4px solid #3498db;border-radius:8px;margin:10px 12px;padding:10px}
 .chead{display:flex;gap:8px;align-items:center;margin-bottom:6px}
 .chead img{width:52px;height:52px;object-fit:cover;border-radius:6px;background:#444}
@@ -25,7 +29,7 @@ button{border:none;border-radius:4px;padding:7px 10px;font-weight:700;cursor:poi
 .fed{flex:1;display:flex;gap:4px}
 .fed input,.fed select{flex:1;min-width:0}
 .auto{color:#2ecc71;font-weight:700}
-strike,s{color:#888}
+s{color:#888}
 #searchres{max-height:180px;overflow:auto;background:#1b1b1b;border:1px solid #444;border-radius:6px;margin:0 12px;display:none}
 .sr{display:flex;justify-content:space-between;gap:6px;padding:6px 8px;border-bottom:1px solid #2c2c2c;font-size:12px}
 #authwarn{display:none;background:#e74c3c;padding:8px 12px;font-size:12px}
@@ -39,6 +43,24 @@ strike,s{color:#888}
 <button class="blue" onclick="doSearch()">সার্চ</button>
 </div>
 <div id="searchres"></div>
+<div class="addbox">
+<h3>➕ Add / Update Product</h3>
+<form id="prod-form">
+<input type="hidden" id="edit-id">
+<div class="grid2">
+<div><label>Product Name *</label><input id="p-name" required placeholder="e.g. Samsung Galaxy A04"></div>
+<div><label>Price (৳) *</label><input id="p-price" type="number" step="0.01" required></div>
+<div><label>Discount (%)</label><input id="p-disc" type="number" min="0" max="100" value="0"></div>
+<div><label>Stock</label><input id="p-stock" type="number" value="10"></div>
+<div><label>Start Date</label><input id="p-start" type="date"></div>
+<div><label>End Date</label><input id="p-end" type="date"></div>
+</div>
+<label>Image (Cloudinary)</label>
+<input id="p-img" type="file" accept="image/*">
+<img id="img-preview" style="max-width:90px;display:none;margin-top:6px;border-radius:4px">
+<button class="save" type="submit" id="save-btn" style="width:100%;margin-top:10px;padding:12px">💾 SAVE & SYNC TO ALL SECTIONS</button>
+</form>
+</div>
 <div class="bar">
 <input type="file" id="bulkimg" accept="image/*" multiple style="flex:1;min-width:150px;background:#222">
 <label style="display:flex;gap:4px;align-items:center;font-size:12px"><input type="checkbox" id="markall" onchange="markAll(this)" style="width:auto"> মার্ক অল</label>
@@ -73,8 +95,7 @@ var FIELDS=[
 document.getElementById("head").textContent=(CAT||"Product")+" — প্রোডাক্ট ম্যানেজার";
 auth.onAuthStateChanged(function(u){document.getElementById("authwarn").style.display=u?"none":"block";});
 function st(m,c){var e=document.getElementById("status-msg");e.textContent=m;e.style.color=c||"#aaa";}
-function cur(){return "৳";}
-function fmt(v,p){if(v===undefined||v===""||v===null)return "—";return (p.cur||cur())+v;}
+function fmt(v,p){if(v===undefined||v===""||v===null)return "—";return (p.cur||"৳")+v;}
 function curPrice(p){var d=p.discount||0;if(d>0){var base=(p.originalPrice||p.price||0);return Math.round(base*(1-d/100));}return p.price||0;}
 function norm(s){return (s||"").toLowerCase();}
 function matches(a,b){a=norm(a);b=norm(b);if(!b||b.length<3)return false;if(a.indexOf(b)>=0||b.indexOf(a)>=0)return true;var t=a.split(/[\s\-]+/);for(var i=0;i<t.length;i++){if(t[i].length>3&&b.indexOf(t[i])>=0)return true;}return false;}
@@ -86,10 +107,8 @@ catch(e){c.innerHTML='<p style="color:#e74c3c">Error: '+e.message+'</p>';}
 }
 function render(){
 var c=document.getElementById("list-container");var ks=Object.keys(P);
-if(!ks.length){c.innerHTML='<p style="text-align:center;color:#888">কোনো প্রোডাক্ট নেই। উপরে choose file দিয়ে ছবি তুলে পণ্য যোগ করুন অথবা সার্চ করুন।</p>';return;}
-var h="";
-ks.forEach(function(id){h+=card(id,P[id]||{});});
-c.innerHTML=h;
+if(!ks.length){c.innerHTML='<p style="text-align:center;color:#888">কোনো প্রোডাক্ট নেই। উপরের ফর্ম থেকে যোগ করুন অথবা choose file দিয়ে ছবি দিন।</p>';return;}
+var h="";ks.forEach(function(id){h+=card(id,P[id]||{});});c.innerHTML=h;
 }
 function card(id,p){
 var h='<div class="card" id="card_'+id+'">';
@@ -109,8 +128,7 @@ h+='<span class="fv" id="v_'+id+'_'+f.k+'">'+disp+'</span>'+
 '<button class="save" onclick="saveF(\''+id+'\',\''+f.k+'\')">💾 সেভ</button>';
 }
 h+='</div>';});
-h+='</div>';
-return h;
+h+='</div>';return h;
 }
 window.editF=function(id,k){
 var f=null;FIELDS.forEach(function(x){if(x.k===k)f=x;});
@@ -120,26 +138,21 @@ if(f.t==="money"){ed+='<select class="ecur"><option '+(p.cur==="৳"?"selected":
 else if(f.t==="date"){ed+='<input type="date" class="ein" value="'+(p[k]||"")+'">';}
 else if(f.t==="num"){ed+='<input type="number" class="ein" value="'+(p[k]||0)+'">';}
 else{ed+='<input type="text" class="ein" value="'+((p[k]||"").toString().replace(/"/g,"&quot;"))+'">';}
-ed+='</span>';
-span.outerHTML=ed;
+ed+='</span>';span.outerHTML=ed;
 };
 function readEd(id,k){
 var ed=document.getElementById("e_"+id+"_"+k);if(!ed)return null;
 var out={};
 if(ed.querySelector(".ecur"))out.cur=ed.querySelector(".ecur").value;
-out.v=ed.querySelector(".ein").value;
-return out;
+out.v=ed.querySelector(".ein").value;return out;
 }
 window.saveF=async function(id,k){
 var f=null;FIELDS.forEach(function(x){if(x.k===k)f=x;});
-var r=readEd(id,k);var p=P[id]||{};var up={};
-if(r){
+var r=readEd(id,k);if(!r)return;
+var up={};
 if(r.cur)up[cp()+"/"+id+"/cur"]=r.cur;
-var v=r.v;
-if(f.t==="num")v=parseFloat(v)||0;
-if(f.t==="money")v=parseFloat(v)||0;
+var v=r.v;if(f.t==="num"||f.t==="money")v=parseFloat(v)||0;
 up[cp()+"/"+id+"/"+k]=v;
-}else{return;}
 try{
 await db.ref().update(up);
 if(k==="name")await syncByName(v,id);
@@ -226,13 +239,48 @@ var nd=JSON.parse(JSON.stringify(p));nd.id=id;
 await db.ref(cp()+"/"+id).set(nd);
 st("যোগ হয়েছে","#2ecc71");document.getElementById("searchres").style.display="none";loadList();
 };
+document.getElementById("p-img").addEventListener("change",function(){
+var f=this.files[0];if(!f)return;
+var r=new FileReader();r.onload=function(e){var im=document.getElementById("img-preview");im.src=e.target.result;im.style.display="block";};r.readAsDataURL(f);
+});
+document.getElementById("prod-form").addEventListener("submit",async function(ev){
+ev.preventDefault();
+var btn=document.getElementById("save-btn");var ot=btn.textContent;btn.disabled=true;btn.textContent="⏳ Processing...";
+st("Saving...","#f39c12");
+var editId=document.getElementById("edit-id").value;
+var name=document.getElementById("p-name").value.trim();
+var price=parseFloat(document.getElementById("p-price").value);
+var disc=parseInt(document.getElementById("p-disc").value)||0;
+var stock=parseInt(document.getElementById("p-stock").value)||0;
+var start=document.getElementById("p-start").value;
+var end=document.getElementById("p-end").value;
+var imgFile=document.getElementById("p-img").files[0];
+if(!name||isNaN(price)){alert("Name ও Price আবশ্যক!");btn.disabled=false;btn.textContent=ot;return;}
+var newId=editId||("p_"+Date.now());
+try{
+var imageUrl="";
+if(editId&&!imgFile){var es=await db.ref(cp()+"/"+editId).once("value");if(es.exists())imageUrl=es.val().image||"";}
+if(imgFile){
+st("Cloudinary upload...","#3498db");
+if(!window.MJHCloud)throw new Error("cloudinary.js লোড হয়নি");
+var res=await window.MJHCloud.upload(imgFile);imageUrl=res.url;
+}
+var pd={id:newId,name:name,price:price,discount:disc,stock:stock,startDate:start,endDate:end,image:imageUrl,updatedAt:firebase.database.ServerValue.TIMESTAMP};
+await db.ref(cp()+"/"+newId).set(pd);
+await syncByName(name,newId);
+st("Saved + synced","#2ecc71");
+alert("✅ সেভ হয়েছে! নাম মিলে যাওয়া ক্যাটাগরিতেও অটো যোগ হয়েছে।");
+document.getElementById("prod-form").reset();document.getElementById("edit-id").value="";document.getElementById("img-preview").style.display="none";
+loadList();
+}catch(e){alert("❌ "+e.message);st("Error","#e74c3c");}
+finally{btn.disabled=false;btn.textContent=ot;}
+});
 document.getElementById("bulkimg").addEventListener("change",async function(){
 var fs=this.files;if(!fs||!fs.length)return;
 st("আপলোড হচ্ছে...","#f39c12");
 try{
 for(var i=0;i<fs.length;i++){
-var f=fs[i];
-var url="";
+var f=fs[i];var url="";
 if(window.MJHCloud){var r=await window.MJHCloud.upload(f);url=r.url;}
 var base=f.name.replace(/\.[^.]+$/,"");
 var id="p_"+Date.now()+"_"+i;
