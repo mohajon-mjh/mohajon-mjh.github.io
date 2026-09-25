@@ -1,0 +1,37 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Fix Once</title></head>
+<body style="font-family:sans-serif;padding:20px;background:#111;color:#0f0">
+<h2>🔧 fs_offers → Flash Sale কপি</h2>
+<button id="go" style="padding:12px 24px;font-size:16px">▶ ১১টা পণ্য Flash Sale এ কপি করুন</button>
+<pre id="out"></pre>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",projectId:"mohajon-mjh",appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"});
+var db=firebase.database(),out=document.getElementById("out");
+function log(m){out.textContent+=m+"\n";}
+firebase.auth().onAuthStateChanged(function(u){
+  if(!u){log("❌ login নেই — আগে admin.html এ login করুন");return;}
+  log("✅ login: "+u.email);
+  document.getElementById("go").onclick=function(){
+    db.ref("settings/globalCategoryProducts/fs_offers").once("value").then(function(s){
+      var map=s.val()||{};var ids=Object.keys(map);
+      log("পণ্য পেয়েছি: "+ids.length+"টা");
+      var up={};
+      ids.forEach(function(id){
+        var v=map[id];
+        var info=(v&&typeof v==="object")?v:{};
+        if(!info.discountPercent)info.discountPercent=20;
+        if(!info.startDate)info.startDate="09/25/2026";
+        if(!info.endDate)info.endDate="09/30/2026";
+        if(!info.addedAt)info.addedAt=Date.now();
+        up["settings/flashSaleCategoryProducts/fs_offers/"+id]=info;
+      });
+      return db.ref().update(up).then(function(){
+        log("✅ কপি সফল: "+ids.length+"টা এখন Flash Sale এ");
+        log("📱 হোম পেজ → Flash Sale → Up To 20% Off দেখুন");
+      });
+    }).catch(function(e){log("❌ "+e.message);});
+  };
+});
+</script></body></html>
