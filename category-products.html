@@ -218,6 +218,28 @@ var v=readCard(el);var orig=P[id]||{};
 try{
 var up=writeFields(orig,path,id,v);
 await db.ref().update(up);
+
+// Master node create (products/<id>) - হোম পেজে পণ্য দেখানোর জন্য
+var masterUp={};
+var img=(orig?gv(orig,"image"):"")||(up[path+"/"+id+"/image"]||"");
+var base=parseFloat(v.price)||0;
+var disc=parseFloat(v.discount)||0;
+var sale=disc>0?Math.round(base*(1-disc/100)):base;
+masterUp["products/"+id+"/title"]=v.name||id;
+masterUp["products/"+id+"/price"]=sale;
+masterUp["products/"+id+"/discountPrice"]=base;
+masterUp["products/"+id+"/marketPrice"]=base;
+masterUp["products/"+id+"/discountPercent"]=disc;
+masterUp["products/"+id+"/stock"]=v.stock||10;
+masterUp["products/"+id+"/status"]="active";
+masterUp["products/"+id+"/sellerId"]=firebase.auth().currentUser.uid;
+masterUp["products/"+id+"/categoryId"]=path.split("/").pop()||"general";
+masterUp["products/"+id+"/createdAt"]=orig&&orig.createdAt?orig.createdAt:Date.now();
+masterUp["products/"+id+"/updatedAt"]=Date.now();
+if(v.startDate)masterUp["products/"+id+"/startDate"]=v.startDate;
+if(v.endDate)masterUp["products/"+id+"/endDate"]=v.endDate;
+if(img)masterUp["products/"+id+"/images"]={main:img};
+await db.ref().update(masterUp);
 st("✅ Firebase-এ সেভ হয়েছে: "+v.name,"#2ecc71");
 var s=await db.ref(path+"/"+id).once("value");P[id]=Object.assign({},orig,s.val()||{},{_path:path});
 if(v.name!==gv(orig,"name"))await syncByName(v.name,id,path);
