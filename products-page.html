@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>পণ্য সমূহ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f5f5f5}
+.header{display:flex;align-items:center;gap:10px;padding:12px;background:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+.header h2{font-size:16px;flex:1}
+.header input{flex:1;padding:10px;border:1px solid #ddd;border-radius:20px;font-size:14px}
+.back-btn{background:none;border:none;font-size:24px;cursor:pointer}
+.filters{display:flex;gap:8px;padding:12px;background:#fff;overflow-x:auto}
+.chip{padding:8px 16px;border-radius:20px;border:1px solid #ddd;background:#f5f5f5;cursor:pointer;white-space:nowrap}
+.chip.active{background:#ff6b35;color:#fff;border-color:#ff6b35}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.card{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.08);cursor:pointer}
+.img-wrap{position:relative;aspect-ratio:1}
+.img-wrap img{width:100%;height:100%;object-fit:cover}
+.badge{position:absolute;top:6px;left:6px;background:#ffd700;color:#000;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:bold}
+.info{padding:10px}
+.name{font-size:13px;line-height:1.4;height:36px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.price-row{display:flex;align-items:center;gap:6px;margin:8px 0}
+.price{color:#ff6b35;font-weight:bold;font-size:17px}
+.discount{background:#ff6b35;color:#fff;padding:3px 6px;border-radius:4px;font-size:11px}
+.coins{background:#fff3cd;color:#856404;font-size:11px;padding:3px 8px;border-radius:10px;display:inline-block;margin:4px 0}
+.meta{display:flex;justify-content:space-between;font-size:11px;color:#666;margin:6px 0}
+.view-btn{width:100%;padding:8px;background:#ff6b35;color:#fff;border:none;border-radius:5px;font-size:12px;cursor:pointer;margin-top:8px;font-weight:600}
+.view-btn:hover{background:#e85a2a}
+.loading{text-align:center;padding:40px;color:#888}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
+.hero-section{width:100%;height:50vh;background:#fff;position:relative;overflow:hidden}
+.hero-section img{width:100%;height:100%;object-fit:contain}
+.hero-section .hero-title{position:absolute;bottom:20px;left:20px;right:20px;background:rgba(0,0,0,0.7);color:#fff;padding:15px;border-radius:8px;font-size:18px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="header">
+<button class="back-btn" onclick="history.back()">←</button>
+<h2>🛍️ আমাদের সকল পণ্য</h2>
+<input type="text" id="search" placeholder="🔍 পণ্য খুঁজুন...">
+</div>
+<div class="filters">
+<button class="chip active" data-f="all">সব</button>
+<button class="chip" data-f="new">নতুন</button>
+<button class="chip" data-f="offer">অফার</button>
+</div>
+<div id="heroSection" style="display:none"></div>
+<div id="grid" class="grid">
+<div class="loading">⏳ লোড হচ্ছে...</div>
+</div>
+
+<script>
+const BASE="https://mohajon-mjh-default-rtdb.firebaseio.com";
+const grid=document.getElementById("grid");
+const search=document.getElementById("search");
+let allProducts=[];
+let source="product-details";
+
+const urlParams=new URLSearchParams(window.location.search);
+const catId=urlParams.get("categoryId");
+const catParam=urlParams.get("cat");
+const productId=urlParams.get("id");
+
+if(catId||catParam){
+  source="products";
+}else if(productId){
+  source="product-details";
+}
+
+async function load(){
+  try{
+    let url="";
+    if(productId){
+      // Single Product Click: Fetch details first
+      const resP=await fetch(BASE+"/products/"+productId+".json");
+      const pData=await resP.json();
+      if(!pData){grid.innerHTML="<div class='loading'>প্রোডাক্ট পাওয়া যায়নি</div>";return;}
+      
+      // Show Hero Image
+      const hero=document.getElementById("heroSection");
+      const img=(pData.images&&pData.images.main)||pData.imageUrl||"";
+      const title=pData.title||"পণ্যের বিবরণ";
+      hero.style.display="block";
+      hero.innerHTML=`<img src="${img}" alt="${title}"><div class="hero-title">${title}</div>`;
+      
+      // Load Same Category Products below
+      const cat=pData.categoryId;
+      if(cat){
+        url=BASE+"/products.json?orderBy=%22categoryId%22&equalTo=%22"+encodeURIComponent(cat)+"%22&limitToFirst=50";
+      } else {
+        grid.innerHTML="<div class='loading'>অন্যান্য পণ্য লোড হচ্ছে...</div>";
+        return;
+      }
+    } else if(catId){
+      // Category Menu Click
+      url=BASE+"/products.json?orderBy=%22categoryId%22&equalTo=%22"+encodeURIComponent(catId)+"%22&limitToFirst=100";
+    } else {
+      // All Active Products
+      url=BASE+"/products.json?orderBy=%22status%22&equalTo=%22active%22&limitToFirst=100";
+    }
+    
+    const res=await fetch(url);
+    const data=await res.json();
+    if(!data){grid.innerHTML="<div class='loading'>কোনো পণ্য নেই</div>";return;}
+    allProducts=Object.entries(data).map(([id,p])=>({id,...p}));
+    render(allProducts);
+  }catch(e){
+    console.error(e);
+    grid.innerHTML="<div class='loading'>লোড করা যায়নি</div>";
+  }
+}
+}
+
+function render(list){
+  grid.innerHTML="";
+  if(!list.length){grid.innerHTML='<div class="loading">কোনো পণ্য পাওয়া যায়নি</div>';return;}
+  
+  list.forEach(p=>{
+    const mainImg=(p.images&&p.images.main)||p.imageUrl||"https://dummyimage.com/300x300/eeeeee/555555&text=MJH";
+    const price=+p.price||0;
+    const disc=+p.discountPercent||0;
+    const finalPrice=disc>0?Math.round(price*(100-disc)/100):price;
+    const coins=+p.coinsSave||0;
+    const rating=+p.rating||4.0;
+    const sold=+p.soldCount||0;
+    const badge=p.badge||"";
+    
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`
+      <div class="img-wrap">
+        <img src="${mainImg}" alt="${p.title}" loading="lazy">
+        ${badge?`<span class="badge">${badge}</span>`:""}
+      </div>
+      <div class="info">
+        <div class="name">${p.title||""}</div>
+        <div class="price-row">
+          <span class="price">৳${finalPrice}</span>
+          ${disc>0?`<span class="discount">-${disc}%</span>`:""}
+        </div>
+        ${coins>0?`<div class="coins">💰 Coins save ৳${coins}</div>`:""}
+        <div class="meta">
+          <span>⭐ ${rating.toFixed(1)}</span>
+          <span>🛒 ${sold} sold</span>
+        </div>
+        <button class="view-btn" onclick="openDetail('${p.id}',event)">View Details →</button>
+      </div>
+    `;
+    card.addEventListener("click",function(e){
+      if(!e.target.classList.contains("view-btn"))openDetail(p.id,e);
+    });
+    grid.appendChild(card);
+  });
+}
+
+function openDetail(id,e){
+  if(e&&e.target.classList.contains("view-btn"))e.stopPropagation();
+  if(source==="products"){
+    window.location.href=`products.html?id=${id}`;
+  }else{
+    window.location.href=`product-details.html?id=${id}`;
+  }
+}
+
+search.addEventListener("input",e=>{
+  const q=e.target.value.toLowerCase();
+  render(allProducts.filter(p=>(p.title||"").toLowerCase().includes(q)));
+});
+
+document.querySelectorAll(".chip").forEach(chip=>{
+  chip.addEventListener("click",()=>{
+    document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+    chip.classList.add("active");
+    const f=chip.dataset.f;
+    render(f==="all"?allProducts:allProducts.filter(p=>(p.badge||"").toLowerCase().includes(f)));
+  });
+});
+
+load();
+</script>
+</body>
+</html>

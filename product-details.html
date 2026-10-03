@@ -59,7 +59,7 @@ h1{font-size:22px;font-weight:400;line-height:1.3;margin:4px 0 8px}
 
 .related-section{margin:30px 0;background:#fff;border-radius:8px;padding:20px}
 .related-section h2{font-size:18px;font-weight:700;margin:0 0 16px;border-bottom:2px solid #FF9900;padding-bottom:8px}
-.related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}@media(max-width:480px){.related-grid{gap:6px}.related-card{padding:6px}.related-card h3{font-size:11px;height:28px}.related-card .price{font-size:13px}.related-card img{height:110px}}
 .related-card{border:1px solid #ddd;border-radius:8px;padding:12px;cursor:pointer;transition:box-shadow 0.2s}
 .related-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .related-card img{width:100%;height:140px;object-fit:cover;border-radius:6px;background:#f5f5f5}
@@ -185,7 +185,7 @@ var thumbsHtml=gal.map(function(g,i){return '<img src="'+g.u+'" class="'+(i===0?
  var qtyHtml="";for(var i=1;i<=10;i++)qtyHtml+="<option>"+i+"</option>";
  document.getElementById("content").className="";
  document.getElementById("content").innerHTML='<div class="main">'+
- '<div class="gal"><div class="thumbs">'+thumbsHtml+'</div><div class="main-img" style="position:relative"><button class="wishlist-btn" id="wishlistBtn" onclick="toggleWishlist()">🤍</button><img id="mainImg" src="'+imgs[0]+'"></div></div>'+
+ '<div class="gal"><div class="thumbs">'+thumbsHtml+'</div><div class="main-img" style="position:relative"><button class="wishlist-btn" id="wishlistBtn" onclick="toggleWishlist()">🤍</button><img id="mainImg" src="'+imgs[0]+'"></div></div>'+'<div id="colorCarouselWrap"></div>'+
  '<div><div class="brand">'+autoBrand(P)+'</div><h1>'+(P.title||"Unnamed")+'</h1>'+
  (reviews>0?'<div class="rating-bar"><span class="stars">'+stars(rating)+'</span><span class="count">'+rating.toFixed(1)+' ('+reviews.toLocaleString()+' reviews)</span></div>':'<div class="rating-bar"><span class="count" style="color:#565959;font-size:13px">⭐ নতুন পণ্য — এখনো রিভিউ আসেনি</span></div>')+
  '<hr class="sep"><div class="price-box">'+(disc>0?'<span class="disc-badge">-'+disc+'%</span>':'')+'<span class="price-big">'+fmt(price,cur)+'</span>'+(hasOld?'<span class="old-price">'+fmt(old,cur)+'</span> <span class="save-txt">Save '+fmt(old-price,cur)+'</span>':'')+'<div class="price-sar">≈ '+fmt(price,"SAR")+' in Saudi Riyal</div></div>'+
@@ -219,35 +219,56 @@ var thumbsHtml=gal.map(function(g,i){return '<img src="'+g.u+'" class="'+(i===0?
 
 async function loadRelatedProducts(categoryId, currentId) {
   try {
-    var r = await fetch(DB + "/products.json");
-    var all = await r.json();
-    var related = [];
-    for (var pid in all) {
+    var oldRes = await fetch(DB + "/products.json");
+    var newRes = await fetch(DB + "/productsPage/items.json");
+    var oldProducts = (await oldRes.json().catch(function(){return null;})) || {};
+    var newProducts = (await newRes.json().catch(function(){return null;})) || {};
+    var allProducts = [];
+    for (var pid in oldProducts) {
       if (pid === currentId) continue;
-      var p = all[pid];
-      if (p && p.categoryId === categoryId && p.status !== "draft") {
-        related.push(Object.assign({id: pid}, p));
-        if (related.length >= 8) break;
-      }
+      var p = oldProducts[pid];
+      if (!p || p.status === "draft") continue;
+      allProducts.push({id:pid, src:"old", title:p.title||p.name||"Product", price:p.price||0,
+        image:(p.images&&p.images.main)||p.image||"https://dummyimage.com/200x200/eeeeee/555&text=MJH",
+        categoryId:p.categoryId||"", brand:p.brand||"", filterTag:p.filterTag||"", group:p.group||"", relatedIds:p.relatedIds||[]});
     }
+    for (var pid2 in newProducts) {
+      if (pid2 === currentId) continue;
+      var q = newProducts[pid2];
+      if (!q) continue;
+      var img = "";
+      if (Array.isArray(q.images) && q.images[0]) img = (typeof q.images[0]==="string")?q.images[0]:(q.images[0].url||"");
+      else if (q.colors && q.colors[0] && q.colors[0].images && q.colors[0].images[0]) img = q.colors[0].images[0];
+      allProducts.push({id:pid2, src:"new", title:q.name||q.title||"Product", price:q.price||0,
+        image:img||"https://dummyimage.com/200x200/eeeeee/555&text=MJH",
+        categoryId:q.categoryId||q.filterTag||"", brand:q.brand||"", filterTag:q.filterTag||"", group:q.group||"", relatedIds:q.relatedIds||[]});
+    }
+    function autoGroup(t){ t=String(t||"").toLowerCase();
+      var g=[["saree",["saree","sari","sharee","tangail","silk saree","half silk"]],["bedding",["bedding","bed sheet","comforter","quilt","blanket","pillow","mattress","toshok"]],["cookware",["cookware","cooking","pan","pot","kadai","nonstick"]],["laptop",["laptop","notebook","macbook"]],["mobile",["mobile","phone","galaxy","iphone","smartphone"]],["headphone",["headphone","earbud","airbud","headset"]],["watch",["watch","band"]],["drill",["drill"]],["console",["playstation","xbox","console"]]];
+      for(var gi=0;gi<g.length;gi++){for(var ki=0;ki<g[gi][1].length;ki++){if(t.indexOf(g[gi][1][ki])>-1)return g[gi][0];}}
+      return "";
+    }
+    var cur = oldProducts[currentId] || newProducts[currentId] || null;
+    var manual = (cur && cur.relatedIds) ? cur.relatedIds : [];
+    var curGroup = cur ? (cur.group || autoGroup(cur.title||cur.name)) : "";
+    var related=[];var seen={};
+    manual.forEach(function(mid){for(var z=0;z<allProducts.length;z++){if(allProducts[z].id===mid&&!seen[allProducts[z].id]){seen[allProducts[z].id]=1;related.push(allProducts[z]);break;}}});
+    allProducts.forEach(function(p){if(!seen[p.id]&&curGroup&&p.group&&p.group===curGroup){seen[p.id]=1;related.push(p);}});
+    allProducts.forEach(function(p){if(!seen[p.id]&&curGroup&&autoGroup(p.title||p.name)===curGroup){seen[p.id]=1;related.push(p);}});
     var grid = document.getElementById("relatedGrid");
     if (!grid) return;
-    if (!related.length) {
-      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#888">No related products found</div>';
-      return;
-    }
-    grid.innerHTML = related.map(function(p) {
-      var img = p.images && p.images.main ? p.images.main : 'https://dummyimage.com/200x200/eeeeee/555&text=MJH';
-      return '<div class="related-card" onclick="location.href=\'product-details.html?id=' + p.id + '\'">' +
-        '<img src="' + img + '" onerror="this.src=\'https://dummyimage.com/200x200/eeeeee/555&text=MJH\'">' +
-        '<h3>' + (p.title || 'Product').substring(0, 50) + '</h3>' +
-        '<div class="price">' + fmt(p.price || 0, localStorage.getItem("selectedCurrency") || "BDT") + '</div>' +
-      '</div>';
+    if (!related.length) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:#888">No related products found</div>'; return; }
+    grid.innerHTML = related.map(function(p){
+      return '<div class="related-card" onclick="location.href=\'product-details.html?id='+p.id+'\'">'+
+        '<img src="'+p.image+'" onerror="this.src=\'https://dummyimage.com/200x200/eeeeee/555&text=MJH\'">'+
+        '<h3>'+String(p.title).substring(0,50)+'</h3>'+
+        '<div class="price">'+fmt(p.price, localStorage.getItem("selectedCurrency")||"BDT")+'</div></div>';
     }).join("");
+    console.log("✅ Loaded "+related.length+" related products from "+allProducts.length+" total");
   } catch (e) {
     console.error("Related products error:", e);
-    var grid = document.getElementById("relatedGrid");
-    if (grid) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:#888">Failed to load related products</div>';
+    var g2=document.getElementById("relatedGrid");
+    if (g2) g2.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:#888">Failed to load related products</div>';
   }
 }
 
@@ -414,7 +435,7 @@ function enhanceGalleryLate(P){
  var id=decodeURIComponent(m[1]);
  var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
  function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
- fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}).then(function(p){
+ Promise.all([fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}),fetch(DB+"/productsPage/items/"+encodeURIComponent(id)+".json").then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})]).then(function(rr){var p=rr[0];var pn=rr[1];if((!p||!p.title)&&pn){pn.title=pn.title||pn.name;if(!pn.images||!pn.images.main){var m="";if(Array.isArray(pn.images)&&pn.images[0])m=(typeof pn.images[0]==="string")?pn.images[0]:(pn.images[0].url||"");else if(pn.colors&&pn.colors[0]&&pn.colors[0].images&&pn.colors[0].images[0])m=pn.colors[0].images[0];pn.images={main:m};}pn.status=pn.status||"active";p=pn;}return p;}).then(function(p){
   if(!p||!p.title)return;
   var slugTitle=slug(p.title);
    fetch("assets/products/"+slugTitle+"/media.json").then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(mj){
@@ -556,6 +577,66 @@ function run(){
  }).catch(function(){});
 }
 run();
+})();
+</script>
+
+<script>
+(function(){
+  function q(s){return document.querySelector(s);}
+  function wait(c,cb,t){t=t||0;if(c()){cb();return;}if(t>100)return;setTimeout(function(){wait(c,cb,t+1);},250);}
+  var id=new URLSearchParams(location.search).get("id");
+  if(!id)return;
+  var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
+  wait(function(){return q("#mainImg");},function(){
+    var mi=q("#mainImg");
+    if(mi){mi.style.cssText+=";width:100%;height:auto;max-height:75vh;object-fit:contain;background:#fff;border-radius:8px";}
+    Promise.all([
+      fetch(DB+"/products/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;}),
+      fetch(DB+"/productsPage/items/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;})
+    ]).then(function(rr){
+      var P=(rr[0]&&rr[0].title)?rr[0]:(rr[1]||rr[0]||{});
+      var colors=P.colors||[];
+      if(!colors.length)return;
+      var price=+P.price||0;
+      var wrap=q("#colorCarouselWrap");
+      if(wrap){
+        var html='<h3 style="margin:4px 0 8px;font-size:15px;font-weight:700">🎨 Available Colors</h3><div id="colorCarousel" style="display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scroll-behavior:smooth">';
+        colors.forEach(function(c,i){
+          var im=(c.images&&c.images[0])||"";
+          html+='<div class="ccard" data-ci="'+i+'" style="min-width:150px;max-width:150px;border:1px solid #ddd;border-radius:8px;padding:8px;background:#fff;text-align:center">'+
+            '<img src="'+im+'" style="width:100%;height:150px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="window.__ccPick('+i+')">'+
+            '<div style="font-size:12px;font-weight:600;margin:6px 0">'+(c.name||"Color "+(i+1))+'</div>'+
+            '<button onclick="window.__ccCart('+i+')" style="width:100%;background:#ffd814;border:none;border-radius:12px;padding:6px 0;font-size:11px;font-weight:700;margin-bottom:4px">🛒 Add to Cart</button>'+
+            '<button onclick="window.__ccBuy('+i+')" style="width:100%;background:#ff9900;border:none;border-radius:12px;padding:6px 0;font-size:11px;font-weight:700;color:#fff">⚡ Buy Now</button></div>';
+        });
+        html+='</div>';
+        wrap.innerHTML=html;
+      }
+      var th=q(".thumbs");
+      if(th){
+        th.style.cssText="display:flex;flex-direction:column;gap:6px;overflow:visible;flex:none";
+        th.innerHTML=colors.map(function(c,i){var im=(c.images&&c.images[0])||"";return '<img src="'+im+'" class="'+(i===0?"on":"")+'" style="width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid '+(i===0?"#e77600":"#ddd")+'" onclick="window.__ccPick('+i+')">';}).join("");
+      }
+      window.__ccPick=function(i){
+        var c=colors[i];if(!c||!c.images||!c.images[0])return;
+        if(mi)mi.src=c.images[0];
+        var ts=document.querySelectorAll(".thumbs img");
+        ts.forEach(function(t,ti){t.classList.toggle("on",ti===i);t.style.borderColor=ti===i?"#e77600":"#ddd";});
+        var card=document.querySelector('.ccard[data-ci="'+i+'"]');
+        if(card&&card.scrollIntoView)card.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"});
+      };
+      window.__ccCart=function(i){
+        var c=colors[i];var cart=JSON.parse(localStorage.getItem("cart")||"[]");
+        var key=id+"::"+(c.name||i);
+        var it=null;for(var x=0;x<cart.length;x++){if(cart[x].key===key){it=cart[x];break;}}
+        if(it){it.qty=(it.qty||1)+1;}else{cart.push({key:key,id:id,name:(P.title||"Product")+" ("+(c.name||"")+")",price:price,qty:1,sellerId:P.sellerId||"admin",color:c.name||"",image:(c.images&&c.images[0])||""});}
+        localStorage.setItem("cart",JSON.stringify(cart));
+        if(window.cartCount)cartCount();
+        alert("✅ Cart এ যোগ হয়েছে: "+(c.name||""));
+      };
+      window.__ccBuy=function(i){window.__ccCart(i);location.href="checkout.html";};
+    });
+  });
 })();
 </script>
 </body>
