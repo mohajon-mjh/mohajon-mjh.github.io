@@ -518,23 +518,63 @@ window.resetForm=function(){
 let currentEditingProductId = null;
 
 window.loadCategories = async function() {
+    const selectEl = document.getElementById('global-cat-select');
+    if(!selectEl) return;
+    
+    // ক্লিয়ার করা পুরনো অপশন (প্রথম "সব আগে..." ছাড়া)
+    while(selectEl.options.length > 1) {
+        selectEl.remove(1);
+    }
+
+    let foundCats = {}; // ইউনিক ক্যাটাগরি রাখার জন্য অবজেক্ট
+
+    // ১. Global Categories (category-menu.js থেকে ট্রাই করা)
+    try {
+        if(window.MJHCatMenu && Array.isArray(window.MJHCatMenu)) {
+            window.MJHCatMenu.forEach(item => {
+                if(item.id && item.name) foundCats[item.id] = item.name;
+            });
+        } else {
+            // যদি গ্লোবাল ভ্যারিয়েবল না থাকে, তবে ফাইল থেকে ফেচ করা যাবে (অপশনাল)
+            // বর্তমানে আমরা ধরে নিচ্ছি মেইন অ্যাডমিন পেজে এটি লোড হয়েছে
+        }
+    } catch(e) { console.warn("Global cat load skipped:", e); }
+
+    // ২. Firebase Categories নোড
     try {
         const res = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/categories.json');
         const cats = await res.json();
-        const selectEl = document.getElementById('global-cat-select');
-        
         if(cats) {
             Object.keys(cats).forEach(key => {
                 const c = cats[key];
                 if(c.active !== false && c.name) { 
-                    const opt = document.createElement('option');
-                    opt.value = key;
-                    opt.textContent = c.name;
-                    selectEl.appendChild(opt);
+                    foundCats[key] = c.name;
                 }
             });
         }
-    } catch(e) { console.error("Cat load error:", e); }
+    } catch(e) { console.error("Firebase Cat error:", e); }
+
+    // ৩. Current Products থেকে categoryId চেক করা (ডাইনামিক সাপোর্ট)
+    try {
+        const prodRes = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/productsPage/items.json');
+        const prods = await prodRes.json();
+        if(prods) {
+            Object.values(prods).forEach(p => {
+                if(p.categoryId && !foundCats[p.categoryId]) {
+                    // নাম না জানলে ID-টাই নাম হিসেবে দেওয়া হলো
+                    foundCats[p.categoryId] = p.categoryId.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+                }
+            });
+        }
+    } catch(e) {}
+
+    // ড্রপডাউনে সব ক্যাটাগরি যোগ করা
+    Object.keys(foundCats).sort().forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = foundCats[key];
+        selectEl.appendChild(opt);
+    });
 };
 
 window.loadProductsByCategory = async function(catId) {
