@@ -595,6 +595,17 @@ run();
       fetch(DB+"/productsPage/items/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;})
     ]).then(function(rr){
       var P=(rr[0]&&rr[0].title)?rr[0]:(rr[1]||rr[0]||{});
+      // Auto-split string colors into array objects
+      let rawColors = P.colors;
+      if(typeof rawColors === "string" && (rawColors.includes(",") || rawColors.includes("\n"))) {
+        const parts = rawColors.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+        const imgs = Array.isArray(P.images) ? P.images : [];
+        rawColors = parts.map((name, idx) => ({
+          name: name,
+          images: [imgs[idx] || imgs[0] || ""] 
+        }));
+        P.colors = rawColors; // Update object immediately
+      }
       var colors=P.colors||[];
       if(!colors.length)return;
       var price=+P.price||0;
