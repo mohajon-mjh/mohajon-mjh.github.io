@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products Page এডিটর - মোহাজন এডমিন</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#111;color:#fff;padding:20px}
+.wrap{max-width:1200px;margin:0 auto}
+h1{margin-bottom:15px;color:#FFD814}
+h2{color:#FFD814;margin-bottom:15px}
+h3{color:#FFD814;margin:15px 0}
+a{color:#7dd3fc}
+.card{background:#222;padding:20px;border-radius:10px;margin:15px 0;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+label{display:block;margin:10px 0 5px;font-weight:600;color:#ccc}
+input,textarea,select{width:100%;padding:10px;border:1px solid #444;border-radius:6px;background:#1a1a1a;color:#fff;margin-bottom:8px;font-size:14px}
+textarea{min-height:80px;resize:vertical}
+.btn{background:#FF9900;color:#fff;border:none;padding:12px 20px;border-radius:6px;cursor:pointer;font-weight:700;margin:5px 5px 5px 0}
+.btn:hover{background:#FF6600}
+.btn-del{background:#c0392b}
+.btn-add{background:#22c55e}
+.product-item{display:flex;align-items:center;gap:12px;background:#1a1a1a;padding:12px;border-radius:8px;margin:8px 0;flex-wrap:wrap}
+.product-item img{width:80px;height:80px;object-fit:cover;border-radius:6px;flex-shrink:0}
+.color-block{background:#1a242f;padding:12px;border-radius:8px;margin:10px 0;border-left:4px solid #f39c12}
+.color-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.thumb-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.thumb{position:relative;width:80px;height:80px}
+.thumb img{width:100%;height:100%;object-fit:cover;border-radius:4px}
+.thumb button{position:absolute;top:2px;right:2px;background:#c0392b;color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.login-box{text-align:center;padding:40px;background:#222;border-radius:10px}
+.login-btn{background:#4285f4;color:#fff;border:none;padding:14px 28px;border-radius:6px;font-size:16px;cursor:pointer;margin-top:15px}
+.login-btn:hover{background:#3367d6}
+.status{padding:10px;border-radius:6px;margin:10px 0}
+.status-success{background:#22c55e;color:#fff}
+.status-error{background:#c0392b;color:#fff}
+hr{border-color:#444;margin:20px 0}
+@media(max-width:600px){.grid-2{grid-template-columns:1fr}}
+</style>
+<script src="cloudinary.js"></script>
+</head>
+<body>
+<div class="wrap">
+<h1>🛍️ Products Page এডিটর</h1>
+<a href="admin.html">← এডমিন ড্যাশবোর্ডে ফিরুন</a> | 
+<a href="products-page.html" target="_blank">👁️ লাইভ পেজ দেখুন</a>
+
+<div id="loginBox" class="login-box">
+<h2>🔐 এডমিন লগইন</h2>
+<p style="margin:15px 0">এডিট করতে Gmail দিয়ে লগইন করুন</p>
+<button class="login-btn" onclick="loginGoogle()">
+🔑 Gmail দিয়ে লগইন
+</button>
+</div>
+
+<div id="adminPanel" style="display:none">
+<p style="text-align:right">Logged in: <strong id="adminEmail"></strong>
+<button class="btn btn-del" onclick="logout()">Logout</button></p>
+
+<div class="card">
+<h2>📝 নতুন পণ্য যোগ / এডিট</h2>
+<form id="pForm" onsubmit="saveProduct(event)">
+<label>পণ্যের নাম *</label>
+<input type="text" id="p_name" required placeholder="যেমন: Luxurious Kurti">
+
+<div class="grid-2">
+<div><label>দাম (৳) *</label><input type="number" id="p_price" required></div>
+<div><label>ডিসকাউন্ট (%)</label><input type="number" id="p_discount" value="0"></div>
+<div><label>Coins Save (৳)</label><input type="number" id="p_coins" value="0"></div>
+<div><label>রেটিং (0-5)</label><input type="number" step="0.1" id="p_rating" value="4.0"></div>
+<div><label>Sold Count</label><input type="number" id="p_sold" value="0"></div>
+<div><label>Badge (CHOICE/NEW)</label><input type="text" id="p_badge"></div>
+</div>
+
+<label>ফিল্টার ট্যাগ</label>
+<select id="p_filter">
+<option value="all">সব</option>
+<option value="new">নতুন</option>
+<option value="offer">অফার</option>
+</select>
+
+<label>ক্লিক করলে কোথায় যাবে?</label>
+<select id="p_source">
+<option value="product-details">1* পেজ (product-details.html)</option>
+<option value="products">2* পেজ (products.html)</option>
+</select>
+
+<hr>
+<h3>🎨 কালার-অনুযায়ী ছবি (Color-wise Images)</h3>
+<div id="colorBox"></div>
+<button type="button" class="btn btn-add" onclick="addColor()">➕ নতুন কালার যোগ</button>
+
+<hr>
+<h3>📸 অতিরিক্ত ছবি (Unlimited)</h3>
+<div id="extraBox"></div>
+<hr>
+<h3>🖼️ Main Image (homepage card এ দেখাবে)</h3>
+<input type="file" accept="image/*" onchange="uploadMain(event)">
+<div id="mainPrev"></div>
+<label>🏷️ Product Group (related products)</label>
+<input type="text" id="p_group" placeholder="যেমন: saree, bedding, cookware, laptop">
+<label>🔗 Manual Related Products (tick = related এ দেখাবে)</label>
+<input type="text" id="relSearch" placeholder="🔍 পণ্য খুঁজুন..." oninput="filterRelList(this.value)">
+<div id="relPicker" style="max-height:220px;overflow:auto;border:1px solid #333;border-radius:6px;padding:6px"></div>
+
+<label>📋 Specifications</label>
+<textarea id="p_specs" placeholder="Brand: XYZ&#10;Material: Cotton"></textarea>
+
+<label>✨ Highlights</label>
+<textarea id="p_highlights" placeholder="Style: Modern&#10;Size: Free Size"></textarea>
+
+<button type="submit" class="btn" style="background:#22c55e">💾 সেভ করুন</button>
+<button type="button" class="btn" onclick="resetForm()">🔄 রিসেট</button>
+</form>
+<div id="statusMsg"></div>
+</div>
+
+<div class="card">
+<h2>📦 বর্তমান পণ্য তালিকা</h2>
+<div id="productList"></div>
+</div>
+</div>
+</div>
+
+<script type="module">
+import{initializeApp,getApps,getApp}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import{getDatabase,ref,onValue,push,update,remove,set,get}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+import{getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyDj_LLHWBgcKfQClnaOUqEtULHhP1vSVxw",
+  authDomain:"mohajon-mjh.firebaseapp.com",
+  databaseURL:"https://mohajon-mjh-default-rtdb.firebaseio.com",
+  projectId:"mohajon-mjh",
+  storageBucket:"mohajon-mjh.firebasestorage.app",
+  messagingSenderId:"526105903976",
+  appId:"1:526105903976:web:f9321c6d68ecbd19d58cdd"
+};
+
+const app=getApps().length?getApp():initializeApp(firebaseConfig);
+const db=getDatabase(app);
+const auth=getAuth(app);
+const provider=new GoogleAuthProvider();
+getRedirectResult(auth).catch(function(e){console.error("redirect:",e);});
+
+// ===== Cloudinary config (এগুলো আপনার নিজের বসান) =====
+
+let editingId=null;
+let currentColors=[];
+let extraImages=[];
+
+window.loginGoogle=async function(){
+  try{
+    await signInWithPopup(auth,provider);
+  }catch(e){
+    console.error("popup blocked, trying redirect...",e);
+    try{
+      await signInWithRedirect(auth,provider);
+    }catch(e2){ alert("❌ Login failed: "+e2.message); }
+  }
+};
+
+window.logout=()=>signOut(auth);
+
+onAuthStateChanged(auth,user=>{
+  if(!user){
+    document.getElementById("loginBox").style.display="block";
+    document.getElementById("adminPanel").style.display="none";
+    return;
+  }
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("adminPanel").style.display="block";
+  document.getElementById("adminEmail").textContent=user.email;
+  loadProducts();if(window.loadRelatedPicker)window.loadRelatedPicker();
+});
+
+function showStatus(msg,type){
+  const div=document.getElementById("statusMsg");
+  div.className="status status-"+type;
+  div.textContent=msg;
+  setTimeout(()=>{div.textContent="";div.className="";},3000);
+}
+
+
+
+function loadProducts(){
+  Promise.all([
+    get(ref(db,"products")), 
+    get(ref(db,"productsPage/items"))
+  ]).then(([prodSnap,itemSnap])=>{
+    const list=document.getElementById("productList");
+    list.innerHTML="";
+    let combined={};
+    
+    // Merge Old Products (from 'products' node)
+    if(prodSnap.exists()){
+       const pData = prodSnap.val();
+       for(let key in pData){
+         combined[key] = {...pData[key], _source:'old'};
+       }
+    }
+    
+    // Merge New Items (from 'productsPage/items' node)
+    if(itemSnap.exists()){
+       const iData = itemSnap.val();
+       for(let key in iData){
+         combined[key] = {...iData[key], _source:'new'};
+       }
+    }
+
+    const entries = Object.entries(combined);
+    if(entries.length === 0){
+      list.innerHTML='<p style="color:#888">কোনো পণ্য নেই।</p>';
+      return;
+    }
+
+    entries.forEach(([id,p])=>{
+      // Handle different image structures safely
+      let mainImg = "";
+      if(Array.isArray(p.images) && p.images[0]) {
+        mainImg = typeof p.images[0] === 'string' ? p.images[0] : (p.images[0].url || "");
+      } else if (typeof p.images === 'object' && p.images.main) {
+        mainImg = p.images.main;
+      } else if (p.imageUrl) {
+        mainImg = p.imageUrl;
+      }
+
+      const div=document.createElement("div");
+      div.className="product-item";
+      
+      // Source Tag (OLD/NEW badge)
+      const sourceTag = p._source==='old' 
+        ? '<span style="background:#f39c12;color:#fff;padding:2px 5px;border-radius:4px;font-size:10px;margin-left:5px">OLD</span>' 
+        : '<span style="background:#2ecc71;color:#fff;padding:2px 5px;border-radius:4px;font-size:10px;margin-left:5px">NEW</span>';
+      
+      const name = p.name || p.title || "Unnamed Product";
+      const price = p.price || 0;
+      const disc = p.discountPercent || p.discount || 0;
+
+      div.innerHTML=`
+        <img src="${mainImg}" onerror="this.src='https://dummyimage.com/80x80/eeeeee/555555&text=No'">
+        <div style="flex:1;min-width:150px">
+          <strong>${name}</strong> ${sourceTag}<br>
+          ৳${price} | Disc: ${disc}%
+        </div>
+        <button class="btn" onclick="editProduct('${id}')">Edit</button>
+        <button class="btn btn-del" onclick="deleteProduct('${id}')">🗑️</button>
+      `;
+      list.appendChild(div);
+    });
+  }).catch(err=>console.error("Load error:", err));
+}
+
+window.saveProduct=async function(e){
+  e.preventDefault();
+  var firstImage=window.__mainImage||"";
+  if(currentColors.length>0 && currentColors[0].images && currentColors[0].images.length>0){ firstImage=currentColors[0].images[0]; }
+  else if(extraImages.length>0){ firstImage=extraImages[0]; }
+  var allImgs=[window.__mainImage||""].filter(Boolean).concat([].concat.apply([],currentColors.map(function(c){return c.images||[];}))).concat(extraImages);
+  var nameVal=document.getElementById("p_name").value;
+  var filterVal=document.getElementById("p_filter").value;
+  const data={
+    name:nameVal,
+    price:parseFloat(document.getElementById("p_price").value),
+    discount:parseFloat(document.getElementById("p_discount").value)||0,
+    coinsSave:parseFloat(document.getElementById("p_coins").value)||0,
+    rating:parseFloat(document.getElementById("p_rating").value)||4.0,
+    soldCount:parseInt(document.getElementById("p_sold").value)||0,
+    badge:document.getElementById("p_badge").value,
+    filterTag:filterVal,
+    source:document.getElementById("p_source").value,
+    images:allImgs,
+    colors:currentColors,
+    specifications:document.getElementById("p_specs").value,
+    highlights:document.getElementById("p_highlights").value,
+    mainImage:window.__mainImage||"",
+    group:document.getElementById("p_group").value,
+    relatedIds:window.__relIds||[],
+    updatedAt:Date.now(),
+    title:nameVal,
+    categoryId:filterVal,
+    status:"active"
+  };
+  try{
+    if(editingId){
+      await update(ref(db,"productsPage/items/"+editingId),data);
+      showStatus("✅ আপডেট হয়েছে!","success");
+    }else{
+      const newRef=push(ref(db,"productsPage/items"));
+      await set(newRef,data);
+      showStatus("✅ নতুন পণ্য যোগ হয়েছে! Related এ অটো আসবে","success");
+      resetForm();
+    }
+    loadProducts();
+  }catch(err){showStatus("❌ "+err.message,"error");}
+};
+
+window.__mainImage="";window.__relIds=[];window.__relAll=[];
+window.uploadMain=async function(e){var f=e.target.files[0];if(!f)return;showStatus("⏳ Main image uploading...","success");try{var u=await uploadCloudinary(f);window.__mainImage=u;document.getElementById("mainPrev").innerHTML='<img src="'+u+'" style="width:90px;height:90px;object-fit:cover;border-radius:6px;margin-top:6px">';showStatus("✅ Main image ready","success");}catch(err){showStatus("❌ "+err.message,"error");}e.target.value="";};
+window.loadRelatedPicker=async function(){
+  try{
+    var ra=await fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/products.json").then(function(r){return r.json();}).catch(function(){return{};});
+    var rb=await fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/productsPage/items.json").then(function(r){return r.json();}).catch(function(){return{};});
+    ra=ra||{};rb=rb||{};window.__relAll=[];
+    for(var k in ra){window.__relAll.push({id:k,name:ra[k].title||ra[k].name||k,img:(ra[k].images&&ra[k].images.main)||""});}
+    for(var k2 in rb){var img2="";if(Array.isArray(rb[k2].images)&&rb[k2].images[0])img2=rb[k2].images[0];else if(rb[k2].colors&&rb[k2].colors[0]&&rb[k2].colors[0].images&&rb[k2].colors[0].images[0])img2=rb[k2].colors[0].images[0];window.__relAll.push({id:k2,name:rb[k2].name||rb[k2].title||k2,img:img2});}
+    window.renderRelList("");
+  }catch(e){console.error(e);}
+};
+window.renderRelList=function(qq){
+  var box=document.getElementById("relPicker");if(!box)return;
+  qq=(qq||"").toLowerCase();
+  var items=window.__relAll.filter(function(p){return !qq||String(p.name).toLowerCase().indexOf(qq)>-1;});
+  box.innerHTML=items.map(function(p){
+    var ck=window.__relIds.indexOf(p.id)>-1?"checked":"";
+    return '<label style="display:flex;gap:8px;align-items:center;padding:4px;border-bottom:1px solid #222;font-size:12px;color:#eee;cursor:pointer"><input type="checkbox" '+ck+' onchange="window.toggleRel(\''+p.id+'\',this.checked)"> <img src="'+(p.img||"https://dummyimage.com/40")+'" style="width:32px;height:32px;object-fit:cover;border-radius:4px"> '+p.name+'</label>';
+  }).join("")||'<p style="color:#888">কোনো পণ্য নেই</p>';
+};
+window.filterRelList=function(v){window.renderRelList(v);};
+window.toggleRel=function(pid,on){if(on){if(window.__relIds.indexOf(pid)<0)window.__relIds.push(pid);}else{window.__relIds=window.__relIds.filter(function(x){return x!==pid;});}};
+window.editProduct=function(id){
+  editingId=id;
+  get(ref(db,"productsPage/items/"+id)).then(snap=>{
+    const p=snap.val();
+    document.getElementById("p_name").value=p.name||"";
+    document.getElementById("p_price").value=p.price||0;
+    document.getElementById("p_discount").value=p.discount||0;
+    document.getElementById("p_coins").value=p.coinsSave||0;
+    document.getElementById("p_rating").value=p.rating||4.0;
+    document.getElementById("p_sold").value=p.soldCount||0;
+    document.getElementById("p_badge").value=p.badge||"";
+    document.getElementById("p_filter").value=p.filterTag||"all";
+    document.getElementById("p_source").value=p.source||"product-details";
+    document.getElementById("p_specs").value=p.specifications||"";
+    document.getElementById("p_highlights").value=p.highlights||"";
+    currentColors=p.colors||[];
+    document.getElementById("p_group").value=p.group||"";
+    window.__mainImage=p.mainImage||"";
+    document.getElementById("mainPrev").innerHTML=window.__mainImage?'<img src="'+window.__mainImage+'" style="width:90px;height:90px;object-fit:cover;border-radius:6px;margin-top:6px">':"";
+    window.__relIds=p.relatedIds||[];if(window.renderRelList)window.renderRelList("");
+    extraImages=(Array.isArray(p.images)?p.images:[]).filter(img=>!currentColors.some(c=>c.images.includes(img)));
+    renderColors();
+    renderExtras();
+    window.scrollTo(0,0);
+    showStatus("📝 এডিট মোডে আছেন। পরিবর্তন করে সেভ করুন।","success");
+  });
+};
+
+window.deleteProduct=async function(id){
+  if(confirm("এই পণ্য ডিলিট করতে চান?")){
+    await remove(ref(db,"productsPage/items/"+id));
+    showStatus("🗑️ ডিলিট হয়েছে!","success");
+  }
+};
+
+async function uploadCloudinary(file){
+  const result=await window.MJHCloud.upload(file);
+  return result.url;
+}
+
+window.addColor=function(){
+  const name=prompt("কালারের নাম দিন (যেমন: Red, Blue):");
+  if(!name)return;
+  currentColors.push({name,images:[]});
+  renderColors();
+};
+
+function renderColors(){
+  const box=document.getElementById("colorBox");
+  box.innerHTML="";
+  if(!currentColors.length){
+    box.innerHTML='<p style="color:#888">কোনো কালার নেই। "➕ নতুন কালার যোগ" বাটনে ক্লিক করুন।</p>';
+    return;
+  }
+  currentColors.forEach((c,ci)=>{
+    const div=document.createElement("div");
+    div.className="color-block";
+    div.innerHTML=`
+      <div class="color-header">
+        <strong>🎨 ${c.name} (${c.images.length} ছবি)</strong>
+        <button type="button" class="btn btn-del" onclick="removeColor(${ci})">🗑️ কালার</button>
+      </div>
+      <input type="file" multiple accept="image/*" onchange="uploadColorImgs(event,${ci})">
+      <div class="thumb-row">
+        ${c.images.map((url,ii)=>`
+          <div class="thumb">
+            <img src="${url}">
+            <button onclick="removeColorImg(${ci},${ii})">✕</button>
+          </div>
+        `).join("")}
+      </div>
+    `;
+    box.appendChild(div);
+  });
+}
+
+window.uploadColorImgs=async function(e,ci){
+  const files=Array.from(e.target.files);
+  if(!files.length)return;
+  showStatus("⏳ ছবি আপলোড হচ্ছে...","success");
+  for(const f of files){
+    try{
+      const url=await uploadCloudinary(f);
+      currentColors[ci].images.push(url);
+    }catch(err){showStatus("❌ Upload failed: "+err.message,"error");}
+  }
+  renderColors();
+  e.target.value="";
+  showStatus("✅ "+files.length+"টি ছবি আপলোড হয়েছে","success");
+};
+
+window.removeColor=function(ci){
+  if(confirm(`"${currentColors[ci].name}" কালার ডিলিট করতে চান?`)){
+    currentColors.splice(ci,1);
+    renderColors();
+  }
+};
+window.removeColorImg=function(ci,ii){
+  currentColors[ci].images.splice(ii,1);
+  renderColors();
+};
+
+window.uploadExtras=async function(e){
+  const files=Array.from(e.target.files);
+  if(!files.length)return;
+  showStatus("⏳ ছবি আপলোড হচ্ছে...","success");
+  for(const f of files){
+    try{
+      const url=await uploadCloudinary(f);
+      extraImages.push(url);
+    }catch(err){showStatus("❌ Upload failed: "+err.message,"error");}
+  }
+  renderExtras();
+  e.target.value="";
+  showStatus("✅ "+files.length+"টি ছবি আপলোড হয়েছে","success");
+};
+
+function renderExtras(){
+  const box=document.getElementById("extraBox");
+  box.innerHTML=`
+    <input type="file" multiple accept="image/*" onchange="uploadExtras(event)">
+    <div class="thumb-row">
+      ${extraImages.map((url,i)=>`
+        <div class="thumb">
+          <img src="${url}">
+          <button onclick="removeExtra(${i})">✕</button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+window.removeExtra=function(i){
+  extraImages.splice(i,1);
+  renderExtras();
+};
+
+window.resetForm=function(){
+  editingId=null;
+  currentColors=[];
+  window.__mainImage="";window.__relIds=[];
+  var gEl=document.getElementById("p_group");if(gEl)gEl.value="";
+  var mpv=document.getElementById("mainPrev");if(mpv)mpv.innerHTML="";
+  if(window.renderRelList)window.renderRelList("");
+  extraImages=[];
+  document.getElementById("pForm").reset();
+  renderColors();
+  renderExtras();
+  showStatus("🔄 ফর্ম রিসেট হয়েছে","success");
+};
+</script>
+</body>
+</html>
