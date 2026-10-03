@@ -285,10 +285,47 @@ window.saveProduct=async function(e){
   try{
     if(editingId){
       await update(ref(db,"productsPage/items/"+editingId),data);
+
+      // Master sync to products node (for homepage/deals)
+      const masterUpdateData = {
+        sellerId: "admin",
+        title: nameVal,
+        price: parseFloat(document.getElementById("p_price").value),
+        stock: 100,
+        categoryId: filterVal || "default",
+        status: "active",
+        description: document.getElementById("p_highlights").value || "",
+        images: { main: firstImage },
+        discountPrice: parseFloat(document.getElementById("p_price").value) * (1 - (parseFloat(document.getElementById("p_discount").value)||0)/100),
+        marketPrice: parseFloat(document.getElementById("p_price").value),
+        discountPercent: parseFloat(document.getElementById("p_discount").value)||0,
+        updatedAt: Date.now()
+      };
+      await update(ref(db,"products/"+editingId), masterUpdateData);
+
       showStatus("✅ আপডেট হয়েছে!","success");
     }else{
       const newRef=push(ref(db,"productsPage/items"));
       await set(newRef,data);
+
+      // Master sync to products node (for homepage/deals)
+      const masterNewData = {
+        sellerId: "admin",
+        title: nameVal,
+        price: parseFloat(document.getElementById("p_price").value),
+        stock: 100,
+        categoryId: filterVal || "default",
+        status: "active",
+        description: document.getElementById("p_highlights").value || "",
+        images: { main: firstImage },
+        discountPrice: parseFloat(document.getElementById("p_price").value) * (1 - (parseFloat(document.getElementById("p_discount").value)||0)/100),
+        marketPrice: parseFloat(document.getElementById("p_price").value),
+        discountPercent: parseFloat(document.getElementById("p_discount").value)||0,
+        updatedAt: Date.now(),
+        createdAt: Date.now()
+      };
+      await set(ref(db,"products/"+newRef.key), masterNewData);
+
       showStatus("✅ নতুন পণ্য যোগ হয়েছে! Related এ অটো আসবে","success");
       resetForm();
     }
