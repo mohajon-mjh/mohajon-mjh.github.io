@@ -121,6 +121,10 @@ hr{border-color:#444;margin:20px 0}
 <input type="text" id="relSearch" placeholder="🔍 পণ্য খুঁজুন..." oninput="filterRelList(this.value)">
 <div id="relPicker" style="max-height:220px;overflow:auto;border:1px solid #333;border-radius:6px;padding:6px"></div>
 
+<div class="grid-2">
+<div><label>💰 দাম (৳) *</label><input type="number" id="p_price"></div>
+<div><label>ডিসকাউন্ট (%)</label><input type="number" id="p_discount" value="0"></div>
+</div>
 <label>🏷️ Brand</label>
 <input type="text" id="p_brand" placeholder="যেমন: Tangail Sharee, Mohajon MJH...">
 <button type="button" class="btn" style="background:#9b59b6" onclick="autoFillSpecs()">✨ অটো-ফিল Specifications/Highlights</button>
