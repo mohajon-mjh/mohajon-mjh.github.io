@@ -135,6 +135,7 @@ hr{border-color:#444;margin:20px 0}
 
 <div class="card">
 <h2>📦 বর্তমান পণ্য তালিকা</h2>
+<input type="text" id="prodSearch" placeholder="🔍 পণ্য খুঁজুন (নাম লিখুন)..." oninput="filterProdList(this.value)" style="margin:10px 0">
 <div id="productList"></div>
 </div>
 </div>
@@ -269,30 +270,37 @@ function loadProducts(){
   }).catch(err=>console.error("Load error:", err));
 }
 
+
+function gv(id,def){var el=document.getElementById(id);if(!el)return def;return el.value;}
+function sv(id,val){var el=document.getElementById(id);if(el)el.value=val;}
+var ORIGMAP={p_name:"name",p_price:"price",p_discount:"discount",p_coins:"coinsSave",p_rating:"rating",p_sold:"soldCount",p_badge:"badge",p_filter:"filterTag",p_source:"source",p_specs:"specifications",p_highlights:"highlights",p_group:"group"};
+function gd(id){var O=window.__orig||{};var k=ORIGMAP[id];return (k&&O[k]!==undefined)?O[k]:"";}
+window.filterProdList=function(q){q=(q||"").toLowerCase();var items=document.querySelectorAll(".product-item");items.forEach(function(el){el.style.display=((el.textContent||"").toLowerCase().indexOf(q)>-1)?"":"none";});};
+
 window.saveProduct=async function(e){
   e.preventDefault();
   var firstImage=window.__mainImage||"";
   if(currentColors.length>0 && currentColors[0].images && currentColors[0].images.length>0){ firstImage=currentColors[0].images[0]; }
   else if(extraImages.length>0){ firstImage=extraImages[0]; }
   var allImgs=[window.__mainImage||""].filter(Boolean).concat([].concat.apply([],currentColors.map(function(c){return c.images||[];}))).concat(extraImages);
-  var nameVal=document.getElementById("p_name").value;
-  var filterVal=document.getElementById("p_filter").value;
+  var nameVal=gv("p_name",gd("p_name"));
+  var filterVal=gv("p_filter",gd("p_filter"));
   const data={
     name:nameVal,
-    price:parseFloat(document.getElementById("p_price").value),
-    discount:parseFloat(document.getElementById("p_discount").value)||0,
-    coinsSave:parseFloat(document.getElementById("p_coins").value)||0,
-    rating:parseFloat(document.getElementById("p_rating").value)||4.0,
-    soldCount:parseInt(document.getElementById("p_sold").value)||0,
-    badge:document.getElementById("p_badge").value,
+    price:parseFloat(gv("p_price",gd("p_price"))),
+    discount:parseFloat(gv("p_discount",gd("p_discount")))||0,
+    coinsSave:parseFloat(gv("p_coins",gd("p_coins")))||0,
+    rating:parseFloat(gv("p_rating",gd("p_rating")))||4.0,
+    soldCount:parseInt(gv("p_sold",gd("p_sold")))||0,
+    badge:gv("p_badge",gd("p_badge")),
     filterTag:filterVal,
-    source:document.getElementById("p_source").value,
+    source:gv("p_source",gd("p_source")),
     images:allImgs,
     colors:currentColors,
-    specifications:document.getElementById("p_specs").value,
-    highlights:document.getElementById("p_highlights").value,
+    specifications:gv("p_specs",gd("p_specs")),
+    highlights:gv("p_highlights",gd("p_highlights")),
     mainImage:window.__mainImage||"",
-    group:document.getElementById("p_group").value,
+    group:gv("p_group",gd("p_group")),
     relatedIds:window.__relIds||[],
     updatedAt:Date.now(),
     title:nameVal,
@@ -307,20 +315,20 @@ window.saveProduct=async function(e){
       const masterUpdateData = {
         sellerId: "admin",
         title: nameVal,
-        price: parseFloat(document.getElementById("p_price").value),
+        price: parseFloat(gv("p_price",gd("p_price"))),
         stock: 100,
         categoryId: filterVal || "default",
         status: "active",
-        description: document.getElementById("p_highlights").value || "",
+        description: gv("p_highlights",gd("p_highlights")) || "",
         images: { main: firstImage },
-        discountPrice: parseFloat(document.getElementById("p_price").value) * (1 - (parseFloat(document.getElementById("p_discount").value)||0)/100),
-        marketPrice: parseFloat(document.getElementById("p_price").value),
-        discountPercent: parseFloat(document.getElementById("p_discount").value)||0,
+        discountPrice: parseFloat(gv("p_price",gd("p_price"))) * (1 - (parseFloat(gv("p_discount",gd("p_discount")))||0)/100),
+        marketPrice: parseFloat(gv("p_price",gd("p_price"))),
+        discountPercent: parseFloat(gv("p_discount",gd("p_discount")))||0,
         updatedAt: Date.now()
       };
       await update(ref(db,"products/"+editingId), masterUpdateData);
 
-      showStatus("✅ আপডেট হয়েছে!","success");
+      showStatus("✅ আপডেট হয়েছে!","success");alert("✅ আপডেট সেভ হয়েছে!");
     }else{
       const newRef=push(ref(db,"productsPage/items"));
       await set(newRef,data);
@@ -329,15 +337,15 @@ window.saveProduct=async function(e){
       const masterNewData = {
         sellerId: "admin",
         title: nameVal,
-        price: parseFloat(document.getElementById("p_price").value),
+        price: parseFloat(gv("p_price",gd("p_price"))),
         stock: 100,
         categoryId: filterVal || "default",
         status: "active",
-        description: document.getElementById("p_highlights").value || "",
+        description: gv("p_highlights",gd("p_highlights")) || "",
         images: { main: firstImage },
-        discountPrice: parseFloat(document.getElementById("p_price").value) * (1 - (parseFloat(document.getElementById("p_discount").value)||0)/100),
-        marketPrice: parseFloat(document.getElementById("p_price").value),
-        discountPercent: parseFloat(document.getElementById("p_discount").value)||0,
+        discountPrice: parseFloat(gv("p_price",gd("p_price"))) * (1 - (parseFloat(gv("p_discount",gd("p_discount")))||0)/100),
+        marketPrice: parseFloat(gv("p_price",gd("p_price"))),
+        discountPercent: parseFloat(gv("p_discount",gd("p_discount")))||0,
         updatedAt: Date.now(),
         createdAt: Date.now()
       };
@@ -347,7 +355,7 @@ window.saveProduct=async function(e){
       resetForm();
     }
     loadProducts();
-  }catch(err){showStatus("❌ "+err.message,"error");}
+  }catch(err){showStatus("❌ "+err.message,"error");alert("❌ সেভ ব্যর্থ: "+err.message);}
 };
 
 window.__mainImage="";window.__relIds=[];window.__relAll=[];
@@ -385,19 +393,20 @@ window.editProduct=function(id){
     }
     if(!p){ showStatus("❌ পণ্য পাওয়া যায়নি!","error"); return; }
     if(typeof p.colors==="string"){ p.colors=p.colors.split(/[\n,]+/).map(function(s){return s.trim();}).filter(Boolean).map(function(n){return {name:n,images:[]};}); }
-    document.getElementById("p_name").value=p.name||"";
-    document.getElementById("p_price").value=p.price||0;
-    document.getElementById("p_discount").value=p.discount||0;
-    document.getElementById("p_coins").value=p.coinsSave||0;
-    document.getElementById("p_rating").value=p.rating||4.0;
-    document.getElementById("p_sold").value=p.soldCount||0;
-    document.getElementById("p_badge").value=p.badge||"";
-    document.getElementById("p_filter").value=p.filterTag||"all";
-    document.getElementById("p_source").value=p.source||"product-details";
-    document.getElementById("p_specs").value=p.specifications||"";
-    document.getElementById("p_highlights").value=p.highlights||"";
+    window.__orig=p;
+    sv("p_name",p.name||"");
+    sv("p_price",p.price||0);
+    sv("p_discount",p.discount||0);
+    sv("p_coins",p.coinsSave||0);
+    sv("p_rating",p.rating||4.0);
+    sv("p_sold",p.soldCount||0);
+    sv("p_badge",p.badge||"");
+    sv("p_filter",p.filterTag||"all");
+    sv("p_source",p.source||"product-details");
+    sv("p_specs",p.specifications||"");
+    sv("p_highlights",p.highlights||"");
     currentColors=p.colors||[];
-    document.getElementById("p_group").value=p.group||"";
+    sv("p_group",p.group||"");
     window.__mainImage=p.mainImage||"";
     document.getElementById("mainPrev").innerHTML=window.__mainImage?'<img src="'+window.__mainImage+'" style="width:90px;height:90px;object-fit:cover;border-radius:6px;margin-top:6px">':"";
     window.__relIds=p.relatedIds||[];if(window.renderRelList)window.renderRelList("");
@@ -531,7 +540,7 @@ window.removeExtra=function(i){
 
 window.resetForm=function(){
   editingId=null;
-  currentColors=[];
+  currentColors=[];window.__orig=null;
   window.__mainImage="";window.__relIds=[];
   var gEl=document.getElementById("p_group");if(gEl)gEl.value="";
   var mpv=document.getElementById("mainPrev");if(mpv)mpv.innerHTML="";
