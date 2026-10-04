@@ -627,6 +627,23 @@ window.loadHomeCategory=async function(slug){
   window.__sectionPath=foundPath;
   renderProductTable(data||{});
 };
+window.loadCategories = async function() {
+    renderHomeCats();
+    try {
+        const res = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/categories.json');
+        const cats = await res.json();
+        const box = document.getElementById('menuCatList');
+        if(cats && box) {
+            let html='';
+            Object.keys(cats).sort(function(a,b){var na=(cats[a].name||a),nb=(cats[b].name||b);return na.localeCompare(nb);}).forEach(function(key){
+                var c=cats[key];
+                if(c.active!==false && c.name){html+='<div onclick="pickMenuCat(\''+key+'\')" style="padding:7px 6px;border-bottom:1px solid #262626;cursor:pointer;font-size:13px">'+c.name+'</div>';}
+            });
+            box.innerHTML=html||'<p style="color:#888">ক্যাটাগরি পাওয়া যায়নি</p>';
+        }
+    } catch(e) { console.error("Cat load error:", e); }
+};
+
 window.pickMenuCat=function(key){document.getElementById('catPickerBtn').textContent='📂 লোড হচ্ছে...';document.getElementById('catPanel').style.display='none';loadProductsByCategory(key);};
 
 window.loadProductsByCategory = async function(catId) {
