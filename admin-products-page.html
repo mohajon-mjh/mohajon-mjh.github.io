@@ -375,8 +375,16 @@ window.filterRelList=function(v){window.renderRelList(v);};
 window.toggleRel=function(pid,on){if(on){if(window.__relIds.indexOf(pid)<0)window.__relIds.push(pid);}else{window.__relIds=window.__relIds.filter(function(x){return x!==pid;});}};
 window.editProduct=function(id){
   editingId=id;
-  get(ref(db,"productsPage/items/"+id)).then(snap=>{
-    const p=snap.val();
+  get(ref(db,"productsPage/items/"+id)).then(async snap=>{
+    let p=snap.val();
+    if(!p){
+      try{
+        const mp=await (await fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/products/"+id+".json")).json();
+        if(mp){ p={ name:mp.title||mp.name||"", price:mp.price||0, discount:mp.discountPercent||0, coinsSave:mp.coinsSave||0, rating:mp.rating||4.0, soldCount:mp.soldCount||0, badge:mp.badge||"", filterTag:mp.filterTag||"all", source:mp.source||"product-details", specifications:mp.specifications||"", highlights:mp.highlights||"", colors:mp.colors||[], group:mp.group||"", mainImage:(mp.images&&mp.images.main)||"", images:Array.isArray(mp.images)?mp.images:[], relatedIds:mp.relatedIds||[] }; }
+      }catch(e){ console.error(e); }
+    }
+    if(!p){ showStatus("❌ পণ্য পাওয়া যায়নি!","error"); return; }
+    if(typeof p.colors==="string"){ p.colors=p.colors.split(/[\n,]+/).map(function(s){return s.trim();}).filter(Boolean).map(function(n){return {name:n,images:[]};}); }
     document.getElementById("p_name").value=p.name||"";
     document.getElementById("p_price").value=p.price||0;
     document.getElementById("p_discount").value=p.discount||0;
@@ -413,6 +421,17 @@ async function uploadCloudinary(file){
   return result.url;
 }
 
+window.splitColor=function(ci){
+  const c=currentColors[ci];
+  const names=String(c.name).split(/[\n,]+/).map(function(s){return s.trim();}).filter(Boolean);
+  if(names.length<=1){ alert("এই কালারে একাধিক নাম নেই—ভাগ করার দরকার নেই।"); return; }
+  const imgs=c.images||[];
+  const newBlocks=names.map(function(n,i){ return {name:n, images: imgs[i]?[imgs[i]]:[] }; });
+  currentColors.splice(ci,1,...newBlocks);
+  renderColors();
+  showStatus("✅ "+names.length+"টি কালার আলাদা হয়েছে! ছবিগুলো ক্রমে বসেছে—বাকিগুলোর ছবি আপলোড করুন।","success");
+};
+
 window.addColor=function(){
   const name=prompt("কালারের নাম দিন (যেমন: Red, Blue):");
   if(!name)return;
@@ -433,6 +452,7 @@ function renderColors(){
     div.innerHTML=`
       <div class="color-header">
         <strong>🎨 ${c.name} (${c.images.length} ছবি)</strong>
+        <button type="button" class="btn" style="background:#3498db" onclick="splitColor(${ci})">🔀 ভাগ</button>
         <button type="button" class="btn btn-del" onclick="removeColor(${ci})">🗑️ কালার</button>
       </div>
       <input type="file" multiple accept="image/*" onchange="uploadColorImgs(event,${ci})">
