@@ -716,7 +716,7 @@ function renderProductTable(productsObj) {
             <td style="padding:10px;">${p.title || p.name}</td>
             <td style="padding:10px; text-align:right;">৳${p.price}</td>
             <td style="padding:10px; text-align:center;">
-                <button onclick="openEditMode('${id}', '${(p.title||'').replace(/'/g, "\\'")}')" style="background:#27ae60;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">এডিট</button>
+                <button type="button" onclick="openEditMode('${id}', '${(p.title||'').replace(/'/g, "\\'")}')" style="background:#27ae60;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">এডিট</button>
             </td>
         `;
         tbody.appendChild(tr);
