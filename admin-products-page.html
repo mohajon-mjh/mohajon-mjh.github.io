@@ -39,6 +39,7 @@ hr{border-color:#444;margin:20px 0}
 @media(max-width:600px){.grid-2{grid-template-columns:1fr}}
 </style>
 <script src="cloudinary.js"></script>
+<style>@media(max-width:640px){#catGrid{grid-template-columns:1fr!important}#catGrid>div{border-right:none!important}}</style>
 </head>
 <body>
 <div class="wrap">
@@ -67,9 +68,19 @@ hr{border-color:#444;margin:20px 0}
     
     <!-- Category Dropdown -->
     <label>ক্যাটাগরি:</label>
-    <select id="global-cat-select" onchange="loadProductsByCategory(this.value)" style="width:100%; padding:10px; background:#2a2a2a; color:#fff; border:1px solid #444; border-radius:6px; font-size:16px;">
-        <option value="">-- সব আগে ক্যাটাগরি বেছে নিন --</option>
-    </select>
+<button type="button" id="catPickerBtn" onclick="toggleCatPanel()" class="btn" style="width:100%;background:#2a2a2a;border:1px solid #444;color:#fff;text-align:left">📂 ক্যাটাগরি বাছাই করুন ▾</button>
+<div id="catPanel" style="display:none;margin-top:10px;border:1px solid #444;border-radius:8px;background:#151515;max-height:420px;overflow-y:auto">
+<div style="display:grid;grid-template-columns:1fr 1fr" id="catGrid">
+<div style="border-right:1px solid #333;padding:8px">
+<h4 style="color:#FFD814;margin:4px 0 8px">🏠 হোম পেজ ক্যাটাগরি</h4>
+<div id="homeCatList"></div>
+</div>
+<div style="padding:8px">
+<h4 style="color:#FFD814;margin:4px 0 8px">☰ Menu / All Category</h4>
+<div id="menuCatList"></div>
+</div>
+</div>
+</div>
 
     <!-- Product List Container -->
     <div id="product-list-container" style="display:none; margin-top:15px; max-height:400px; overflow-y:auto; border:1px solid #333; border-radius:8px; background:#111;">
@@ -517,65 +528,40 @@ window.resetForm=function(){
 // === GLOBAL STATE FOR NEW UI ===
 let currentEditingProductId = null;
 
+window.toggleCatPanel=function(){var p=document.getElementById('catPanel');if(!p)return;p.style.display=(p.style.display==='none')?'block':'none';};
+const HOME_CATS=[
+{g:"🎁 Mega Offers",items:[["buy_more_save_more","🛍️ Buy More, Save More"],["buy_1_get_1_free","🎁 Buy 1 Get 1 Free"],["special_low_price","💸 বিশেষ কম দামের পণ্য"],["limited_time_deals","⏳ Limited Time Deals"]]},
+{g:"⚡ Flash Sale",items:[["up_to_10_off","🔮 Up To 10% Off"],["special_offers_week","🎉 Special Offers for One Week"],["electronics_deals","⬛ Electronics Deals"],["fashion_sale","👕 Fashion Sale"],["home_essentials","🏠 Home Essentials"]]},
+{g:"🌐 Global Categories",items:[["mobile","📱 Mobile & Accessories"],["women_fashion","👗 Women Fashion"],["men_fashion","👕 Men Fashion"],["kids_baby","👶 Kids & Baby"],["computers_laptops","💻 Computers & Laptops"],["home_kitchen","🏠 Home & Kitchen"],["beauty_care","💄 Beauty & Personal Care"],["agriculture_farming","🌾 Agriculture & Farming"],["automotive_vehicles","🚗 Automotive & Vehicles"],["books_stationery","📚 Books & Stationery"],["food_beverages","🍊 Food & Beverages"],["gifts_crafts","🎁 Gifts & Crafts"],["grocery_daily_needs","🛒 Grocery & Daily Needs"],["handicrafts_handloom","🧶 Handicrafts & Handloom"],["health_wellness","💊 Health & Wellness"],["pet_supplies","🐕 Pet Supplies"],["spices","🌶️ Spices"],["sports_fitness","⚽ Sports & Fitness"],["toys_games_hobbies","🎮 Toys, Games & Hobbies"],["travel_luggage","✈️ Travel & Luggage"],["tv_audio_appliances","📺 TV, Audio & Appliances"],["watches","⌚ Watches"]]},
+{g:"🏷️ Deals of the Day",items:[["recommended","💝 Recommended For You"],["new_arrivals","🆕 New Arrivals"],["top_rated","⭐ Top Rated"],["best_sellers","🏆 Best Sellers"]]},
+{g:"💸 Everyday Low Price",items:[["daily_essentials","🛒 Daily Essentials"],["electronics_accessories","⬛ Electronics Accessories"],["basic_clothing","👕 Basic Clothing"],["household_items","🏠 Household Items"]]},
+{g:"📦 Clearance Outlet",items:[["last_stock","📦 Last Stock"],["open_box","📤 Open Box"],["discontinued","🏷️ Discontinued"],["seasonal_items","🇺🇸 Seasonal Items"]]},
+{g:"🍀 Combo Offers",items:[["mobile_combo","📱 Mobile Combo"],["beauty_combo","💄 Beauty Combo"],["grocery_combo","🛒 Grocery Combo"],["fashion_combo","👗 Fashion Combo"]]},
+{g:"⭐ Special Categories",items:[["second_hand","♻️ Second-Hand & Refurbished Goods"],["musical_instruments","🎵 Musical Instruments"],["printing_supplies","🖨️ Printing Supplies"],["seasonal_festival","🎉 Seasonal & Festival Products"],["islamic_religious","🕌 Islamic & Religious Products"],["wedding_event","💍 Wedding & Event Supplies"]]}
+];
+function renderHomeCats(){var box=document.getElementById('homeCatList');if(!box)return;var html='';HOME_CATS.forEach(function(gr){html+='<div style="color:#8ab4f8;font-weight:700;margin:8px 0 4px;font-size:13px">'+gr.g+'</div>';gr.items.forEach(function(it){html+='<div onclick="pickHomeCat(\''+it[0]+'\')" style="padding:7px 6px;border-bottom:1px solid #262626;cursor:pointer;font-size:13px">'+it[1]+'</div>';});});box.innerHTML=html;}
+window.pickHomeCat=function(slug){document.getElementById('catPickerBtn').textContent='📂 '+slug.replace(/_/g,' ');document.getElementById('catPanel').style.display='none';loadHomeCategory(slug);};
+window.loadHomeCategory=async function(slug){var loading=document.getElementById('loading-msg');var container=document.getElementById('product-list-container');loading.style.display='block';container.style.display='none';
+try{var url='https://mohajon-mjh-default-rtdb.firebaseio.com/products.json?orderBy=%22categoryId%22&equalTo=%22'+slug+'%22';var res=await fetch(url);var data=await res.json();
+if(!data||Object.keys(data).length===0){var res2=await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/productsPage/items.json');var items=await res2.json();data={};if(items){Object.keys(items).forEach(function(k){var p=items[k];if(p.filterTag===slug||p.group===slug||p.categoryId===slug){data[k]=p;}});}}
+renderProductTable(data||{});}catch(e){alert('Error: '+e.message);loading.style.display='none';}};
 window.loadCategories = async function() {
-    const selectEl = document.getElementById('global-cat-select');
-    if(!selectEl) return;
-    
-    // ক্লিয়ার করা পুরনো অপশন (প্রথম "সব আগে..." ছাড়া)
-    while(selectEl.options.length > 1) {
-        selectEl.remove(1);
-    }
-
-    let foundCats = {}; // ইউনিক ক্যাটাগরি রাখার জন্য অবজেক্ট
-
-    // ১. Global Categories (category-menu.js থেকে ট্রাই করা)
-    try {
-        if(window.MJHCatMenu && Array.isArray(window.MJHCatMenu)) {
-            window.MJHCatMenu.forEach(item => {
-                if(item.id && item.name) foundCats[item.id] = item.name;
-            });
-        } else {
-            // যদি গ্লোবাল ভ্যারিয়েবল না থাকে, তবে ফাইল থেকে ফেচ করা যাবে (অপশনাল)
-            // বর্তমানে আমরা ধরে নিচ্ছি মেইন অ্যাডমিন পেজে এটি লোড হয়েছে
-        }
-    } catch(e) { console.warn("Global cat load skipped:", e); }
-
-    // ২. Firebase Categories নোড
+    renderHomeCats();
     try {
         const res = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/categories.json');
         const cats = await res.json();
-        if(cats) {
-            Object.keys(cats).forEach(key => {
-                const c = cats[key];
-                if(c.active !== false && c.name) { 
-                    foundCats[key] = c.name;
-                }
+        const box = document.getElementById('menuCatList');
+        if(cats && box) {
+            let html='';
+            Object.keys(cats).sort(function(a,b){var na=(cats[a].name||a),nb=(cats[b].name||b);return na.localeCompare(nb);}).forEach(function(key){
+                var c=cats[key];
+                if(c.active!==false && c.name){html+='<div onclick="pickMenuCat(\''+key+'\')" style="padding:7px 6px;border-bottom:1px solid #262626;cursor:pointer;font-size:13px">'+c.name+'</div>';}
             });
+            box.innerHTML=html||'<p style="color:#888">ক্যাটাগরি পাওয়া যায়নি</p>';
         }
-    } catch(e) { console.error("Firebase Cat error:", e); }
-
-    // ৩. Current Products থেকে categoryId চেক করা (ডাইনামিক সাপোর্ট)
-    try {
-        const prodRes = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/productsPage/items.json');
-        const prods = await prodRes.json();
-        if(prods) {
-            Object.values(prods).forEach(p => {
-                if(p.categoryId && !foundCats[p.categoryId]) {
-                    // নাম না জানলে ID-টাই নাম হিসেবে দেওয়া হলো
-                    foundCats[p.categoryId] = p.categoryId.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
-                }
-            });
-        }
-    } catch(e) {}
-
-    // ড্রপডাউনে সব ক্যাটাগরি যোগ করা
-    Object.keys(foundCats).sort().forEach(key => {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = foundCats[key];
-        selectEl.appendChild(opt);
-    });
+    } catch(e) { console.error("Cat load error:", e); }
 };
+window.pickMenuCat=function(key){document.getElementById('catPickerBtn').textContent='📂 লোড হচ্ছে...';document.getElementById('catPanel').style.display='none';loadProductsByCategory(key);};
 
 window.loadProductsByCategory = async function(catId) {
     const container = document.getElementById('product-list-container');
