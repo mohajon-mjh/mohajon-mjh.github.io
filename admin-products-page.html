@@ -350,7 +350,7 @@ window.saveProduct=async function(e){
         if(mSnap.exists()){ await update(ref(db,"products/"+editingId), masterUpdateData); }
         else { masterUpdateData.createdAt=Date.now(); await set(ref(db,"products/"+editingId), masterUpdateData); }
       }catch(me){ console.warn("Master sync skipped:", me.message); showStatus("⚠️ পণ্য সেভ হয়েছে, তবে master sync: "+me.message,"error"); }
-      if(window.__sectionPath){ try{ await set(ref(db, window.__sectionPath+"/"+editingId), {id:editingId, addedAt:Date.now()}); showStatus("✅ সেভ + হোমপেজ সেকশনে অ্যাসাইন হয়েছে!","success"); }catch(e){} }
+      if(window.__sectionPath){ try{ await set(ref(db, window.__sectionPath+"/"+editingId), {id:editingId, addedAt:Date.now(), price:parseFloat(gv("p_price",gd("p_price")))||0, discount:parseFloat(gv("p_discount",gd("p_discount")))||0, discountPrice:(parseFloat(gv("p_price",gd("p_price")))||0)*(1-(parseFloat(gv("p_discount",gd("p_discount")))||0)/100), image:firstImage, images:{main:firstImage}, title:nameVal, stock:100, startDate:"", endDate:""}); showStatus("✅ সেভ + হোমপেজ সেকশনে অ্যাসাইন হয়েছে!","success"); }catch(e){} }
 
       showStatus("✅ আপডেট হয়েছে!","success");alert("✅ আপডেট সেভ হয়েছে!");
     }else{
