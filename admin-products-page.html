@@ -346,6 +346,7 @@ window.saveProduct=async function(e){
         if(mSnap.exists()){ await update(ref(db,"products/"+editingId), masterUpdateData); }
         else { masterUpdateData.createdAt=Date.now(); await set(ref(db,"products/"+editingId), masterUpdateData); }
       }catch(me){ console.warn("Master sync skipped:", me.message); showStatus("⚠️ পণ্য সেভ হয়েছে, তবে master sync: "+me.message,"error"); }
+      if(window.__sectionPath){ try{ await set(ref(db, window.__sectionPath+"/"+editingId), {id:editingId, addedAt:Date.now()}); showStatus("✅ সেভ + হোমপেজ সেকশনে অ্যাসাইন হয়েছে!","success"); }catch(e){} }
 
       showStatus("✅ আপডেট হয়েছে!","success");alert("✅ আপডেট সেভ হয়েছে!");
     }else{
@@ -593,25 +594,34 @@ const HOME_CATS=[
 ];
 function renderHomeCats(){var box=document.getElementById('homeCatList');if(!box)return;var html='';HOME_CATS.forEach(function(gr){html+='<div style="color:#8ab4f8;font-weight:700;margin:8px 0 4px;font-size:13px">'+gr.g+'</div>';gr.items.forEach(function(it){html+='<div onclick="pickHomeCat(\''+it[0]+'\')" style="padding:7px 6px;border-bottom:1px solid #262626;cursor:pointer;font-size:13px">'+it[1]+'</div>';});});box.innerHTML=html;}
 window.pickHomeCat=function(slug){document.getElementById('catPickerBtn').textContent='📂 '+slug.replace(/_/g,' ');document.getElementById('catPanel').style.display='none';loadHomeCategory(slug);};
-window.loadHomeCategory=async function(slug){var loading=document.getElementById('loading-msg');var container=document.getElementById('product-list-container');loading.style.display='block';container.style.display='none';
-try{var url='https://mohajon-mjh-default-rtdb.firebaseio.com/products.json?orderBy=%22categoryId%22&equalTo=%22'+slug+'%22';var res=await fetch(url);var data=await res.json();
-if(!data||Object.keys(data).length===0){var res2=await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/productsPage/items.json');var items=await res2.json();data={};if(items){Object.keys(items).forEach(function(k){var p=items[k];if(p.filterTag===slug||p.group===slug||p.categoryId===slug){data[k]=p;}});}}
-renderProductTable(data||{});}catch(e){alert('Error: '+e.message);loading.style.display='none';}};
-window.loadCategories = async function() {
-    renderHomeCats();
-    try {
-        const res = await fetch('https://mohajon-mjh-default-rtdb.firebaseio.com/categories.json');
-        const cats = await res.json();
-        const box = document.getElementById('menuCatList');
-        if(cats && box) {
-            let html='';
-            Object.keys(cats).sort(function(a,b){var na=(cats[a].name||a),nb=(cats[b].name||b);return na.localeCompare(nb);}).forEach(function(key){
-                var c=cats[key];
-                if(c.active!==false && c.name){html+='<div onclick="pickMenuCat(\''+key+'\')" style="padding:7px 6px;border-bottom:1px solid #262626;cursor:pointer;font-size:13px">'+c.name+'</div>';}
-            });
-            box.innerHTML=html||'<p style="color:#888">ক্যাটাগরি পাওয়া যায়নি</p>';
-        }
-    } catch(e) { console.error("Cat load error:", e); }
+window.__sectionPath=null;
+window.loadHomeCategory=async function(slug){
+  var loading=document.getElementById('loading-msg');var container=document.getElementById('product-list-container');
+  loading.style.display='block';container.style.display='none';
+  var DBB="https://mohajon-mjh-default-rtdb.firebaseio.com/";
+  var dealMap={recommended:"d_rec",new_arrivals:"d_new",top_rated:"d_top",best_sellers:"d_best"};
+  var cands=[];
+  if(dealMap[slug])cands.push("settings/dealsOfDayCategoryProducts/"+dealMap[slug]);
+  ["flashSaleCategoryProducts","megaOffersCategoryProducts","clearanceOutletCategoryProducts","comboOffersCategoryProducts","customSectionProducts","everydayLowPriceCategoryProducts","specialCategoryProducts"].forEach(function(n){cands.push("settings/"+n+"/"+slug);});
+  var data=null,foundPath=null;
+  for(var i=0;i<cands.length;i++){
+    try{
+      var m=await (await fetch(DBB+cands[i]+".json")).json();
+      if(m&&typeof m==="object"&&Object.keys(m).length>0){
+        foundPath=cands[i]; data={};
+        var ids=Object.keys(m).map(function(k){return (m[k]&&m[k].id)||k;});
+        var res=await Promise.all(ids.map(function(pid){return fetch(DBB+"products/"+encodeURIComponent(pid)+".json").then(function(r){return r.json();});}));
+        ids.forEach(function(pid,j){ if(res[j]) data[pid]=res[j]; });
+        if(Object.keys(data).length>0) break; else {data=null;foundPath=null;}
+      }
+    }catch(e){}
+  }
+  if(!data){ try{ var r=await fetch(DBB+'products.json?orderBy=%22categoryId%22&equalTo=%22'+slug+'%22'); data=await r.json(); }catch(e){} }
+  if(!data||Object.keys(data).length===0){
+    try{ var r2=await fetch(DBB+'productsPage/items.json'); var items=await r2.json(); data={}; if(items){ Object.keys(items).forEach(function(k){ var p=items[k]; if(p.filterTag===slug||p.group===slug||p.categoryId===slug){ data[k]=p; } }); } }catch(e){}
+  }
+  window.__sectionPath=foundPath;
+  renderProductTable(data||{});
 };
 window.pickMenuCat=function(key){document.getElementById('catPickerBtn').textContent='📂 লোড হচ্ছে...';document.getElementById('catPanel').style.display='none';loadProductsByCategory(key);};
 
