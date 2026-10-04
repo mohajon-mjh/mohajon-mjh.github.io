@@ -107,6 +107,7 @@ hr{border-color:#444;margin:20px 0}
 <h3>🎨 কালার-অনুযায়ী ছবি (Color-wise Images)</h3>
 <div id="colorBox"></div>
 <button type="button" class="btn btn-add" onclick="addColor()">➕ নতুন কালার যোগ</button>
+<button type="button" class="btn" style="background:#8e44ad" onclick="importColors()">📋 কালার আমদানি (অন্য পণ্য থেকে)</button>
 
 <hr>
 <h3>📸 অতিরিক্ত ছবি (Unlimited)</h3>
@@ -446,7 +447,8 @@ window.editProduct=function(id){
 
 window.deleteProduct=async function(id){
   if(confirm("এই পণ্য ডিলিট করতে চান?")){
-    try{await remove(ref(db,"productsPage/items/"+id));}catch(e){}
+    try{await remove(ref(db,"productsPage/items/"+id));
+    try{ await remove(ref(db,"products/"+id)); }catch(e){}}catch(e){}
     try{await remove(ref(db,"products/"+id));}catch(e){}
     loadProducts();
     showStatus("🗑️ ডিলিট হয়েছে!","success");
@@ -467,6 +469,19 @@ window.splitColor=function(ci){
   currentColors.splice(ci,1,...newBlocks);
   renderColors();
   showStatus("✅ "+names.length+"টি কালার আলাদা হয়েছে! ছবিগুলো ক্রমে বসেছে—বাকিগুলোর ছবি আপলোড করুন।","success");
+};
+
+window.importColors=async function(){
+  var src=prompt("উৎস পণ্যের ID লিখুন (যেমন: -P3-v8ankDWrFIbWoGOS):");
+  if(!src)return;
+  try{
+    var d=await (await fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/productsPage/items/"+encodeURIComponent(src)+".json")).json();
+    var cols=(d&&d.colors)||null;
+    if(!cols||!cols.length){alert("❌ উৎসে কালার নেই!");return;}
+    currentColors=JSON.parse(JSON.stringify(cols));
+    renderColors();
+    showStatus("✅ "+cols.length+"টি কালার + ছবি আমদানি হয়েছে! এখন 💾 সেভ করুন।","success");
+  }catch(e){alert("❌ "+e.message);}
 };
 
 window.addColor=function(){

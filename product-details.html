@@ -158,12 +158,12 @@ function render(P){
  if(!imgs.length)imgs=["https://dummyimage.com/380x380/eeeeee/555&text=MJH"];
  var price=+P.price||0;
  var discountPercent=+P.discountPercent||0;
- var old=+P.discountPrice||0;
+ var __base=Math.max(+P.price||0,+P.marketPrice||0,+P.discountPrice||0);var old=(discountPercent>0)?__base:0;
  var hasOld=false;
  var disc=0;
  if(discountPercent>0){
    old=price;
-   price=price*(1-discountPercent/100);
+   price=__base*(1-discountPercent/100);
    hasOld=true;
    disc=discountPercent;
  } else if(old>0&&old>price){
@@ -435,7 +435,7 @@ function enhanceGalleryLate(P){
  var id=decodeURIComponent(m[1]);
  var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
  function slug(t){return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
- Promise.all([fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}),fetch(DB+"/productsPage/items/"+encodeURIComponent(id)+".json").then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})]).then(function(rr){var p=rr[0];var pn=rr[1];if((!p||!p.title)&&pn){pn.title=pn.title||pn.name;if(!pn.images||!pn.images.main){var m="";if(Array.isArray(pn.images)&&pn.images[0])m=(typeof pn.images[0]==="string")?pn.images[0]:(pn.images[0].url||"");else if(pn.colors&&pn.colors[0]&&pn.colors[0].images&&pn.colors[0].images[0])m=pn.colors[0].images[0];pn.images={main:m};}pn.status=pn.status||"active";p=pn;}return p;}).then(function(p){
+ Promise.all([fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.json();}),fetch(DB+"/productsPage/items/"+encodeURIComponent(id)+".json").then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})]).then(function(rr){var p=rr[0];var pn=rr[1];if((!p||!p.title)&&pn){pn.title=pn.title||pn.name;if(!pn.images||!pn.images.main){var m="";if(Array.isArray(pn.images)&&pn.images[0])m=(typeof pn.images[0]==="string")?pn.images[0]:(pn.images[0].url||"");else if(pn.colors&&pn.colors[0]&&pn.colors[0].images&&pn.colors[0].images[0])m=pn.colors[0].images[0];pn.images={main:m};}pn.status=pn.status||"active";p=pn;} if(pn&&pn.colors&&pn.colors.length){p.colors=pn.colors;} return p;}).then(function(p){
   if(!p||!p.title)return;
   var slugTitle=slug(p.title);
    fetch("assets/products/"+slugTitle+"/media.json").then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(mj){
@@ -589,7 +589,7 @@ run();
   var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
   wait(function(){return q("#mainImg");},function(){
     var mi=q("#mainImg");
-    if(mi){mi.style.cssText+=";width:100%;height:auto;max-height:75vh;object-fit:contain;background:#fff;border-radius:8px";}
+    if(mi){mi.style.cssText+=";width:100%;height:auto;max-height:75vh;object-fit:cover;background:#fff;border-radius:8px";}
     Promise.all([
       fetch(DB+"/products/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;}),
       fetch(DB+"/productsPage/items/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;})
@@ -629,8 +629,8 @@ run();
         th.innerHTML=colors.map(function(c,i){var im=(c.images&&c.images[0])||"";return '<img src="'+im+'" class="'+(i===0?"on":"")+'" style="width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid '+(i===0?"#e77600":"#ddd")+'" onclick="window.__ccPick('+i+')">';}).join("");
       }
       window.__ccPick=function(i){
-        var c=colors[i];if(!c||!c.images||!c.images[0])return;
-        if(mi)mi.src=c.images[0];
+        var c=colors[i];var __ci=(c&&c.images&&c.images[0])||((Array.isArray(P.images)?P.images[i]:"")||((P.images&&P.images.main)||""));if(!__ci)return;
+        if(mi)mi.src=__ci;
         var ts=document.querySelectorAll(".thumbs img");
         ts.forEach(function(t,ti){t.classList.toggle("on",ti===i);t.style.borderColor=ti===i?"#e77600":"#ddd";});
         var card=document.querySelector('.ccard[data-ci="'+i+'"]');
@@ -841,7 +841,7 @@ function apply(p){
  var img=document.getElementById("mainImg");
  if(img&&p.images&&p.images.main)img.src=p.images.main;
  var h=document.querySelector("h1");if(h&&p.title)h.textContent=p.title;
- var d=p.discountPercent||0;var fin=d>0?(p.price*(100-d)/100):(p.price||0);
+ var d=p.discountPercent||0;var __b2=Math.max(p.price||0,p.marketPrice||0,p.discountPrice||0);var fin=d>0?(__b2*(100-d)/100):(p.price||0);
  var pb=document.querySelector(".price-big");if(pb)pb.textContent=fin.toFixed(2)+" ৳";
  var bb=document.querySelector(".bb-price");if(bb)bb.textContent=fin.toFixed(2)+" ৳";
  var opts=document.querySelectorAll(".opt img, .thumb img");
