@@ -593,12 +593,12 @@ run();
   var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
   wait(function(){return q("#mainImg");},function(){
     var mi=q("#mainImg");
-    if(mi){mi.style.cssText+=";width:100%;height:auto;max-height:75vh;object-fit:cover;background:#fff;border-radius:8px";}
+    if(mi){mi.style.cssText+=";width:100%;height:auto;max-height:75vh;object-fit:contain;background:#fff;border-radius:8px";if(mi.parentNode){mi.parentNode.style.background="#fff";mi.parentNode.style.textAlign="center";}}
     Promise.all([
       fetch(DB+"/products/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;}),
       fetch(DB+"/productsPage/items/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;})
     ]).then(function(rr){
-      var P=(rr[0]&&rr[0].title)?rr[0]:(rr[1]||rr[0]||{});if(rr[1]&&rr[1].colors&&rr[1].colors.length){P.colors=rr[1].colors;}
+      var P=(rr[0]&&rr[0].title)?rr[0]:(rr[1]||rr[0]||{});if(rr[1]&&rr[1].colors&&rr[1].colors.length){P.colors=rr[1].colors;} if(P.colors&&P.colors.length){P.colors=P.colors.filter(function(c){return c&&c.name&&String(c.name).length<60;});}
       // Auto-split string colors into array objects
       let rawColors = P.colors;
       if(typeof rawColors === "string" && (rawColors.includes(",") || rawColors.includes("\n"))) {
@@ -617,7 +617,7 @@ run();
       if(wrap){
         var html='<h3 style="margin:4px 0 8px;font-size:15px;font-weight:700">🎨 Available Colors</h3><div id="colorCarousel" style="display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scroll-behavior:smooth">';
         colors.forEach(function(c,i){
-          var im=(c.images&&c.images[0])||"";
+          var im=(c.images&&c.images[0])||"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><rect width='150' height='150' fill='%23eeeeee'/><text x='75' y='80' font-size='14' text-anchor='middle' fill='%23999'>No Img</text></svg>";
           html+='<div class="ccard" data-ci="'+i+'" style="min-width:150px;max-width:150px;border:1px solid #ddd;border-radius:8px;padding:8px;background:#fff;text-align:center">'+
             '<img src="'+im+'" style="width:100%;height:150px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="window.__ccPick('+i+')">'+
             '<div style="font-size:12px;font-weight:600;margin:6px 0">'+(c.name||"Color "+(i+1))+'</div>'+
@@ -630,7 +630,7 @@ run();
       var th=q(".thumbs");
       if(th){
         th.style.cssText="display:flex;flex-direction:column;gap:6px;overflow:visible;flex:none";
-        th.innerHTML=colors.map(function(c,i){var im=(c.images&&c.images[0])||"";return '<img src="'+im+'" class="'+(i===0?"on":"")+'" style="width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid '+(i===0?"#e77600":"#ddd")+'" onclick="window.__ccPick('+i+')">';}).join("");
+        th.innerHTML=colors.map(function(c,i){var im=(c.images&&c.images[0])||"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><rect width='150' height='150' fill='%23eeeeee'/><text x='75' y='80' font-size='14' text-anchor='middle' fill='%23999'>No Img</text></svg>";return '<img src="'+im+'" class="'+(i===0?"on":"")+'" style="width:56px;height:56px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid '+(i===0?"#e77600":"#ddd")+'" onclick="window.__ccPick('+i+')">';}).join("");
       }
       window.__ccPick=function(i){
         var c=colors[i];var __ci=(c&&c.images&&c.images[0])||((Array.isArray(P.images)?P.images[i]:"")||((P.images&&P.images.main)||""));if(!__ci)return;
