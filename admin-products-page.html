@@ -121,6 +121,9 @@ hr{border-color:#444;margin:20px 0}
 <input type="text" id="relSearch" placeholder="🔍 পণ্য খুঁজুন..." oninput="filterRelList(this.value)">
 <div id="relPicker" style="max-height:220px;overflow:auto;border:1px solid #333;border-radius:6px;padding:6px"></div>
 
+<label>🏷️ Brand</label>
+<input type="text" id="p_brand" placeholder="যেমন: Tangail Sharee, Mohajon MJH...">
+<button type="button" class="btn" style="background:#9b59b6" onclick="autoFillSpecs()">✨ অটো-ফিল Specifications/Highlights</button>
 <label>📋 Specifications</label>
 <textarea id="p_specs" placeholder="Brand: XYZ&#10;Material: Cotton"></textarea>
 
@@ -277,6 +280,17 @@ var ORIGMAP={p_name:"name",p_price:"price",p_discount:"discount",p_coins:"coinsS
 function gd(id){var O=window.__orig||{};var k=ORIGMAP[id];return (k&&O[k]!==undefined)?O[k]:"";}
 window.filterProdList=function(q){q=(q||"").toLowerCase();var items=document.querySelectorAll(".product-item");items.forEach(function(el){el.style.display=((el.textContent||"").toLowerCase().indexOf(q)>-1)?"":"none";});};
 
+window.autoFillSpecs=function(){
+  var O=window.__orig||{};
+  var brand=(gv("p_brand","")||O.brand||"").trim();
+  var name=(gv("p_name","")||O.name||O.title||"").trim();
+  if(!brand) brand=name||"Mohajon MJH";
+  var specs="Brand: "+brand+"\nMaterial: Premium Quality\nLength: Not specified\nWidth: Not specified\nCare: Hand wash only\nCountry: Bangladesh";
+  var hl="- "+name+"\n- প্রিমিয়াম কোয়ালিটি প্রোডাক্ট\n- সারা বাংলাদেশে ক্যাশ অন ডেলিভারি\n- ৭ দিনের ইজি রিটার্ন";
+  sv("p_specs",specs); sv("p_highlights",hl);
+  showStatus("✨ অটো-ফিল হয়েছে! প্রয়োজনে এডিট করে নিও।","success");
+};
+
 window.saveProduct=async function(e){
   e.preventDefault();
   var firstImage=window.__mainImage||"";
@@ -293,6 +307,7 @@ window.saveProduct=async function(e){
     rating:parseFloat(gv("p_rating",gd("p_rating")))||4.0,
     soldCount:parseInt(gv("p_sold",gd("p_sold")))||0,
     badge:gv("p_badge",gd("p_badge")),
+    brand:gv("p_brand",gd("p_brand")),
     filterTag:filterVal,
     source:gv("p_source",gd("p_source")),
     images:allImgs,
@@ -326,7 +341,11 @@ window.saveProduct=async function(e){
         discountPercent: parseFloat(gv("p_discount",gd("p_discount")))||0,
         updatedAt: Date.now()
       };
-      await update(ref(db,"products/"+editingId), masterUpdateData);
+      try{
+        const mSnap=await get(ref(db,"products/"+editingId));
+        if(mSnap.exists()){ await update(ref(db,"products/"+editingId), masterUpdateData); }
+        else { masterUpdateData.createdAt=Date.now(); await set(ref(db,"products/"+editingId), masterUpdateData); }
+      }catch(me){ console.warn("Master sync skipped:", me.message); showStatus("⚠️ পণ্য সেভ হয়েছে, তবে master sync: "+me.message,"error"); }
 
       showStatus("✅ আপডেট হয়েছে!","success");alert("✅ আপডেট সেভ হয়েছে!");
     }else{
@@ -349,7 +368,7 @@ window.saveProduct=async function(e){
         updatedAt: Date.now(),
         createdAt: Date.now()
       };
-      await set(ref(db,"products/"+newRef.key), masterNewData);
+      try{ await set(ref(db,"products/"+newRef.key), masterNewData); }catch(me){ console.warn("Master sync skipped:", me.message); showStatus("⚠️ পণ্য সেভ হয়েছে, তবে master sync: "+me.message,"error"); }
 
       showStatus("✅ নতুন পণ্য যোগ হয়েছে! Related এ অটো আসবে","success");
       resetForm();
@@ -404,6 +423,8 @@ window.editProduct=function(id){
     sv("p_filter",p.filterTag||"all");
     sv("p_source",p.source||"product-details");
     sv("p_specs",p.specifications||"");
+    sv("p_brand",p.brand||"");
+    if(!p.specifications){ autoFillSpecs(); }
     sv("p_highlights",p.highlights||"");
     currentColors=p.colors||[];
     sv("p_group",p.group||"");
@@ -420,7 +441,9 @@ window.editProduct=function(id){
 
 window.deleteProduct=async function(id){
   if(confirm("এই পণ্য ডিলিট করতে চান?")){
-    await remove(ref(db,"productsPage/items/"+id));
+    try{await remove(ref(db,"productsPage/items/"+id));}catch(e){}
+    try{await remove(ref(db,"products/"+id));}catch(e){}
+    loadProducts();
     showStatus("🗑️ ডিলিট হয়েছে!","success");
   }
 };
