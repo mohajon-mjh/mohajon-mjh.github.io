@@ -598,7 +598,7 @@ run();
       fetch(DB+"/products/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;}),
       fetch(DB+"/productsPage/items/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;})
     ]).then(function(rr){
-      var P=(rr[0]&&rr[0].title)?rr[0]:(rr[1]||rr[0]||{});
+      var P=(rr[0]&&rr[0].title)?rr[0]:(rr[1]||rr[0]||{});if(rr[1]&&rr[1].colors&&rr[1].colors.length){P.colors=rr[1].colors;}
       // Auto-split string colors into array objects
       let rawColors = P.colors;
       if(typeof rawColors === "string" && (rawColors.includes(",") || rawColors.includes("\n"))) {
