@@ -503,7 +503,7 @@ function renderColors(){
     div.className="color-block";
     div.innerHTML=`
       <div class="color-header">
-        <strong>🎨 ${c.name} (${c.images.length} ছবি)</strong>
+        <strong>🎨 ${c.name} (${(c.images||[]).length} ছবি)</strong>
         <button type="button" class="btn" style="background:#3498db" onclick="splitColor(${ci})">🔀 ভাগ</button>
         <button type="button" class="btn btn-del" onclick="removeColor(${ci})">🗑️ কালার</button>
       </div>
