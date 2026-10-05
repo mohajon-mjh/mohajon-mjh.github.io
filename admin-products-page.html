@@ -110,6 +110,13 @@ hr{border-color:#444;margin:20px 0}
 <button type="button" class="btn" style="background:#8e44ad" onclick="importColors()">📋 কালার আমদানি (অন্য পণ্য থেকে)</button>
 
 <hr>
+<h3>🎛️ UI Design (ছবির সাইজ — প্রোডাক্ট পেজে প্রয়োগ হবে)</h3>
+<div class="grid-2">
+<div><label>মেইন ছবির উচ্চতা (যেমন: 70vh বা 500px)</label><input type="text" id="ui_main_h" placeholder="70vh"></div>
+<div><label>মেইন ছবির প্রস্থ (যেমন: 100%)</label><input type="text" id="ui_main_w" placeholder="100%"></div>
+<div><label>থাম্বনেইল সাইজ (px)</label><input type="number" id="ui_thumb_px" placeholder="56"></div>
+<div><label>ফিট মোড</label><select id="ui_fit"><option value="contain">contain (সম্পূর্ণ ছবি)</option><option value="cover">cover (কাটা)</option></select></div>
+</div>
 <h3>📸 অতিরিক্ত ছবি (Unlimited)</h3>
 <div id="extraBox"></div>
 <hr>
@@ -313,6 +320,7 @@ window.saveProduct=async function(e){
     soldCount:parseInt(gv("p_sold",gd("p_sold")))||0,
     badge:gv("p_badge",gd("p_badge")),
     brand:gv("p_brand",gd("p_brand")),
+    ui:{mainH:gv("ui_main_h",""),mainW:gv("ui_main_w",""),thumbPx:parseInt(gv("ui_thumb_px",""))||0,fit:gv("ui_fit","contain")},
     filterTag:filterVal,
     source:gv("p_source",gd("p_source")),
     images:allImgs,
@@ -430,6 +438,8 @@ window.editProduct=function(id){
     sv("p_source",p.source||"product-details");
     sv("p_specs",p.specifications||"");
     sv("p_brand",p.brand||"");
+    var ui=p.ui||{};
+    sv("ui_main_h",ui.mainH||"");sv("ui_main_w",ui.mainW||"");sv("ui_thumb_px",ui.thumbPx||"");sv("ui_fit",ui.fit||"contain");
     if(!p.specifications){ autoFillSpecs(); }
     sv("p_highlights",p.highlights||"");
     currentColors=p.colors||[];
