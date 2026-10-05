@@ -593,7 +593,7 @@ run();
   var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
   wait(function(){return q("#mainImg");},function(){
     var mi=q("#mainImg");
-    if(mi){mi.style.cssText+=";width:100%;height:auto;max-height:75vh;object-fit:contain;background:#fff;border-radius:8px";var UI0=P.ui||{};if(UI0.mainH){mi.style.maxHeight=UI0.mainH;mi.style.height=UI0.mainH;}if(UI0.mainW){mi.style.width=UI0.mainW;}if(UI0.fit){mi.style.objectFit=UI0.fit;}if(mi.parentNode){mi.parentNode.style.background="#fff";mi.parentNode.style.textAlign="center";}}
+    if(mi){mi.style.cssText+=";width:100%;height:auto;max-height:75vh;object-fit:contain;background:#fff;border-radius:8px";if(mi.parentNode){mi.parentNode.style.background="#fff";mi.parentNode.style.textAlign="center";}}
     Promise.all([
       fetch(DB+"/products/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;}),
       fetch(DB+"/productsPage/items/"+id+".json").then(function(r){return r.json();}).catch(function(){return null;})
@@ -610,7 +610,7 @@ run();
         }));
         P.colors = rawColors; // Update object immediately
       }
-      var colors=P.colors||[];
+      var colors=P.colors||[];var UI0=P.ui||{};if(mi){if(UI0.mainH){mi.style.maxHeight=UI0.mainH;mi.style.height=UI0.mainH;}if(UI0.mainW){mi.style.width=UI0.mainW;}if(UI0.fit){mi.style.objectFit=UI0.fit;}}
       if(!colors.length)return;
       var price=+P.price||0;
       var wrap=q("#colorCarouselWrap");
