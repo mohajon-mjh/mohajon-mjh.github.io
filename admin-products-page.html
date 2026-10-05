@@ -116,6 +116,8 @@ hr{border-color:#444;margin:20px 0}
 <div><label>মেইন ছবির প্রস্থ (যেমন: 100%)</label><input type="text" id="ui_main_w" placeholder="100%"></div>
 <div><label>থাম্বনেইল সাইজ (px)</label><input type="number" id="ui_thumb_px" placeholder="56"></div>
 <div><label>ফিট মোড</label><select id="ui_fit"><option value="contain">contain (সম্পূর্ণ ছবি)</option><option value="cover">cover (কাটা)</option></select></div>
+<div><label>🛒 বাটনের ফন্ট সাইজ (px)</label><input type="number" id="ui_btn_px" placeholder="14"></div>
+<div><label>📝 বিবরণের ফন্ট সাইজ (px)</label><input type="number" id="ui_desc_px" placeholder="13"></div>
 </div>
 <h3>📸 অতিরিক্ত ছবি (Unlimited)</h3>
 <div id="extraBox"></div>
@@ -320,7 +322,7 @@ window.saveProduct=async function(e){
     soldCount:parseInt(gv("p_sold",gd("p_sold")))||0,
     badge:gv("p_badge",gd("p_badge")),
     brand:gv("p_brand",gd("p_brand")),
-    ui:{mainH:gv("ui_main_h",""),mainW:gv("ui_main_w",""),thumbPx:parseInt(gv("ui_thumb_px",""))||0,fit:gv("ui_fit","contain")},
+    ui:{mainH:gv("ui_main_h",""),mainW:gv("ui_main_w",""),thumbPx:parseInt(gv("ui_thumb_px",""))||0,fit:gv("ui_fit","contain"),btnPx:parseInt(gv("ui_btn_px",""))||0,descPx:parseInt(gv("ui_desc_px",""))||0},
     filterTag:filterVal,
     source:gv("p_source",gd("p_source")),
     images:allImgs,
@@ -439,7 +441,7 @@ window.editProduct=function(id){
     sv("p_specs",p.specifications||"");
     sv("p_brand",p.brand||"");
     var ui=p.ui||{};
-    sv("ui_main_h",ui.mainH||"");sv("ui_main_w",ui.mainW||"");sv("ui_thumb_px",ui.thumbPx||"");sv("ui_fit",ui.fit||"contain");
+    sv("ui_main_h",ui.mainH||"");sv("ui_main_w",ui.mainW||"");sv("ui_thumb_px",ui.thumbPx||"");sv("ui_fit",ui.fit||"contain");sv("ui_btn_px",ui.btnPx||"");sv("ui_desc_px",ui.descPx||"");
     if(!p.specifications){ autoFillSpecs(); }
     sv("p_highlights",p.highlights||"");
     currentColors=p.colors||[];

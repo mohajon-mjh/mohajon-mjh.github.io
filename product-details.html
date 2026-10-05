@@ -619,7 +619,7 @@ run();
         html+='</div>';
         wrap.innerHTML=html;
       }
-      var TPX=(P.ui&&P.ui.thumbPx)||56;var stx=document.getElementById("mjhTpxStyle");if(!stx){stx=document.createElement("style");stx.id="mjhTpxStyle";document.head.appendChild(stx);}stx.textContent=".thumbs img{width:"+TPX+"px!important;height:"+TPX+"px!important}";
+      var TPX=(P.ui&&P.ui.thumbPx)||56;var stx=document.getElementById("mjhTpxStyle");if(!stx){stx=document.createElement("style");stx.id="mjhTpxStyle";document.head.appendChild(stx);}stx.textContent=".thumbs img{width:"+TPX+"px!important;height:"+TPX+"px!important}";var BPX=(P.ui&&P.ui.btnPx)||0;var DPX=(P.ui&&P.ui.descPx)||0;var st2=document.getElementById("mjhUiExtra");if(!st2){st2=document.createElement("style");st2.id="mjhUiExtra";document.head.appendChild(st2);}var css2="";if(BPX){css2+=".btn-y,.btn-o,#qAddBtn,#qBuyBtn,.ccard button{font-size:"+BPX+"px!important}";}if(DPX){css2+=".desc p,.desc{font-size:"+DPX+"px!important}";}st2.textContent=css2;
       var th=q(".thumbs");
       if(th){
         th.style.cssText="display:flex;flex-direction:column;gap:6px;overflow:visible;flex:none";
