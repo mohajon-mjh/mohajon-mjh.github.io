@@ -394,7 +394,11 @@ function enhanceGalleryLate(P){
 
 (async function(){
  try{var r=await fetch("https://open.er-api.com/v6/latest/USD");var j=await r.json();if(j&&j.rates&&j.rates.BDT){var B=j.rates.BDT;RATES={BDT:1,SAR:(j.rates.SAR||3.75)/B,USD:1/B,EUR:(j.rates.EUR||0.92)/B,GBP:(j.rates.GBP||0.79)/B,AED:(j.rates.AED||3.67)/B};}}catch(e){}
- try{var P=await (await fetch(DB+"/products/"+id+".json")).json();render(P);loadRelatedProducts(P.categoryId,id);checkWishlist();setTimeout(function(){enhanceGalleryLate(P);},1200);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error প্রস্তুত হচ্ছে product</div>';}
+ try{var P0=null,P1=null;try{P0=await (await fetch(DB+"/products/"+id+".json")).json();}catch(e){} try{P1=await (await fetch(DB+"/productsPage/items/"+id+".json")).json();}catch(e){}
+var P=(P0&&P0.title)?P0:(P1||P0);
+if(!P||!P.title){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">প্রোডাক্ট পাওয়া যায়নি</div>';return;}
+if(P1){if(P1.title)P.title=P1.title;if(P1.price!=null){P.price=P1.price;P.discountPercent=0;P.discountPrice=0;}if(P1.marketPrice!=null)P.marketPrice=P1.marketPrice;if(P1.colors&&P1.colors.length)P.colors=P1.colors;if(P1.categoryId)P.categoryId=P1.categoryId;if(!P.images&&P1.images)P.images=P1.images;}
+render(P);loadRelatedProducts(P.categoryId,id);checkWishlist();setTimeout(function(){if(window.enhanceGalleryLate)enhanceGalleryLate(P);},1200);}catch(e){document.getElementById("content").innerHTML='<div style="padding:40px;text-align:center;background:#fff;border-radius:8px">Error প্রস্তুত হচ্ছে product</div>';}
 })();
 </script>
 
@@ -829,7 +833,7 @@ var w=0;var t=setInterval(function(){w++;
 var m=location.search.match(/id=([^&]+)/);if(!m)return;
 var id=decodeURIComponent(m[1]);
 var DB="https://mohajon-mjh-default-rtdb.firebaseio.com";
-function apply(p){
+function apply(p){return;
  if(!p)return;
  var img=document.getElementById("mainImg");
  if(img&&p.images&&p.images.main)img.src=p.images.main;
