@@ -845,3 +845,26 @@ fetch(DB+"/products/"+encodeURIComponent(id)+".json").then(function(r){return r.
 })();
 </script>
 
+<script>/*mjhGalFinal v1 - ultimate layout controller*/
+(function(){
+function run(){
+ var gal=document.querySelector(".gal");
+ var th=document.querySelector(".thumbs");
+ var mi=document.getElementById("mainImg");
+ if(!gal||!mi)return setTimeout(run,500);
+ var box=mi.parentNode;
+ var main=document.querySelector(".main");
+ if(main)main.style.cssText="display:block;width:100%";
+ gal.style.cssText="display:flex;flex-direction:row;gap:8px;align-items:flex-start;width:100%";
+ if(th)th.style.cssText="display:flex;flex-direction:column;gap:6px;flex:0 0 56px;order:-1";
+ if(box)box.style.cssText="width:33.33%;min-width:120px;background:#fff;overflow:hidden;display:block";
+ mi.style.cssText="width:100%;height:auto;max-height:75vh;object-fit:contain;transform:none;display:block;margin:0";
+ if(!document.getElementById("mjhGalFinalCss")){
+  var s=document.createElement("style");s.id="mjhGalFinalCss";
+  s.textContent=".main{display:block!important}.main-img img:hover{transform:none!important}.thumbs img{width:56px!important;height:56px!important}";
+  document.head.appendChild(s);
+ }
+}
+run();setTimeout(run,1200);setTimeout(run,3000);setTimeout(run,6000);
+})();
+</script>
