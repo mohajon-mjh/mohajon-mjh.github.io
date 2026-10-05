@@ -306,6 +306,7 @@ window.autoFillSpecs=function(){
 };
 
 window.saveProduct=async function(e){
+  function __baseOf(){var ff=parseFloat(gv("p_price",gd("p_price")))||0;var dd=parseFloat(gv("p_discount",gd("p_discount")))||0;return dd>0?(ff/(1-dd/100)):ff;}
   e.preventDefault();
   var firstImage=window.__mainImage||"";
   if(currentColors.length>0 && currentColors[0].images && currentColors[0].images.length>0){ firstImage=currentColors[0].images[0]; }
@@ -345,14 +346,14 @@ window.saveProduct=async function(e){
       const masterUpdateData = {
         sellerId: "admin",
         title: nameVal,
-        price: parseFloat(gv("p_price",gd("p_price"))),
+        price: __baseOf(),
         stock: 100,
         categoryId: filterVal || "default",
         status: "active",
         description: gv("p_highlights",gd("p_highlights")) || "",
         images: { main: firstImage },
-        discountPrice: parseFloat(gv("p_price",gd("p_price"))) * (1 - (parseFloat(gv("p_discount",gd("p_discount")))||0)/100),
-        marketPrice: parseFloat(gv("p_price",gd("p_price"))),
+        discountPrice: parseFloat(gv("p_price",gd("p_price")))||0,
+        marketPrice: __baseOf(),
         discountPercent: parseFloat(gv("p_discount",gd("p_discount")))||0,
         updatedAt: Date.now()
       };
@@ -361,7 +362,7 @@ window.saveProduct=async function(e){
         if(mSnap.exists()){ await update(ref(db,"products/"+editingId), masterUpdateData); }
         else { masterUpdateData.createdAt=Date.now(); await set(ref(db,"products/"+editingId), masterUpdateData); }
       }catch(me){ console.warn("Master sync skipped:", me.message); showStatus("⚠️ পণ্য সেভ হয়েছে, তবে master sync: "+me.message,"error"); }
-      if(window.__sectionPath){ try{ await set(ref(db, window.__sectionPath+"/"+editingId), {id:editingId, addedAt:Date.now(), price:parseFloat(gv("p_price",gd("p_price")))||0, discount:parseFloat(gv("p_discount",gd("p_discount")))||0, discountPrice:(parseFloat(gv("p_price",gd("p_price")))||0)*(1-(parseFloat(gv("p_discount",gd("p_discount")))||0)/100), image:firstImage, images:{main:firstImage}, title:nameVal, stock:100, startDate:"", endDate:""}); showStatus("✅ সেভ + হোমপেজ সেকশনে অ্যাসাইন হয়েছে!","success"); }catch(e){} }
+      if(window.__sectionPath){ try{ await set(ref(db, window.__sectionPath+"/"+editingId), {id:editingId, addedAt:Date.now(), price:__baseOf(), discount:parseFloat(gv("p_discount",gd("p_discount")))||0, discountPrice:parseFloat(gv("p_price",gd("p_price")))||0, image:firstImage, images:{main:firstImage}, title:nameVal, stock:100, startDate:"", endDate:""}); showStatus("✅ সেভ + হোমপেজ সেকশনে অ্যাসাইন হয়েছে!","success"); }catch(e){} }
 
       showStatus("✅ আপডেট হয়েছে!","success");alert("✅ আপডেট সেভ হয়েছে!");
     }else{
@@ -372,14 +373,14 @@ window.saveProduct=async function(e){
       const masterNewData = {
         sellerId: "admin",
         title: nameVal,
-        price: parseFloat(gv("p_price",gd("p_price"))),
+        price: __baseOf(),
         stock: 100,
         categoryId: filterVal || "default",
         status: "active",
         description: gv("p_highlights",gd("p_highlights")) || "",
         images: { main: firstImage },
-        discountPrice: parseFloat(gv("p_price",gd("p_price"))) * (1 - (parseFloat(gv("p_discount",gd("p_discount")))||0)/100),
-        marketPrice: parseFloat(gv("p_price",gd("p_price"))),
+        discountPrice: parseFloat(gv("p_price",gd("p_price")))||0,
+        marketPrice: __baseOf(),
         discountPercent: parseFloat(gv("p_discount",gd("p_discount")))||0,
         updatedAt: Date.now(),
         createdAt: Date.now()
@@ -423,7 +424,7 @@ window.editProduct=function(id){
     if(!p){
       try{
         const mp=await (await fetch("https://mohajon-mjh-default-rtdb.firebaseio.com/products/"+id+".json")).json();
-        if(mp){ p={ name:mp.title||mp.name||"", price:mp.price||0, discount:mp.discountPercent||0, coinsSave:mp.coinsSave||0, rating:mp.rating||4.0, soldCount:mp.soldCount||0, badge:mp.badge||"", filterTag:mp.filterTag||"all", source:mp.source||"product-details", specifications:mp.specifications||"", highlights:mp.highlights||"", colors:mp.colors||[], group:mp.group||"", mainImage:(mp.images&&mp.images.main)||"", images:Array.isArray(mp.images)?mp.images:[], relatedIds:mp.relatedIds||[] }; }
+        if(mp){ p={ name:mp.title||mp.name||"", price:(mp.discountPercent>0?(mp.discountPrice||mp.price):mp.price)||0, discount:mp.discountPercent||0, coinsSave:mp.coinsSave||0, rating:mp.rating||4.0, soldCount:mp.soldCount||0, badge:mp.badge||"", filterTag:mp.filterTag||"all", source:mp.source||"product-details", specifications:mp.specifications||"", highlights:mp.highlights||"", colors:mp.colors||[], group:mp.group||"", mainImage:(mp.images&&mp.images.main)||"", images:Array.isArray(mp.images)?mp.images:[], relatedIds:mp.relatedIds||[] }; }
       }catch(e){ console.error(e); }
     }
     if(!p){ showStatus("❌ পণ্য পাওয়া যায়নি!","error"); return; }
@@ -714,6 +715,7 @@ function renderProductTable(productsObj) {
 
     keys.forEach(id => {
         const p = productsObj[id];
+        const __d=p.discountPercent||p.discount||0; const __fin=__d>0?(p.discountPrice||((p.price||0)*(1-__d/100))):(p.price||0);
         let imgSrc = "";
         if(p.images && p.images.main) imgSrc = p.images.main;
         else if(Array.isArray(p.images) && p.images.length > 0) imgSrc = p.images[0];
@@ -726,7 +728,7 @@ function renderProductTable(productsObj) {
         tr.innerHTML = `
             <td style="padding:10px;"><img src="${imgSrc}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;"></td>
             <td style="padding:10px;">${p.title || p.name}</td>
-            <td style="padding:10px; text-align:right;">৳${p.price}</td>
+            <td style="padding:10px; text-align:right;">৳${__fin}</td>
             <td style="padding:10px; text-align:center;">
                 <button type="button" onclick="openEditMode('${id}', '${(p.title||'').replace(/'/g, "\\'")}')" style="background:#27ae60;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">এডিট</button>
             </td>
