@@ -1,7 +1,6 @@
 User-agent: *
 Allow: /
 
-Disallow: /category-products.html
 Disallow: /cleanup.html
 Disallow: /run-fix.html
 Disallow: /backup.html
