@@ -1,4 +1,6 @@
 (function(){
+if(window.__mjhSmartSearch)return;window.__mjhSmartSearch=1;
+{
 "use strict";
 var DBURL="data/products-search.json";
 var CK="mjh_pcache",CT="mjh_pcache_t";
@@ -25,6 +27,9 @@ function match(p,q){
 function active(p){var s=norm(p.status);return s===""||s==="active"||s==="approved";}
 function render(){
  if(!grid)return;
+ if(!ALL.length){
+  if(!document.getElementById("searchInput").value) return; // Don't clear if ALL is still loading
+ }
  var params=new URLSearchParams(location.search);
  var q=(inp&&inp.value)?inp.value:(params.get("search")||params.get("q")||"");
  var cat=params.get("categoryId");

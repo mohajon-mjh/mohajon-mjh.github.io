@@ -343,6 +343,7 @@ document.getElementById("catBanner").innerText = "Category: " + category;
   
   // fallback: ৩ সেকেন্ড পর grid খালি থাকলে direct fetch
   setTimeout(function(){
+   if(window.__mjhSmartSearch) return; // smart-search.js handles loading
    var grid=document.getElementById("productGrid");
    if(grid && grid.children.length===0){
     console.log("⚠️ Grid empty after 3s, fallback fetch...");
@@ -368,7 +369,7 @@ document.getElementById("catBanner").innerText = "Category: " + category;
 })();
 </script>
 
-<script src="smart-search.js?v=3"></script>
+<script src="smart-search.js?v=5"></script>
 <script src="arrow-system.js?v=50"></script>
 </body>
 </html>
