@@ -465,6 +465,7 @@ document.getElementById("catBanner").innerText = "Category: " + category;
   makeArrow(g);
  }
  function scan(){
+  if(document.getElementById("searchInput") && document.getElementById("searchInput").value.trim()) return;
   var seen={};
   for(var name in CATS){var id=CATS[name];if(seen[id])continue;seen[id]=1;ensure(document.getElementById(id));}
   ["categoryProductsGrid","productGrid","productsGrid","mainGrid"].forEach(function(id){ensure(document.getElementById(id));});
