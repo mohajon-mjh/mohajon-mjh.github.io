@@ -215,6 +215,7 @@
     }
 
     document.addEventListener("productsLoaded", function(e) {
+        if(window.__mjhSmartSearchActive) return; // smart-search.js is primary renderer
         const detail = e.detail || {};
         renderProducts(detail.products || [], detail.reset !== false);
     });

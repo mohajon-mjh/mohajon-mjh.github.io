@@ -1,6 +1,5 @@
 (function(){
 if(window.__mjhSmartSearch)return;window.__mjhSmartSearch=1;
-{
 "use strict";
 var DBURL="data/products-search.json";
 var CK="mjh_pcache",CT="mjh_pcache_t";
@@ -27,9 +26,7 @@ function match(p,q){
 function active(p){var s=norm(p.status);return s===""||s==="active"||s==="approved";}
 function render(){
  if(!grid)return;
- if(!ALL.length){
-  if(!document.getElementById("searchInput").value) return; // Don't clear if ALL is still loading
- }
+ if(!ALL.length){ return; } // ALL not loaded yet: grid untouched
  var params=new URLSearchParams(location.search);
  var q=(inp&&inp.value)?inp.value:(params.get("search")||params.get("q")||"");
  var cat=params.get("categoryId");
@@ -64,6 +61,7 @@ function load(){
  }).catch(function(e){if(grid)grid.innerHTML='<div class="loading-placeholder">❌ '+e.message+'</div>';});
 }
 function init(){
+ window.__mjhSmartSearchActive = true; // Primary renderer flag
  grid=document.getElementById("productGrid");
  inp=document.getElementById("searchInput");
  if(!grid){return setTimeout(init,400);}
